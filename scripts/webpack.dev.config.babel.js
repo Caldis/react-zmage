@@ -28,7 +28,7 @@ export default merge.smart(baseConfig, {
 	],
 
 	output: {
-		path: path.resolve(__dirname, './docs'),
+		path: path.resolve(__dirname, '../docs'),
 		filename: 'bundle.js'
 	},
 

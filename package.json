@@ -66,6 +66,7 @@
   "scripts": {
     "dev": "webpack-dev-server --config ./scripts/webpack.dev.config.babel.js --progress --profile --colors",
     "dist-dev": "webpack --config ./scripts/webpack.dist.dev.config.babel.js --progress --profile --colors --watch",
-    "dist-pod": "webpack --config ./scripts/webpack.dist.pod.config.babel.js --progress --profile --colors"
+    "dist-pod": "webpack --config ./scripts/webpack.dist.pod.config.babel.js --progress --profile --colors",
+    "exam-pod": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors"
   }
 }

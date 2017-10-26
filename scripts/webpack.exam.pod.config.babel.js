@@ -1,3 +1,7 @@
+/**
+ * 用于输出 riz.production.min.js 文件
+ **/
+
 // 基本库
 import path from 'path'
 import webpack from 'webpack'
@@ -10,15 +14,14 @@ const config =  merge.smart(baseConfig, {
 	entry: {
 		app: [
 			// App Entry
-			'./src/index.js'
+			'./docs/hmr.js'
 		]
 	},
 
-	output: {
-		path: path.resolve(__dirname, '../dist'),
-		library: 'react-zmage',
-		libraryTarget: 'umd'
-	},
+    output: {
+	    path: path.resolve(__dirname, '../docs'),
+        filename: 'bundle.js',
+    },
 
 	performance: {
 		hints: false
@@ -32,14 +35,19 @@ const config =  merge.smart(baseConfig, {
 			"process.env": {
 				NODE_ENV: JSON.stringify("production")
 			}
+		}),
+		// 代码压缩
+		new webpack.optimize.UglifyJsPlugin({
+			sourceMap: false,
+			compress: {
+				warnings: false
+			}
+		}),
+		// Loader压缩
+		new webpack.LoaderOptionsPlugin({
+			minimize: true
 		})
 	],
-
-	externals: {
-		'react'       : 'umd react',
-		'react-dom'   : 'umd react-dom',
-		'prop-types'  : 'umd prop-types',
-	}
 })
 
 export default config
