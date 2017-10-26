@@ -1,0 +1,167 @@
+/**
+ * 图片放大叠层组件样式
+ **/
+
+.imageOverlayContainer {
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+	// 放大按钮
+	.zoomButton {
+		box-sizing: border-box;
+		position: absolute;
+		top: 27px;
+		right: 80px;
+		width: 26px;
+		height: 26px;
+		z-index: 10000;
+		cursor: pointer;
+		border: 1px solid black;
+		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		will-change: clip-path;
+	}
+	.zoomButton:hover {
+		transform: scale(1.1);
+	}
+	.zoomButton:active {
+		transform: scale(1);
+	}
+
+	// 关闭按钮
+	.closeButton {
+		position: absolute;
+		top: 20px;
+		right: 20px;
+		width: 40px;
+		height: 40px;
+		z-index: 10000;
+		cursor: pointer;
+		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		will-change: transform;
+
+		.crossLine {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 35px;
+			height: 1px;
+			background-color: black;
+			transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+			will-change: transform;
+		}
+	}
+	.closeButton:hover {
+		transform: scale(1.1);
+	}
+	.closeButton:active {
+		transform: scale(1);
+	}
+
+	// 切换按钮
+	.switchButton {
+		position: absolute;
+		top: 50%;
+		width: 40px;
+		height: 40px;
+		z-index: 10000;
+		cursor: pointer;
+		background-color: black;
+		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		transform-origin: 50% 0;
+		transform: translateY(-50%);
+		will-change: transform, left, right, opacity;
+
+		svg {
+			fill: white;
+		}
+	}
+	.switchButton:hover {
+		transform: scale(1.1) translateY(-50%);
+	}
+	.switchButton:active {
+		transform: scale(1) translateY(-50%);
+	}
+
+	// 页数指示
+	.pages {
+		box-sizing: border-box;
+		padding: 6px 14px;
+		position: absolute;
+		left: 50%;
+		color: white;
+		font-size: 14px;
+		font-weight: bold;
+		z-index: 10000;
+		background-color: black;
+		user-select: none;
+		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		transform: translateX(-50%);
+		will-change: bottom, opacity;
+	}
+
+	// 图片标题
+	.imgAlt {
+		box-sizing: border-box;
+		padding: 20px;
+		position: absolute;
+		top: 0;
+		left: 0;
+		color: black;
+		font-size: 26px;
+		z-index: 10000;
+		user-select: none;
+		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		will-change: clip-path, opacity;
+	}
+
+	// 图片文字
+	.imgText {
+		box-sizing: border-box;
+		padding: 12px 20px;
+		position: absolute;
+		left: 0;
+		top: ~"calc(50% + 180px)";
+		color: white;
+		font-size: 16px;
+		z-index: 10000;
+		background-color: black;
+		user-select: none;
+		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		transform: translateY(-50%);
+		will-change: left, opacity;
+	}
+
+    // 图片本体
+    img {
+        box-sizing: border-box;
+        z-index: 100;
+        object-fit: contain;
+        border-radius: 6px;
+		transform-origin: 0 0 0;
+		user-select: none;
+		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		will-change: transform, max-width, max-height;
+	}
+
+    // 背景遮罩
+    .backgroundOverlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+		cursor: zoom-out;
+        transition: all 0.6s;
+    }
+}
