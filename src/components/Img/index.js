@@ -10,7 +10,7 @@ import PropTypes from 'prop-types'
 import style from './index.less'
 import { lineL, lineR, zoomStyle, prevStyle, nextStyle, pagesStyle, altStyle, imageStyle, bgOverlayStyle } from './stateStyle'
 // Config
-import { imageType } from '../../config'
+import { imageType } from '@/config'
 const imageId = current => `zmage-${current}`
 
 // 图片放大遮罩
