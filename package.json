@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A zoomable image container power by react",
   "keywords": [
     "react",
@@ -17,9 +17,10 @@
   "license": "MIT",
   "homepage": "http://zmage.u2sk.com",
   "dependencies": {
+    "prop-types": "^15.6.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
-    "prop-types": "^15.6.0"
+    "react-transition-group": "^1.2.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.5",
@@ -52,7 +53,6 @@
     "less-loader": "^4.0.5",
     "open-browser-webpack-plugin": "0.0.5",
     "postcss-loader": "^2.0.8",
-    "precss": "^2.0.0",
     "react-hot-loader": "^3.1.1",
     "source-map-support": "^0.5.0",
     "style-loader": "^0.19.0",
