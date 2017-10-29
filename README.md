@@ -1,6 +1,6 @@
 # react-zmage
 - 本项目仍在开发中, 您可以点击 [演示页面](http://zmage.u2sk.com) 看看现在的效果
-- 如果您感兴趣, 欢迎根据以下的说明试用, 也欢迎[来这里](https://github.com/Caldis/react-zmage/issues)反馈意见
+- 如果您感兴趣, 欢迎根据以下的说明试用, 也欢迎 [来这里](https://github.com/Caldis/react-zmage/issues) 反馈意见
 
 ## 简介
 
