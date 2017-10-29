@@ -36,9 +36,10 @@ const config =  merge.smart(baseConfig, {
 	],
 
 	externals: {
-		'react'       : 'umd react',
-		'react-dom'   : 'umd react-dom',
-		'prop-types'  : 'umd prop-types',
+		'react'                  : 'umd react',
+		'react-dom'   			 : 'umd react-dom',
+		'prop-types'  			 : 'umd prop-types',
+		'react-transition-group' : 'umd react-transition-group'
 	}
 })
 

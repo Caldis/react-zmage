@@ -1,7 +1,6 @@
 // libs
 import path from 'path'
 import webpack from 'webpack'
-import precss from 'precss'
 import autoprefixer from 'autoprefixer'
 // 本地服务器配置
 export const host = process.env.HOST || '127.0.0.1'
@@ -25,6 +24,8 @@ export default {
 		new webpack.NamedModulesPlugin(),
 		// 跳过编译时出错的代码并记录，使编译后运行时的包不会发生错误
 		new webpack.NoEmitOnErrorsPlugin(),
+		// postcss配置, 补全浏览器前缀
+        new webpack.LoaderOptionsPlugin({ options: { postcss: [ autoprefixer ] } })
 	],
 
 	module: {
@@ -45,37 +46,37 @@ export default {
 				// *.global 后缀的所有 css 文件
 				test: /\.global\.css$/,
 				exclude: /node_modules/,
-				use: styleProcessor('css', { modules: false, precss: false })
+				use: styleProcessor('css', { modules: false })
 			},
 			{
 				// *.global 后缀的所有 less 文件
 				test: /\.global\.less$/,
 				exclude: /node_modules/,
-				use: styleProcessor('less', { modules: false, precss: false })
+				use: styleProcessor('less', { modules: false })
 			},
 			{
 				// 非 *.global 的 css 文件
 				test: /^((?!\.global).)*\.css$/,
 				exclude: /node_modules/,
-				use: styleProcessor('css', { modules: true, precss: false })
+				use: styleProcessor('css', { modules: true })
 			},
 			{
 				// 非 *.global 的 less 文件
 				test: /^((?!\.global).)*\.less$/,
 				exclude: /node_modules/,
-				use: styleProcessor('less', { modules: true, precss: false })
+				use: styleProcessor('less', { modules: true })
 			},
 			{
 				// node_modules 内的所有 css 文件
 				test: /\.css$/,
 				include: /node_modules/,
-				use: styleProcessor('css', { modules: false, precss: false })
+				use: styleProcessor('css', { modules: false })
 			},
 			{
 				// node_modules 内的所有 less 文件
 				test: /\.less/,
 				include: /node_modules/,
-				use: styleProcessor('less', { modules: false, precss: false })
+				use: styleProcessor('less', { modules: false })
 			},
 			// SVG Font
 			{
@@ -108,56 +109,33 @@ export default {
 }
 
 // 生成对应的样式参数配置
-function styleProcessor(type, options = { modules: false, precss: false }) {
+function styleProcessor(type = 'css', options = { modules: false }) {
+    // 各类型 Style 的 Loader 配置项
+    const styleLoader = { loader: 'style-loader' }
+    const cssLoader = {
+        loader: 'css-loader',
+        options: options.modules ? {
+            modules: true,
+            importLoaders: 1,
+            localIdentName: '[local]__[hash:base64:5]',
+        } : {}
+    }
+    const lessLoader = { loader: 'less-loader' }
+    const postcssLoader =  {
+        loader: 'postcss-loader',
+        options: {
+            ident: 'postcss',
+            plugins: (loader) => [
+                require('autoprefixer')()
+            ]
+        }
+    }
+
+    // 根据传入的配置返回不同的组合
 	if(type === 'css') {
-		const loaders = [
-			{
-				loader: 'style-loader'
-			},
-			{
-				loader: 'css-loader',
-				options: options.modules ? {
-					modules: true,
-					importLoaders: 1,
-					localIdentName: '[local]__[hash:base64:5]',
-				} : {}
-			}
-		]
-		options.precss && loaders.concat({
-			loader: 'postcss-loader',
-			options: {
-				plugins: function () {
-					return [precss, autoprefixer]
-				}
-			}
-		})
-		return loaders
+        return [styleLoader, cssLoader, postcssLoader]
 	}
 	if(type === 'less') {
-		const loaders = [
-			{
-				loader: 'style-loader'
-			},
-			{
-				loader: 'css-loader',
-				options: options.modules ? {
-					modules: true,
-					importLoaders: 1,
-					localIdentName: '[local]__[hash:base64:5]',
-				} : {}
-			},
-			{
-				loader: "less-loader"
-			}
-		]
-		options.precss && loaders.concat({
-			loader: 'postcss-loader',
-			options: {
-				plugins: function () {
-					return [precss, autoprefixer]
-				}
-			}
-		})
-		return loaders
+        return [styleLoader, cssLoader, postcssLoader, lessLoader]
 	}
 }
