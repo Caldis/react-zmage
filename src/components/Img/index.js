@@ -6,11 +6,14 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
+import { CSSTransitionGroup } from 'react-transition-group'
 // Styles
 import style from './index.less'
-import { lineL, lineR, zoomStyle, prevStyle, nextStyle, pagesStyle, altStyle, imageStyle, bgOverlayStyle } from './stateStyle'
+import { lineL, lineR, zoomStyle, prevStyle, nextStyle, pagesStyle, altStyle, imageStyle, imageWrapperStyle, bgOverlayStyle } from './stateStyle'
 // Config
-import { imageType } from '@/config'
+import { imageType, animateDuration, animationFunc } from '@/config'
+
+const imageWrapperId = current => `zmage-${current}-wrapper`
 const imageId = current => `zmage-${current}`
 
 // 图片放大遮罩
@@ -28,10 +31,12 @@ class ImageOverlay extends React.Component {
 	        zoomMargin: 100, // 移动边距
 	        // 页数
             current: 0,
-	        // 点击进来的封面尺寸
-	        coverNodeRect: props.coverNodeRef ? props.coverNodeRef.getBoundingClientRect() : {
-		        bottom:0, height:0, left:0, right:0, top:0, width:0, x:0, y:0
-            }
+            // 切换方向
+            direction: null,
+            // 加载完成
+            onLoad: false,
+            // 加载错误
+            onError: false
         }
     }
 
@@ -64,7 +69,7 @@ class ImageOverlay extends React.Component {
 	            if(coverNodeRef && current===0) coverNodeRef.style.visibility = 'visible'
                 // 移除遮罩节点
                 overlayNodeRef && overlayNodeRef.remove()
-            }, 700)
+            }, animateDuration)
         })
     }
 
@@ -73,23 +78,30 @@ class ImageOverlay extends React.Component {
 		return () => {
 			const { imageSet } = this.props
 			const { current } = this.state
-			this.setState({ current: direction === "prev" ?
-				Math.abs(imageSet.length + current - 1) % imageSet.length:
-				(current + 1) % imageSet.length
+			this.setState({
+                current: direction === "prev" ?
+                    Math.abs(imageSet.length + current - 1) % imageSet.length:
+                    (current + 1) % imageSet.length,
+                direction,
+                onLoad: true,
+                onError: false
 			})
 		}
 	}
 	// 切换缩放
 	handleToggleZoom = () => {
     	const { zoom, zoomMargin, current } = this.state
-		const id = imageId(current)
-		const zoomNode = document.getElementById(id)
+        const zoomPosId = imageWrapperId(current)
+        const zoomPos = document.getElementById(zoomPosId)
+		const zoomNodeId = imageId(current)
+		const zoomNode = document.getElementById(zoomNodeId)
 		const windowWidth = window.innerWidth
 		const windowHeight = window.innerHeight
 		const naturalWidth = zoomNode.naturalWidth
 		const naturalHeight = zoomNode.naturalHeight
 		this.setState({
 			zoom: !zoom,
+            zoomPos,
 			zoomNode,
 			zoomSize: !zoom ? { naturalWidth, naturalHeight } : null,
 			zoomRange: !zoom ? {
@@ -104,16 +116,20 @@ class ImageOverlay extends React.Component {
 	}
 	// 开始监听鼠标移动
 	addListenMouseMove = () => {
-		const { zoomNode } = this.state
-		window.addEventListener("mousemove", this.handleMouseMove, true)
-		zoomNode.style.transition = 'all 0.1s'
+		setTimeout(() => {
+            const { zoom, zoomPos } = this.state
+            if (zoom && zoomPos) {
+                window.addEventListener("mousemove", this.handleMouseMove, true)
+                zoomPos.style.transition = 'none'
+            }
+        }, animateDuration)
 	}
 	// 停止监听鼠标移动
 	removeListenMouseMove = () => {
-		const { zoomNode } = this.state
+		const { zoomPos } = this.state
 		window.removeEventListener("mousemove", this.handleMouseMove, true)
-		zoomNode.style.transform = 'translate(0px, 0px)'
-		zoomNode.style.transition = 'all 0.65s cubic-bezier(0.15, 1, 0.3, 1)'
+        zoomPos.style.transform = 'translate(0,0)'
+        zoomPos.style.transition = `transform ${animateDuration}ms ${animationFunc}`
 	}
 
 	// 关联键盘快捷键
@@ -124,13 +140,13 @@ class ImageOverlay extends React.Component {
 		switch (e.key) {
 			case "ArrowLeft":
 				// 上一张
-				toPrevPage()
+                !zoom && toPrevPage()
 				break
 			case "ArrowRight":
 				// 下一张
-				toNextPage()
+				!zoom && toNextPage()
 				break
-			case "Enter":
+			case " ":
 				// 缩放
 				this.handleToggleZoom()
 				break
@@ -155,7 +171,7 @@ class ImageOverlay extends React.Component {
 
 	// 处理鼠标移动
 	handleMouseMove = (e) => {
-		const { zoomNode, zoomSize, zoomRange, zoomMargin } = this.state
+		const { zoomPos, zoomSize, zoomRange, zoomMargin } = this.state
 		const { naturalWidth, naturalHeight } = zoomSize
 		const windowWidth = window.innerWidth
 		const windowHeight = window.innerHeight
@@ -167,39 +183,41 @@ class ImageOverlay extends React.Component {
 		const imgPosY = naturalHeight>windowHeight ?
 			((naturalHeight - windowHeight)/2 + zoomMargin) - (zoomRange.y*(mouseY/windowHeight)) : 0
 		// 设置图片位置
-		zoomNode.style.transform = `translate(${imgPosX}px, ${imgPosY}px)`
+        zoomPos.style.transform = `translate(${imgPosX}px, ${imgPosY}px)`
 	}
 
 
     render() {
+
         const { coverNodeRef, lazyLoad, indicator, imageSet } = this.props
-        const { show, zoom, current, coverNodeRect } = this.state
+        const { show, zoom, current, direction, onLoad, onError } = this.state
+
 	    const hasImageSet = imageSet && imageSet.constructor===Array
-	    const id = imageId(current)
+        const zmageWrapperId = imageWrapperId(current)
+	    const zmageId = imageId(current)
 
         return (
             <div className={style.imageOverlayContainer}>
 
 	            {/*放大按钮*/}
-	            {indicator && !zoom &&
+	            {!zoom &&
 	            <div className={style.zoomButton} style={zoomStyle(show)} onClick={this.handleToggleZoom}/>}
 
 	            {/*关闭按钮*/}
-	            {indicator &&
 	            <div className={style.closeButton} onClick={zoom ? this.handleToggleZoom : this.unmountSelf}>
 		            <div className={style.crossLine} style={lineL(show)}/>
 		            <div className={style.crossLine} style={lineR(show)}/>
-	            </div>}
+	            </div>
 
 	            {/*切换按钮*/}
-	            {indicator && hasImageSet && !zoom &&
+	            {hasImageSet && !zoom &&
 	            <div className={style.switchButton} style={prevStyle(show)} onClick={this.handleSwitchPages("prev")}>
 		            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 			            <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/>
 			            <path d="M0-.5h24v24H0z" fill="none"/>
 		            </svg>
 	            </div>}
-	            {indicator && hasImageSet && !zoom &&
+	            {hasImageSet && !zoom &&
 	            <div className={style.switchButton} style={nextStyle(show)} onClick={this.handleSwitchPages("next")}>
 		            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 			            <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"/>
@@ -208,7 +226,7 @@ class ImageOverlay extends React.Component {
 	            </div>}
 
 	            {/*页数指示*/}
-	            {indicator && hasImageSet && !zoom &&
+	            {hasImageSet && !zoom &&
                 <div className={style.pages} style={pagesStyle(show)}>
 		            <span>{`${current+1} / ${imageSet.length}`}</span>
 	            </div>}
@@ -236,13 +254,45 @@ class ImageOverlay extends React.Component {
 		            </div>
 	            }
 
+	            {/*加载动画*/}
+                {onLoad && <span className={style.loading}><i/><i/><i/><i/></span>}
+
+                {/*加载错误*/}
+                {onError && <span>😖</span>}
+
                 {/*图片本体*/}
-	            <img
-		            id={id}
-		            src={hasImageSet ? imageSet[current].src : imageSet.src}
-		            alt={hasImageSet ? imageSet[current].alt : imageSet.alt}
-		            style={imageStyle(id, show, zoom, current, coverNodeRef, coverNodeRect)}
-	            />
+                <CSSTransitionGroup
+                    style={{ zIndex: 100 }}
+                    component="div"
+                    transitionEnter={true}
+                    transitionLeave={true}
+                    transitionEnterTimeout={animateDuration/2}
+                    transitionLeaveTimeout={animateDuration/2}
+                    transitionName={{
+                        enter: direction==="next" ? style.enterFromRight : style.enterFromLeft,
+                        enterActive: style.enterActive,
+                        leave: direction==="next" ? style.leaveToLeft : style.leaveToRight,
+                        leaveActive: style.leaveActive
+                    }}
+                >
+                    <div
+                        id={zmageWrapperId}
+                        key={zmageWrapperId}
+                        className={style.imgWrapper}
+                        style={imageWrapperStyle(show, current, coverNodeRef)}
+                    >
+                        <img
+                            id={zmageId}
+                            key={zmageId}
+                            src={hasImageSet ? imageSet[current].src : imageSet.src}
+                            alt={hasImageSet ? imageSet[current].alt : imageSet.alt}
+                            onLoad={() => this.setState({ onLoad: false })}
+                            onError={() => this.setState({ onError: true })}
+                            onClick={zoom ? this.handleToggleZoom : ()=>{}}
+                            style={imageStyle(zmageId, show, zoom, coverNodeRef)}
+                        />
+                    </div>
+                </CSSTransitionGroup>
 
                 {/*背景遮罩*/}
                 <div

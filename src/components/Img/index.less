@@ -2,6 +2,12 @@
  * 图片放大叠层组件样式
  **/
 
+// 动画时长 (ms) ( config/index.js )
+@animationDurations: 650ms;
+@animationDurationsHalf: 650/2ms;
+// 动画曲线 ( config/index.js )
+@animationFunction: cubic-bezier(0.15, 1, 0.3, 1);
+
 .imageOverlayContainer {
     box-sizing: border-box;
     position: fixed;
@@ -23,10 +29,10 @@
 		right: 80px;
 		width: 26px;
 		height: 26px;
-		z-index: 10000;
+		z-index: 110;
 		cursor: pointer;
 		border: 1px solid black;
-		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		transition: all @animationDurations @animationFunction;
 		will-change: clip-path;
 	}
 	.zoomButton:hover {
@@ -43,9 +49,9 @@
 		right: 20px;
 		width: 40px;
 		height: 40px;
-		z-index: 10000;
+		z-index: 110;
 		cursor: pointer;
-		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		transition: all @animationDurations @animationFunction;
 		will-change: transform;
 
 		.crossLine {
@@ -55,7 +61,7 @@
 			width: 35px;
 			height: 1px;
 			background-color: black;
-			transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+			transition: all @animationDurations @animationFunction;
 			will-change: transform;
 		}
 	}
@@ -72,10 +78,10 @@
 		top: 50%;
 		width: 40px;
 		height: 40px;
-		z-index: 10000;
+		z-index: 110;
 		cursor: pointer;
 		background-color: black;
-		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		transition: all @animationDurations @animationFunction;
 		transform-origin: 50% 0;
 		transform: translateY(-50%);
 		will-change: transform, left, right, opacity;
@@ -100,10 +106,10 @@
 		color: white;
 		font-size: 14px;
 		font-weight: bold;
-		z-index: 10000;
+		z-index: 110;
 		background-color: black;
 		user-select: none;
-		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		transition: all @animationDurations @animationFunction;
 		transform: translateX(-50%);
 		will-change: bottom, opacity;
 	}
@@ -116,10 +122,10 @@
 		top: 0;
 		left: 0;
 		color: black;
-		font-size: 26px;
-		z-index: 10000;
+		font-size: 18px;
+		z-index: 90;
 		user-select: none;
-		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+		transition: all @animationDurations @animationFunction;
 		will-change: clip-path, opacity;
 	}
 
@@ -129,28 +135,80 @@
 		padding: 12px 20px;
 		position: absolute;
 		left: 0;
-		top: ~"calc(50% + 180px)";
+		top: 50% + 180px;
 		color: white;
 		font-size: 16px;
-		z-index: 10000;
-		background-color: black;
+		z-index: 90;
 		user-select: none;
-		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
+        background-color: black;
+		transition: all @animationDurations @animationFunction;
 		transform: translateY(-50%);
 		will-change: left, opacity;
 	}
 
+    // 加载动画
+    .loading {
+        position: absolute;
+        left: 50vw;
+        top: 50vh;
+        margin: -10px -10px 0 0;
+        display: inline-block;
+        z-index: 80;
+        width: 20px;
+        height: 20px;
+        transform: rotate(45deg);
+        animation: antRotate 1.2s infinite linear;
+
+        i {
+            width: 9px;
+            height: 9px;
+            border-radius: 100%;
+            background-color: #108ee9;
+            transform: scale(.75);
+            display: block;
+            position: absolute;
+            opacity: .3;
+            animation: antSpinMove 1s infinite linear alternate;
+            transform-origin: 50% 50%;
+        }
+
+        :first-child {
+            left: 0;
+            top: 0;
+        }
+        :nth-child(2) {
+            right: 0;
+            top: 0;
+            animation-delay: .4s
+        }
+        :nth-child(3) {
+            right: 0;
+            bottom: 0;
+            animation-delay: .8s
+        }
+        :nth-child(4) {
+            left: 0;
+            bottom: 0;
+            animation-delay: 1.2s
+        }
+    }
+
     // 图片本体
-    img {
-        box-sizing: border-box;
+    .imgWrapper {
         z-index: 100;
-        object-fit: contain;
-        border-radius: 6px;
-		transform-origin: 0 0 0;
-		user-select: none;
-		transition: all 0.65s cubic-bezier(0.15, 1, 0.3, 1);
-		will-change: transform, max-width, max-height;
-	}
+        width: 0;
+        height: 0;
+        transition: transform @animationDurations @animationFunction;
+        will-change: transform;
+
+        img {
+            object-fit: contain;
+            transform-origin: 50% 50%;
+            transform: translate(-50%, -50%);
+            transition: 0.6s 0.05s max-width, 0.6s 0.05s max-height, @animationDurationsHalf opacity;
+            will-change: max-width, max-height, width, height;
+        }
+    }
 
     // 背景遮罩
     .backgroundOverlay {
@@ -162,6 +220,75 @@
         width: 100vw;
         height: 100vh;
 		cursor: zoom-out;
-        transition: all 0.6s;
+        transition: all @animationDurations;
+    }
+}
+
+// 加载动画
+@keyframes antRotate {
+    to {
+        transform: rotate(405deg)
+    }
+}
+@keyframes antSpinMove {
+    to {
+        opacity: 1
+    }
+}
+
+// 切换动画
+.enter {
+    img {
+       opacity: 0;
+    }
+}
+.enterFromLeft {
+    transform: translate(-40px, 0) !important;
+    img {
+        opacity: 0;
+    }
+}
+.enterFromRight {
+    transform: translate(40px, 0) !important;
+    img {
+        opacity: 0;
+    }
+}
+.enter.enterActive {
+    transform: translate(0, 0) !important;
+    img {
+       opacity: 0;
+    }
+}
+.leave {
+    img {
+        opacity: 1;
+    }
+}
+.leaveToLeft {
+    img {
+        opacity: 1;
+    }
+}
+.leaveToRight {
+    img {
+       opacity: 1;
+    }
+}
+.leave.leaveActive {
+    img {
+        opacity: 0;
+    }
+}
+.leaveToLeft.leaveActive {
+    transform: translate(-40px, 0) !important;
+    img {
+        opacity: 0;
+    }
+}
+.leaveToRight.leaveActive {
+    transform: translate(40px, 0) !important;
+    img {
+       opacity: 0;
     }
 }
