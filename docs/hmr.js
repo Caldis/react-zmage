@@ -21,22 +21,22 @@ const render = (Components) =>
 			        imageSet={[
 				        {
 					        src: "https://mir-s3-cdn-cf.behance.net/project_modules/fs/7a4cdd56119387.59a0f4e69a7c4.jpg",
-					        alt: "UI Interactions of the week",
+					        alt: "UI Interactions of the weekdsfdasfsdf",
 					        text: "Book animation design by GISION for Norde",
 				        },
 				        {
 					        src: "https://cdn-images-1.medium.com/max/1600/1*ISt9lZaJ1oFYLXudAGz1NA.gif",
-					        alt: "UI Interactions of the week",
+					        alt: "UI Interactions of the wasdfasdfdsafeek",
 					        text: "Vua. by Giga Tamarashvili",
 				        },
 				        {
 					        src: "https://cdn-images-1.medium.com/max/1600/1*x5DZWIUFoHFmBqsNTfV9Zw.gif",
-					        alt: "UI Interactions of the week",
+					        alt: "UI Interactions asdfsadfadsfof the week",
 					        text: "Nike Interaction concept by Best Served Bold for Green Chameleon",
 				        },
 				        {
 					        src: "https://cdn-images-1.medium.com/max/1600/1*cfTdMQcfsDxV0n3UVubaeg.gif",
-					        alt: "UI Interactions of the week",
+					        alt: "UI Interasdfasdfsadactions of the week",
 					        text: "Onboarding by Luobing for Superior",
 				        },
 
