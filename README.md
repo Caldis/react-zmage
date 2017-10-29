@@ -18,8 +18,10 @@ npm i react-zmage --save
 import Zmage from 'react-zmage'
 ```
 
-将页面中的 <img/> 替换为 <Zmage/>
+将页面中的 img 标签替换为 Zmage
 ```
+<img src="图片源连接" alt="图片介绍文字"/>
+👆 to 👇
 <Zmage src="图片源连接" alt="图片介绍文字"/>
 ```
 
