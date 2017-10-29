@@ -10,7 +10,7 @@ import { showImage } from './components/Img'
 // Config
 import { imageType } from './config'
 // Utils
-import { disableDragDrop, generateUUID } from './utils'
+import { generateUUID } from './utils'
 
 export { showImage, ReactZmage }
 export default class ReactZmage extends React.Component {
