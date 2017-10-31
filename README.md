@@ -28,30 +28,35 @@ open http://127.0.0.1:8080/
 
 
 ## 简单上手
-1. 安装
+1. 从 NPM 安装
 ```
 npm i react-zmage --save
 ```
-2. 然后在项目中引入
+2. 在项目中引入
 ```
 import Zmage from 'react-zmage'
 ```
 3. 将页面中的 img 标签替换为 Zmage
 ```
-**BEFORE**: <img src="图片源连接" alt="图片介绍文字"/>
+<img src="图片源连接" alt="图片介绍文字"/>
 ```
 👆 to 👇
 ```
-**AFTER**: <Zmage src="图片源连接" alt="图片介绍文字"/>
+<Zmage src="图片源连接" alt="图片介绍文字"/>
 ```
-
 好了, 刷新页面, 现在您的所有图片都可以放大观看了 !
 
 
+## 配置
+- 待完善
+
+
 ## 贡献
-该组件的主要目的是扩展并增强原有 img 标签的功能, 使其更易于使用. 我们随时欢迎您发起一个 [PR](https://github.com/Caldis/react-zmage/pulls) 来帮助我们改进代码
+该组件的主要目的是扩展并增强原有 img 标签的功能, 使其更易于使用
+
+我们随时欢迎您发起一个 [PR](https://github.com/Caldis/react-zmage/pulls) 来帮助我们改进代码
 如果您发现任何问题, 也欢迎 [来这里](https://github.com/Caldis/react-zmage/issues) 反馈意见
 
 
 ## 证书
-react-zmage 基于 [MIT licensed](./LICENSE).
+react-zmage 基于 [MIT licensed](./LICENSE) 发布
