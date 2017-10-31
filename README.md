@@ -51,6 +51,16 @@ import Zmage from 'react-zmage'
 - 待完善
 
 
+## 开源
+[react](https://github.com/facebook/react)
+
+[react-dom](https://github.com/facebook/react)
+
+[prop-types](https://github.com/reactjs/prop-types)
+
+[react-transition-group](https://github.com/reactjs/react-transition-group)
+
+
 ## 贡献
 该组件的主要目的是扩展并增强原有 img 标签的功能, 使其更易于使用
 
