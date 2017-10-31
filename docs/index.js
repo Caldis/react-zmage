@@ -28,7 +28,7 @@ export default class ReactZmage extends React.Component {
                     </a>
 
                     <div className={style.project}>
-                        <span className={style.tag}>0.0.4</span>
+                        <span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>alpha</span><span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>0.0.4</span>
 
                         <h1>react-zmage</h1>
                         <h2>一个基于 React 的可缩放图片控件, 也可作为幻灯片使用</h2>
@@ -191,7 +191,8 @@ export default class ReactZmage extends React.Component {
                 <div className={style.bottomBanner}>
                     <div>
                         <h2>您已经准备好了</h2>
-                        <p>旋转查看、移动端适配、主题自定义等接口正在紧锣密鼓地开发中</p>
+                        <p>当前还处于初期开发版本, 仍然存在许多小问题</p>
+                        <p>但旋转查看、移动端适配、主题自定义等接口正在紧锣密鼓地开发中</p>
                         <p>如果您觉得当前的功能已经能满足您的需求, 您也可以马上开始使用, 如果您有什么更好的建议, 欢迎告诉我们 !</p>
                         <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage/wiki")}>查看文档</div>
                         <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage/issues")}>反馈建议</div>
