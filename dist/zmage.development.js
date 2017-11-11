@@ -83,7 +83,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "/**\n * 图片放大叠层组件样式\n **/\n.imageOverlayContainer__i3Lrv {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  width: 100vw;\n  height: 100vh;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n}\n.imageOverlayContainer__i3Lrv .zoomButton__3EA_v {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  position: absolute;\n  top: 27px;\n  right: 80px;\n  width: 26px;\n  height: 26px;\n  z-index: 110;\n  cursor: pointer;\n  border: 1px solid black;\n  -webkit-transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  will-change: clip-path;\n}\n.imageOverlayContainer__i3Lrv .zoomButton__3EA_v:hover {\n  -webkit-transform: scale(1.1);\n          transform: scale(1.1);\n}\n.imageOverlayContainer__i3Lrv .zoomButton__3EA_v:active {\n  -webkit-transform: scale(1);\n          transform: scale(1);\n}\n.imageOverlayContainer__i3Lrv .closeButton__1hkr- {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  width: 40px;\n  height: 40px;\n  z-index: 110;\n  cursor: pointer;\n  -webkit-transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  will-change: transform;\n}\n.imageOverlayContainer__i3Lrv .closeButton__1hkr- .crossLine__3lngH {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  width: 35px;\n  height: 1px;\n  background-color: black;\n  -webkit-transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  will-change: transform;\n}\n.imageOverlayContainer__i3Lrv .closeButton__1hkr-:hover {\n  -webkit-transform: scale(1.1);\n          transform: scale(1.1);\n}\n.imageOverlayContainer__i3Lrv .closeButton__1hkr-:active {\n  -webkit-transform: scale(1);\n          transform: scale(1);\n}\n.imageOverlayContainer__i3Lrv .switchButton__11WN0 {\n  position: absolute;\n  top: 50%;\n  width: 40px;\n  height: 40px;\n  z-index: 110;\n  cursor: pointer;\n  background-color: black;\n  -webkit-transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  -webkit-transform-origin: 50% 0;\n          transform-origin: 50% 0;\n  -webkit-transform: translateY(-50%);\n          transform: translateY(-50%);\n  will-change: transform, left, right, opacity;\n}\n.imageOverlayContainer__i3Lrv .switchButton__11WN0 svg {\n  fill: white;\n}\n.imageOverlayContainer__i3Lrv .switchButton__11WN0:hover {\n  -webkit-transform: scale(1.1) translateY(-50%);\n          transform: scale(1.1) translateY(-50%);\n}\n.imageOverlayContainer__i3Lrv .switchButton__11WN0:active {\n  -webkit-transform: scale(1) translateY(-50%);\n          transform: scale(1) translateY(-50%);\n}\n.imageOverlayContainer__i3Lrv .pages__1SqZ9 {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  padding: 6px 14px;\n  position: absolute;\n  left: 50%;\n  color: white;\n  font-size: 14px;\n  font-weight: bold;\n  z-index: 110;\n  background-color: black;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n  -webkit-transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  -webkit-transform: translateX(-50%);\n          transform: translateX(-50%);\n  will-change: bottom, opacity;\n}\n.imageOverlayContainer__i3Lrv .imgAlt__1RLsW {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  padding: 20px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  color: black;\n  font-size: 18px;\n  z-index: 90;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n  -webkit-transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  will-change: clip-path, opacity;\n}\n.imageOverlayContainer__i3Lrv .imgText__2quxO {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  padding: 12px 20px;\n  position: absolute;\n  left: 0;\n  top: 230%;\n  color: white;\n  font-size: 16px;\n  z-index: 90;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n  background-color: black;\n  -webkit-transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  -webkit-transform: translateY(-50%);\n          transform: translateY(-50%);\n  will-change: left, opacity;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF {\n  position: absolute;\n  left: 50vw;\n  top: 50vh;\n  margin: -10px -10px 0 0;\n  display: inline-block;\n  z-index: 80;\n  width: 20px;\n  height: 20px;\n  -webkit-transform: rotate(45deg);\n          transform: rotate(45deg);\n  -webkit-animation: antRotate__3Pam2 1.2s infinite linear;\n          animation: antRotate__3Pam2 1.2s infinite linear;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF i {\n  width: 9px;\n  height: 9px;\n  border-radius: 100%;\n  background-color: #108ee9;\n  -webkit-transform: scale(0.75);\n          transform: scale(0.75);\n  display: block;\n  position: absolute;\n  opacity: .3;\n  -webkit-animation: antSpinMove__2wABL 1s infinite linear alternate;\n          animation: antSpinMove__2wABL 1s infinite linear alternate;\n  -webkit-transform-origin: 50% 50%;\n          transform-origin: 50% 50%;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF :first-child {\n  left: 0;\n  top: 0;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF :nth-child(2) {\n  right: 0;\n  top: 0;\n  -webkit-animation-delay: 0.4s;\n          animation-delay: 0.4s;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF :nth-child(3) {\n  right: 0;\n  bottom: 0;\n  -webkit-animation-delay: 0.8s;\n          animation-delay: 0.8s;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF :nth-child(4) {\n  left: 0;\n  bottom: 0;\n  -webkit-animation-delay: 1.2s;\n          animation-delay: 1.2s;\n}\n.imageOverlayContainer__i3Lrv .imgWrapper__3ifcP {\n  z-index: 100;\n  width: 0;\n  height: 0;\n  -webkit-transition: -webkit-transform 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: -webkit-transform 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: transform 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: transform 650ms cubic-bezier(0.15, 1, 0.3, 1), -webkit-transform 650ms cubic-bezier(0.15, 1, 0.3, 1);\n  will-change: transform;\n}\n.imageOverlayContainer__i3Lrv .imgWrapper__3ifcP img {\n  -o-object-fit: contain;\n     object-fit: contain;\n  -webkit-transform-origin: 50% 50%;\n          transform-origin: 50% 50%;\n  -webkit-transform: translate(-50%, -50%);\n          transform: translate(-50%, -50%);\n  -webkit-transition: 0.6s 0.05s max-width, 0.6s 0.05s max-height, 325ms opacity;\n  transition: 0.6s 0.05s max-width, 0.6s 0.05s max-height, 325ms opacity;\n  will-change: max-width, max-height, width, height;\n}\n.imageOverlayContainer__i3Lrv .backgroundOverlay__3_UE9 {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  width: 100vw;\n  height: 100vh;\n  cursor: -webkit-zoom-out;\n  cursor: zoom-out;\n  -webkit-transition: all 650ms;\n  transition: all 650ms;\n}\n@-webkit-keyframes antRotate__3Pam2 {\n  to {\n    -webkit-transform: rotate(405deg);\n            transform: rotate(405deg);\n  }\n}\n@keyframes antRotate__3Pam2 {\n  to {\n    -webkit-transform: rotate(405deg);\n            transform: rotate(405deg);\n  }\n}\n@-webkit-keyframes antSpinMove__2wABL {\n  to {\n    opacity: 1;\n  }\n}\n@keyframes antSpinMove__2wABL {\n  to {\n    opacity: 1;\n  }\n}\n.enter__2606y img {\n  opacity: 0;\n}\n.enterFromLeft__1IBEc {\n  -webkit-transform: translate(-40px, 0) !important;\n          transform: translate(-40px, 0) !important;\n}\n.enterFromLeft__1IBEc img {\n  opacity: 0;\n}\n.enterFromRight__1SrGD {\n  -webkit-transform: translate(40px, 0) !important;\n          transform: translate(40px, 0) !important;\n}\n.enterFromRight__1SrGD img {\n  opacity: 0;\n}\n.enter__2606y.enterActive__D5xMc {\n  -webkit-transform: translate(0, 0) !important;\n          transform: translate(0, 0) !important;\n}\n.enter__2606y.enterActive__D5xMc img {\n  opacity: 0;\n}\n.leave__1l9Wg img {\n  opacity: 1;\n}\n.leaveToLeft__GccD4 img {\n  opacity: 1;\n}\n.leaveToRight__2A5i3 img {\n  opacity: 1;\n}\n.leave__1l9Wg.leaveActive__GVp5I img {\n  opacity: 0;\n}\n.leaveToLeft__GccD4.leaveActive__GVp5I {\n  -webkit-transform: translate(-40px, 0) !important;\n          transform: translate(-40px, 0) !important;\n}\n.leaveToLeft__GccD4.leaveActive__GVp5I img {\n  opacity: 0;\n}\n.leaveToRight__2A5i3.leaveActive__GVp5I {\n  -webkit-transform: translate(40px, 0) !important;\n          transform: translate(40px, 0) !important;\n}\n.leaveToRight__2A5i3.leaveActive__GVp5I img {\n  opacity: 0;\n}\n", ""]);
+exports.push([module.i, "/**\n * 图片放大叠层组件样式\n **/\n.imageOverlayContainer__i3Lrv {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  width: 100vw;\n  height: 100vh;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n}\n.imageOverlayContainer__i3Lrv .zoomButton__3EA_v {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  position: absolute;\n  top: 27px;\n  right: 80px;\n  width: 26px;\n  height: 26px;\n  z-index: 110;\n  cursor: pointer;\n  border: 1px solid black;\n  -webkit-transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  will-change: clip-path;\n}\n.imageOverlayContainer__i3Lrv .zoomButton__3EA_v:hover {\n  -webkit-transform: scale(1.1);\n          transform: scale(1.1);\n}\n.imageOverlayContainer__i3Lrv .zoomButton__3EA_v:active {\n  -webkit-transform: scale(1);\n          transform: scale(1);\n}\n.imageOverlayContainer__i3Lrv .closeButton__1hkr- {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  width: 40px;\n  height: 40px;\n  z-index: 110;\n  cursor: pointer;\n  -webkit-transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  will-change: transform;\n}\n.imageOverlayContainer__i3Lrv .closeButton__1hkr- .crossLine__3lngH {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  width: 35px;\n  height: 1px;\n  background-color: black;\n  -webkit-transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  will-change: transform;\n}\n.imageOverlayContainer__i3Lrv .closeButton__1hkr-:hover {\n  -webkit-transform: scale(1.1);\n          transform: scale(1.1);\n}\n.imageOverlayContainer__i3Lrv .closeButton__1hkr-:active {\n  -webkit-transform: scale(1);\n          transform: scale(1);\n}\n.imageOverlayContainer__i3Lrv .switchButton__11WN0 {\n  position: absolute;\n  top: 50%;\n  width: 40px;\n  height: 40px;\n  z-index: 110;\n  cursor: pointer;\n  background-color: black;\n  -webkit-transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  -webkit-transform-origin: 50% 0;\n          transform-origin: 50% 0;\n  -webkit-transform: translateY(-50%);\n          transform: translateY(-50%);\n  will-change: transform, left, right, opacity;\n}\n.imageOverlayContainer__i3Lrv .switchButton__11WN0 svg {\n  fill: white;\n}\n.imageOverlayContainer__i3Lrv .switchButton__11WN0:hover {\n  -webkit-transform: scale(1.1) translateY(-50%);\n          transform: scale(1.1) translateY(-50%);\n}\n.imageOverlayContainer__i3Lrv .switchButton__11WN0:active {\n  -webkit-transform: scale(1) translateY(-50%);\n          transform: scale(1) translateY(-50%);\n}\n.imageOverlayContainer__i3Lrv .pages__1SqZ9 {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  padding: 6px 14px;\n  position: absolute;\n  left: 50%;\n  color: white;\n  font-size: 14px;\n  font-weight: bold;\n  z-index: 110;\n  background-color: black;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n  -webkit-transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  -webkit-transform: translateX(-50%);\n          transform: translateX(-50%);\n  will-change: bottom, opacity;\n}\n.imageOverlayContainer__i3Lrv .imgAlt__1RLsW {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  padding: 20px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  color: black;\n  font-size: 18px;\n  z-index: 90;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n  -webkit-transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  will-change: clip-path, opacity;\n}\n.imageOverlayContainer__i3Lrv .imgText__2quxO {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  padding: 12px 20px;\n  position: absolute;\n  left: 0;\n  top: 230%;\n  color: white;\n  font-size: 16px;\n  z-index: 90;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n  background-color: black;\n  -webkit-transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  -webkit-transform: translateY(-50%);\n          transform: translateY(-50%);\n  will-change: left, opacity;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF {\n  position: absolute;\n  left: 50vw;\n  top: 50vh;\n  margin: -10px -10px 0 0;\n  display: inline-block;\n  z-index: 80;\n  width: 20px;\n  height: 20px;\n  -webkit-transform: rotate(45deg);\n          transform: rotate(45deg);\n  -webkit-animation: antRotate__3Pam2 1.2s infinite linear;\n          animation: antRotate__3Pam2 1.2s infinite linear;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF i {\n  width: 9px;\n  height: 9px;\n  border-radius: 100%;\n  background-color: #108ee9;\n  -webkit-transform: scale(0.75);\n          transform: scale(0.75);\n  display: block;\n  position: absolute;\n  opacity: .3;\n  -webkit-animation: antSpinMove__2wABL 1s infinite linear alternate;\n          animation: antSpinMove__2wABL 1s infinite linear alternate;\n  -webkit-transform-origin: 50% 50%;\n          transform-origin: 50% 50%;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF :first-child {\n  left: 0;\n  top: 0;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF :nth-child(2) {\n  right: 0;\n  top: 0;\n  -webkit-animation-delay: 0.4s;\n          animation-delay: 0.4s;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF :nth-child(3) {\n  right: 0;\n  bottom: 0;\n  -webkit-animation-delay: 0.8s;\n          animation-delay: 0.8s;\n}\n.imageOverlayContainer__i3Lrv .loading__2ybtF :nth-child(4) {\n  left: 0;\n  bottom: 0;\n  -webkit-animation-delay: 1.2s;\n          animation-delay: 1.2s;\n}\n.imageOverlayContainer__i3Lrv .imgWrapper__3ifcP {\n  z-index: 100;\n  width: 0;\n  height: 0;\n  -webkit-transition: -webkit-transform 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: -webkit-transform 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: transform 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: transform 400ms cubic-bezier(0.15, 1, 0.3, 1), -webkit-transform 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  will-change: transform;\n}\n.imageOverlayContainer__i3Lrv .imgWrapper__3ifcP img {\n  -o-object-fit: contain;\n     object-fit: contain;\n  -webkit-transform-origin: center center 0;\n          transform-origin: center center 0;\n  -webkit-transform: translate(-50%, -50%);\n          transform: translate(-50%, -50%);\n  -webkit-transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  transition: all 400ms cubic-bezier(0.15, 1, 0.3, 1);\n  will-change: max-width, max-height, width, height;\n}\n.imageOverlayContainer__i3Lrv .backgroundOverlay__3_UE9 {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  cursor: -webkit-zoom-out;\n  cursor: zoom-out;\n  -webkit-transition: all 400ms;\n  transition: all 400ms;\n  background-color: rgba(255, 255, 255, 0);\n}\n@-webkit-keyframes antRotate__3Pam2 {\n  to {\n    -webkit-transform: rotate(405deg);\n            transform: rotate(405deg);\n  }\n}\n@keyframes antRotate__3Pam2 {\n  to {\n    -webkit-transform: rotate(405deg);\n            transform: rotate(405deg);\n  }\n}\n@-webkit-keyframes antSpinMove__2wABL {\n  to {\n    opacity: 1;\n  }\n}\n@keyframes antSpinMove__2wABL {\n  to {\n    opacity: 1;\n  }\n}\n.enter__2606y img {\n  opacity: 0;\n}\n.enterFromLeft__1IBEc {\n  -webkit-transform: translate(-40px, 0) !important;\n          transform: translate(-40px, 0) !important;\n}\n.enterFromLeft__1IBEc img {\n  opacity: 0;\n}\n.enterFromRight__1SrGD {\n  -webkit-transform: translate(40px, 0) !important;\n          transform: translate(40px, 0) !important;\n}\n.enterFromRight__1SrGD img {\n  opacity: 0;\n}\n.enter__2606y.enterActive__D5xMc {\n  -webkit-transform: translate(0, 0) !important;\n          transform: translate(0, 0) !important;\n}\n.enter__2606y.enterActive__D5xMc img {\n  opacity: 0;\n}\n.leave__1l9Wg img {\n  opacity: 1;\n}\n.leaveToLeft__GccD4 img {\n  opacity: 1;\n}\n.leaveToRight__2A5i3 img {\n  opacity: 1;\n}\n.leave__1l9Wg.leaveActive__GVp5I img {\n  opacity: 0;\n}\n.leaveToLeft__GccD4.leaveActive__GVp5I {\n  -webkit-transform: translate(-40px, 0) !important;\n          transform: translate(-40px, 0) !important;\n}\n.leaveToLeft__GccD4.leaveActive__GVp5I img {\n  opacity: 0;\n}\n.leaveToRight__2A5i3.leaveActive__GVp5I {\n  -webkit-transform: translate(40px, 0) !important;\n          transform: translate(40px, 0) !important;\n}\n.leaveToRight__2A5i3.leaveActive__GVp5I img {\n  opacity: 0;\n}\n", ""]);
 
 // exports
 exports.locals = {
@@ -671,7 +671,7 @@ module.exports = function (css) {
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 exports.ImageOverlay = exports.showImage = undefined;
 
@@ -717,424 +717,452 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 var imageWrapperId = function imageWrapperId(current) {
-  return 'zmage-' + current + '-wrapper';
+    return 'zmage-' + current + '-wrapper';
 };
 var imageId = function imageId(current) {
-  return 'zmage-' + current;
+    return 'zmage-' + current;
 };
 
 // 图片放大遮罩
 
 var ImageOverlay = function (_React$Component) {
-  _inherits(ImageOverlay, _React$Component);
+    _inherits(ImageOverlay, _React$Component);
 
-  function ImageOverlay(props) {
-    _classCallCheck(this, ImageOverlay);
+    function ImageOverlay(props) {
+        _classCallCheck(this, ImageOverlay);
 
-    var _this = _possibleConstructorReturn(this, (ImageOverlay.__proto__ || Object.getPrototypeOf(ImageOverlay)).call(this, props));
+        var _this = _possibleConstructorReturn(this, (ImageOverlay.__proto__ || Object.getPrototypeOf(ImageOverlay)).call(this, props));
 
-    _this.mountSelf = function () {
-      var coverNodeRef = _this.props.coverNodeRef;
-      // 隐藏封面原图
+        _this.mountSelf = function () {
+            var coverNodeRef = _this.props.coverNodeRef;
+            // 隐藏封面原图
 
-      if (coverNodeRef) coverNodeRef.style.visibility = 'hidden';
-      // 显示遮罩
-      _this.setState({ show: true }, function () {
-        // 添加键盘监听
-        _this.addListenKeyDown();
-      });
-    };
+            if (coverNodeRef) coverNodeRef.style.visibility = 'hidden';
+            // 显示遮罩
+            _this.setState({ show: true }, function () {
+                // 添加监听
+                setTimeout(function () {
+                    _this.addListenKeyDown();
+                    _this.addListenScroll();
+                }, _config.animateDuration);
+            });
+        };
 
-    _this.unmountSelf = function () {
-      var _this$props = _this.props,
-          coverNodeRef = _this$props.coverNodeRef,
-          overlayNodeRef = _this$props.overlayNodeRef;
-      var current = _this.state.current;
+        _this.unmountSelf = function () {
+            var _this$props = _this.props,
+                coverNodeRef = _this$props.coverNodeRef,
+                overlayNodeRef = _this$props.overlayNodeRef;
+            var current = _this.state.current;
 
-      _this.setState({ show: false }, function () {
-        // 移除键盘监听
-        _this.removeListenKeyDown();
-        // 显示封面原图（当前不为第一页时，直接显示, 遮罩从上方移除）
-        if (coverNodeRef && current !== 0) coverNodeRef.style.visibility = 'visible';
-        setTimeout(function () {
-          // 显示封面原图（当前为第一页时，延迟显示）
-          if (coverNodeRef && current === 0) coverNodeRef.style.visibility = 'visible';
-          // 移除遮罩节点
-          overlayNodeRef && overlayNodeRef.remove();
-        }, _config.animateDuration);
-      });
-    };
+            _this.setState({ show: false }, function () {
+                // 显示封面原图（当前不为第一页时，直接显示, 遮罩从上方移除）
+                if (coverNodeRef && current !== 0) coverNodeRef.style.visibility = 'visible';
+                setTimeout(function () {
+                    // 显示封面原图（当前为第一页时，延迟显示）
+                    if (coverNodeRef && current === 0) coverNodeRef.style.visibility = 'visible';
+                    // 移除遮罩节点
+                    overlayNodeRef && overlayNodeRef.remove();
+                    // 移除监听
+                    _this.removeListenKeyDown();
+                    _this.removeListenScroll();
+                }, _config.animateDuration);
+            });
+        };
 
-    _this.handleSwitchPages = function (direction) {
-      return function () {
-        var imageSet = _this.props.imageSet;
-        var current = _this.state.current;
+        _this.handleSwitchPages = function (direction) {
+            return function () {
+                var imageSet = _this.props.imageSet;
+                var current = _this.state.current;
 
-        _this.setState({
-          current: direction === "prev" ? Math.abs(imageSet.length + current - 1) % imageSet.length : (current + 1) % imageSet.length,
-          direction: direction,
-          onLoad: true,
-          onError: false
-        });
-      };
-    };
+                _this.setState({
+                    current: direction === "prev" ? Math.abs(imageSet.length + current - 1) % imageSet.length : (current + 1) % imageSet.length,
+                    direction: direction,
+                    onLoad: true,
+                    onError: false
+                });
+            };
+        };
 
-    _this.handleToggleZoom = function () {
-      var _this$state = _this.state,
-          zoom = _this$state.zoom,
-          zoomMargin = _this$state.zoomMargin,
-          current = _this$state.current;
+        _this.handleToggleZoom = function () {
+            var _this$state = _this.state,
+                zoom = _this$state.zoom,
+                zoomMargin = _this$state.zoomMargin,
+                current = _this$state.current;
 
-      var zoomPosId = imageWrapperId(current);
-      var zoomPos = document.getElementById(zoomPosId);
-      var zoomNodeId = imageId(current);
-      var zoomNode = document.getElementById(zoomNodeId);
-      var windowWidth = window.innerWidth;
-      var windowHeight = window.innerHeight;
-      var naturalWidth = zoomNode.naturalWidth;
-      var naturalHeight = zoomNode.naturalHeight;
-      _this.setState({
-        zoom: !zoom,
-        zoomPos: zoomPos,
-        zoomNode: zoomNode,
-        zoomSize: !zoom ? { naturalWidth: naturalWidth, naturalHeight: naturalHeight } : null,
-        zoomRange: !zoom ? {
-          x: naturalWidth - windowWidth + 2 * zoomMargin,
-          y: naturalHeight - windowHeight + 2 * zoomMargin
-        } : null
-      }, function () {
-        var zoom = _this.state.zoom;
-        // 根据缩放选择添加或移除鼠标移动
+            var zoomPosId = imageWrapperId(current);
+            var zoomPos = document.getElementById(zoomPosId);
+            var zoomNodeId = imageId(current);
+            var zoomNode = document.getElementById(zoomNodeId);
+            var windowWidth = window.innerWidth;
+            var windowHeight = window.innerHeight;
+            var naturalWidth = zoomNode.naturalWidth;
+            var naturalHeight = zoomNode.naturalHeight;
+            _this.setState({
+                zoom: !zoom,
+                zoomPos: zoomPos,
+                zoomNode: zoomNode,
+                zoomSize: !zoom ? { naturalWidth: naturalWidth, naturalHeight: naturalHeight } : null,
+                zoomRange: !zoom ? {
+                    x: naturalWidth - windowWidth + 2 * zoomMargin,
+                    y: naturalHeight - windowHeight + 2 * zoomMargin
+                } : null
+            }, function () {
+                var zoom = _this.state.zoom;
+                // 根据缩放选择添加或移除鼠标移动
 
-        zoom ? _this.addListenMouseMove() : _this.removeListenMouseMove();
-      });
-    };
+                zoom ? _this.addListenMouseMove() : _this.removeListenMouseMove();
+            });
+        };
 
-    _this.addListenMouseMove = function () {
-      setTimeout(function () {
-        var _this$state2 = _this.state,
-            zoom = _this$state2.zoom,
-            zoomPos = _this$state2.zoomPos;
+        _this.addListenMouseMove = function () {
+            setTimeout(function () {
+                var _this$state2 = _this.state,
+                    zoom = _this$state2.zoom,
+                    zoomPos = _this$state2.zoomPos;
 
-        if (zoom && zoomPos) {
-          window.addEventListener("mousemove", _this.handleMouseMove, true);
-          zoomPos.style.transition = 'none';
-        }
-      }, _config.animateDuration);
-    };
+                if (zoom && zoomPos) {
+                    window.addEventListener("mousemove", _this.handleMouseMove, true);
+                    zoomPos.style.transition = 'none';
+                }
+            }, _config.animateDuration);
+        };
 
-    _this.removeListenMouseMove = function () {
-      var zoomPos = _this.state.zoomPos;
+        _this.removeListenMouseMove = function () {
+            var zoomPos = _this.state.zoomPos;
 
-      window.removeEventListener("mousemove", _this.handleMouseMove, true);
-      zoomPos.style.transform = 'translate(0,0)';
-      zoomPos.style.transition = 'transform ' + _config.animateDuration + 'ms ' + _config.animationFunc;
-    };
+            window.removeEventListener("mousemove", _this.handleMouseMove, true);
+            zoomPos.style.transform = 'translate(0,0)';
+            zoomPos.style.transition = 'transform ' + _config.animateDuration + 'ms ' + _config.animationFunc;
+        };
 
-    _this.handleKeyDown = function (e) {
-      var zoom = _this.state.zoom;
+        _this.handleKeyDown = function (e) {
+            var imageSet = _this.props.imageSet;
+            var zoom = _this.state.zoom;
 
-      var toPrevPage = _this.handleSwitchPages("prev");
-      var toNextPage = _this.handleSwitchPages("next");
-      switch (e.key) {
-        case "ArrowLeft":
-          // 上一张
-          !zoom && toPrevPage();
-          break;
-        case "ArrowRight":
-          // 下一张
-          !zoom && toNextPage();
-          break;
-        case " ":
-          // 缩放
-          _this.handleToggleZoom();
-          break;
-        case "Escape":
-          // 退出
-          zoom ? _this.handleToggleZoom() : _this.unmountSelf();
-          break;
-        default:
-          return;
-      }
-      // 阻止默认事件
-      e.preventDefault();
-    };
-
-    _this.addListenKeyDown = function () {
-      window.addEventListener("keydown", _this.handleKeyDown, true);
-    };
-
-    _this.removeListenKeyDown = function () {
-      window.removeEventListener("keydown", _this.handleKeyDown, true);
-    };
-
-    _this.handleMouseMove = function (e) {
-      var _this$state3 = _this.state,
-          zoomPos = _this$state3.zoomPos,
-          zoomSize = _this$state3.zoomSize,
-          zoomRange = _this$state3.zoomRange,
-          zoomMargin = _this$state3.zoomMargin;
-      var naturalWidth = zoomSize.naturalWidth,
-          naturalHeight = zoomSize.naturalHeight;
-
-      var windowWidth = window.innerWidth;
-      var windowHeight = window.innerHeight;
-      var mouseX = e.clientX;
-      var mouseY = e.clientY;
-      // 计算偏移量
-      var imgPosX = naturalWidth > windowWidth ? (naturalWidth - windowWidth) / 2 + zoomMargin - zoomRange.x * (mouseX / windowWidth) : 0;
-      var imgPosY = naturalHeight > windowHeight ? (naturalHeight - windowHeight) / 2 + zoomMargin - zoomRange.y * (mouseY / windowHeight) : 0;
-      // 设置图片位置
-      zoomPos.style.transform = 'translate(' + imgPosX + 'px, ' + imgPosY + 'px)';
-    };
-
-    _this.state = {
-      // 显示
-      show: false,
-      // 缩放
-      zoom: false, // 是否缩放
-      zoomNode: null, // 目标节点
-      zoomSize: null, // 原始尺寸
-      zoomRange: null, // 移动范围
-      zoomMargin: 100, // 移动边距
-      // 页数
-      current: 0,
-      // 切换方向
-      direction: null,
-      // 加载完成
-      onLoad: false,
-      // 加载错误
-      onError: false
-    };
-    return _this;
-  }
-
-  _createClass(ImageOverlay, [{
-    key: 'componentDidMount',
-    value: function componentDidMount() {
-      setTimeout(this.mountSelf, 100);
-    }
-
-    // 显示
-
-    // 移除
-
-
-    // 切换页面
-
-    // 切换缩放
-
-    // 开始监听鼠标移动
-
-    // 停止监听鼠标移动
-
-
-    // 关联键盘快捷键
-
-    // 开始监听键盘快捷键
-
-    // 停止监听键盘快捷键
-
-
-    // 处理鼠标移动
-
-  }, {
-    key: 'render',
-    value: function render() {
-      var _this2 = this;
-
-      var _props = this.props,
-          coverNodeRef = _props.coverNodeRef,
-          lazyLoad = _props.lazyLoad,
-          indicator = _props.indicator,
-          imageSet = _props.imageSet;
-      var _state = this.state,
-          show = _state.show,
-          zoom = _state.zoom,
-          current = _state.current,
-          direction = _state.direction,
-          onLoad = _state.onLoad,
-          onError = _state.onError;
-
-
-      var hasImageSet = imageSet && imageSet.constructor === Array;
-      var zmageWrapperId = imageWrapperId(current);
-      var zmageId = imageId(current);
-
-      return _react2.default.createElement(
-        'div',
-        { className: _index2.default.imageOverlayContainer },
-        !zoom && _react2.default.createElement('div', { className: _index2.default.zoomButton, style: (0, _stateStyle.zoomStyle)(show), onClick: this.handleToggleZoom }),
-        _react2.default.createElement(
-          'div',
-          { className: _index2.default.closeButton, onClick: zoom ? this.handleToggleZoom : this.unmountSelf },
-          _react2.default.createElement('div', { className: _index2.default.crossLine, style: (0, _stateStyle.lineL)(show) }),
-          _react2.default.createElement('div', { className: _index2.default.crossLine, style: (0, _stateStyle.lineR)(show) })
-        ),
-        hasImageSet && !zoom && _react2.default.createElement(
-          'div',
-          { className: _index2.default.switchButton, style: (0, _stateStyle.prevStyle)(show), onClick: this.handleSwitchPages("prev") },
-          _react2.default.createElement(
-            'svg',
-            { viewBox: '0 0 24 24', xmlns: 'http://www.w3.org/2000/svg' },
-            _react2.default.createElement('path', { d: 'M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z' }),
-            _react2.default.createElement('path', { d: 'M0-.5h24v24H0z', fill: 'none' })
-          )
-        ),
-        hasImageSet && !zoom && _react2.default.createElement(
-          'div',
-          { className: _index2.default.switchButton, style: (0, _stateStyle.nextStyle)(show), onClick: this.handleSwitchPages("next") },
-          _react2.default.createElement(
-            'svg',
-            { viewBox: '0 0 24 24', xmlns: 'http://www.w3.org/2000/svg' },
-            _react2.default.createElement('path', { d: 'M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z' }),
-            _react2.default.createElement('path', { d: 'M0-.25h24v24H0z', fill: 'none' })
-          )
-        ),
-        hasImageSet && !zoom && _react2.default.createElement(
-          'div',
-          { className: _index2.default.pages, style: (0, _stateStyle.pagesStyle)(show) },
-          _react2.default.createElement(
-            'span',
-            null,
-            current + 1 + ' / ' + imageSet.length
-          )
-        ),
-        hasImageSet && !zoom ? imageSet[current].alt && _react2.default.createElement(
-          'div',
-          { className: _index2.default.imgAlt, style: (0, _stateStyle.altStyle)(show) },
-          imageSet[current].alt
-        ) : imageSet.alt && _react2.default.createElement(
-          'div',
-          { className: _index2.default.imgAlt, style: (0, _stateStyle.altStyle)(show) },
-          imageSet.alt
-        ),
-         false ? imageSet[current].text && _react2.default.createElement(
-          'div',
-          { className: _index2.default.imgText },
-          imageSet[current].text
-        ) : imageSet.text && _react2.default.createElement(
-          'div',
-          { className: _index2.default.imgText },
-          imageSet.text
-        ),
-        onLoad && _react2.default.createElement(
-          'span',
-          { className: _index2.default.loading },
-          _react2.default.createElement('i', null),
-          _react2.default.createElement('i', null),
-          _react2.default.createElement('i', null),
-          _react2.default.createElement('i', null)
-        ),
-        onError && _react2.default.createElement(
-          'span',
-          null,
-          '\uD83D\uDE16'
-        ),
-        _react2.default.createElement(
-          _reactTransitionGroup.CSSTransitionGroup,
-          {
-            style: { zIndex: 100 },
-            component: 'div',
-            transitionEnter: true,
-            transitionLeave: true,
-            transitionEnterTimeout: _config.animateDuration / 2,
-            transitionLeaveTimeout: _config.animateDuration / 2,
-            transitionName: {
-              enter: direction === "next" ? _index2.default.enterFromRight : _index2.default.enterFromLeft,
-              enterActive: _index2.default.enterActive,
-              leave: direction === "next" ? _index2.default.leaveToLeft : _index2.default.leaveToRight,
-              leaveActive: _index2.default.leaveActive
+            var hasImageSet = imageSet && imageSet.constructor === Array;
+            var toPrevPage = _this.handleSwitchPages("prev");
+            var toNextPage = _this.handleSwitchPages("next");
+            switch (e.key) {
+                case "ArrowLeft":
+                    // 上一张
+                    !zoom && toPrevPage();
+                    break;
+                case "ArrowRight":
+                    // 下一张
+                    !zoom && hasImageSet && toNextPage();
+                    break;
+                case " ":
+                    // 缩放
+                    _this.handleToggleZoom();
+                    break;
+                case "Escape":
+                    // 退出
+                    zoom ? _this.handleToggleZoom() : _this.unmountSelf();
+                    break;
+                default:
+                    return;
             }
-          },
-          _react2.default.createElement(
-            'div',
-            {
-              id: zmageWrapperId,
-              key: zmageWrapperId,
-              className: _index2.default.imgWrapper,
-              style: (0, _stateStyle.imageWrapperStyle)(show, current, coverNodeRef)
-            },
-            _react2.default.createElement('img', {
-              id: zmageId,
-              key: zmageId,
-              src: hasImageSet ? imageSet[current].src : imageSet.src,
-              alt: hasImageSet ? imageSet[current].alt : imageSet.alt,
-              onLoad: function onLoad() {
-                return _this2.setState({ onLoad: false });
-              },
-              onError: function onError() {
-                return _this2.setState({ onError: true });
-              },
-              onClick: zoom ? this.handleToggleZoom : function () {},
-              style: (0, _stateStyle.imageStyle)(zmageId, show, zoom, coverNodeRef)
-            })
-          )
-        ),
-        _react2.default.createElement('div', {
-          className: _index2.default.backgroundOverlay,
-          onClick: zoom ? this.handleToggleZoom : this.unmountSelf,
-          style: (0, _stateStyle.bgOverlayStyle)(show)
-        })
-      );
-    }
-  }]);
+            // 阻止默认事件
+            e.preventDefault();
+        };
 
-  return ImageOverlay;
+        _this.addListenKeyDown = function () {
+            window.addEventListener("keydown", _this.handleKeyDown, true);
+        };
+
+        _this.removeListenKeyDown = function () {
+            window.removeEventListener("keydown", _this.handleKeyDown, true);
+        };
+
+        _this.handleMouseMove = function (e) {
+            var _this$state3 = _this.state,
+                zoomPos = _this$state3.zoomPos,
+                zoomSize = _this$state3.zoomSize,
+                zoomRange = _this$state3.zoomRange,
+                zoomMargin = _this$state3.zoomMargin;
+            var naturalWidth = zoomSize.naturalWidth,
+                naturalHeight = zoomSize.naturalHeight;
+
+            var windowWidth = window.innerWidth;
+            var windowHeight = window.innerHeight;
+            var mouseX = e.clientX;
+            var mouseY = e.clientY;
+            // 计算偏移量
+            var imgPosX = naturalWidth > windowWidth ? (naturalWidth - windowWidth) / 2 + zoomMargin - zoomRange.x * (mouseX / windowWidth) : 0;
+            var imgPosY = naturalHeight > windowHeight ? (naturalHeight - windowHeight) / 2 + zoomMargin - zoomRange.y * (mouseY / windowHeight) : 0;
+            // 设置图片位置
+            zoomPos.style.transform = 'translate(' + imgPosX + 'px, ' + imgPosY + 'px)';
+        };
+
+        _this.addListenScroll = function () {
+            window.addEventListener("scroll", _this.handleScroll, true);
+        };
+
+        _this.removeListenScroll = function () {
+            window.removeEventListener("scroll", _this.handleScroll, true);
+        };
+
+        _this.handleScroll = function () {
+            var show = _this.state.show;
+
+            show && _this.unmountSelf();
+            _this.forceUpdate();
+        };
+
+        _this.state = {
+            // 显示
+            show: false,
+            // 缩放
+            zoom: false, // 是否缩放
+            zoomNode: null, // 目标节点
+            zoomSize: null, // 原始尺寸
+            zoomRange: null, // 移动范围
+            zoomMargin: 100, // 移动边距
+            // 页数
+            current: 0,
+            // 切换方向
+            direction: null,
+            // 加载完成
+            onLoad: false,
+            // 加载错误
+            onError: false
+        };
+        return _this;
+    }
+
+    _createClass(ImageOverlay, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            setTimeout(this.mountSelf, 100);
+        }
+
+        // 显示
+
+        // 移除
+
+
+        // 切换页面
+
+        // 切换缩放
+
+        // 开始监听鼠标移动
+
+        // 停止监听鼠标移动
+
+
+        // 关联键盘快捷键
+
+        // 开始监听键盘快捷键
+
+        // 停止监听键盘快捷键
+
+
+        // 处理鼠标移动
+
+
+        // 开始监听滚动
+
+        // 停止监听滚动
+
+        // 处理滚动
+
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this2 = this;
+
+            var _props = this.props,
+                coverNodeRef = _props.coverNodeRef,
+                lazyLoad = _props.lazyLoad,
+                indicator = _props.indicator,
+                imageSet = _props.imageSet;
+            var _state = this.state,
+                show = _state.show,
+                zoom = _state.zoom,
+                current = _state.current,
+                direction = _state.direction,
+                onLoad = _state.onLoad,
+                onError = _state.onError;
+
+
+            var hasImageSet = imageSet && imageSet.constructor === Array;
+            var zmageWrapperId = imageWrapperId(current);
+            var zmageId = imageId(current);
+
+            return _react2.default.createElement(
+                'div',
+                { className: _index2.default.imageOverlayContainer },
+                !zoom && _react2.default.createElement('div', { className: _index2.default.zoomButton, style: (0, _stateStyle.zoomStyle)(show), onClick: this.handleToggleZoom }),
+                _react2.default.createElement(
+                    'div',
+                    { className: _index2.default.closeButton, onClick: zoom ? this.handleToggleZoom : this.unmountSelf },
+                    _react2.default.createElement('div', { className: _index2.default.crossLine, style: (0, _stateStyle.lineL)(show) }),
+                    _react2.default.createElement('div', { className: _index2.default.crossLine, style: (0, _stateStyle.lineR)(show) })
+                ),
+                hasImageSet && !zoom && _react2.default.createElement(
+                    'div',
+                    { className: _index2.default.switchButton, style: (0, _stateStyle.prevStyle)(show), onClick: this.handleSwitchPages("prev") },
+                    _react2.default.createElement(
+                        'svg',
+                        { viewBox: '0 0 24 24', xmlns: 'http://www.w3.org/2000/svg' },
+                        _react2.default.createElement('path', { d: 'M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z' }),
+                        _react2.default.createElement('path', { d: 'M0-.5h24v24H0z', fill: 'none' })
+                    )
+                ),
+                hasImageSet && !zoom && _react2.default.createElement(
+                    'div',
+                    { className: _index2.default.switchButton, style: (0, _stateStyle.nextStyle)(show), onClick: this.handleSwitchPages("next") },
+                    _react2.default.createElement(
+                        'svg',
+                        { viewBox: '0 0 24 24', xmlns: 'http://www.w3.org/2000/svg' },
+                        _react2.default.createElement('path', { d: 'M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z' }),
+                        _react2.default.createElement('path', { d: 'M0-.25h24v24H0z', fill: 'none' })
+                    )
+                ),
+                hasImageSet && !zoom && _react2.default.createElement(
+                    'div',
+                    { className: _index2.default.pages, style: (0, _stateStyle.pagesStyle)(show) },
+                    _react2.default.createElement(
+                        'span',
+                        null,
+                        current + 1 + ' / ' + imageSet.length
+                    )
+                ),
+                hasImageSet && !zoom ? imageSet[current].alt && _react2.default.createElement(
+                    'div',
+                    { className: _index2.default.imgAlt, style: (0, _stateStyle.altStyle)(show) },
+                    imageSet[current].alt
+                ) : imageSet.alt && _react2.default.createElement(
+                    'div',
+                    { className: _index2.default.imgAlt, style: (0, _stateStyle.altStyle)(show) },
+                    imageSet.alt
+                ),
+                 false ? imageSet[current].text && _react2.default.createElement(
+                    'div',
+                    { className: _index2.default.imgText },
+                    imageSet[current].text
+                ) : imageSet.text && _react2.default.createElement(
+                    'div',
+                    { className: _index2.default.imgText },
+                    imageSet.text
+                ),
+                onLoad && _react2.default.createElement(
+                    'span',
+                    { className: _index2.default.loading },
+                    _react2.default.createElement('i', null),
+                    _react2.default.createElement('i', null),
+                    _react2.default.createElement('i', null),
+                    _react2.default.createElement('i', null)
+                ),
+                onError && _react2.default.createElement(
+                    'span',
+                    null,
+                    '\uD83D\uDE16'
+                ),
+                _react2.default.createElement(
+                    _reactTransitionGroup.CSSTransitionGroup,
+                    {
+                        style: { zIndex: 100 },
+                        component: 'div',
+                        transitionEnter: true,
+                        transitionLeave: true,
+                        transitionEnterTimeout: _config.animateDuration,
+                        transitionLeaveTimeout: _config.animateDuration,
+                        transitionName: {
+                            enter: direction === "next" ? _index2.default.enterFromRight : _index2.default.enterFromLeft,
+                            enterActive: _index2.default.enterActive,
+                            leave: direction === "next" ? _index2.default.leaveToLeft : _index2.default.leaveToRight,
+                            leaveActive: _index2.default.leaveActive
+                        }
+                    },
+                    _react2.default.createElement(
+                        'div',
+                        {
+                            id: zmageWrapperId,
+                            key: zmageWrapperId,
+                            className: _index2.default.imgWrapper,
+                            style: (0, _stateStyle.imageWrapperStyle)(show, current, coverNodeRef)
+                        },
+                        _react2.default.createElement('img', {
+                            id: zmageId,
+                            key: zmageId,
+                            src: hasImageSet ? imageSet[current].src : imageSet.src,
+                            alt: hasImageSet ? imageSet[current].alt : imageSet.alt,
+                            onLoad: function onLoad() {
+                                return _this2.setState({ onLoad: false });
+                            },
+                            onError: function onError() {
+                                return _this2.setState({ onError: true });
+                            },
+                            onClick: zoom ? this.handleToggleZoom : function () {},
+                            style: (0, _stateStyle.imageStyle)(zmageId, show, zoom, coverNodeRef)
+                        })
+                    )
+                ),
+                _react2.default.createElement('div', {
+                    className: _index2.default.backgroundOverlay,
+                    onClick: zoom ? this.handleToggleZoom : this.unmountSelf,
+                    style: (0, _stateStyle.bgOverlayStyle)(show)
+                })
+            );
+        }
+    }]);
+
+    return ImageOverlay;
 }(_react2.default.Component);
 // 默认参数
 
 
 ImageOverlay.defaultProps = {
-  // 原图封面节点引用
-  coverNodeRef: null,
-  // 遮罩节点引用
-  overlayNodeRef: null,
-  // 图片参数
-  imageSet: null
-  // 参数类型
+    // 原图封面节点引用
+    coverNodeRef: null,
+    // 遮罩节点引用
+    overlayNodeRef: null,
+    // 图片参数
+    imageSet: null
+    // 参数类型
 };ImageOverlay.propTypes = {
-  // 原图封面节点引用
-  coverNodeRef: _propTypes2.default.object,
-  // 遮罩节点引用
-  overlayNodeRef: _propTypes2.default.object,
-  // 图片参数
-  imageSet: _propTypes2.default.oneOfType([_propTypes2.default.arrayOf(_config.imageType), _config.imageType])
+    // 原图封面节点引用
+    coverNodeRef: _propTypes2.default.object,
+    // 遮罩节点引用
+    overlayNodeRef: _propTypes2.default.object,
+    // 图片参数
+    imageSet: _propTypes2.default.oneOfType([_propTypes2.default.arrayOf(_config.imageType), _config.imageType])
 
-  // 调用以显示 ImageOverlay
+    // 调用以显示 ImageOverlay
 };var showImage = function showImage(_ref) {
-  var id = _ref.id,
-      lazyLoad = _ref.lazyLoad,
-      indicator = _ref.indicator,
-      imageSet = _ref.imageSet;
+    var id = _ref.id,
+        lazyLoad = _ref.lazyLoad,
+        indicator = _ref.indicator,
+        imageSet = _ref.imageSet;
 
-  // 封面图片节点
-  var coverNodeRef = document.querySelector('#' + id);
+    // 封面图片节点
+    var coverNodeRef = document.querySelector('#' + id);
 
-  // 容器节点ID
-  var overlayId = id + '-overlay';
+    // 容器节点ID
+    var overlayId = id + '-overlay';
 
-  // 移除先前的容器节点
-  var previousOverlayNode = document.querySelector('#' + overlayId);
-  previousOverlayNode && previousOverlayNode.remove();
+    // 移除先前的容器节点
+    var previousOverlayNode = document.querySelector('#' + overlayId);
+    previousOverlayNode && previousOverlayNode.remove();
 
-  // 插入新的容器节点
-  var overlayNode = document.createElement('div');
-  overlayNode.id = overlayId;
-  document.body.appendChild(overlayNode);
-  var overlayNodeRef = document.querySelector('#' + overlayId);
+    // 插入新的容器节点
+    var overlayNode = document.createElement('div');
+    overlayNode.id = overlayId;
+    document.body.appendChild(overlayNode);
+    var overlayNodeRef = document.querySelector('#' + overlayId);
 
-  // 渲染组件容器节点
-  overlayNodeRef && _reactDom2.default.render(_react2.default.createElement(ImageOverlay, {
-    coverNodeRef: coverNodeRef,
-    overlayNodeRef: overlayNodeRef,
-    lazyLoad: lazyLoad,
-    indicator: indicator,
-    imageSet: imageSet
-  }), overlayNodeRef);
+    // 渲染组件容器节点
+    overlayNodeRef && _reactDom2.default.render(_react2.default.createElement(ImageOverlay, {
+        coverNodeRef: coverNodeRef,
+        overlayNodeRef: overlayNodeRef,
+        lazyLoad: lazyLoad,
+        indicator: indicator,
+        imageSet: imageSet
+    }), overlayNodeRef);
 
-  // 返回容器节点引用, 调用 remove() 即可移除
-  return overlayNodeRef;
+    // 返回容器节点引用, 调用 remove() 即可移除
+    return overlayNodeRef;
 };
 
 exports.showImage = showImage;
@@ -1279,12 +1307,13 @@ var nextStyle = exports.nextStyle = function nextStyle(show) {
   };
 };var imageWrapperStyle = exports.imageWrapperStyle = function imageWrapperStyle(show, current, coverNodeRef) {
   // 页面中心点位置
-  var centerPosition = "translate(0, 0)";
-  // 封面中心点位置 (如果当前为第一页，则返回封面位置，否则向上隐藏)
-  var coverNodeRect = coverNodeRef ? coverNodeRef.getBoundingClientRect() : {
-    bottom: 0, height: 0, left: 0, right: 0, top: 0, width: 0, x: 0, y: 0
-  };
-  var coverPosition = current === 0 ? "translate(calc(-50vw + " + (coverNodeRect.left + coverNodeRect.width / 2) + "px), calc(-50vh + " + (coverNodeRect.top + coverNodeRect.height / 2) + "px))" : "translate(0, -100vh)";
+  var centerPosition = "translate3d(0, 0, 0)";
+  // 封面位置 (如果当前为第一页，则返回封面位置，否则向上隐藏)
+  var coverPosition = current === 0 ? "translate3d(0, 0, 0)" : "translate3d(0, -100vh, 0)";
+  if (coverNodeRef) {
+    var coverNodeRect = coverNodeRef.getBoundingClientRect();
+    coverPosition = current === 0 ? "translate3d(calc(-50vw + " + (coverNodeRect.left + coverNodeRect.width / 2) + "px), calc(-50vh + " + (coverNodeRect.top + coverNodeRect.height / 2) + "px), 0)" : "translate3d(0, -80vh, 0)";
+  }
   return show ? {
     WebkitTransform: centerPosition,
     transform: centerPosition
@@ -1294,35 +1323,41 @@ var nextStyle = exports.nextStyle = function nextStyle(show) {
   };
 };
 var imageStyle = exports.imageStyle = function imageStyle(zmageId, show, zoom, coverNodeRef) {
-  // 封面尺寸
-  var coverNodeRect = coverNodeRef ? coverNodeRef.getBoundingClientRect() : {
-    bottom: 0, height: 0, left: 0, right: 0, top: 0, width: 0, x: 0, y: 0
-    // 大图原始尺寸
-  };var naturalWidth = void 0,
-      naturalHeight = void 0;
+  // 大图原始尺寸
+  var zmageNode = {};
   if (zoom) {
-    var zmageNode = document.getElementById(zmageId);
-    naturalWidth = zmageNode.naturalWidth;
-    naturalHeight = zmageNode.naturalHeight;
+    zmageNode = document.getElementById(zmageId);
+  }
+  // 封面尺寸, 封面样式
+  var coverNodeRect = {},
+      coverNodeStyle = {},
+      opacity = 0;
+  if (coverNodeRef) {
+    coverNodeRect = coverNodeRef.getBoundingClientRect();
+    coverNodeStyle = window.getComputedStyle(coverNodeRef);
+    opacity = 1;
   }
   return show ? {
-    width: zoom ? naturalWidth : 'initial',
-    height: zoom ? naturalHeight : 'initial',
-    maxWidth: zoom ? naturalWidth : '90vw',
-    maxHeight: zoom ? naturalHeight : '90vh',
-    border: 0,
-    borderRadius: 6
+    width: zmageNode.naturalWidth || '',
+    height: zmageNode.naturalHeight || '',
+    maxWidth: zmageNode.naturalWidth || '90vw',
+    maxHeight: zmageNode.naturalHeight || '90vh',
+    border: "",
+    borderRadius: "",
+    boxShadow: ""
   } : {
-    maxWidth: coverNodeRect.width,
-    maxHeight: coverNodeRect.height,
-    border: coverNodeRef && coverNodeRef.style.border || 0,
-    borderRadius: coverNodeRef && coverNodeRef.style.borderRadius || 0
+    opacity: opacity,
+    maxWidth: coverNodeRect.width || 0,
+    maxHeight: coverNodeRect.height || 0,
+    border: coverNodeStyle.border || "",
+    borderRadius: coverNodeStyle.borderRadius || "",
+    boxShadow: coverNodeStyle.boxShadow || ""
   };
 };
 
 // 背景遮罩样式
 var bgOverlayStyle = exports.bgOverlayStyle = function bgOverlayStyle(show) {
-  return show ? { backgroundColor: 'white' } : { backgroundColor: 'transparent' };
+  return show ? { backgroundColor: 'rgba(255,255,255,1)' } : { backgroundColor: 'rgba(255,255,255,0)' };
 };
 
 /***/ }),
@@ -1357,7 +1392,7 @@ var imageType = exports.imageType = _propTypes2.default.shape({
  **/
 
 // React Libs
-var animateDuration = exports.animateDuration = 650;
+var animateDuration = exports.animateDuration = 400;
 // 动画曲线 ( img/index.less )
 var animationFunc = exports.animationFunc = 'cubic-bezier(0.15, 1, 0.3, 1)';
 
