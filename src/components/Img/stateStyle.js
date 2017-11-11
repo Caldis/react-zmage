@@ -90,14 +90,15 @@ export const altStyle = show => show ? {
 // 图片本体样式
 export const imageWrapperStyle = (show, current, coverNodeRef) => {
     // 页面中心点位置
-    const centerPosition = `translate(0, 0)`
-    // 封面中心点位置 (如果当前为第一页，则返回封面位置，否则向上隐藏)
-    const coverNodeRect = coverNodeRef ? coverNodeRef.getBoundingClientRect() : {
-        bottom:0, height:0, left:0, right:0, top:0, width:0, x:0, y:0
+    const centerPosition = `translate3d(0, 0, 0)`
+    // 封面位置 (如果当前为第一页，则返回封面位置，否则向上隐藏)
+    let coverPosition = current === 0 ? `translate3d(0, 0, 0)` : `translate3d(0, -100vh, 0)`
+    if (coverNodeRef) {
+        const coverNodeRect = coverNodeRef.getBoundingClientRect()
+        coverPosition = current === 0 ?
+            `translate3d(calc(-50vw + ${coverNodeRect.left+coverNodeRect.width/2}px), calc(-50vh + ${coverNodeRect.top+coverNodeRect.height/2}px), 0)` :
+            `translate3d(0, -80vh, 0)`
     }
-    const coverPosition = current === 0 ?
-        `translate(calc(-50vw + ${coverNodeRect.left+coverNodeRect.width/2}px), calc(-50vh + ${coverNodeRect.top+coverNodeRect.height/2}px))` :
-        `translate(0, -100vh)`
     return show ? {
         WebkitTransform: centerPosition,
         transform: centerPosition
@@ -107,31 +108,35 @@ export const imageWrapperStyle = (show, current, coverNodeRef) => {
     }
 }
 export const imageStyle = (zmageId, show, zoom, coverNodeRef) => {
-    // 封面尺寸
-    const coverNodeRect = coverNodeRef ? coverNodeRef.getBoundingClientRect() : {
-        bottom:0, height:0, left:0, right:0, top:0, width:0, x:0, y:0
-    }
     // 大图原始尺寸
-    let naturalWidth, naturalHeight;
+    let zmageNode = {};
     if(zoom) {
-        const zmageNode = document.getElementById(zmageId)
-        naturalWidth = zmageNode.naturalWidth
-        naturalHeight = zmageNode.naturalHeight
+        zmageNode = document.getElementById(zmageId)
+    }
+    // 封面尺寸, 封面样式
+    let coverNodeRect = {}, coverNodeStyle = {}, opacity = 0
+    if (coverNodeRef) {
+        coverNodeRect = coverNodeRef.getBoundingClientRect()
+        coverNodeStyle = window.getComputedStyle(coverNodeRef)
+        opacity = 1
     }
     return show ? {
-        width:  zoom ? naturalWidth : 'initial',
-        height:  zoom ? naturalHeight : 'initial',
-        maxWidth: zoom ? naturalWidth : '90vw',
-        maxHeight: zoom ? naturalHeight : '90vh',
-        border: 0,
-        borderRadius: 6,
+        width: zmageNode.naturalWidth || '',
+        height:  zmageNode.naturalHeight || '',
+        maxWidth: zmageNode.naturalWidth || '90vw',
+        maxHeight: zmageNode.naturalHeight || '90vh',
+        border: "",
+        borderRadius: "",
+        boxShadow: ""
     } : {
-        maxWidth: coverNodeRect.width,
-        maxHeight: coverNodeRect.height,
-        border: coverNodeRef && coverNodeRef.style.border || 0,
-        borderRadius: coverNodeRef && coverNodeRef.style.borderRadius || 0,
+        opacity,
+        maxWidth: coverNodeRect.width || 0,
+        maxHeight: coverNodeRect.height || 0,
+        border: coverNodeStyle.border || "",
+        borderRadius: coverNodeStyle.borderRadius || "",
+        boxShadow: coverNodeStyle.boxShadow || "",
     }
 }
 
 // 背景遮罩样式
-export const bgOverlayStyle = show => show ? {backgroundColor: 'white'} : {backgroundColor: 'transparent'}
+export const bgOverlayStyle = show => show ? {backgroundColor: 'rgba(255,255,255,1)'} : {backgroundColor: 'rgba(255,255,255,0)'}

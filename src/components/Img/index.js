@@ -51,17 +51,18 @@ class ImageOverlay extends React.Component {
         if(coverNodeRef) coverNodeRef.style.visibility = 'hidden'
         // 显示遮罩
         this.setState({ show: true }, () => {
-        	// 添加键盘监听
-	        this.addListenKeyDown()
+        	// 添加监听
+            setTimeout(() => {
+                this.addListenKeyDown()
+                this.addListenScroll()
+            }, animateDuration)
         })
     }
     // 移除
     unmountSelf = () => {
         const { coverNodeRef, overlayNodeRef } = this.props
 	    const { current } = this.state
-        this.setState({ show: false }, () =>{
-        	// 移除键盘监听
-	        this.removeListenKeyDown()
+        this.setState({ show: false }, () => {
 	        // 显示封面原图（当前不为第一页时，直接显示, 遮罩从上方移除）
             if(coverNodeRef && current!==0) coverNodeRef.style.visibility = 'visible'
             setTimeout(() => {
@@ -69,6 +70,9 @@ class ImageOverlay extends React.Component {
 	            if(coverNodeRef && current===0) coverNodeRef.style.visibility = 'visible'
                 // 移除遮罩节点
                 overlayNodeRef && overlayNodeRef.remove()
+                // 移除监听
+                this.removeListenKeyDown()
+                this.removeListenScroll()
             }, animateDuration)
         })
     }
@@ -134,7 +138,9 @@ class ImageOverlay extends React.Component {
 
 	// 关联键盘快捷键
 	handleKeyDown = (e) => {
+        const { imageSet } = this.props
     	const { zoom } = this.state
+        const hasImageSet = imageSet && imageSet.constructor===Array
 		const toPrevPage = this.handleSwitchPages("prev")
 		const toNextPage = this.handleSwitchPages("next")
 		switch (e.key) {
@@ -144,7 +150,7 @@ class ImageOverlay extends React.Component {
 				break
 			case "ArrowRight":
 				// 下一张
-				!zoom && toNextPage()
+				!zoom && hasImageSet && toNextPage()
 				break
 			case " ":
 				// 缩放
@@ -186,6 +192,20 @@ class ImageOverlay extends React.Component {
         zoomPos.style.transform = `translate(${imgPosX}px, ${imgPosY}px)`
 	}
 
+    // 开始监听滚动
+    addListenScroll = () => {
+        window.addEventListener("scroll", this.handleScroll, true)
+    }
+    // 停止监听滚动
+    removeListenScroll = () => {
+        window.removeEventListener("scroll", this.handleScroll, true)
+    }
+    // 处理滚动
+    handleScroll = () => {
+        const { show } = this.state
+        show && this.unmountSelf()
+        this.forceUpdate()
+    }
 
     render() {
 
@@ -266,8 +286,8 @@ class ImageOverlay extends React.Component {
                     component="div"
                     transitionEnter={true}
                     transitionLeave={true}
-                    transitionEnterTimeout={animateDuration/2}
-                    transitionLeaveTimeout={animateDuration/2}
+                    transitionEnterTimeout={animateDuration}
+                    transitionLeaveTimeout={animateDuration}
                     transitionName={{
                         enter: direction==="next" ? style.enterFromRight : style.enterFromLeft,
                         enterActive: style.enterActive,

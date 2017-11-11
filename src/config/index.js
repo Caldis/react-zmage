@@ -13,6 +13,6 @@ export const imageType = PropTypes.shape({
 })
 
 // 动画时长 (ms) ( img/index.less )
-export const animateDuration = 650
+export const animateDuration = 400
 // 动画曲线 ( img/index.less )
 export const animationFunc = 'cubic-bezier(0.15, 1, 0.3, 1)'

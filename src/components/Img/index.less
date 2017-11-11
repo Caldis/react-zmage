@@ -2,9 +2,12 @@
  * 图片放大叠层组件样式
  **/
 
+// 屏幕宽度
+@vw:  ~"calc(100vw - (100vw - 100%))";
+@vh: 100vh;
 // 动画时长 (ms) ( config/index.js )
-@animationDurations: 650ms;
-@animationDurationsHalf: 650/2ms;
+@animationDurations: 400ms;
+@animationDurationsHalf: 400/2ms;
 // 动画曲线 ( config/index.js )
 @animationFunction: cubic-bezier(0.15, 1, 0.3, 1);
 
@@ -203,9 +206,9 @@
 
         img {
             object-fit: contain;
-            transform-origin: 50% 50%;
+            transform-origin: center center 0;
             transform: translate(-50%, -50%);
-            transition: 0.6s 0.05s max-width, 0.6s 0.05s max-height, @animationDurationsHalf opacity;
+            transition:  all @animationDurations @animationFunction;
             will-change: max-width, max-height, width, height;
         }
     }
@@ -217,10 +220,9 @@
         left: 0;
         right: 0;
         bottom: 0;
-        width: 100vw;
-        height: 100vh;
 		cursor: zoom-out;
         transition: all @animationDurations;
+        background-color: rgba(255,255,255,0);
     }
 }
 
