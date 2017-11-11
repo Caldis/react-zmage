@@ -28,7 +28,7 @@ export default class ReactZmage extends React.Component {
                     </a>
 
                     <div className={style.project}>
-                        <span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>alpha</span><span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>0.0.4</span>
+                        <span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>alpha</span><span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>0.0.5</span>
 
                         <h1>react-zmage</h1>
                         <h2>一个基于 React 的可缩放图片控件, 也可作为幻灯片使用</h2>
