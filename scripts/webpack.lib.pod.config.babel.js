@@ -6,7 +6,7 @@
 import webpack from 'webpack'
 // 从基础设置继承
 import merge from 'webpack-merge'
-import baseConfig from './webpack.dist.base.config.babel.js'
+import baseConfig from './webpack.lib.base.config.babel.js'
 
 const config =  merge.smart(baseConfig, {
     output: {

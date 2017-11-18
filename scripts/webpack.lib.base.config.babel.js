@@ -15,7 +15,7 @@ const config =  merge.smart(baseConfig, {
 	},
 
 	output: {
-		path: path.resolve(__dirname, '../dist'),
+		path: path.resolve(__dirname, '../lib'),
 		library: 'react-zmage',
 		libraryTarget: 'umd'
 	},
