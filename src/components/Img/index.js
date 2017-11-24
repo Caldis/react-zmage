@@ -210,7 +210,7 @@ class ImageOverlay extends React.Component {
     render() {
 
         const { coverNodeRef, lazyLoad, indicator, imageSet } = this.props
-        const { show, zoom, current, direction, onLoad, onError } = this.state
+        const { show, zoom, zoomMargin, current, direction, onLoad, onError } = this.state
 
 	    const hasImageSet = imageSet && imageSet.constructor===Array
         const zmageWrapperId = imageWrapperId(current)
@@ -309,7 +309,7 @@ class ImageOverlay extends React.Component {
                             onLoad={() => this.setState({ onLoad: false })}
                             onError={() => this.setState({ onError: true })}
                             onClick={zoom ? this.handleToggleZoom : ()=>{}}
-                            style={imageStyle(zmageId, show, zoom, coverNodeRef)}
+                            style={imageStyle(zmageId, show, zoom, zoomMargin, coverNodeRef)}
                         />
                     </div>
                 </CSSTransitionGroup>
