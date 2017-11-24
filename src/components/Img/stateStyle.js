@@ -109,59 +109,33 @@ export const imageWrapperStyle = (show, current, coverNodeRef) => {
         transform: coverPosition
     }
 }
-//
-// export const imageStyle = (zmageId, show, zoom, coverNodeRef) => {
-// 	// 大图原始尺寸
-// 	let zmageNode = {}
-// 	if(zoom) {
-// 		zmageNode = document.getElementById(zmageId)
-// 	}
-// 	// 封面尺寸, 封面样式
-// 	let coverNodeRect = {}, coverNodeStyle = {}, opacity = 0
-// 	if (coverNodeRef) {
-// 		coverNodeRect = coverNodeRef.getBoundingClientRect()
-// 		coverNodeStyle = window.getComputedStyle(coverNodeRef)
-// 		opacity = 1
-// 	}
-// 	return show ? {
-// 		width: zmageNode.naturalWidth || '',
-// 		height:  zmageNode.naturalHeight || '',
-// 		maxWidth: zmageNode.naturalWidth || '90vw',
-// 		maxHeight: zmageNode.naturalHeight || '90vh',
-// 		border: "",
-// 		borderRadius: "",
-// 		boxShadow: ""
-// 	} : {
-// 		opacity,
-// 		maxWidth: coverNodeRect.width || 0,
-// 		maxHeight: coverNodeRect.height || 0,
-// 		border: coverNodeStyle.border || "",
-// 		borderRadius: coverNodeStyle.borderRadius || "",
-// 		boxShadow: coverNodeStyle.boxShadow || "",
-// 	}
-// }
 
 export const imageStyle = (zmageId, show, zoom, zoomMargin, coverNodeRef) => {
-    // 封面尺寸, 封面样式
+
+    const nodeRef = coverNodeRef || document.getElementById(zmageId)
     let coverNodeStyle = {}, opacity = 0
-    if (coverNodeRef) {
-        coverNodeStyle = window.getComputedStyle(coverNodeRef)
+    let coverScale = 0, fitScale = 0, originalScale = 1
+    if (nodeRef) {
+        // 封面尺寸, 封面样式
+        coverNodeStyle = window.getComputedStyle(nodeRef)
         opacity = 1
+		// 计算缩放比例
+        coverScale = parseInt(coverNodeStyle.width) / nodeRef.naturalWidth
+        fitScale = calcFitScale(nodeRef, zoomMargin)
     }
-    // 缩放比例
-	let coverScale = 0, fitScale = 1, originalScale = 1
-	if (coverNodeStyle) {
-		coverScale = parseInt(coverNodeStyle.width) / coverNodeRef.naturalWidth
-		fitScale = calcFitScale(coverNodeRef, zoomMargin)
-	}
+
     return show ? {
-	    transform: `translate(-50%, -50%) scale(${zoom ? originalScale : fitScale})`,
+	    transform: coverNodeRef ? `translate(-50%, -50%) scale(${zoom ? originalScale : fitScale})` : '',
+		maxWidth: coverNodeRef ? '' : '90vw',
+		maxHeight: coverNodeRef ? '' : '90vh',
         border: "",
         borderRadius: "",
         boxShadow: ""
     } : {
         opacity,
-	    transform: `translate(-50%, -50%) scale(${coverScale})`,
+	    transform: coverNodeRef ? `translate(-50%, -50%) scale(${coverScale})` : '',
+        maxWidth: coverNodeRef ? '' : '0',
+        maxHeight: coverNodeRef ? '' : '0',
         border: coverNodeStyle.border || "",
         borderRadius: coverNodeStyle.borderRadius || "",
         boxShadow: coverNodeStyle.boxShadow || "",
