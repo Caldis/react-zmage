@@ -48,17 +48,8 @@ import Zmage from 'react-zmage'
 
 
 ## 配置
-- 待完善
-
-
-## 开源
-[react](https://github.com/facebook/react)
-
-[react-dom](https://github.com/facebook/react)
-
-[prop-types](https://github.com/reactjs/prop-types)
-
-[react-transition-group](https://github.com/reactjs/react-transition-group)
+- 请参见 http://zmage.u2sk.com
+- 其余待补充
 
 
 ## 贡献
