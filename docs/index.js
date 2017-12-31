@@ -43,10 +43,10 @@ export default class ReactZmage extends React.Component {
                     <div>
                         <Zmage
                             className={style.image}
-                            src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/7a4cdd56119387.59a0f4e69a7c4.jpg"
+                            src="imgSet/aboutDeer/1.jpg"
                             alt="最简单的使用方式"
                         />
-                        <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
+                        <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
                     </div>
                     <div>
                         <h2>基本用法</h2>
@@ -79,10 +79,10 @@ export default class ReactZmage extends React.Component {
                     <div>
                         <Zmage
                             className={style.image}
-                            src="https://mir-s3-cdn-cf.behance.net/project_modules/1400/032a2156119387.59a0f47ee4d08.jpg"
+                            src="imgSet/aboutDeer/2.jpg"
                             alt="放大图片并并滑动预览"
                         />
-                        <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
+                        <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
                     </div>
                 </div>
 
@@ -90,29 +90,20 @@ export default class ReactZmage extends React.Component {
                     <div>
                         <Zmage
                             className={style.image}
-                            src="https://mir-s3-cdn-cf.behance.net/project_modules/1400/e5a51f56119387.59a0f47ee56a3.jpg"
+                            src="imgSet/aboutDeer/3.jpg"
                             alt="展示序列图片"
                             imageSet={[{
-                                src: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/e5a51f56119387.59a0f47ee56a3.jpg",
-                                alt: "童梦 · THREE"
+                                src: "imgSet/aboutDeer/3.jpg",
+                                alt: "關於鹿 · THREE"
                             },{
-                                src: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/0e8ea156119387.59a0f47ee6752.jpg",
-                                alt: "童梦 · FOUR"
+                                src: "imgSet/aboutDeer/4.jpg",
+                                alt: "關於鹿 · FOUR"
                             },{
-                                src: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/dc26ed56119387.59a0f47ee7283.jpg",
-                                alt: "童梦 · FIVE"
-                            },{
-                                src: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/f4253c56119387.59a0f47ee5f47.jpg",
-                                alt: "童梦 · SIX"
-                            },{
-                                src: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/4549ec56119387.59a0f47ee515e.jpg",
-                                alt: "童梦 · SEVEN"
-                            },{
-                                src: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/a9df7456119387.59a0f47ee6f76.jpg",
-                                alt: "童梦 · EIGHT"
+                                src: "imgSet/aboutDeer/5.jpg",
+                                alt: "關於鹿 · FIVE"
                             }]}
                         />
-                        <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
+                        <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
                     </div>
                     <div>
                         <h2>展示序列图片</h2>
@@ -146,10 +137,20 @@ export default class ReactZmage extends React.Component {
                     <div>
                         <Zmage
                             className={style.image}
-                            src="https://mir-s3-cdn-cf.behance.net/project_modules/1400/0e8ea156119387.59a0f47ee6752.jpg"
+                            src="imgSet/aboutDeer/6.jpg"
                             alt="使用键盘进行快捷操作"
+                            imageSet={[{
+	                            src: "imgSet/aboutDeer/6.jpg",
+	                            alt: "關於鹿 · SIX"
+                            },{
+	                            src: "imgSet/aboutDeer/7.jpg",
+	                            alt: "關於鹿 · SEVEN"
+                            },{
+	                            src: "imgSet/aboutDeer/8.jpg",
+	                            alt: "關於鹿 · EIGHT"
+                            }]}
                         />
-                        <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
+                        <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
                     </div>
                 </div>
 
@@ -174,14 +175,11 @@ export default class ReactZmage extends React.Component {
                             className={style.button}
                             onClick={() => showImage({
                                 imageSet: [{
-                                    src: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/f4253c56119387.59a0f47ee5f47.jpg",
-                                    alt: "童梦 · SIX"
+                                    src: "imgSet/aboutDeer/9.jpg",
+                                    alt: "關於鹿 · NINE"
                                 },{
-                                    src: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/4549ec56119387.59a0f47ee515e.jpg",
-                                    alt: "童梦 · SEVEN"
-                                },{
-                                    src: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/a9df7456119387.59a0f47ee6f76.jpg",
-                                    alt: "童梦 · EIGHT"
+                                    src: "imgSet/aboutDeer/10.jpg",
+                                    alt: "關於鹿 · TEN"
                                 }]
                             })}
                         >呼出查看模式</div>
@@ -192,7 +190,7 @@ export default class ReactZmage extends React.Component {
                     <div>
                         <h2>您已经准备好了</h2>
                         <p>当前还处于初期开发版本, 仍然存在许多小问题</p>
-                        <p>但旋转查看、移动端适配、主题自定义等接口正在紧锣密鼓地开发中</p>
+                        <p>但旋转查看、移动端适配、主题自定义等接口正在持续开发中</p>
                         <p>如果您觉得当前的功能已经能满足您的需求, 您也可以马上开始使用, 如果您有什么更好的建议, 欢迎告诉我们 !</p>
                         <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage/wiki")}>查看文档</div>
                         <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage/issues")}>反馈建议</div>
@@ -211,7 +209,7 @@ export default class ReactZmage extends React.Component {
                     </div>
                     <div>
                         <span>Illustrator from </span>
-                        <a href="https://www.behance.net/gallery/56119387/_">sslololss Guihuahuzi </a>
+                        <a href="https://www.behance.net/gallery/58036101/_">sslololss Guihuahuzi </a>
                         <span>on </span>
                         <a href="https://www.behance.net">behance</a>
                     </div>
