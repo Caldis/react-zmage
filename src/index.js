@@ -3,10 +3,10 @@
 **/
 
 // React Libs
-import React from 'react'
+import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
 // Components
-import { showImage } from './components/Img'
+import { showImage } from './components/Wrapper'
 // Config
 import { imageType } from './config'
 // Utils
@@ -44,13 +44,15 @@ export default class ReactZmage extends React.Component {
                     showImage({
                         id: uuid,
 	                    lazyLoad, indicator,
-                        imageSet: imageSet || {
-                        	src: hiResSrc || src,
-	                        alt, text
-                        }
+                        imageSet: imageSet && imageSet.constructor===Array ?
+	                        imageSet : [{
+	                            src: hiResSrc || src,
+		                        alt,
+		                        text
+	                        }]
                     })
                 }}
-                style={Object.assign({cursor:'zoom-in'}, style)}
+                style={Object.assign({ cursor:'zoom-in' }, style)}
                 {...props}
             />
         )

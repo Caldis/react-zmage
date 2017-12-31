@@ -1,0 +1,16 @@
+.positionLayer {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	>div {
+		position: absolute;
+        width: 0;
+        height: 0;
+		z-index: 100;
+        visibility: hidden;
+		will-change: transform, top;
+	}
+}

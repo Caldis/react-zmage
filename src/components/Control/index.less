@@ -1,0 +1,133 @@
+// 屏幕宽度
+@vw:  ~"calc(100vw - (100vw - 100%))";
+@vh: 100vh;
+// 动画时长 (ms) ( config/index.js )
+@animationDurations: 400ms;
+@animationDurationsHalf: 400/2ms;
+// 动画曲线 ( config/index.js )
+@animationFunction: cubic-bezier(0.15, 1, 0.3, 1);
+
+// 放大按钮
+.zoomButton {
+    box-sizing: border-box;
+    position: absolute;
+    top: 27px;
+    right: 80px;
+    width: 26px;
+    height: 26px;
+    z-index: 110;
+    cursor: pointer;
+    border: 1px solid black;
+    transition: all @animationDurations @animationFunction;
+    will-change: clip-path;
+}
+.zoomButton:hover {
+    transform: scale(1.1);
+}
+.zoomButton:active {
+    transform: scale(1);
+}
+
+// 关闭按钮
+.closeButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    z-index: 110;
+    cursor: pointer;
+    transition: all @animationDurations @animationFunction;
+    will-change: transform;
+
+    .crossLine {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 35px;
+        height: 1px;
+        background-color: black;
+        transition: all @animationDurations @animationFunction;
+        will-change: transform;
+    }
+}
+.closeButton:hover {
+    transform: scale(1.1);
+}
+.closeButton:active {
+    transform: scale(1);
+}
+
+// 切换按钮
+.switchButton {
+    position: absolute;
+    top: 50%;
+    width: 40px;
+    height: 40px;
+    z-index: 110;
+    cursor: pointer;
+    background-color: black;
+    transition: all @animationDurations @animationFunction;
+    transform-origin: 50% 0;
+    transform: translateY(-50%);
+    will-change: transform, left, right, opacity;
+
+    svg {
+        fill: white;
+    }
+}
+.switchButton:hover {
+    transform: scale(1.1) translateY(-50%);
+}
+.switchButton:active {
+    transform: scale(1) translateY(-50%);
+}
+
+// 页数指示
+.pages {
+    box-sizing: border-box;
+    padding: 6px 14px;
+    position: absolute;
+    left: 50%;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 110;
+    background-color: black;
+    user-select: none;
+    transition: all @animationDurations @animationFunction;
+    transform: translateX(-50%);
+    will-change: bottom, opacity;
+}
+
+// 图片标题
+.imgAlt {
+    box-sizing: border-box;
+    padding: 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: black;
+    font-size: 18px;
+    z-index: 90;
+    user-select: none;
+    transition: all @animationDurations @animationFunction;
+    will-change: clip-path, opacity;
+}
+
+// 图片文字
+.imgText {
+    box-sizing: border-box;
+    padding: 12px 20px;
+    position: absolute;
+    left: 0;
+    top: 50% + 180px;
+    color: white;
+    font-size: 16px;
+    z-index: 90;
+    user-select: none;
+    background-color: black;
+    transition: all @animationDurations @animationFunction;
+    transform: translateY(-50%);
+    will-change: left, opacity;
+}

@@ -1,0 +1,19 @@
+// 屏幕宽度
+@vw:  ~"calc(100vw - (100vw - 100%))";
+@vh: 100vh;
+// 动画时长 (ms) ( config/index.js )
+@animationDurations: 400ms;
+@animationDurationsHalf: 400/2ms;
+// 动画曲线 ( config/index.js )
+@animationFunction: cubic-bezier(0.15, 1, 0.3, 1);
+
+.backgroundLayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    cursor: zoom-out;
+    transition: all @animationDurations;
+    background-color: rgba(255,255,255,0);
+}
