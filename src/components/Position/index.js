@@ -134,8 +134,6 @@ export default class Position extends React.Component {
     }
 
 	render() {
-        console.log('render')
-
 		return (
 			<div className={style.positionLayer}>
 				<div ref="positionController">
