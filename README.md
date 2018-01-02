@@ -1,4 +1,4 @@
-#  [react-zmage](https://zmage.u2sk.com/) &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/react.svg?style=flat)](https://www.npmjs.com/package/react-zmage) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md#pull-requests)
+#  [react-zmage](http://zmage.u2sk.com) &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/react.svg?style=flat)](https://www.npmjs.com/package/react-zmage) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md#pull-requests)
 
 react-zmage 是一个基于 React 的的图片缩放控件, 使用 Zmage 标签包裹后的图片可以获得缩放效果
 
@@ -6,7 +6,7 @@ react-zmage 是一个基于 React 的的图片缩放控件, 使用 Zmage 标签�
 
 您也可以直接调用附带的接口, 直接以函数调用而不是组件的形式调用全屏的图片展示叠层
 
-本项目仍在开发中, 您可以点击 [演示页面](http://zmage.u2sk.com) 看看现在的效果, 如果您感兴趣, 欢迎根据以下的说明试用, 也欢迎 [来这里](https://github.com/Caldis/react-zmage/issues) 反馈意见
+本项目仍在开发中, 您可以点击 [演示页面](http://zmage.caldis.me) 看看现在的效果, 如果您感兴趣, 欢迎根据以下的说明试用, 也欢迎 [来这里](https://github.com/Caldis/react-zmage/issues) 反馈意见
 
 - **使用简单** 您只需要引入组件, 然后直接替换 img 标签为 Zmage 标签即可
 - **过渡动画** react-zmage 提供了一系列的平滑的过渡动画, 您可以在 [演示页面](http://zmage.u2sk.com) 查看效果
