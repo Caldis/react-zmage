@@ -11,8 +11,3 @@ export const imageType = PropTypes.shape({
     alt: PropTypes.string,  // 同 img 标签的 alt
     text: PropTypes.string, // 图片描述文字
 })
-
-// 动画时长 (ms) ( img/index.less )
-export const animateDuration = 400
-// 动画曲线 ( img/index.less )
-export const animationFunc = 'cubic-bezier(0.15, 1, 0.3, 1)'

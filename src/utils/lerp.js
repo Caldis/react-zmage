@@ -56,11 +56,11 @@ export default class Lerp {
 	// *******
 	// 执行循环
 	_startLoop = () => {
+        this._before()
 		!this.looping && this._runLoop()
 		this.looping = true
 	}
 	_runLoop = () => {
-		this._before()
 		this._timer = window.requestAnimationFrame(this._loop)
 	}
 	_loop = () => {
@@ -79,7 +79,7 @@ export default class Lerp {
 		// 根据处理结果选择是否需要继续迭代
 		let needLoop = false
 		for(let key in this.current) {
-			if(Math.abs(this.pool[key] - this.current[key]) > 0.0005) {
+			if(Math.abs(this.pool[key] - this.current[key]) > 0.001) {
 				needLoop = true
 			}
 		}

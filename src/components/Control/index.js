@@ -81,47 +81,51 @@ export default class Control extends React.Component {
         }
 
     // 图片标题样式
-    altStyle = show => show ? {
-        WebkitClipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-        MozClipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-        MsClipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-        OClipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-        clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-        opacity: 1
-    } : {
-        WebkitClipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
-        MozClipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
-        MsClipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
-        OClipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
-        clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
-        opacity: 0
-    }
+    altStyle = show =>
+        show ? {
+            WebkitClipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+            MozClipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+            MsClipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+            OClipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+            opacity: 1
+        } : {
+            WebkitClipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
+            MozClipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
+            MsClipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
+            OClipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
+            clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
+            opacity: 0
+        }
 
     render() {
-        const { show, zoom, page, imageSet, unmountSelf, toggleZoom, switchPages } = this.props
+        const { show, zoom, page, imageSet, controller, unmountSelf, toggleZoom, switchPages } = this.props
         const hasMultipleImage = imageSet.length > 1
         return (
             <Fragment>
 
-                {/*放大按钮*/}
-                {!zoom &&
-                <div className={style.zoomButton} style={this.zoomStyle(show)} onClick={toggleZoom}/>}
+	            <div className={style.controls}>
+		            {/*放大按钮*/}
+		            {!zoom && controller.zoom &&
+		            <div className={style.zoomButton} style={this.zoomStyle(show)} onClick={toggleZoom}/>}
 
-                {/*关闭按钮*/}
-                <div className={style.closeButton} onClick={zoom ? toggleZoom : unmountSelf}>
-                    <div className={style.crossLine} style={this.lineL(show)}/>
-                    <div className={style.crossLine} style={this.lineR(show)}/>
-                </div>
+		            {/*关闭按钮*/}
+		            {controller.close &&
+		            <div className={style.closeButton} onClick={zoom ? toggleZoom : unmountSelf}>
+			            <div className={style.crossLine} style={this.lineL(show)}/>
+			            <div className={style.crossLine} style={this.lineR(show)}/>
+		            </div>}
+	            </div>
 
                 {/*切换按钮*/}
-                {hasMultipleImage && !zoom &&
+                {hasMultipleImage && !zoom && controller.flip &&
                 <div className={style.switchButton} style={this.prevStyle(show)} onClick={switchPages("prev")}>
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/>
                         <path d="M0-.5h24v24H0z" fill="none"/>
                     </svg>
                 </div>}
-                {hasMultipleImage && !zoom &&
+                {hasMultipleImage && !zoom && controller.flip &&
                 <div className={style.switchButton} style={this.nextStyle(show)} onClick={switchPages("next")}>
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"/>
@@ -130,20 +134,15 @@ export default class Control extends React.Component {
                 </div>}
 
                 {/*页数指示*/}
-                {hasMultipleImage && !zoom &&
+                {hasMultipleImage && !zoom && controller.pagination &&
                 <div className={style.pages} style={this.pagesStyle(show)}>
                     <span>{`${page+1} / ${imageSet.length}`}</span>
                 </div>}
 
                 {/*图片标题*/}
-                {!zoom ?
-                imageSet[page].alt &&
+                {!zoom && controller.title &&
                 <div className={style.imgAlt} style={this.altStyle(show)}>
-                    {imageSet[page].alt}
-                </div>:
-                imageSet.alt &&
-                <div className={style.imgAlt} style={this.altStyle(show)}>
-                    {imageSet.alt}
+                    {imageSet[page].alt || imageSet.alt}
                 </div>}
 
             </Fragment>

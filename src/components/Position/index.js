@@ -26,7 +26,9 @@ export default class Position extends React.Component {
 			// 原始尺寸
 			naturalSize: null,
 			// 移动范围
-			moveRange: null
+			moveRange: null,
+			// 样式
+            transStyle: {}
 		}
 	}
 
@@ -123,20 +125,20 @@ export default class Position extends React.Component {
 	 **/
     handleMoveCenterPosition = (curr) => {
         const { show } = this.props
-        if (this.refs.positionController) {
-            this.refs.positionController.style.visibility = 'visible'
-            this.refs.positionController.style.transform = `translate3d(${curr.x}px, ${curr.y}px, 0)`
-            if (!show) {
-                const scrollChange = window.pageYOffset - this.initialPageOffset
-                this.refs.positionController.style.top = `calc(50% - ${scrollChange}px)`
+        this.setState({
+            transStyle: {
+                visibility: 'visible',
+                transform: `translate3d(${curr.x}px, ${curr.y}px, 0)`,
+                top: show ? '' : `calc(50% - ${window.pageYOffset-this.initialPageOffset}px)`
             }
-        }
+        })
     }
 
 	render() {
+    	const { transStyle } = this.state
 		return (
 			<div className={style.positionLayer}>
-				<div ref="positionController">
+				<div style={transStyle}>
                     { this.props.children }
 				</div>
 			</div>
