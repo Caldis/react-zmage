@@ -1,21 +1,22 @@
-// 屏幕宽度
-@vw:  ~"calc(100vw - (100vw - 100%))";
-@vh: 100vh;
-// 动画时长 (ms) ( config/index.js )
-@animationDurations: 400ms;
-@animationDurationsHalf: 400/2ms;
-// 动画曲线 ( config/index.js )
-@animationFunction: cubic-bezier(0.15, 1, 0.3, 1);
+@import "../../config/index.less";
+
+// 控制容器
+.controls {
+	box-sizing: border-box;
+	position: absolute;
+	padding: 20px;
+	top: 0;
+	right: 0;
+	z-index: 90;
+	display: flex;
+}
 
 // 放大按钮
 .zoomButton {
     box-sizing: border-box;
-    position: absolute;
-    top: 27px;
-    right: 80px;
+	margin: 7px;
     width: 26px;
     height: 26px;
-    z-index: 110;
     cursor: pointer;
     border: 1px solid black;
     transition: all @animationDurations @animationFunction;
@@ -30,12 +31,8 @@
 
 // 关闭按钮
 .closeButton {
-    position: absolute;
-    top: 20px;
-    right: 20px;
     width: 40px;
     height: 40px;
-    z-index: 110;
     cursor: pointer;
     transition: all @animationDurations @animationFunction;
     will-change: transform;
