@@ -1,7 +1,8 @@
 .imageLayer {
     user-select: none;
 	transform: translate(-50%, -50%);
-	will-change: transform;
+	transition: box-shadow .3s;
+	will-change: transform, border-radius, border-width, box-shadow;
 }
 
 // 加载动画
