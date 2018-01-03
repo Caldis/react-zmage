@@ -49,8 +49,15 @@ pre {
 
 .image {
     width: 100%;
-    border-radius: 4px;
-    //box-shadow: 0 10px 35px 0 rgba(0,0,0,0.3), 0 5px 25px 0 rgba(0,0,0,0.1);
+    border-radius: 5px;
+	transition: transform .3s;
+    box-shadow: 0 10px 35px 0 rgba(0,0,0,0.3), 0 5px 25px 0 rgba(0,0,0,0.1);
+}
+.image:hover {
+	transform: scale(1.05);
+}
+.image:active {
+	transform: scale(1.00);
 }
 .tag {
     cursor: pointer;
