@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A zoomable image container power by react",
   "keywords": [
     "react",
@@ -58,6 +58,7 @@
     "source-map-support": "^0.5.0",
     "style-loader": "^0.19.1",
     "transfer-webpack-plugin": "^0.1.4",
+    "uglifyjs-webpack-plugin": "^1.1.5",
     "url-loader": "^0.6.2",
     "webpack": "^3.10.0",
     "webpack-bundle-analyzer": "^2.9.1",

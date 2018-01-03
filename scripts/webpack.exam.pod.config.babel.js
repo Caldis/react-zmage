@@ -5,6 +5,7 @@
 // 基本库
 import path from 'path'
 import webpack from 'webpack'
+import UglifyJsPlugin  from 'uglifyjs-webpack-plugin'
 // 从基础设置继承
 import merge from 'webpack-merge'
 import baseConfig from './webpack.base.config.babel.js'
@@ -37,11 +38,8 @@ const config =  merge.smart(baseConfig, {
 			}
 		}),
 		// 代码压缩
-		new webpack.optimize.UglifyJsPlugin({
+		new UglifyJsPlugin({
 			sourceMap: false,
-			compress: {
-				warnings: false
-			}
 		}),
 		// Loader压缩
 		new webpack.LoaderOptionsPlugin({
