@@ -28,13 +28,13 @@ export default class ReactZmage extends React.Component {
                     </a>
 
                     <div className={style.project}>
-                        <span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>alpha</span><span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>0.1.1</span>
+                        <span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>alpha</span><span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>0.1.2</span>
 
                         <h1>react-zmage</h1>
                         <h2>一个基于 React 的可缩放图片控件, 也可作为幻灯片使用</h2>
                         <h3>您可以用这个控件完全替代原生的 img 标签, 令其附带图片缩放功能</h3>
 
-                        <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage/wiki")}>马上使用</div>
+                        <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage")}>马上使用</div>
                     </div>
                 </div>
 
@@ -149,6 +149,12 @@ export default class ReactZmage extends React.Component {
 	                            src: "imgSet/aboutDeer/8.jpg",
 	                            alt: "關於鹿 · EIGHT"
                             }]}
+                            indicator={{
+	                            pagination: false,
+	                            title: true,
+	                            close: true,
+	                            flip: true
+                            }}
                         />
                         <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
                     </div>
