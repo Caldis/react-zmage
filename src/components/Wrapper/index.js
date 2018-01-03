@@ -6,6 +6,7 @@
 // React Libs
 import React from 'react'
 import ReactDOM from 'react-dom'
+import PropTypes from 'prop-types'
 // Style
 import style from './index.less'
 // Components
@@ -13,6 +14,8 @@ import Position from '../Position'
 import Control from '../Control'
 import Image from '../Image'
 import Background from '../Background'
+// Config
+import { imageType } from '@/config'
 // Utils
 import { addListenEventOf, removeListenEventOf } from '@/utils'
 
@@ -30,9 +33,8 @@ class Wrapper extends React.Component {
 		}
 	}
 
-    componentWillMount() {
-        // 延迟 100 毫秒加载自己，保证动画正常
-        setTimeout(this.mountSelf, 50)
+    componentDidMount() {
+        this.mountSelf()
     }
     componentWillUnmount() {
 	    removeListenEventOf('keydown', this.handleKeyDown)
@@ -66,7 +68,7 @@ class Wrapper extends React.Component {
     handleKeyDown = (e) => {
         // 阻止默认事件
         e.preventDefault()
-        const { imageSet } = this.props
+        const { imageSet, hotKey } = this.props
         const { zoom } = this.state
         const hasImageSet = imageSet && imageSet.constructor===Array
         const toPrevPage = this.handleSwitchPages("prev")
@@ -74,19 +76,19 @@ class Wrapper extends React.Component {
         switch (e.key) {
             case "ArrowLeft":
                 // 上一张
-                !zoom && toPrevPage()
+                !zoom && hotKey.flip && hasImageSet && toPrevPage()
                 break
             case "ArrowRight":
                 // 下一张
-                !zoom && hasImageSet && toNextPage()
+                !zoom && hotKey.flip && hasImageSet && toNextPage()
                 break
             case " ":
                 // 缩放
-                this.handleToggleZoom()
+	            hotKey.zoom && this.handleToggleZoom()
                 break
             case "Escape":
                 // 退出
-                zoom ? this.handleToggleZoom() : this.unmountSelf()
+	            hotKey.close && (zoom ? this.handleToggleZoom() : this.unmountSelf())
                 break
             default:
                 return
@@ -121,8 +123,9 @@ class Wrapper extends React.Component {
     }
 
 	render() {
-        const { coverNodeRef, imageSet, remove } = this.props
+        const { coverNodeRef, imageSet, controller, remove } = this.props
         const { show, zoom, page } = this.state
+		console.log(controller);
 		return (
 			<div className={style.wrapperLayer}>
 				{/*控制层*/}
@@ -131,6 +134,7 @@ class Wrapper extends React.Component {
                     zoom={zoom}
                     page={page}
                     imageSet={imageSet}
+                    controller={controller}
                     unmountSelf={this.unmountSelf}
                     toggleZoom={this.handleToggleZoom}
                     switchPages={this.handleSwitchPages}
@@ -151,6 +155,7 @@ class Wrapper extends React.Component {
                         page={page}
                         imageSet={imageSet}
                         coverNodeRef={coverNodeRef}
+                        toggleZoom={this.handleToggleZoom}
                         remove={remove}
                     />
                 </Position>
@@ -167,8 +172,77 @@ class Wrapper extends React.Component {
 	}
 }
 
+Wrapper.defaultProps = {
+	// 封面节点
+	coverNodeRef: {},
+	// 图片列表
+	imageSet: [{
+		src: "",
+		alt: "",
+		text: ""
+	}],
+	// 控制器
+	controller: {
+		// 分页
+		pagination: true,
+		// 标题
+		title: true,
+		// 关闭按钮
+		close: true,
+		// 缩放按钮
+		zoom: true,
+		// 左右翻页
+		flip: true
+	},
+	// 快捷键
+	hotKey: {
+		// 关闭（ESC）
+		close: true,
+		// 缩放（空格）
+		zoom: true,
+		// 翻页（左右键）
+		flip: true
+	},
+	// 卸载函数
+	remove: () => {}
+}
+
+Wrapper.propTypes = {
+	// 封面节点
+	coverNodeRef: PropTypes.object,
+	// 图片列表
+	imageSet: PropTypes.oneOfType([
+		PropTypes.arrayOf(imageType),
+		imageType
+	]),
+	// 控制器
+	controller: {
+		// 分页
+		pagination: PropTypes.bool,
+		// 标题
+		title: PropTypes.bool,
+		// 关闭按钮
+		close: PropTypes.bool,
+		// 缩放按钮
+		zoom: PropTypes.bool,
+		// 左右翻页
+		flip: PropTypes.bool
+	},
+	// 快捷键
+	hotKey: PropTypes.shape({
+		// 关闭（ESC）
+		close: PropTypes.bool,
+		// 缩放（空格）
+		zoom: PropTypes.bool,
+		// 翻页（左右键）
+		flip: PropTypes.bool
+	}),
+	// 卸载函数
+	remove: PropTypes.func
+}
+
 // 主动调用显示，插入控件到指定节点（Body末端）
-const showImage = ({ id, lazyLoad, indicator, imageSet }) => {
+const showImage = ({ id, imageSet, controller, hotKey }) => {
 
 	// 封面节点
 	const coverNodeRef = document.getElementById(id)
@@ -182,7 +256,7 @@ const showImage = ({ id, lazyLoad, indicator, imageSet }) => {
 	document.body.appendChild(wrapperNode)
 	const wrapperNodeRef = document.getElementById(wrapperNodeId)
 
-	//移除函数
+	// 卸载函数
 	const remove = () => {
 		ReactDOM.unmountComponentAtNode(wrapperNodeRef)
 		wrapperNodeRef.remove()
@@ -192,9 +266,9 @@ const showImage = ({ id, lazyLoad, indicator, imageSet }) => {
     wrapperNodeRef && ReactDOM.render(
 		<Wrapper
 			coverNodeRef={coverNodeRef}
-			lazyLoad={lazyLoad}
-			indicator={indicator}
 			imageSet={imageSet}
+			controller={controller}
+			hotKey={hotKey}
 			remove={remove}
 		/>, wrapperNodeRef)
 

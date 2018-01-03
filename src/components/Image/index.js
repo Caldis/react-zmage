@@ -21,33 +21,38 @@ export default class Image extends React.Component {
 	constructor(props) {
 		super(props)
 
+		// 封面样式
+		this.coverNodeStyle = {}
+
 		this.state = {
 			// 加载完成
 			onLoad: true,
 			// 加载错误
 			onError: false,
 			// 翻页方向
-			direction: ''
+			direction: '',
+			// 样式
+            transStyle: {}
 		}
 	}
 
     componentWillMount() {
         this.resize = new Lerp({
-            data: this.getCoverScale(),
-            poster: this.handleResizeScale
+            data: this.getCoverStyle(),
+            poster: this.handleSetStyle
         })
-	    addListenEventOf('resize', this.setToPageFitScale)
+	    addListenEventOf('resize', this.setToPageFitStyle)
 	}
     componentWillReceiveProps(nextProps) {
         const { show, zoom, page } = nextProps
 	    if (show) {
         	if (zoom) {
-		        this.setToOriginalScale()
+		        this.setToOriginalStyle()
 	        } else {
-		        this.setToPageFitScale()
+		        this.setToPageFitStyle()
 	        }
 	    } else {
-		    this.setToCoverScale()
+		    this.setToCoverStyle()
 	    }
 	    if (page) {
         	this.setState({
@@ -57,25 +62,30 @@ export default class Image extends React.Component {
 	    }
     }
 	componentWillUnmount() {
-		removeListenEventOf('resize', this.setToPageFitScale)
+		removeListenEventOf('resize', this.setToPageFitStyle)
 	}
 
     /**
      * 状态切换设置大小
      **/
-    getCoverScale = () => {
+    getCoverStyle = () => {
         const { coverNodeRef } = this.props
-        let coverScale = { scale: 0 }
+        let coverStyle = { scale: 0, borderWidth:0, borderRadius: 0 }
         if (coverNodeRef) {
             const coverNodeStyle = window.getComputedStyle(coverNodeRef)
-            coverScale = { scale: parseInt(coverNodeStyle.width)/coverNodeRef.naturalWidth }
+			this.coverNodeStyle = coverNodeStyle
+            coverStyle = {
+            	scale: (parseInt(coverNodeStyle['width']||0)-2*parseInt(coverNodeStyle['border-width']||0))/coverNodeRef.naturalWidth,
+                borderWidth: parseInt(coverNodeStyle['border-width']||0),
+                borderRadius: parseInt(coverNodeStyle['border-radius']||0),
+            }
         }
-        return coverScale
+        return coverStyle
     }
-    setToCoverScale = () => {
+    setToCoverStyle = () => {
 	    const { coverNodeRef, remove } = this.props
         this.resize.to({
-			data: this.getCoverScale(),
+			data: this.getCoverStyle(),
 			after: () => {
                 // 显示封面原图
                 if (coverNodeRef) coverNodeRef.style.visibility = 'visible'
@@ -84,46 +94,57 @@ export default class Image extends React.Component {
             }
 		})
     }
-    getPageFitScale = () => {
+    getPageFitStyle = () => {
         const { coverNodeRef } = this.props
-        let fitScale = { scale: 1 }
+        let fitScale = { scale: 1,  borderWidth: 0, borderRadius: 0 }
         if (coverNodeRef) {
-            fitScale = { scale: calcFitScale(coverNodeRef, IMAGE_MARGIN) }
+            fitScale = {
+            	scale: calcFitScale(coverNodeRef, IMAGE_MARGIN),
+                borderWidth: 0,
+                borderRadius: 5
+            }
         }
         return fitScale
     }
-    setToPageFitScale = () => {
-	    const { coverNodeRef } = this.props
-	    this.resize.to({ data: this.getPageFitScale() })
-	    if (!coverNodeRef) {
-		    this.refs.imageLayer.style.maxWidth = `calc(100vw - ${2*IMAGE_MARGIN}px)`
-		    this.refs.imageLayer.style.maxHeight = `calc(100vh - ${2*IMAGE_MARGIN}px)`
-	    }
+    setToPageFitStyle = () => {
+	    this.resize.to({ data: this.getPageFitStyle() })
     }
-    getOriginalScale = () => {
-        return { scale: 1 }
+    getOriginalStyle = () => {
+        return {
+        	scale: 1,
+			borderWidth: 0,
+			borderRadius: 5
+        }
     }
-    setToOriginalScale = () => {
-	    const { coverNodeRef } = this.props
-        this.resize.to({ data: this.getOriginalScale() })
-	    if (!coverNodeRef) {
-		    this.refs.imageLayer.style.maxWidth = ''
-		    this.refs.imageLayer.style.maxHeight = ''
-	    }
+    setToOriginalStyle = () => {
+        this.resize.to({ data: this.getOriginalStyle() })
     }
 
 	/**
 	 * 尺寸控制器
 	 **/
-    handleResizeScale = (curr) => {
-        if (this.refs.imageLayer) {
-            this.refs.imageLayer.style.transform = `translate(-50%, -50%) scale(${curr.scale})`
-        }
+    handleSetStyle = (curr) => {
+    	const { show, zoom, coverNodeRef } = this.props
+		this.setState({
+            transStyle: {
+            	// 插值样式
+                transform: `translate(-50%, -50%) scale(${curr.scale})`,
+                borderRadius: `${curr.borderRadius/curr.scale}px`,
+                borderWidth: `${curr.borderWidth/curr.scale}px`,
+				// 固定样式
+				boxShadow: show ? 'none' :  this.coverNodeStyle['box-shadow'],
+                boxSizing: this.coverNodeStyle['box-sizing'],
+                border: this.coverNodeStyle['border'],
+				// 无封面图片处理
+                maxWidth: coverNodeRef ? '' : zoom ? 'max-content' : `calc(100vw - ${2*IMAGE_MARGIN}px)`,
+                maxHeight: coverNodeRef ? '' : zoom ? 'max-content' : `calc(100vh - ${2*IMAGE_MARGIN}px)`
+			}
+		})
     }
 
 	render() {
-        const { zoom, page, imageSet } = this.props
-		const { onLoad, onError } = this.state
+        const { zoom, page, imageSet, toggleZoom } = this.props
+		const { onLoad, onError, transStyle } = this.state
 		return (
 			<Fragment>
 
@@ -136,13 +157,13 @@ export default class Image extends React.Component {
 				{/*图片*/}
 				<img
 		            key={page}
-	                ref="imageLayer"
 	                className={style.imageLayer}
+					style={transStyle}
 	                src={imageSet[page].src}
 	                alt={imageSet[page].alt}
 	                onLoad={() => this.setState({ onLoad: false })}
 	                onError={() => this.setState({ onError: true })}
-	                onClick={zoom ? this.handleToggleZoom : ()=>{}}
+	                onClick={zoom ? toggleZoom : ()=>{}}
 				/>
 
 			</Fragment>
