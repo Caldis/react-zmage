@@ -8,7 +8,7 @@ import PropTypes from 'prop-types'
 // Components
 import { showImage } from './components/Wrapper'
 // Config
-import { imageType } from './config'
+import { defType, defProp } from './config/default'
 // Utils
 import { generateUUID } from './utils'
 
@@ -50,8 +50,8 @@ export default class ReactZmage extends React.Component {
 		                        alt,
 		                        text
 	                        }],
-	                    controller: controller,
-	                    hotKey: hotKey
+	                    controller,
+	                    hotKey
                     })
                 }}
                 style={Object.assign({ cursor:'zoom-in' }, style)}
@@ -74,36 +74,14 @@ ReactZmage.defaultProps = {
 	// 图片描述
 	text: "",
 
-    // 图片列表参数
-    imageSet: [{
-	    src: "",
-	    alt: "",
-	    text: ""
-    }],
+    // 图片列表
+    imageSet: [],
 
 	// 控制器
-	controller: {
-		// 分页
-		pagination: true,
-		// 标题
-		title: true,
-		// 关闭按钮
-		close: true,
-		// 缩放按钮
-		zoom: true,
-		// 左右翻页
-		flip: true
-	},
-
+	controller: defProp.controller,
 	// 快捷键
-	hotKey: {
-		// 关闭（ESC）
-		close: true,
-		// 缩放（空格）
-		zoom: true,
-		// 翻页（左右键）
-		flip: true
-	}
+	hotKey: defProp.hotKey
+
 }
 
 // 参数类型
@@ -119,33 +97,11 @@ ReactZmage.propTypes = {
 	text: PropTypes.string,
 
     // 图片列表, 可以传入单独的图片类型或数组包裹的图片类型
-    imageSet: PropTypes.oneOfType([
-        PropTypes.arrayOf(imageType),
-        imageType
-    ]),
+    imageSet: defType.imageSet,
 
     // 控制器
-	controller: PropTypes.shape({
-		// 分页
-		pagination: PropTypes.bool,
-		// 标题
-		title: PropTypes.bool,
-		// 关闭按钮
-		close: PropTypes.bool,
-		// 缩放按钮
-		zoom: PropTypes.bool,
-		// 左右翻页
-		flip: PropTypes.bool
-	}),
-
+	controller: defType.controller,
 	// 快捷键
-	hotKey: PropTypes.shape({
-		// 关闭（ESC）
-		close: PropTypes.bool,
-		// 缩放（空格）
-		zoom: PropTypes.bool,
-		// 翻页（左右键）
-		flip: PropTypes.bool
-	})
+	hotKey: defType.hotKey
 
 }

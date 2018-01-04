@@ -15,7 +15,7 @@ import Control from '../Control'
 import Image from '../Image'
 import Background from '../Background'
 // Config
-import { imageType } from '@/config'
+import { defType, defProp } from '@/config/default'
 // Utils
 import { addListenEventOf, removeListenEventOf } from '@/utils'
 
@@ -125,7 +125,6 @@ class Wrapper extends React.Component {
 	render() {
         const { coverNodeRef, imageSet, controller, remove } = this.props
         const { show, zoom, page } = this.state
-		console.log(controller);
 		return (
 			<div className={style.wrapperLayer}>
 				{/*控制层*/}
@@ -176,33 +175,11 @@ Wrapper.defaultProps = {
 	// 封面节点
 	coverNodeRef: {},
 	// 图片列表
-	imageSet: [{
-		src: "",
-		alt: "",
-		text: ""
-	}],
+	imageSet: [],
 	// 控制器
-	controller: {
-		// 分页
-		pagination: true,
-		// 标题
-		title: true,
-		// 关闭按钮
-		close: true,
-		// 缩放按钮
-		zoom: true,
-		// 左右翻页
-		flip: true
-	},
+	controller: defProp.controller,
 	// 快捷键
-	hotKey: {
-		// 关闭（ESC）
-		close: true,
-		// 缩放（空格）
-		zoom: true,
-		// 翻页（左右键）
-		flip: true
-	},
+	hotKey: defProp.hotKey,
 	// 卸载函数
 	remove: () => {}
 }
@@ -211,32 +188,11 @@ Wrapper.propTypes = {
 	// 封面节点
 	coverNodeRef: PropTypes.object,
 	// 图片列表
-	imageSet: PropTypes.oneOfType([
-		PropTypes.arrayOf(imageType),
-		imageType
-	]),
+	imageSet: defType.imageSet,
 	// 控制器
-	controller: {
-		// 分页
-		pagination: PropTypes.bool,
-		// 标题
-		title: PropTypes.bool,
-		// 关闭按钮
-		close: PropTypes.bool,
-		// 缩放按钮
-		zoom: PropTypes.bool,
-		// 左右翻页
-		flip: PropTypes.bool
-	},
+	controller: defType.controller,
 	// 快捷键
-	hotKey: PropTypes.shape({
-		// 关闭（ESC）
-		close: PropTypes.bool,
-		// 缩放（空格）
-		zoom: PropTypes.bool,
-		// 翻页（左右键）
-		flip: PropTypes.bool
-	}),
+	hotKey: defType.hotKey,
 	// 卸载函数
 	remove: PropTypes.func
 }
@@ -267,8 +223,8 @@ const showImage = ({ id, imageSet, controller, hotKey }) => {
 		<Wrapper
 			coverNodeRef={coverNodeRef}
 			imageSet={imageSet}
-			controller={controller}
-			hotKey={hotKey}
+			controller={Object.assign({}, defProp.controller, controller)}
+			hotKey={Object.assign({}, defProp.hotKey, hotKey)}
 			remove={remove}
 		/>, wrapperNodeRef)
 
