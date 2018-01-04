@@ -151,7 +151,7 @@ controller: {
 }
 ```
 
-### `controller`
+### `hotKey`
 ```js
 hotKey: {
     // 关闭（ESC）
