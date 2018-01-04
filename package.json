@@ -16,7 +16,7 @@
   },
   "author": "caldis",
   "license": "MIT",
-  "homepage": "http://zmage.u2sk.com",
+  "homepage": "http://zmage.caldis.me",
   "dependencies": {
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
