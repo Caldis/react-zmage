@@ -44,7 +44,7 @@ export default class ReactZmage extends React.Component {
                     // 显示幻灯片叠层
                     showImage({
                         id: uuid,
-                        imageSet: imageSet && imageSet.constructor===Array ?
+                        imageSet: imageSet && imageSet.constructor===Array && imageSet.length>1?
 	                        imageSet : [{
 	                            src: hiResSrc || src,
 		                        alt,
