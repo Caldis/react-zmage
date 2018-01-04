@@ -8,6 +8,10 @@ import React from 'react'
 import style from './index.less'
 // App Entry
 import Zmage, { showImage } from '@/index'
+// React Prism
+import 'prismjs'
+import 'prismjs/themes/prism.css'
+import PrismCode from 'react-prism'
 
 export default class ReactZmage extends React.Component {
     constructor(props){
@@ -28,11 +32,15 @@ export default class ReactZmage extends React.Component {
                     </a>
 
                     <div className={style.project}>
-                        <span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>alpha</span><span className={style.tag} onClick={() => window.open("https://github.com/Caldis/react-zmage/releases")}>0.1.2</span>
+
+	                    <div align="center">
+		                    <a href="https://github.com/Caldis/react-zmage">
+			                    <img width="200" height="200" src="logo.png"/>
+		                    </a>
+	                    </div>
 
                         <h1>react-zmage</h1>
-                        <h2>一个基于 React 的可缩放图片控件, 也可作为幻灯片使用</h2>
-                        <h3>您可以用这个控件完全替代原生的 img 标签, 令其附带图片缩放功能</h3>
+                        <h4>一个基于 React 的可缩放图片控件, 您可以用这个控件完全替代原生的 img 标签, 令其附带图片缩放功能</h4>
 
                         <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage")}>马上使用</div>
                     </div>
@@ -53,12 +61,14 @@ export default class ReactZmage extends React.Component {
                         <p>一如原生的 {"<img/>"} 标签, 只需要直接替换 img 为 Zmage 即可, 您依旧可以使用 style, className 等原生属性。</p>
                         <p>现在, 点击图片, 您即可进入<b>查看模式</b>。</p>
                         <p>注意到了吗? 您传入的 alt 属性将会在放大后作为标题显示在全屏状态的左上角。</p>
-                        <pre>
+	                    <pre>
+<PrismCode className="language-javascript">
 {`<Zmage
-        src="https://your.image.link.jpg"
-        alt="最简单的使用方式"
+    src="https://your.image.link.jpg"
+    alt="最简单的使用方式"
 />`}
-                        </pre>
+</PrismCode>
+	                    </pre>
                     </div>
                 </div>
 
@@ -70,10 +80,12 @@ export default class ReactZmage extends React.Component {
                         <p>在<b>放大模式</b>中, 图片会设置为 100%放大, 确保不会有任何失真。</p>
                         <p>再次点击屏幕即可退出<b>放大模式</b>。</p>
                         <pre>
+<PrismCode className="language-javascript">
 {`<Zmage
-        src="https://your.image.link.jpg"
-        alt="放大图片并并滑动预览"
+	src="https://your.image.link.jpg"
+	alt="放大图片并并滑动预览"
 />`}
+</PrismCode>
                         </pre>
                     </div>
                     <div>
@@ -111,17 +123,19 @@ export default class ReactZmage extends React.Component {
                         <p>点击放大后使用键盘的 <b>←</b> 或 <b>→</b> , 或点击屏幕两侧的按钮即可切换图片。</p>
                         <p>左右两侧的控制按钮仅会在您提供了有效的 <b>imageSet</b> 参数时才会显示</p>
                         <pre>
+<PrismCode className="language-javascript">
 {`<Zmage
-        src="your.cover.image.link.jpg"
-        alt="展示序列图片"
-        imageSet={[{
-            src: "your.cover.image.link.jpg",
-            alt: "First image description"
-        },{
-            src: "your.another.image.link.jpg",
-            alt: "Second image description"
-        }]}
+    src="your.cover.image.link.jpg"
+    alt="展示序列图片"
+    imageSet={[{
+        src: "your.cover.image.link.jpg",
+        alt: "First image description"
+    },{
+        src: "your.another.image.link.jpg",
+        alt: "Second image description"
+    }]}
 />`}
+</PrismCode>
                         </pre>
                     </div>
                 </div>
@@ -167,13 +181,15 @@ export default class ReactZmage extends React.Component {
                         <p>您只需要提供一个 <b>imageSet</b> 参数即可, 使用方式就如同直接从封面展示序列图片一样</p>
                         <p>如果您只需要展示一张图片, 您可以直接传入一个包含 <b>src</b> 与 <b>alt</b> 元素的对象</p>
                         <pre>
+<PrismCode className="language-javascript">
 {`onClick={() => showImage([
-        src: "your.cover.image.link.jpg",
-        alt: "First image description"
+    src: "your.cover.image.link.jpg",
+    alt: "First image description"
 },{
-        src: "your.another.image.link.jpg",
-        alt: "Second image description"
+    src: "your.another.image.link.jpg",
+    alt: "Second image description"
 }])`}
+</PrismCode>
                         </pre>
                     </div>
                     <div style={{ textAlign: 'center' }}>
@@ -195,10 +211,7 @@ export default class ReactZmage extends React.Component {
                 <div className={style.bottomBanner}>
                     <div>
                         <h2>您已经准备好了</h2>
-                        <p>当前还处于初期开发版本, 仍然存在许多小问题</p>
-                        <p>但旋转查看、移动端适配、主题自定义等接口正在持续开发中</p>
-                        <p>如果您觉得当前的功能已经能满足您的需求, 您也可以马上开始使用, 如果您有什么更好的建议, 欢迎告诉我们 !</p>
-                        <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage/wiki")}>查看文档</div>
+                        <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage")}>查看文档</div>
                         <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage/issues")}>反馈建议</div>
                     </div>
                 </div>
