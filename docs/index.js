@@ -208,9 +208,9 @@ export default class ReactZmage extends React.Component {
                     </div>
                 </div>
 
-                <div className={style.bottomBanner}>
+                <div className={style.bottomBanner} style={{ textAlign: "center" }}>
                     <div>
-                        <h2>您已经准备好了</h2>
+                        <h2 style={{ textAlign: "center" }}>您已经准备好了</h2>
                         <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage")}>查看文档</div>
                         <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage/issues")}>反馈建议</div>
                     </div>
