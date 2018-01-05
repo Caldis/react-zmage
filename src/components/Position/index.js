@@ -129,7 +129,7 @@ export default class Position extends React.Component {
             transStyle: {
                 visibility: 'visible',
                 transform: `translate3d(${curr.x}px, ${curr.y}px, 0)`,
-                top: show ? '' : `calc(50% - ${window.pageYOffset-this.initialPageOffset}px)`
+                top: show ? '' : `${windowHeight()/2 - (window.pageYOffset - this.initialPageOffset)}px`
             }
         })
     }
