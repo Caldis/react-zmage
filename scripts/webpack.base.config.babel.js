@@ -8,6 +8,7 @@ export const port = process.env.PORT || 8080
 
 // 基础配置集
 export default {
+
 	resolve: {
 		extensions: ['.js', '.jsx', '.json'],
 		alias: {
@@ -116,7 +117,7 @@ function styleProcessor(type = 'css', options = { modules: false }) {
         loader: 'css-loader',
         options: options.modules ? {
             modules: true,
-            importLoaders: 1,
+            importLoaders: true,
             localIdentName: '[local]__[hash:base64:5]',
         } : {}
     }
