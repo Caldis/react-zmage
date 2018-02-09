@@ -128,7 +128,7 @@ export default class Image extends React.Component {
 		this.setState({
             transStyle: {
             	// 插值样式
-                transform: `translate(-50%, -50%) scale(${curr.scale})`,
+                transform: `translate3d(-50%, -50%, 0) scale3d(${curr.scale}, ${curr.scale}, 1)`,
                 borderRadius: `${curr.borderRadius/curr.scale}px`,
                 borderWidth: `${curr.borderWidth/curr.scale}px`,
 				// 固定样式

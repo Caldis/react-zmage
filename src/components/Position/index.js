@@ -121,7 +121,7 @@ export default class Position extends React.Component {
     }
 
 	/**
-	 * 位移控制器
+	 * 位移控制
 	 **/
     handleMoveCenterPosition = (curr) => {
         const { show } = this.props
