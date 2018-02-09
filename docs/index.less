@@ -43,17 +43,21 @@ pre {
     padding: 0.8em 1em;
     border-left: 4px solid #999;
     color: #717682;
-    background-color: rgba(228, 228, 228, 0.23);
+    background-color: #f9f9f9 !important;
+}
+
+// Prism
+:global(span.string) {
+	color: #c083de !important;
 }
 
 .image {
     width: 100%;
     border-radius: 5px;
 	transition: transform .3s;
-    box-shadow: 0 10px 35px 0 rgba(0,0,0,0.3), 0 5px 25px 0 rgba(0,0,0,0.1);
 }
 .image:hover {
-	transform: scale(1.05);
+	transform: scale(1.02);
 }
 .image:active {
 	transform: scale(1.00);
@@ -165,6 +169,36 @@ pre {
         }
     }
 
+	.scrollDownHint {
+		position: absolute;
+		left: 50vw;
+		bottom: 26px;
+		transform: translateX(-50%);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		span {
+			color: #999;
+		}
+		img {
+			transform: scale(0.45);
+			margin: -10px 0 -28px;
+			animation-name: blink;
+			animation-duration: 1s;
+			animation-direction: alternate;
+			animation-iteration-count: infinite;
+		}
+		img:first-of-type {
+			animation-delay: 0.0s;
+			opacity: 0;
+		}
+		img:last-of-type {
+			animation-delay: 0.5s;
+			opacity: 0;
+		}
+	}
+
     .bottomBanner {
         display: flex;
         background-color: #f2f3f5;
@@ -206,4 +240,15 @@ pre {
             height: 50px;
         }
     }
+}
+
+@keyframes blink {
+	0% {
+		opacity: 0;
+		transform: scale(0.45);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(0.55);
+	}
 }

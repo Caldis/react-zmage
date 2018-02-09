@@ -4,14 +4,14 @@
 
 // React Libs
 import React from 'react'
-// Style
-import style from './index.less'
 // App Entry
 import Zmage, { showImage } from '@/index'
 // React Prism
 import 'prismjs'
 import 'prismjs/themes/prism.css'
 import PrismCode from 'react-prism'
+// Style
+import style from './index.less'
 
 export default class ReactZmage extends React.Component {
     constructor(props){
@@ -44,6 +44,12 @@ export default class ReactZmage extends React.Component {
 
                         <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage")}>马上使用</div>
                     </div>
+
+	                <div className={style.scrollDownHint}>
+		                <span>向下滚动以查看更多示例</span>
+		                <img src="arrow.png" alt="向下滚动查看更多"/>
+		                <img src="arrow.png"/>
+	                </div>
                 </div>
 
                 {/*特性介绍*/}
