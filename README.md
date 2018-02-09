@@ -10,12 +10,11 @@
 
 > react-zmage 是一个基于 React 的的图片缩放控件, 使用 Zmage 标签包裹后的图片可以获得缩放效果, 您可以用这个控件完全替代原生的 img 标签, 令其附带图片缩放功能, 本项目仍在开发中, 您可以点击 [演示页面](http://zmage.caldis.me) 看看示例。如果您感兴趣, 欢迎根据以下的说明使用, 也欢迎 [来这里](https://github.com/Caldis/react-zmage/issues) 反馈意见
 
+**需要 react 版本大于 v16.0**
 <h2 align="center">演示</h2>
 
 **在线**
-```bash
-http://zmage.caldis.me
-```
+[http://zmage.caldis.me](http://zmage.caldis.me)
 
 **本地**
 ```bash
