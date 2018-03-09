@@ -16,9 +16,6 @@ import {
 	scrollHeight,windowHeight, clientHeight
 } from '@/utils'
 
-// TODO: CONFIG
-const IMAGE_MARGIN = 50
-
 export default class Position extends React.Component {
 	constructor(props) {
 		super(props)
@@ -33,6 +30,8 @@ export default class Position extends React.Component {
 			naturalSize: null,
 			// 移动范围
 			moveRange: null,
+            // 移动边距
+            margin: props.isMobile ? 0 : props.margin,
 			// 样式
             defaultStyle: { x, y },
             currentStyle: { x, y }
@@ -77,6 +76,7 @@ export default class Position extends React.Component {
 	    return { x: 0, y: 0 }
     }
     mouseContrastPosition = (e) => {
+        const { margin } = this.props
         const { naturalSize, moveRange:mr } = this.state
         const { naturalWidth: nw, naturalHeight: nh } = naturalSize
         const cw = clientWidth()
@@ -84,8 +84,8 @@ export default class Position extends React.Component {
         const mouseX = e.clientX
         const mouseY = e.clientY
         // 计算偏移量
-        const imgPosX = nw>cw ? ((nw - cw)/2 + IMAGE_MARGIN) - (mr.x*(mouseX/cw)) : 0
-        const imgPosY = nh>ch ? ((nh - ch)/2 + IMAGE_MARGIN) - (mr.y*(mouseY/ch)) : 0
+        const imgPosX = nw>cw ? ((nw - cw)/2 + margin) - (mr.x*(mouseX/cw)) : 0
+        const imgPosY = nh>ch ? ((nh - ch)/2 + margin) - (mr.y*(mouseY/ch)) : 0
         // 返回位置
         return {
             x: imgPosX,
@@ -102,7 +102,7 @@ export default class Position extends React.Component {
      * 放大查看控制
      **/
     updateZoomMovePositionRange = () => {
-        const { zoom, page, imageSet } = this.props
+        const { zoom, page, margin, imageSet } = this.props
         const image = new Image()
         image.src = imageSet[page].src
         image.onload = () => {
@@ -111,8 +111,8 @@ export default class Position extends React.Component {
             this.setState({
                 naturalSize: !zoom ? { naturalWidth, naturalHeight } : null,
                 moveRange: !zoom ? {
-                    x: naturalWidth - clientWidth() + (2*IMAGE_MARGIN),
-                    y: naturalHeight - clientHeight() + (2*IMAGE_MARGIN)
+                    x: naturalWidth - clientWidth() + (2*margin),
+                    y: naturalHeight - clientHeight() + (2*margin)
                 } : null
             })
         }

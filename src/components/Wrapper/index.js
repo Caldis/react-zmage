@@ -17,11 +17,17 @@ import Background from '../Background'
 // Config
 import { defType, defProp } from '@/config/default'
 // Utils
-import { addListenEventOf, removeListenEventOf } from '@/utils'
+import {
+    addListenEventOf, removeListenEventOf,
+    mobileCheck,
+} from '@/utils'
 
 class Wrapper extends React.Component {
 	constructor(props) {
 		super(props)
+
+        // 移动端检测
+        const isMobile = mobileCheck()
 
 		this.state = {
 			// 显示
@@ -29,7 +35,11 @@ class Wrapper extends React.Component {
             // 缩放
             zoom: false,
 			// 当前页数
-			page: 0
+			page: 0,
+            // 是否移动端
+            isMobile: isMobile,
+            // 图片距屏幕边距 (如果有)
+            margin: isMobile ? 0 : props.margin,
 		}
 	}
 
@@ -126,7 +136,7 @@ class Wrapper extends React.Component {
 
 	render() {
         const { coverNodeRef, imageSet, controller, remove } = this.props
-        const { show, zoom, page } = this.state
+        const { show, zoom, page, margin } = this.state
 		return (
 			<div className={style.wrapperLayer}>
 				{/*控制层*/}
@@ -146,17 +156,21 @@ class Wrapper extends React.Component {
                     show={show}
                     zoom={zoom}
                     page={page}
+                    margin={margin}
                     imageSet={imageSet}
                     coverNodeRef={coverNodeRef}
+                    isMobile={this.isMobile}
                 >
 	                {/*图片层*/}
                     <Image
                         show={show}
                         zoom={zoom}
                         page={page}
+                        margin={margin}
                         imageSet={imageSet}
                         coverNodeRef={coverNodeRef}
                         toggleZoom={this.handleToggleZoom}
+                        isMobile={this.isMobile}
                         remove={remove}
                     />
                 </Position>
@@ -182,6 +196,8 @@ Wrapper.defaultProps = {
 	controller: defProp.controller,
 	// 快捷键
 	hotKey: defProp.hotKey,
+    // 图片距屏幕边距 (如果有)
+    margin: defProp.margin,
 	// 卸载函数
 	remove: () => {}
 }
@@ -195,6 +211,8 @@ Wrapper.propTypes = {
 	controller: defType.controller,
 	// 快捷键
 	hotKey: defType.hotKey,
+    // 图片距屏幕边距 (如果有)
+    margin: defType.margin,
 	// 卸载函数
 	remove: PropTypes.func
 }

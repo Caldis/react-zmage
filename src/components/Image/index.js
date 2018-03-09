@@ -13,13 +13,7 @@ import style from './index.less'
 import {
 	calcFitScale,
 	addListenEventOf, removeListenEventOf,
-    mobileCheck
 } from '@/utils'
-
-// 移动端检测
-const isMobile = mobileCheck()
-// 图片边距
-const IMAGE_MARGIN = isMobile ? 0 : 50
 
 export default class Image extends React.Component {
 	constructor(props) {
@@ -81,11 +75,11 @@ export default class Image extends React.Component {
         return coverStyle
     }
     pageFitSize = () => {
-        const { coverNodeRef } = this.props
+        const { coverNodeRef, margin } = this.props
         let fitScale = { scale: 1,  borderWidth: 0, borderRadius: 0 }
         if (coverNodeRef) {
             fitScale = {
-            	scale: calcFitScale(coverNodeRef, IMAGE_MARGIN),
+            	scale: calcFitScale(coverNodeRef, margin),
                 borderWidth: 0,
                 borderRadius: 5
             }
@@ -125,7 +119,7 @@ export default class Image extends React.Component {
 
     render() {
         const { show, zoom, page, imageSet, coverNodeRef, toggleZoom } = this.props
-		const { onLoad, onError, defaultStyle, currentStyle } = this.state
+		const { onLoad, onError, margin, defaultStyle, currentStyle } = this.state
 		return (
 			<Fragment>
 
@@ -159,8 +153,8 @@ export default class Image extends React.Component {
                                 // boxSizing: this.coverNodeStyle['box-sizing'],
                                 border: this.coverNodeStyle['border'],
                                 // 无封面图片处理
-                                maxWidth: coverNodeRef ? '' : zoom ? 'max-content' : `calc(100vw - ${2*IMAGE_MARGIN}px)`,
-                                maxHeight: coverNodeRef ? '' : zoom ? 'max-content' : `calc(100vh - ${2*IMAGE_MARGIN}px)`
+                                maxWidth: coverNodeRef ? '' : zoom ? 'max-content' : `calc(100vw - ${2*margin}px)`,
+                                maxHeight: coverNodeRef ? '' : zoom ? 'max-content' : `calc(100vh - ${2*margin}px)`
                             }}
                             src={imageSet[page].src}
                             alt={imageSet[page].alt}
