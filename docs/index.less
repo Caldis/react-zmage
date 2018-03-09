@@ -3,7 +3,7 @@
 
 *, *:before, *:after {
     box-sizing: border-box;
-    font-family: "Helvetica Neue", "Luxi Sans", "DejaVu Sans", Tahoma, "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+    font-family: "Ubuntu", "Helvetica Neue", "Luxi Sans", "DejaVu Sans", Tahoma, "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
 }
 body {
     margin: 0;
@@ -133,11 +133,17 @@ pre {
         >div {
             margin: auto;
         }
+        h4 {
+            font-weight: lighter;
+        }
 
         @media only screen and (max-width: @breakpointWidth) {
             a > img {
-                width: 80%;
+                width: 50%;
                 height: auto;
+            }
+            h1 {
+                font-size: 4rem;
             }
             h4 {
                 padding: 0 10%;
