@@ -110,7 +110,7 @@ export default class Control extends React.Component {
 		            <div className={style.zoomButton} style={this.zoomStyle(show)} onClick={toggleZoom}/>}
 
 		            {/*关闭按钮*/}
-		            {controller.close &&
+		            {!zoom && controller.close &&
 		            <div className={style.closeButton} onClick={zoom ? toggleZoom : unmountSelf}>
 			            <div className={style.crossLine} style={this.lineL(show)}/>
 			            <div className={style.crossLine} style={this.lineR(show)}/>

@@ -5,24 +5,21 @@
 
 // React Libs
 import React from 'react'
+// React Motion
+import { Motion, spring } from 'react-motion'
 // Style
 import style from './index.less'
 
-export default class Background extends React.Component {
-	constructor(props) {
-		super(props)
-	}
-
-    bgOverlayStyle = show => show ? {backgroundColor: 'rgba(255,255,255,1)'} : {backgroundColor: 'rgba(255,255,255,0)'}
-
-	render() {
-        const { show, zoom, unmountSelf, toggleZoom } = this.props
-		return (
-			<div
-				className={style.backgroundLayer}
-				onClick={zoom ? toggleZoom : unmountSelf}
-				style={this.bgOverlayStyle(show)}
-			/>
-		)
-	}
+export default ({ show, zoom, unmountSelf, toggleZoom }) => {
+	return (
+		<Motion defaultStyle={{ opacity: 0 }} style={{ opacity: spring(show ? 1 : 0) }}>
+			{({ opacity }) =>
+                <div
+                    className={style.backgroundLayer}
+                    onClick={zoom ? toggleZoom : unmountSelf}
+                    style={{ opacity }}
+                />
+			}
+		</Motion>
+	)
 }
