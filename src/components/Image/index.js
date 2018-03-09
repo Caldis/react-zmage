@@ -11,11 +11,14 @@ import style from './index.less'
 import Lerp from '@/utils/lerp'
 import {
 	calcFitScale,
-	addListenEventOf, removeListenEventOf
+	addListenEventOf, removeListenEventOf,
+    mobilecheck
 } from '@/utils'
 
-// TODO: CONFIG
-const IMAGE_MARGIN = 50
+// 移动端检测
+const isMobile = mobilecheck()
+// 图片边距
+const IMAGE_MARGIN = isMobile ? 0 : 50
 
 export default class Image extends React.Component {
 	constructor(props) {

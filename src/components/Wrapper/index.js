@@ -38,7 +38,8 @@ class Wrapper extends React.Component {
     }
     componentWillUnmount() {
 	    removeListenEventOf('keydown', this.handleKeyDown)
-	    removeListenEventOf('wheel', this.handleWheelScroll)
+        removeListenEventOf('wheel', this.handleScroll)
+        removeListenEventOf('touchmove', this.handleScroll)
     }
 
     /**
@@ -51,7 +52,8 @@ class Wrapper extends React.Component {
 	    // 显示并绑定事件
 	    this.setState({ show: true }, () => {
 		    addListenEventOf('keydown', this.handleKeyDown)
-		    addListenEventOf('wheel', this.handleWheelScroll)
+		    addListenEventOf('wheel', this.handleScroll)
+		    addListenEventOf('touchmove', this.handleScroll)
 	    })
     }
     unmountSelf = () => {
@@ -94,7 +96,7 @@ class Wrapper extends React.Component {
                 return
         }
     }
-    handleWheelScroll = (e) => {
+    handleScroll = (e) => {
         this.state.show && this.unmountSelf()
     }
 
