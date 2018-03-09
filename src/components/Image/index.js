@@ -1,22 +1,23 @@
 /**
  * 图片层
- * 展示图片
+ * 展示图片, 控制图片尺寸
  **/
 
 // React Libs
 import React,{ Fragment } from 'react'
+// React Motion
+import { Motion, spring } from 'react-motion'
 // Style
 import style from './index.less'
 // Utils
-import Lerp from '@/utils/lerp'
 import {
 	calcFitScale,
 	addListenEventOf, removeListenEventOf,
-    mobilecheck
+    mobileCheck
 } from '@/utils'
 
 // 移动端检测
-const isMobile = mobilecheck()
+const isMobile = mobileCheck()
 // 图片边距
 const IMAGE_MARGIN = isMobile ? 0 : 50
 
@@ -24,8 +25,10 @@ export default class Image extends React.Component {
 	constructor(props) {
 		super(props)
 
-		// 封面样式
-		this.coverNodeStyle = {}
+		// 初始封面尺寸
+		const { scale, borderWidth, borderRadius  } = this.coverSize()
+        // 页面缩放时重设尺寸
+        addListenEventOf('resize', this.handleResize)
 
 		this.state = {
 			// 加载完成
@@ -34,28 +37,23 @@ export default class Image extends React.Component {
 			onError: false,
 			// 翻页方向
 			direction: '',
-			// 样式
-            transStyle: {}
+            // 样式
+            defaultStyle: { scale, borderWidth, borderRadius },
+            currentStyle: { scale, borderWidth, borderRadius },
 		}
 	}
 
-    componentWillMount() {
-        this.resize = new Lerp({
-            data: this.getCoverStyle(),
-            poster: this.handleSetStyle
-        })
-	    addListenEventOf('resize', this.setToPageFitStyle)
-	}
     componentWillReceiveProps(nextProps) {
         const { show, zoom, page } = nextProps
 	    if (show) {
         	if (zoom) {
-		        this.setToOriginalStyle()
+		        this.resizeTo(this.originalSize())
 	        } else {
-		        this.setToPageFitStyle()
+                this.resizeTo(this.pageFitSize())
 	        }
 	    } else {
-		    this.setToCoverStyle()
+            this.resizeTo(this.coverSize())
+            removeListenEventOf('resize', this.handleResize)
 	    }
 	    if (page) {
         	this.setState({
@@ -64,14 +62,11 @@ export default class Image extends React.Component {
 	        })
 	    }
     }
-	componentWillUnmount() {
-		removeListenEventOf('resize', this.setToPageFitStyle)
-	}
 
     /**
-     * 状态切换设置大小
+     * 尺寸控制
      **/
-    getCoverStyle = () => {
+    coverSize = () => {
         const { coverNodeRef } = this.props
         let coverStyle = { scale: 0, borderWidth:0, borderRadius: 0 }
         if (coverNodeRef) {
@@ -85,19 +80,7 @@ export default class Image extends React.Component {
         }
         return coverStyle
     }
-    setToCoverStyle = () => {
-	    const { coverNodeRef, remove } = this.props
-        this.resize.to({
-			data: this.getCoverStyle(),
-			after: () => {
-                // 显示封面原图
-                if (coverNodeRef) coverNodeRef.style.visibility = 'visible'
-                // 移除节点
-                remove()
-            }
-		})
-    }
-    getPageFitStyle = () => {
+    pageFitSize = () => {
         const { coverNodeRef } = this.props
         let fitScale = { scale: 1,  borderWidth: 0, borderRadius: 0 }
         if (coverNodeRef) {
@@ -109,45 +92,40 @@ export default class Image extends React.Component {
         }
         return fitScale
     }
-    setToPageFitStyle = () => {
-	    this.resize.to({ data: this.getPageFitStyle() })
-    }
-    getOriginalStyle = () => {
+    originalSize = () => {
         return {
         	scale: 1,
 			borderWidth: 0,
 			borderRadius: 5
         }
     }
-    setToOriginalStyle = () => {
-        this.resize.to({ data: this.getOriginalStyle() })
+    resizeTo = ({ scale, borderWidth, borderRadius }) => {
+        this.setState({
+            currentStyle: { scale, borderWidth, borderRadius }
+        })
     }
 
-	/**
-	 * 尺寸控制器
-	 **/
-    handleSetStyle = (curr) => {
-    	const { show, zoom, coverNodeRef } = this.props
-		this.setState({
-            transStyle: {
-            	// 插值样式
-                transform: `translate3d(-50%, -50%, 0) scale3d(${curr.scale}, ${curr.scale}, 1)`,
-                borderRadius: `${curr.borderRadius/curr.scale}px`,
-                borderWidth: `${curr.borderWidth/curr.scale}px`,
-				// 固定样式
-				boxShadow: show ? 'none' :  this.coverNodeStyle['box-shadow'],
-                boxSizing: this.coverNodeStyle['box-sizing'],
-                border: this.coverNodeStyle['border'],
-				// 无封面图片处理
-                maxWidth: coverNodeRef ? '' : zoom ? 'max-content' : `calc(100vw - ${2*IMAGE_MARGIN}px)`,
-                maxHeight: coverNodeRef ? '' : zoom ? 'max-content' : `calc(100vh - ${2*IMAGE_MARGIN}px)`
-			}
-		})
+    /**
+     * 事件响应
+     **/
+    handleResize = () => {
+        this.resizeTo(this.pageFitSize())
+    }
+    handleMotionRest = () => {
+        const { coverNodeRef, remove } = this.props
+        const { show } = this.props
+        if (!show) {
+            // 显示封面原图
+            if (coverNodeRef) coverNodeRef.style.visibility = 'visible'
+            // 移除节点
+            remove()
+        }
     }
 
-	render() {
-        const { zoom, page, imageSet, toggleZoom } = this.props
-		const { onLoad, onError, transStyle } = this.state
+
+    render() {
+        const { show, zoom, page, imageSet, coverNodeRef, toggleZoom } = this.props
+		const { onLoad, onError, defaultStyle, currentStyle } = this.state
 		return (
 			<Fragment>
 
@@ -158,16 +136,40 @@ export default class Image extends React.Component {
 				{onError && <span>😖</span>}
 
 				{/*图片*/}
-				<img
-		            key={page}
-	                className={style.imageLayer}
-					style={transStyle}
-	                src={imageSet[page].src}
-	                alt={imageSet[page].alt}
-	                onLoad={() => this.setState({ onLoad: false })}
-	                onError={() => this.setState({ onError: true })}
-	                onClick={zoom ? toggleZoom : ()=>{}}
-				/>
+				<Motion
+                    defaultStyle={defaultStyle}
+                    style={{
+                        scale: spring(currentStyle.scale),
+                        borderWidth: spring(currentStyle.borderWidth),
+                        borderRadius: spring(currentStyle.borderRadius)
+                    }}
+                    onRest={this.handleMotionRest}
+                >
+                    {({ scale, borderWidth, borderRadius }) =>
+                        <img
+                            key={page}
+                            className={style.imageLayer}
+                            style={{
+                                // 插值样式
+                                transform: `translate3d(-50%, -50%, 0) scale3d(${scale}, ${scale}, 1)`,
+                                borderRadius: `${borderRadius/scale}px`,
+                                borderWidth: `${borderWidth/scale}px`,
+                                // 固定样式
+                                boxShadow: 'none',
+                                // boxSizing: this.coverNodeStyle['box-sizing'],
+                                border: this.coverNodeStyle['border'],
+                                // 无封面图片处理
+                                maxWidth: coverNodeRef ? '' : zoom ? 'max-content' : `calc(100vw - ${2*IMAGE_MARGIN}px)`,
+                                maxHeight: coverNodeRef ? '' : zoom ? 'max-content' : `calc(100vh - ${2*IMAGE_MARGIN}px)`
+                            }}
+                            src={imageSet[page].src}
+                            alt={imageSet[page].alt}
+                            onLoad={() => this.setState({ onLoad: false })}
+                            onError={() => this.setState({ onError: true })}
+                            onClick={zoom ? toggleZoom : ()=>{}}
+                        />
+                    }
+                </Motion>
 
 			</Fragment>
 		)

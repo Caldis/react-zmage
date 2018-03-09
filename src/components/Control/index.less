@@ -20,7 +20,6 @@
     cursor: pointer;
     border: 1px solid black;
     transition: all @animationDurations @animationFunction;
-    will-change: clip-path;
 }
 .zoomButton:hover {
     transform: scale(1.1);
@@ -34,8 +33,8 @@
     width: 40px;
     height: 40px;
     cursor: pointer;
+    transform: scale(1);
     transition: all @animationDurations @animationFunction;
-    will-change: transform;
 
     .crossLine {
         position: absolute;
@@ -45,7 +44,6 @@
         height: 1px;
         background-color: black;
         transition: all @animationDurations @animationFunction;
-        will-change: transform;
     }
 }
 .closeButton:hover {
@@ -67,7 +65,6 @@
     transition: all @animationDurations @animationFunction;
     transform-origin: 50% 0;
     transform: translateY(-50%);
-    will-change: transform, left, right, opacity;
 
     svg {
         fill: white;
@@ -94,7 +91,6 @@
     user-select: none;
     transition: all @animationDurations @animationFunction;
     transform: translateX(-50%);
-    will-change: bottom, opacity;
 }
 
 // 图片标题
@@ -109,7 +105,6 @@
     z-index: 90;
     user-select: none;
     transition: all @animationDurations @animationFunction;
-    will-change: clip-path, opacity;
 }
 
 // 图片文字
@@ -126,5 +121,4 @@
     background-color: black;
     transition: all @animationDurations @animationFunction;
     transform: translateY(-50%);
-    will-change: left, opacity;
 }
