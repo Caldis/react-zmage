@@ -53,7 +53,7 @@ export const defType = {
 	]),
 
 	// 控制器
-	controller: {
+	controller: PropTypes.shape({
 		// 分页
 		pagination: PropTypes.bool,
 		// 标题
@@ -64,7 +64,7 @@ export const defType = {
 		zoom: PropTypes.bool,
 		// 左右翻页
 		flip: PropTypes.bool
-	},
+	}),
 
 	// 快捷键
 	hotKey: PropTypes.shape({
