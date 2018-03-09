@@ -30,7 +30,11 @@ export const defProp = {
 		zoom: true,
 		// 翻页（左右键）
 		flip: true
-	}
+	},
+
+    // 杂项
+    // 图片距屏幕边距 (如果有)
+    margin: 50,
 
 }
 
@@ -75,5 +79,9 @@ export const defType = {
 		// 翻页（左右键）
 		flip: PropTypes.bool
 	}),
+
+    // 杂项
+    // 图片距屏幕边距 (如果有)
+    margin: PropTypes.number,
 
 }
