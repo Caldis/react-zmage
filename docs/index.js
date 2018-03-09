@@ -12,8 +12,11 @@ import 'prismjs/themes/prism.css'
 import PrismCode from 'react-prism'
 // Style
 import style from './index.less'
+// Debugging flags
+let debugging = process.env.NODE_ENV === "development"
 
 export default class ReactZmage extends React.Component {
+
     constructor(props){
         super(props)
     }
@@ -33,11 +36,11 @@ export default class ReactZmage extends React.Component {
 
                     <div className={style.project}>
 
-	                    <div align="center">
-		                    <a href="https://github.com/Caldis/react-zmage">
-			                    <img width="200" height="200" src="logo.png"/>
-		                    </a>
-	                    </div>
+                        <div align="center">
+                            <a href="https://github.com/Caldis/react-zmage">
+                                <img width="200" height="200" src="logo.png"/>
+                            </a>
+                        </div>
 
                         <h1>react-zmage</h1>
                         <h4>一个基于 React 的可缩放图片控件, 您可以用这个控件完全替代原生的 img 标签, 令其附带图片缩放功能</h4>
@@ -45,23 +48,15 @@ export default class ReactZmage extends React.Component {
                         <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage")}>马上使用</div>
                     </div>
 
-	                <div className={style.scrollDownHint}>
-		                <span>向下滚动以查看更多示例</span>
-		                <img src="arrow.png" alt="向下滚动查看更多"/>
-		                <img src="arrow.png"/>
-	                </div>
+                    <div className={style.scrollDownHint}>
+                        <span>向下滚动以查看更多示例</span>
+                        <img src="arrow.png" alt="向下滚动查看更多"/>
+                        <img src="arrow.png"/>
+                    </div>
                 </div>
 
                 {/*特性介绍*/}
                 <div className={style.horizon}>
-                    <div>
-                        <Zmage
-                            className={style.image}
-                            src="imgSet/aboutDeer/1.jpg"
-                            alt="最简单的使用方式"
-                        />
-                        <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
-                    </div>
                     <div>
                         <h2>基本用法</h2>
                         <p>一如原生的 {"<img/>"} 标签, 只需要直接替换 img 为 Zmage 即可, 您依旧可以使用 style, className 等原生属性。</p>
@@ -75,6 +70,14 @@ export default class ReactZmage extends React.Component {
 />`}
 </PrismCode>
 	                    </pre>
+                    </div>
+                    <div>
+                        <Zmage
+                            className={style.image}
+                            src="imgSet/aboutDeer/1.jpg"
+                            alt="最简单的使用方式"
+                        />
+                        <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
                     </div>
                 </div>
 
@@ -106,24 +109,6 @@ export default class ReactZmage extends React.Component {
 
                 <div className={style.horizon}>
                     <div>
-                        <Zmage
-                            className={style.image}
-                            src="imgSet/aboutDeer/3.jpg"
-                            alt="展示序列图片"
-                            imageSet={[{
-                                src: "imgSet/aboutDeer/3.jpg",
-                                alt: "關於鹿 · THREE"
-                            },{
-                                src: "imgSet/aboutDeer/4.jpg",
-                                alt: "關於鹿 · FOUR"
-                            },{
-                                src: "imgSet/aboutDeer/5.jpg",
-                                alt: "關於鹿 · FIVE"
-                            }]}
-                        />
-                        <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
-                    </div>
-                    <div>
                         <h2>展示序列图片</h2>
                         <p>您可以传入一系列图片来显示一个幻灯片, 使用 <b>imageSet</b> 来包裹它们。</p>
                         <p>点击放大后使用键盘的 <b>←</b> 或 <b>→</b> , 或点击屏幕两侧的按钮即可切换图片。</p>
@@ -143,6 +128,24 @@ export default class ReactZmage extends React.Component {
 />`}
 </PrismCode>
                         </pre>
+                    </div>
+                    <div>
+                        <Zmage
+                            className={style.image}
+                            src="imgSet/aboutDeer/3.jpg"
+                            alt="展示序列图片"
+                            imageSet={[{
+                                src: "imgSet/aboutDeer/3.jpg",
+                                alt: "關於鹿 · THREE"
+                            },{
+                                src: "imgSet/aboutDeer/4.jpg",
+                                alt: "關於鹿 · FOUR"
+                            },{
+                                src: "imgSet/aboutDeer/5.jpg",
+                                alt: "關於鹿 · FIVE"
+                            }]}
+                        />
+                        <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
                     </div>
                 </div>
 

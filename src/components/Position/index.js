@@ -11,8 +11,8 @@ import style from './index.less'
 import Lerp from '@/utils/lerp'
 import {
 	addListenEventOf, removeListenEventOf,
-	windowWidth, clientWidth,
-	windowHeight, clientHeight
+    scrollWidth, windowWidth, clientWidth,
+	scrollHeight,windowHeight, clientHeight
 } from '@/utils'
 
 // TODO: CONFIG

@@ -1,4 +1,7 @@
-* {
+// 移动端断点分辨率
+@breakpointWidth: 1080px;
+
+*, *:before, *:after {
     box-sizing: border-box;
     font-family: "Helvetica Neue", "Luxi Sans", "DejaVu Sans", Tahoma, "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
 }
@@ -121,7 +124,7 @@ pre {
 .pageContainer {
     box-sizing: border-box;
 
-    //全屏居中布局
+    // 首屏
     .page {
         position: relative;
         height: 100vh;
@@ -131,27 +134,54 @@ pre {
             margin: auto;
         }
 
+        @media only screen and (max-width: @breakpointWidth) {
+            a > img {
+                width: 80%;
+                height: auto;
+            }
+            h4 {
+                padding: 0 10%;
+                font-weight: lighter;
+            }
+        }
+
         .github {
             position: absolute;
             top: 20px;
             right: 20px;
         }
     }
-    // 左右分栏布局
+
+    // 左右分栏
     .horizon {
         border-top: 1px solid #eeefee;
         margin: auto;
-        width: 1080px;
+        max-width: @breakpointWidth;
         padding-top: 80px;
         padding-bottom: 80px;
         display: flex;
+        flex-wrap: wrap;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
 
-        >div {
-            width: 50%;
-            padding: 30px 40px ;
+        > div {
+          max-width: 50%;
+          padding: 30px 40px;
+        }
+        @media only screen and (max-width: @breakpointWidth) {
+            > div {
+                max-width: 100%;
+                padding: 20px;
+            }
+            > div:last-of-type {
+                width: 100%;
+                padding: 0;
+
+                img {
+                    border-radius: 0;
+                }
+            }
         }
 
         a {
