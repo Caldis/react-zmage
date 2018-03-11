@@ -3,60 +3,86 @@
 **/
 
 // React Libs
-import React from 'react'
+import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
 // Components
-import { showImage } from './components/Wrapper'
+import Portals from './components/Portals'
+import Wrapper from './components/Wrapper'
 // Config
 import { defType, defProp } from './config/default'
-// Utils
-import { generateUUID } from './utils'
 
-export { showImage, ReactZmage }
-export default class ReactZmage extends React.Component {
+export default class ReactZmage extends React.PureComponent {
     constructor(props){
         super(props)
+
+        // Refs
+        this.cover = null
+
+        // States
         this.state = {
-            uid: generateUUID()
+            browsing: false,
+            set: this.buildImageSet(props)
+        }
+
+    }
+
+    // 从初始 props 中生成图片集合
+    buildImageSet = (props) => {
+        const { set, src, zoomSrc, alt, txt } = props
+        if(set && set.constructor===Array && set.length>1) {
+            return set
+        } else {
+            return [{
+                src: zoomSrc || src,
+                alt: alt,
+                txt: txt
+            }]
         }
     }
 
+    // 切换查看状态
+    handleToggleBrowsing = () => {
+        const { onClick } = this.props
+        onClick && onClick.constructor===Function && onClick()
+        this.setState({ browsing: !this.state.browsing })
+    }
+
     render() {
-        const { uid } = this.state
+        const { browsing, set } = this.state
         const {
-            id, className,            // 避免意外 id 覆盖
-            src, hiResSrc, alt, text, // 基本属性
-	        imageSet,                 // 图片列表
-	        controller,               // 页面上的控制器
-	        hotKey,                   // 热键
-            onClick,                  // 用于单独执行 onClick
-            style,                    // 样式
-            ...props                  // 剩余参数
+            className, src, alt,  // 基本属性
+	        controller,           // 页面按钮
+	        hotKey,               // 热键
+            style,                // 样式
+            ...props              // 剩余参数
         } = this.props
-        const uuid = `u${uid}`
         return (
-            <img
-                id={uuid} className={className}
-                src={src} alt={alt}
-                onClick={() => {
-                    // 执行绑定的函数
-                    onClick && onClick.constructor===Function && onClick()
-                    // 显示幻灯片叠层
-                    showImage({
-                        id: uuid,
-                        imageSet: imageSet && imageSet.constructor===Array && imageSet.length>1?
-	                        imageSet : [{
-	                            src: hiResSrc || src,
-		                        alt,
-		                        text
-	                        }],
-	                    controller,
-	                    hotKey
-                    })
-                }}
-                style={Object.assign({ cursor:'zoom-in' }, style)}
-                {...props}
-            />
+            <Fragment>
+
+                {/*封面图片*/}
+                <img
+                    ref={ref => this.cover = ref}
+                    className={className} src={src} alt={alt} title={alt}
+                    onClick={this.handleToggleBrowsing}
+                    style={{ cursor:'zoom-in', ...style }}
+                    {...props}
+                />
+
+                {/*查看叠层*/}
+                {
+                    browsing &&
+                    <Portals>
+                        <Wrapper
+                            cover={this.cover}
+                            set={set}
+                            controller={{ ...defProp.controller, ...controller }}
+                            hotKey={{ ...defProp.hotKey, ...hotKey }}
+                            remove={() => this.setState({ browsing: false })}
+                        />
+                    </Portals>
+                }
+
+            </Fragment>
         )
     }
 }
@@ -65,39 +91,38 @@ export default class ReactZmage extends React.Component {
 // 默认参数
 ReactZmage.defaultProps = {
 
-	// 图片链接
+    // 图片 Url
 	src: "",
-	// 高分原图链接
-	hiResSrc: "",
+    // 放大后图片 Url
+    zoomSrc: "",
 	// 图片标题
 	alt: "",
-	// 图片描述
-	text: "",
+	// 图片文字
+    txt: "",
 
     // 图片列表
-    imageSet: [],
+    set: [],
 
 	// 控制器
 	controller: defProp.controller,
 	// 快捷键
 	hotKey: defProp.hotKey
-
 }
 
 // 参数类型
 ReactZmage.propTypes = {
 
-	// 图片链接
+	// 图片 Url
 	src: PropTypes.string.isRequired,
-	// 高分原图链接
-	hiResSrc: PropTypes.string,
+	// 放大后图片 Url
+	zoomSrc: PropTypes.string,
 	// 图片标题
 	alt: PropTypes.string,
 	// 图片描述
-	text: PropTypes.string,
+    txt: PropTypes.string,
 
-    // 图片列表, 可以传入单独的图片类型或数组包裹的图片类型
-    imageSet: defType.imageSet,
+    // 图片集合, 可以传入单独的图片类型或数组包裹的图片类型
+    set: defType.set,
 
     // 控制器
 	controller: defType.controller,

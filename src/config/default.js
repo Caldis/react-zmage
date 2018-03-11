@@ -28,13 +28,15 @@ export const defProp = {
 		close: true,
 		// 缩放（空格）
 		zoom: true,
-		// 翻页（左右键）
+		// 翻页（左右）
 		flip: true
 	},
 
     // 杂项
     // 图片距屏幕边距 (如果有)
     margin: 50,
+	// 动画参数
+    springOption: { stiffness: 180, damping: 25 }
 
 }
 
@@ -42,8 +44,8 @@ export const defProp = {
 // 默认类型
 export const defType = {
 
-	// 图片列表
-	imageSet: PropTypes.oneOfType([
+	// 图片集合
+    set: PropTypes.oneOfType([
 		PropTypes.arrayOf(PropTypes.shape({
 			src: PropTypes.string,  // 图片链接
 			alt: PropTypes.string,  // 同 img 标签的 alt
@@ -83,5 +85,10 @@ export const defType = {
     // 杂项
     // 图片距屏幕边距 (如果有)
     margin: PropTypes.number,
+    // 动画参数
+    springOption: PropTypes.shape({
+        stiffness: PropTypes.number, // 剛性
+        damping: PropTypes.number,   // 阻尼
+    })
 
 }

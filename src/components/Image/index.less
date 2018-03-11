@@ -1,60 +1,6 @@
 .imageLayer {
+    position: absolute;
     user-select: none;
-	transform: translate(-50%, -50%);
-	transition: box-shadow .3s;
-}
-
-// 加载动画
-.loading {
-	display: inline-block;
-	z-index: 80;
-	width: 20px;
-	height: 20px;
-	transform: rotate(45deg);
-	animation: rotate 1.2s infinite linear;
-
-	i {
-		width: 9px;
-		height: 9px;
-		border-radius: 100%;
-		background-color: #108ee9;
-		transform: scale(.75);
-		display: block;
-		position: absolute;
-		opacity: .3;
-		animation: spinMove 1s infinite linear alternate;
-		transform-origin: 50% 50%;
-	}
-
-	:first-child {
-		left: 0;
-		top: 0;
-	}
-	:nth-child(2) {
-		right: 0;
-		top: 0;
-		animation-delay: .4s
-	}
-	:nth-child(3) {
-		right: 0;
-		bottom: 0;
-		animation-delay: .8s
-	}
-	:nth-child(4) {
-		left: 0;
-		bottom: 0;
-		animation-delay: 1.2s
-	}
-}
-
-// 加载动画
-@keyframes rotate {
-	to {
-		transform: rotate(405deg)
-	}
-}
-@keyframes spinMove {
-	to {
-		opacity: 1
-	}
+    border-radius: 5px;
+    transform: translate(-50%, -50%);
 }

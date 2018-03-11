@@ -5,7 +5,6 @@
 
 // React Libs
 import React from 'react'
-import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 // Style
 import style from './index.less'
@@ -22,12 +21,12 @@ import {
     mobileCheck,
 } from '@/utils'
 
-class Wrapper extends React.Component {
+export default class Wrapper extends React.PureComponent {
 	constructor(props) {
 		super(props)
 
         // 移动端检测
-        const isMobile = mobileCheck()
+        const mobile = mobileCheck()
 
 		this.state = {
 			// 显示
@@ -37,9 +36,9 @@ class Wrapper extends React.Component {
 			// 当前页数
 			page: 0,
             // 是否移动端
-            isMobile: isMobile,
+            mobile: mobile,
             // 图片距屏幕边距 (如果有)
-            margin: isMobile ? 0 : props.margin,
+            margin: mobile ? 0 : props.margin,
 		}
 	}
 
@@ -56,9 +55,9 @@ class Wrapper extends React.Component {
      * 加载器
      **/
     mountSelf = () => {
-        const { coverNodeRef } = this.props
+        const { cover } = this.props
         // 隐藏封面原图
-        if(coverNodeRef) coverNodeRef.style.visibility = 'hidden'
+        cover.style.visibility = 'hidden'
 	    // 显示并绑定事件
 	    this.setState({ show: true }, () => {
 		    addListenEventOf('keydown', this.handleKeyDown)
@@ -67,10 +66,10 @@ class Wrapper extends React.Component {
 	    })
     }
     unmountSelf = () => {
-        const { coverNodeRef } = this.props
+        const { cover } = this.props
         const { page } = this.state
         // 显示封面原图（当前不为第一页时，遮罩从上方移除会迅速露出，需要立即显示，否则交由图片层处理）
-        if(coverNodeRef && page!==0) coverNodeRef.style.visibility = 'visible'
+        if(page!==0) cover.style.visibility = 'visible'
         this.setState({ show: false })
     }
 
@@ -80,9 +79,9 @@ class Wrapper extends React.Component {
     handleKeyDown = (e) => {
         // 阻止默认事件
         e.preventDefault()
-        const { imageSet, hotKey } = this.props
+        const { set, hotKey } = this.props
         const { zoom } = this.state
-        const hasImageSet = imageSet && imageSet.constructor===Array
+        const hasImageSet = set && set.constructor===Array
         const toPrevPage = this.handleSwitchPages("prev")
         const toNextPage = this.handleSwitchPages("next")
         switch (e.key) {
@@ -113,14 +112,17 @@ class Wrapper extends React.Component {
     /**
      * 翻页控制
      **/
+    handleJumpPages = (page) => {
+        this.setState({ page })
+    }
     handleSwitchPages = (direction) => {
         return () => {
-            const { imageSet } = this.props
+            const { set } = this.props
             const { page } = this.state
             this.setState({
                 page: direction === "prev" ?
-                    Math.abs(imageSet.length + page - 1) % imageSet.length:
-                    (page + 1) % imageSet.length
+                    Math.abs(set.length + page - 1) % set.length:
+                    (page + 1) % set.length
             })
         }
     }
@@ -135,31 +137,32 @@ class Wrapper extends React.Component {
     }
 
 	render() {
-        const { coverNodeRef, imageSet, controller, remove } = this.props
-        const { show, zoom, page, margin } = this.state
+        const { cover, set, controller, remove } = this.props
+        const { show, zoom, page, mobile, margin } = this.state
 		return (
 			<div className={style.wrapperLayer}>
+
 				{/*控制层*/}
                 <Control
                     show={show}
                     zoom={zoom}
                     page={page}
-                    imageSet={imageSet}
+                    set={set}
                     controller={controller}
                     unmountSelf={this.unmountSelf}
                     toggleZoom={this.handleToggleZoom}
-                    switchPages={this.handleSwitchPages}
+                    jumpPages={this.handleJumpPages}
+                    mobile={mobile}
                 />
 
-				{/*位移控制层*/}
+				{/*位移层*/}
                 <Position
                     show={show}
                     zoom={zoom}
                     page={page}
                     margin={margin}
-                    imageSet={imageSet}
-                    coverNodeRef={coverNodeRef}
-                    isMobile={this.isMobile}
+                    set={set}
+                    cover={cover}
                 >
 	                {/*图片层*/}
                     <Image
@@ -167,10 +170,10 @@ class Wrapper extends React.Component {
                         zoom={zoom}
                         page={page}
                         margin={margin}
-                        imageSet={imageSet}
-                        coverNodeRef={coverNodeRef}
+                        set={set}
+                        cover={cover}
                         toggleZoom={this.handleToggleZoom}
-                        isMobile={this.isMobile}
+                        mobile={mobile}
                         remove={remove}
                     />
                 </Position>
@@ -189,9 +192,9 @@ class Wrapper extends React.Component {
 
 Wrapper.defaultProps = {
 	// 封面节点
-	coverNodeRef: {},
+    cover: {},
 	// 图片列表
-	imageSet: [],
+    set: [],
 	// 控制器
 	controller: defProp.controller,
 	// 快捷键
@@ -204,9 +207,9 @@ Wrapper.defaultProps = {
 
 Wrapper.propTypes = {
 	// 封面节点
-	coverNodeRef: PropTypes.object,
+    cover: PropTypes.object,
 	// 图片列表
-	imageSet: defType.imageSet,
+    set: defType.set,
 	// 控制器
 	controller: defType.controller,
 	// 快捷键
@@ -216,43 +219,3 @@ Wrapper.propTypes = {
 	// 卸载函数
 	remove: PropTypes.func
 }
-
-// 主动调用显示，插入控件到指定节点（Body末端）
-const showImage = ({ id, imageSet, controller, hotKey }) => {
-
-	// 封面节点
-	const coverNodeRef = document.getElementById(id)
-
-	// 容器节点
-	const wrapperNodeId = `zmage-wrapper`
-	const previousOverlayNode = document.getElementById(wrapperNodeId)
-	previousOverlayNode && previousOverlayNode.remove()
-	const wrapperNode = document.createElement('div')
-	wrapperNode.id = wrapperNodeId
-	document.body.appendChild(wrapperNode)
-	const wrapperNodeRef = document.getElementById(wrapperNodeId)
-
-	// 卸载函数
-	const remove = () => {
-		ReactDOM.unmountComponentAtNode(wrapperNodeRef)
-		wrapperNodeRef.remove()
-	}
-
-	// 插入容器节点
-    wrapperNodeRef && ReactDOM.render(
-		<Wrapper
-			coverNodeRef={coverNodeRef}
-			imageSet={imageSet}
-			controller={Object.assign({}, defProp.controller, controller)}
-			hotKey={Object.assign({}, defProp.hotKey, hotKey)}
-			remove={remove}
-		/>, wrapperNodeRef)
-
-	// 对于函数调用模式，返回容器节点引用, 调用 remove() 即可移除（无动画）
-	return {
-		node: wrapperNodeRef,
-		remove: remove
-	}
-}
-
-export { showImage, Wrapper }

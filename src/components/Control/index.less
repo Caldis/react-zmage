@@ -19,7 +19,6 @@
     height: 26px;
     cursor: pointer;
     border: 1px solid black;
-    transition: all @animationDurations @animationFunction;
 }
 .zoomButton:hover {
     transform: scale(1.1);
@@ -34,16 +33,15 @@
     height: 40px;
     cursor: pointer;
     transform: scale(1);
-    transition: all @animationDurations @animationFunction;
 
     .crossLine {
         position: absolute;
         top: 50%;
-        left: 50%;
+        left: 3px;
         width: 35px;
         height: 1px;
         background-color: black;
-        transition: all @animationDurations @animationFunction;
+        transform-origin: 50%;
     }
 }
 .closeButton:hover {
@@ -53,72 +51,32 @@
     transform: scale(1);
 }
 
-// 切换按钮
-.switchButton {
-    position: absolute;
-    top: 50%;
-    width: 40px;
-    height: 40px;
-    z-index: 110;
-    cursor: pointer;
-    background-color: black;
-    transition: all @animationDurations @animationFunction;
-    transform-origin: 50% 0;
-    transform: translateY(-50%);
-
-    svg {
-        fill: white;
-    }
-}
-.switchButton:hover {
-    transform: scale(1.1) translateY(-50%);
-}
-.switchButton:active {
-    transform: scale(1) translateY(-50%);
-}
-
 // 页数指示
 .pages {
     box-sizing: border-box;
-    padding: 6px 14px;
+    display: flex;
     position: absolute;
     left: 50%;
-    color: white;
-    font-size: 14px;
-    font-weight: bold;
+    bottom: 0;
     z-index: 110;
-    background-color: black;
-    user-select: none;
-    transition: all @animationDurations @animationFunction;
     transform: translateX(-50%);
-}
 
-// 图片标题
-.imgAlt {
-    box-sizing: border-box;
-    padding: 20px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    color: black;
-    font-size: 18px;
-    z-index: 90;
-    user-select: none;
-    transition: all @animationDurations @animationFunction;
-}
-
-// 图片文字
-.imgText {
-    box-sizing: border-box;
-    padding: 12px 20px;
-    position: absolute;
-    left: 0;
-    top: 50% + 180px;
-    color: white;
-    font-size: 16px;
-    z-index: 90;
-    user-select: none;
-    background-color: black;
-    transition: all @animationDurations @animationFunction;
-    transform: translateY(-50%);
+    .blackDot {
+        cursor: pointer;
+        margin: 10px 4px;
+        display: block;
+        width: 8px;
+        height: 8px;
+        border-radius: 4px;
+        background: black;
+    }
+    .whiteDot {
+        cursor: pointer;
+        margin: 10px 4px;
+        display: block;
+        width: 8px;
+        height: 8px;
+        border-radius: 4px;
+        background: #999;
+    }
 }
