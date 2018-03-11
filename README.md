@@ -35,7 +35,6 @@ npm i react-zmage --save
 
 <h2 align="center">使用</h2>
 
-### `以组件方式使用`
 
 **引入**
 ```js
@@ -51,52 +50,20 @@ import Zmage from 'react-zmage'
 
 **现在这些图片都可以放大查看了 ！**
 
-### `以函数调用方式使用`
-
-**引入**
-```bash
-import { showImage } from 'react-zmage'
-```
-
-**以任意方式调用函数**
-```js
-showImage({
-    imageSet: [{
-        src: "图片Url",
-        alt: "图片描述"
-    },{
-        src: "图片Url",
-        alt: "图片描述"
-    }]
-})
-```
-
-**函数调用后，查看模式的叠层就会弹出 ！**
-
 
 <h2 align="center">配置</h2>
 
 - 简单使用，请参见 http://zmage.caldis.me
-- 如果您使用函数方式引用，您只能将图片组包裹在`imageSet`中传入
-- 如果您同时传入了`hiResSrc`与`imageSet`，`hiResSrc`将不起作用
-
-<h3>以组件方式引用的配置项</h3>
+- 如果您使用函数方式引用，您只能将图片组包裹在`set`中传入
+- 如果您同时传入了`zoomSrc`与`set`，`zoomSrc`将不起作用
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------|
 | **`src`** | `{String}` | "" | 图片 Url，与 img 标签的`src`属性一样 | [示例](https://github.com/Caldis/react-zmage#src) |
-| **`hiResSrc`** | `{String}` | "" | 放大后图片的`Url`，如果留空，则会默认使用与`src`相同的值 | [示例](https://github.com/Caldis/react-zmage#hiResSrc) |
+| **`zoomSrc`** | `{String}` | "" | 放大后图片的`Url`，如果留空，则会默认使用与`src`相同的值 | [示例](https://github.com/Caldis/react-zmage#zoomSrc) |
 | **`alt`** | `{String}` | "" | 图片占位文字，与`img`标签的`alt`属性一样，同时会作为查看模式下的标题呈现在窗口左上角 | [示例](https://github.com/Caldis/react-zmage#alt) |
-| **`text`** | `{String}` | "" | 图片描述文字（暂未实现） | [示例](https://github.com/Caldis/react-zmage#text) |
-| **`imageSet`** | `{{ObjectArray}}` | [] | 如果想在查看模式下呈现多张图片，您可以使用`imageSet`传入一个或多个图片对象，每个图片对象包含了`src` `alt` `text` | [示例](https://github.com/Caldis/react-zmage#imageSet) |
-| **`controller`** | `{Object}` | { allTrue } | 如果想隐藏查看模式下的标题、关闭按钮、放大按钮等操作控件，您可以在`controller`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#controller) |
-| **`hotKey`** | `{Object}` | { allTrue } | 如果想禁用查看模式下的快捷键操作，您可以在`hotKey`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
-
-<h3>以函数方式引用的配置项</h3>
-
-|配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:-----|:----------|
-| **`imageSet`** | `{{ObjectArray}}` | [] | 如果想在查看模式下呈现多张图片，您可以使用`imageSet`传入一个或多个图片对象，每个图片对象包含了`src` `alt` `text` | [示例](https://github.com/Caldis/react-zmage#imageSet) |
+| **`txt`** | `{String}` | "" | 图片描述文字（暂未实现） | [示例](https://github.com/Caldis/react-zmage#txt) |
+| **`set`** | `{{ObjectArray}}` | [] | 如果想在查看模式下呈现多张图片，您可以使用`set`传入一个或多个图片对象，每个图片对象包含了`src` `alt` `txt` | [示例](https://github.com/Caldis/react-zmage#set) |
 | **`controller`** | `{Object}` | { allTrue } | 如果想隐藏查看模式下的标题、关闭按钮、放大按钮等操作控件，您可以在`controller`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#controller) |
 | **`hotKey`** | `{Object}` | { allTrue } | 如果想禁用查看模式下的快捷键操作，您可以在`hotKey`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
 
@@ -105,7 +72,7 @@ showImage({
 "http://zmage.caldis.me/imgSet/aboutDeer/demo.jpg"
 ```
 
-### `hiResSrcsrc`
+### `zoomSrc`
 ```js
 "http://zmage.caldis.me/imgSet/aboutDeer/demo.jpg"
 ```
@@ -115,21 +82,21 @@ showImage({
 "图片的占位文字，尽量保持简短，描述图片作用"
 ```
 
-### `text`
+### `txt`
 ```js
-"图片的描述文字，可以写很长，描述图片内容"
+"图片的描述文字，用于描述图片内容"
 ```
 
-### `imageSet`
+### `set`
 ```js
-imageSet: [
+set: [
     {
         // 图片 Url
         src: "http://zmage.caldis.me/imgSet/aboutDeer/1.jpg",
         // 图片占位文字
         alt: "图片的占位文字，尽量保持简短，描述图片作用",
         // 图片描述文字
-        text: "图片的描述文字，可以写很长，描述图片内容"
+        txt: "图片的描述文字，可以写很长，描述图片内容"
     }
 ]
 ```
