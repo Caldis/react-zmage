@@ -188,7 +188,7 @@ export default class Images extends React.PureComponent {
                                 transform: `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${scale}, ${scale}, 1)`,
                                 cursor: zoom ? 'zoom-out' : 'initial'
                             }}
-                            src={set[page].src} alt={set[page].alt} title={set[page].alt}
+                            src={set[page].src} alt={set[page].alt}
                             onClick={zoom ? toggleZoom : ()=>{}}
                         />
                     }
