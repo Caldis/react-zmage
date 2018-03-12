@@ -58,10 +58,10 @@ import Zmage from 'react-zmage'
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
 | **`src`** | `{String}` | "" | 图片 Url，与 img 标签的`src`属性一样 | [示例](https://github.com/Caldis/react-zmage#src) |
-| **`alt`** | `{String}` | "" | 图片占位文字，与`img`标签的`alt`属性一样，同时会作为查看模式下的标题呈现在窗口左上角 | [示例](https://github.com/Caldis/react-zmage#alt) |
+| **`alt`** | `{String}` | "" | 图片占位文字，与`img`标签的`alt`属性一样 | [示例](https://github.com/Caldis/react-zmage#alt) |
 | **`txt`** | `{String}` | "" | 图片描述文字（暂未实现） | [示例](https://github.com/Caldis/react-zmage#txt) |
 | **`set`** | `{{ObjectArray}}` | [] | 如果想在查看模式下呈现多张图片，您可以使用`set`传入一个或多个图片对象，每个图片对象包含了`src` `alt` `txt` | [示例](https://github.com/Caldis/react-zmage#set) |
-| **`hotKey`** | `{Object}` | { allTrue } | 如果想禁用查看模式下的快捷键操作，您可以在`hotKey`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
+| **`hotKey`** | `{Object}` | { allTrue } | 如果想禁用查看模式下的特定快捷键操作，您可以在`hotKey`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
 | **`controller`** | `{Object}` | { allTrue } | 如果想隐藏查看模式下的关闭按钮、放大按钮等操作控件，您可以在`controller`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#controller) |
 
 ### `src`
