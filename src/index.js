@@ -28,23 +28,22 @@ export default class ReactZmage extends React.PureComponent {
 
     // 从初始 props 中生成图片集合
     buildImageSet = (props) => {
-        const { set, src, zoomSrc, alt, txt } = props
+        const { set, src, alt, txt } = props
         if(set && set.constructor===Array && set.length>1) {
             return set
         } else {
-            return [{
-                src: zoomSrc || src,
-                alt: alt,
-                txt: txt
-            }]
+            return [{ src, alt, txt }]
         }
     }
 
     // 切换查看状态
-    handleToggleBrowsing = () => {
+    browsing = () => {
         const { onClick } = this.props
         onClick && onClick.constructor===Function && onClick()
-        this.setState({ browsing: !this.state.browsing })
+        this.setState({ browsing: true })
+    }
+    unBrowsing = () => {
+        this.setState({ browsing: false })
     }
 
     render() {
@@ -63,8 +62,8 @@ export default class ReactZmage extends React.PureComponent {
                 <img
                     ref={ref => this.cover = ref}
                     className={className} src={src} alt={alt} title={alt}
-                    onClick={this.handleToggleBrowsing}
                     style={{ cursor:'zoom-in', ...style }}
+                    onClick={this.browsing}
                     {...props}
                 />
 
@@ -73,11 +72,11 @@ export default class ReactZmage extends React.PureComponent {
                     browsing &&
                     <Portals>
                         <Wrapper
-                            cover={this.cover}
                             set={set}
+                            cover={this.cover}
                             controller={{ ...defProp.controller, ...controller }}
                             hotKey={{ ...defProp.hotKey, ...hotKey }}
-                            remove={() => this.setState({ browsing: false })}
+                            remove={this.unBrowsing}
                         />
                     </Portals>
                 }
@@ -93,8 +92,6 @@ ReactZmage.defaultProps = {
 
     // 图片 Url
 	src: "",
-    // 放大后图片 Url
-    zoomSrc: "",
 	// 图片标题
 	alt: "",
 	// 图片文字
@@ -107,6 +104,7 @@ ReactZmage.defaultProps = {
 	controller: defProp.controller,
 	// 快捷键
 	hotKey: defProp.hotKey
+
 }
 
 // 参数类型
@@ -114,8 +112,6 @@ ReactZmage.propTypes = {
 
 	// 图片 Url
 	src: PropTypes.string.isRequired,
-	// 放大后图片 Url
-	zoomSrc: PropTypes.string,
 	// 图片标题
 	alt: PropTypes.string,
 	// 图片描述

@@ -6,9 +6,11 @@
 // React Libs
 import React, { Fragment } from 'react'
 // React Motion
-import { Motion, spring } from 'react-motion'
+import { Motion } from 'react-motion'
 // Style
 import style from './index.less'
+// Utils
+import { springlization } from '@/utils'
 
 // Controller transform Styles
 const defaultMotionStyle = {
@@ -39,14 +41,9 @@ export default class Control extends React.PureComponent {
 
     render() {
         const { zoom, page, set, mobile, controller, unmountSelf, toggleZoom, jumpPages } = this.props
-        const { motionStyle } = this.state
-        const hasMultipleImage = set.length > 1
+        const { motionStyle: ms } = this.state
         return (
-            <Motion style={{
-                over: spring(motionStyle.over),
-                rotate: spring(motionStyle.rotate),
-                opacity: spring(motionStyle.opacity),
-            }}>
+            <Motion style={springlization({ over: ms.over, rotate: ms.rotate, opacity: ms.opacity, })}>
                 {({ over, rotate, opacity }) =>
                     <Fragment>
 
@@ -86,7 +83,7 @@ export default class Control extends React.PureComponent {
                         </div>
 
                         {/*页数指示*/}
-                        {hasMultipleImage && !zoom && controller.pagination &&
+                        {set.length>1 && !zoom && controller.pagination &&
                             <div className={style.pages} style={{
                                 opacity,
                                 transform: `translateY(${over}px)`
