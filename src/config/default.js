@@ -1,5 +1,5 @@
 /**
- * 定义各种默认值
+ * 定义默认值与类型
  **/
 
 // React Libs
@@ -36,7 +36,7 @@ export const defProp = {
     // 图片距屏幕边距 (如果有)
     margin: 50,
 	// 动画参数
-    springOption: { stiffness: 180, damping: 25 }
+    springOption: { stiffness: 200, damping: 25, precision: 0.01 }
 
 }
 

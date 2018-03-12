@@ -1,3 +1,8 @@
+// Config
+import { defProp } from "@/config/default";
+// React Motion
+import { spring } from "react-motion";
+
 /**
  * 工具函数
  **/
@@ -35,3 +40,10 @@ export const mobileCheck = () => {
 	}
     return isMobile
 };
+
+// 将传入对象转为 react motion 的 spring 类型
+export const springlization = (attr) => {
+    const res = {}
+    for (let i in attr) res[i] = spring(attr[i], defProp.springOption)
+    return res
+}

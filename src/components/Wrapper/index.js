@@ -9,7 +9,6 @@ import PropTypes from 'prop-types'
 // Style
 import style from './index.less'
 // Components
-import Position from '../Position'
 import Control from '../Control'
 import Image from '../Image'
 import Background from '../Background'
@@ -59,11 +58,11 @@ export default class Wrapper extends React.PureComponent {
         // 隐藏封面原图
         cover.style.visibility = 'hidden'
 	    // 显示并绑定事件
-	    this.setState({ show: true }, () => {
-		    addListenEventOf('keydown', this.handleKeyDown)
-		    addListenEventOf('scroll', this.handleScroll)
-		    addListenEventOf('touchmove', this.handleScroll)
-	    })
+        this.setState({ show: true }, () => {
+            addListenEventOf('keydown', this.handleKeyDown)
+            addListenEventOf('scroll', this.handleScroll)
+            addListenEventOf('touchmove', this.handleScroll)
+        })
     }
     unmountSelf = () => {
         const { cover } = this.props
@@ -144,39 +143,29 @@ export default class Wrapper extends React.PureComponent {
 
 				{/*控制层*/}
                 <Control
+                    set={set}
                     show={show}
                     zoom={zoom}
                     page={page}
-                    set={set}
+                    mobile={mobile}
                     controller={controller}
                     unmountSelf={this.unmountSelf}
-                    toggleZoom={this.handleToggleZoom}
                     jumpPages={this.handleJumpPages}
-                    mobile={mobile}
+                    toggleZoom={this.handleToggleZoom}
                 />
 
-				{/*位移层*/}
-                <Position
+                {/*图片层*/}
+                <Image
+                    set={set}
                     show={show}
                     zoom={zoom}
                     page={page}
-                    margin={margin}
-                    set={set}
                     cover={cover}
-                >
-	                {/*图片层*/}
-                    <Image
-                        show={show}
-                        zoom={zoom}
-                        page={page}
-                        margin={margin}
-                        set={set}
-                        cover={cover}
-                        toggleZoom={this.handleToggleZoom}
-                        mobile={mobile}
-                        remove={remove}
-                    />
-                </Position>
+                    mobile={mobile}
+                    remove={remove}
+                    margin={margin}
+                    toggleZoom={this.handleToggleZoom}
+                />
 
 				{/*背景层*/}
                 <Background
