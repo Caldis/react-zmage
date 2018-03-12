@@ -136,7 +136,7 @@ export default class ReactZmage extends React.Component {
                                 src: "imgSet/aboutDeer/3.jpg",
                                 alt: "關於鹿 · THREE"
                             },{
-                                src: "https://rpearce.github.io/react-medium-image-zoom/nz-big.jpg",
+                                src: "imgSet/aboutDeer/4.jpg",
                                 alt: "關於鹿 · FOUR"
                             },{
                                 src: "imgSet/aboutDeer/5.jpg",
