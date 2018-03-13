@@ -17,7 +17,7 @@ import { defType, defProp } from '@/config/default'
 // Utils
 import {
     addListenEventOf, removeListenEventOf,
-    mobileCheck,
+    mobileCheck, scrollWidth, windowHeight,
 } from '@/utils'
 
 export default class Wrapper extends React.PureComponent {
@@ -55,10 +55,10 @@ export default class Wrapper extends React.PureComponent {
      **/
     mountSelf = () => {
         const { cover } = this.props
-        // 隐藏封面原图
-        cover.style.visibility = 'hidden'
-	    // 显示并绑定事件
         this.setState({ show: true }, () => {
+            // 隐藏封面原图
+            cover.style.visibility = 'hidden'
+            // 绑定事件
             addListenEventOf('keydown', this.handleKeyDown)
             addListenEventOf('scroll', this.handleScroll)
             addListenEventOf('touchmove', this.handleScroll)

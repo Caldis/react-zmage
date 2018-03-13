@@ -21,13 +21,13 @@ export default class ReactZmage extends React.PureComponent {
         // States
         this.state = {
             browsing: false,
-            set: this.buildImageSet(props)
+            set: this.buildSet(props)
         }
 
     }
 
     // 从初始 props 中生成图片集合
-    buildImageSet = (props) => {
+    buildSet = (props) => {
         const { set, src, alt, txt } = props
         if(set && set.constructor===Array && set.length>1) {
             return set

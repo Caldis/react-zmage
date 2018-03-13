@@ -86,7 +86,7 @@ export default class Control extends React.PureComponent {
                         {set.length>1 && !zoom && controller.pagination &&
                             <div className={style.pages} style={{
                                 opacity,
-                                transform: `translateY(${over}px)`
+                                transform: `translate3d(-50%, ${over}px, 0)`
                             }}>
                                 {
                                     set.map((_, i) =>

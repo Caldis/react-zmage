@@ -21,6 +21,8 @@ export default class Images extends React.PureComponent {
 	constructor(props) {
 		super(props)
 
+        // 当前图像对象
+        this.image = null
         // 初始页面高度
         this.initialPageOffset = window.pageYOffset
         // 初始封面位置
@@ -29,35 +31,48 @@ export default class Images extends React.PureComponent {
 		const { scale } = this.coverSize()
 
 		this.state = {
-            initialPageOffset: window.pageYOffset,
-            // 原始尺寸
-            naturalSize: null,
-            // 移动范围
-            moveRange: null,
             // 样式
             defaultStyle: { x, y, scale },
             currentStyle: { x, y, scale },
 		}
 	}
 
+    componentDidMount() {
+        addListenEventOf('resize', this.handleResize)
+    }
     componentWillReceiveProps(nextProps) {
-        const { show, zoom } = nextProps
+        const { set, page } = nextProps
+        this.updateImageInfo(set[page].src)
+    }
+    componentWillUnmount() {
+        removeListenEventOf('resize', this.handleResize)
+    }
+
+    /**
+     * 信息获取
+     **/
+    updateImageInfo = (src) => {
+        this.image = new Image()
+        this.image.onload = this.updateImageStyle
+        this.image.src = src
+    }
+    updateImageStyle = () => {
+        const { show, zoom } = this.props
         let position, size
-	    if (show) {
+        if (show) {
             position = this.pagePosition()
-        	if (zoom) {
-                this.updateZoomMovePositionRange()
-		        size = this.originalSize()
+            if (zoom) {
+                size = this.originalSize()
                 addListenEventOf('mousemove', this.handleMouseMove)
-	        } else {
+            } else {
                 size = this.pageFitSize()
                 removeListenEventOf('mousemove', this.handleMouseMove)
-	        }
-	    } else {
+            }
+        } else {
             position = this.coverPosition()
             size = this.coverSize()
             removeListenEventOf('mousemove', this.handleMouseMove)
-	    }
+        }
         this.setStyle({ ...position, ...size })
     }
 
@@ -68,14 +83,13 @@ export default class Images extends React.PureComponent {
         const { cover } = this.props
         const { width, naturalWidth } = cover
         return {
-            scale: width/naturalWidth
+            scale: width / naturalWidth
         }
     }
     pageFitSize = () => {
-        const { cover, margin } = this.props
-        const fitScale = calcFitScale(cover, margin)
+        const { margin } = this.props
         return {
-            scale: fitScale
+            scale: calcFitScale(this.image, margin)
         }
     }
     originalSize = () => {
@@ -87,22 +101,6 @@ export default class Images extends React.PureComponent {
     /**
      * 移动控制
      **/
-    updateZoomMovePositionRange = () => {
-        const { set, zoom, page, margin } = this.props
-        console.log(set[page])
-        const image = new Image()
-        image.src = set[page].src
-        image.onload = () => {
-            const { naturalWidth, naturalHeight } = image
-            this.setState({
-                naturalSize: !zoom ? { naturalWidth, naturalHeight } : null,
-                moveRange: !zoom ? {
-                    x: naturalWidth - scrollWidth() + (2*margin),
-                    y: naturalHeight - windowHeight() + (2*margin)
-                } : null
-            })
-        }
-    }
     coverPosition = () => {
         const { page, cover } = this.props
         const { top, left, width, height } = cover.getBoundingClientRect()
@@ -122,15 +120,16 @@ export default class Images extends React.PureComponent {
     }
     mouseContrastPosition = (e) => {
         const { margin } = this.props
-        const { naturalSize, moveRange:mr } = this.state
-        const { naturalWidth: nw, naturalHeight: nh } = naturalSize
+        const { naturalWidth, naturalHeight } = this.image
         const cw = scrollWidth()
         const ch = windowHeight()
         const mouseX = e.clientX
         const mouseY = e.clientY
+        const rangeX = naturalWidth - scrollWidth() + (2*margin)
+        const rangeY = naturalHeight - windowHeight() + (2*margin)
         // 计算偏移量
-        const imgPosX = nw>cw ? ((nw - cw)/2 + margin) - (mr.x*(mouseX/cw)) : 0
-        const imgPosY = nh>ch ? ((nh - ch)/2 + margin) - (mr.y*(mouseY/ch)) : 0
+        const imgPosX = naturalWidth>cw ? ((naturalWidth - cw)/2 + margin) - (rangeX*(mouseX/cw)) : 0
+        const imgPosY = naturalHeight>ch ? ((naturalHeight - ch)/2 + margin) - (rangeY*(mouseY/ch)) : 0
         // 返回位置
         return {
             x: imgPosX,
@@ -143,6 +142,9 @@ export default class Images extends React.PureComponent {
      **/
     handleMouseMove = (e) => {
         this.setStyle(this.mouseContrastPosition(e))
+    }
+    handleResize = (e) => {
+        this.updateImageStyle()
     }
     handleMotionRest = () => {
         const { cover, remove } = this.props
@@ -172,6 +174,12 @@ export default class Images extends React.PureComponent {
 		const { defaultStyle, currentStyle: cs } = this.state
 		return (
 			<Fragment>
+
+                {/*加载动画*/}
+                {show &&
+                <div className={style.loadingContainer}>
+                    <div className={style.loading}/>
+                </div>}
 
 				{/*图片*/}
 				<Motion
