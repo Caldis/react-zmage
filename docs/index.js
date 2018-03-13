@@ -49,9 +49,7 @@ export default class ReactZmage extends React.Component {
                     </div>
 
                     <div className={style.scrollDownHint}>
-                        <span>向下滚动以查看更多示例</span>
-                        <img src="arrow.png" alt="向下滚动查看更多"/>
-                        <img src="arrow.png"/>
+                        <span>向下滚动查看更多示例</span>
                     </div>
                 </div>
 
@@ -153,7 +151,7 @@ export default class ReactZmage extends React.Component {
                         <p>您可以使用键盘来快捷操作</p>
                         <p>除了在展示序列图片时使用键盘的 <b>←</b> 或 <b>→</b> 来切换页面, 你可以可以使用 <b>SPACE(空格键)</b>, 来激活<b>放大模式</b></p>
                         <p>处于放大模式时, 点击 <b>ESC</b> 可以退出<b>放大模式</b>, 再次点击即可退出<b>查看模式</b>。</p>
-                        <p>滚动鼠标滚轮同样也可以退出<b>查看模式</b>。</p>
+                        <p>滚动页面同样也可以退出<b>查看模式</b>。</p>
                     </div>
                     <div>
                         <Zmage
@@ -170,12 +168,6 @@ export default class ReactZmage extends React.Component {
 	                            src: "imgSet/aboutDeer/8.jpg",
 	                            alt: "關於鹿 · EIGHT"
                             }]}
-                            indicator={{
-	                            pagination: false,
-	                            title: true,
-	                            close: true,
-	                            flip: true
-                            }}
                         />
                         <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
                     </div>
