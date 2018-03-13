@@ -34,7 +34,7 @@ export const defProp = {
 
     // 杂项
     // 图片距屏幕边距 (如果有)
-    margin: 50,
+    margin: 70,
 	// 动画参数
     springOption: { stiffness: 200, damping: 25, precision: 0.01 }
 

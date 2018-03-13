@@ -8,19 +8,15 @@ import { spring } from "react-motion";
  **/
 
 // 通过屏幕尺寸以及图片尺寸，计算出图片在屏幕中完整显示的缩放比例
-export const calcFitScale = (nodeRef, margin) => {
-    const scaleX = clientWidth() / (nodeRef.naturalWidth + 2*margin)
-    const scaleY = clientHeight() / (nodeRef.naturalHeight + 2*margin)
+export const calcFitScale = (image, margin) => {
+    const scaleX = clientWidth() / (image.naturalWidth + 2*margin)
+    const scaleY = clientHeight() / (image.naturalHeight + 2*margin)
     return Math.min(scaleX, scaleY)
 }
 
 // 事件绑定
-export const addListenEventOf = (event, handler) => {
-	window.addEventListener(event, handler, true)
-}
-export const removeListenEventOf = (event, handler) => {
-	window.removeEventListener(event, handler, true)
-}
+export const addListenEventOf = (event, handler) => window.addEventListener(event, handler, true)
+export const removeListenEventOf = (event, handler) => window.removeEventListener(event, handler, true)
 
 // 屏幕尺寸
 export const windowWidth = () => window.innerWidth
