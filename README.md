@@ -101,21 +101,19 @@ hotKey: {
     // 缩放（空格）
     zoom: true,
     // 翻页（左右键）
-    flip: true
+    flip: true,
 }
 ```
 
 ### `controller`
 ```js
 controller: {
-    // 分页
-    pagination: true,
-    // 标题
-    title: true,
     // 关闭按钮
     close: true,
     // 缩放按钮
-    zoom: true
+    zoom: true,
+    // 分页
+    pagination: true,
 }
 ```
 
