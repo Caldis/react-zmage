@@ -25,15 +25,13 @@ export default class Images extends React.PureComponent {
         this.image = null
         // 初始页面高度
         this.initialPageOffset = window.pageYOffset
-        // 初始封面位置
-        const { x, y } = this.coverPosition()
-		// 初始封面尺寸
-		const { scale } = this.coverSize()
+        // 初始封面样式
+        const { x, y, opacity, scale } = this.coverStyle()
 
 		this.state = {
             // 样式
-            defaultStyle: { x, y, scale },
-            currentStyle: { x, y, scale },
+            defaultStyle: { x, y, opacity, scale },
+            currentStyle: { x, y, opacity, scale },
 		}
 	}
 
@@ -52,79 +50,63 @@ export default class Images extends React.PureComponent {
      * 信息获取
      **/
     updateImageInfo = (src) => {
-        this.image = new Image()
-        this.image.onload = this.updateImageStyle
-        this.image.src = src
+        if (!this.image || src!==this.image.src) {
+            this.image = new Image()
+            this.image.onload = this.updateImageStyle
+            this.image.src = src
+        } else {
+            this.updateImageStyle()
+        }
     }
     updateImageStyle = () => {
         const { show, zoom } = this.props
-        let position, size
         if (show) {
-            position = this.pagePosition()
             if (zoom) {
-                size = this.originalSize()
+                this.setStyle(this.zoomingStyle())
                 addListenEventOf('mousemove', this.handleMouseMove)
             } else {
-                size = this.pageFitSize()
+                this.setStyle(this.browsingStyle())
                 removeListenEventOf('mousemove', this.handleMouseMove)
             }
         } else {
-            position = this.coverPosition()
-            size = this.coverSize()
+            this.setStyle(this.coverStyle())
             removeListenEventOf('mousemove', this.handleMouseMove)
         }
-        this.setStyle({ ...position, ...size })
     }
 
     /**
-     * 尺寸控制
+     * 样式控制
      **/
-    coverSize = () => {
-        const { cover } = this.props
-        const { width, naturalWidth } = cover
-        return {
+    coverStyle = () => {
+        const { page, cover } = this.props
+        const { width, height, naturalWidth } = cover
+        const { top, left } = cover.getBoundingClientRect()
+        return page === 0 ? {
+            x: -scrollWidth()/2 + left + width/2,
+            y: -windowHeight()/2 + top + height/2,
+            opacity: 1,
+            scale: width / naturalWidth
+        } : {
+            x: 0,
+            y: -windowHeight(),
+            opacity: 0,
             scale: width / naturalWidth
         }
     }
-    pageFitSize = () => {
+    browsingStyle = () => {
         const { margin } = this.props
         return {
+            x: 0,
+            y: 0,
+            opacity: 1,
             scale: calcFitScale(this.image, margin)
         }
     }
-    originalSize = () => {
-        return {
-            scale: 1
-        }
-    }
-
-    /**
-     * 移动控制
-     **/
-    coverPosition = () => {
-        const { page, cover } = this.props
-        const { top, left, width, height } = cover.getBoundingClientRect()
-        return page === 0 ? {
-            x: -scrollWidth()/2 + left + width/2,
-            y: -windowHeight()/2 + top + height/2
-        } : {
-            x: 0,
-            y: -windowHeight()
-        }
-    }
-    pagePosition = () => {
-        return {
-            x: 0,
-            y: 0
-        }
-    }
-    mouseContrastPosition = (e) => {
+    zoomingStyle = ({ clientX:mouseX=scrollWidth()/2, clientY:mouseY=windowHeight()/2 }={}) => {
         const { margin } = this.props
         const { naturalWidth, naturalHeight } = this.image
         const cw = scrollWidth()
         const ch = windowHeight()
-        const mouseX = e.clientX
-        const mouseY = e.clientY
         const rangeX = naturalWidth - scrollWidth() + (2*margin)
         const rangeY = naturalHeight - windowHeight() + (2*margin)
         // 计算偏移量
@@ -133,7 +115,9 @@ export default class Images extends React.PureComponent {
         // 返回位置
         return {
             x: imgPosX,
-            y: imgPosY
+            y: imgPosY,
+            opacity: 1,
+            scale: 1
         }
     }
 
@@ -141,7 +125,7 @@ export default class Images extends React.PureComponent {
      * 事件响应
      **/
     handleMouseMove = (e) => {
-        this.setStyle(this.mouseContrastPosition(e))
+        this.setStyle(this.zoomingStyle(e))
     }
     handleResize = (e) => {
         this.updateImageStyle()
@@ -161,17 +145,17 @@ export default class Images extends React.PureComponent {
      * 样式应用
      **/
     setStyle = (style) => {
-        const { currentStyle: cs } = this.state
-        const { x=cs.x, y=cs.y, scale=cs.scale } = style
+        const { currentStyle:cs } = this.state
+        const { x=cs.x, y=cs.y, opacity=cs.opacity, scale=cs.opacity } = style
         this.setState({
-            currentStyle: { x, y, scale }
+            currentStyle: { x, y, opacity, scale }
         })
     }
 
 
     render() {
         const { show, zoom, page, set, toggleZoom } = this.props
-		const { defaultStyle, currentStyle: cs } = this.state
+		const { defaultStyle:ds, currentStyle: cs } = this.state
 		return (
 			<Fragment>
 
@@ -183,8 +167,8 @@ export default class Images extends React.PureComponent {
 
 				{/*图片*/}
 				<Motion
-                    defaultStyle={defaultStyle}
-                    style={springlization({ x: cs.x, y: cs.y, scale: cs.scale })}
+                    defaultStyle={ds}
+                    style={springlization({ x: cs.x, y: cs.y, opacity: cs.opacity, scale: cs.scale })}
                     onRest={this.handleMotionRest}
                 >
                     {({ x, y, scale }) =>
