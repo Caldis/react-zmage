@@ -1,6 +1,6 @@
 /**
  * 应用主入口
-**/
+ **/
 
 // React Libs
 import React, { Fragment } from 'react'
@@ -50,8 +50,8 @@ export default class ReactZmage extends React.PureComponent {
         const { browsing, set } = this.state
         const {
             className, src, alt,  // 基本属性
-	        controller,           // 页面按钮
-	        hotKey,               // 热键
+            controller,           // 页面按钮
+            hotKey,               // 热键
             style,                // 样式
             ...props              // 剩余参数
         } = this.props
@@ -91,38 +91,38 @@ export default class ReactZmage extends React.PureComponent {
 ReactZmage.defaultProps = {
 
     // 图片 Url
-	src: "",
-	// 图片标题
-	alt: "",
-	// 图片文字
+    src: "",
+    // 图片标题
+    alt: "",
+    // 图片文字
     txt: "",
 
     // 图片列表
     set: [],
 
-	// 控制器
-	controller: defProp.controller,
-	// 快捷键
-	hotKey: defProp.hotKey
+    // 控制器
+    controller: defProp.controller,
+    // 快捷键
+    hotKey: defProp.hotKey
 
 }
 
 // 参数类型
 ReactZmage.propTypes = {
 
-	// 图片 Url
-	src: PropTypes.string.isRequired,
-	// 图片标题
-	alt: PropTypes.string,
-	// 图片描述
+    // 图片 Url
+    src: PropTypes.string.isRequired,
+    // 图片标题
+    alt: PropTypes.string,
+    // 图片描述
     txt: PropTypes.string,
 
     // 图片集合, 可以传入单独的图片类型或数组包裹的图片类型
     set: defType.set,
 
     // 控制器
-	controller: defType.controller,
-	// 快捷键
-	hotKey: defType.hotKey
+    controller: defType.controller,
+    // 快捷键
+    hotKey: defType.hotKey
 
 }

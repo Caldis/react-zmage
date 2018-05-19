@@ -45,8 +45,8 @@ export default class Wrapper extends React.PureComponent {
         this.mountSelf()
     }
     componentWillUnmount() {
-	    removeListenEventOf('keydown', this.handleKeyDown)
         removeListenEventOf('scroll', this.handleScroll)
+	    removeListenEventOf('keydown', this.handleKeyDown)
         removeListenEventOf('touchmove', this.handleScroll)
     }
 
@@ -59,8 +59,8 @@ export default class Wrapper extends React.PureComponent {
             // 隐藏封面原图
             cover.style.visibility = 'hidden'
             // 绑定事件
-            addListenEventOf('keydown', this.handleKeyDown)
             addListenEventOf('scroll', this.handleScroll)
+            addListenEventOf('keydown', this.handleKeyDown)
             addListenEventOf('touchmove', this.handleScroll)
         })
     }
@@ -104,7 +104,7 @@ export default class Wrapper extends React.PureComponent {
                 return
         }
     }
-    handleScroll = (e) => {
+    handleScroll = () => {
         this.state.show && this.unmountSelf()
     }
 
@@ -141,7 +141,15 @@ export default class Wrapper extends React.PureComponent {
 		return (
 			<div className={style.wrapperLayer}>
 
-				{/*控制层*/}
+				{/*背景层*/}
+                <Background
+                    show={show}
+                    zoom={zoom}
+                    unmountSelf={this.unmountSelf}
+                    toggleZoom={this.handleToggleZoom}
+                />
+
+                {/*控制层*/}
                 <Control
                     set={set}
                     show={show}
@@ -164,13 +172,6 @@ export default class Wrapper extends React.PureComponent {
                     mobile={mobile}
                     remove={remove}
                     margin={margin}
-                    toggleZoom={this.handleToggleZoom}
-                />
-
-				{/*背景层*/}
-                <Background
-                    show={show}
-                    unmountSelf={this.unmountSelf}
                     toggleZoom={this.handleToggleZoom}
                 />
 
