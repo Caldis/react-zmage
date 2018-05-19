@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "A zoomable image container power by react",
   "keywords": [
     "react",
@@ -69,9 +69,10 @@
     "webpack-merge": "^4.1.1"
   },
   "scripts": {
-    "exam-dev": "webpack-dev-server --config ./scripts/webpack.exam.dev.config.babel.js --progress --profile --colors",
-    "exam-dist": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
-    "lib-dist-dev": "webpack --config ./scripts/webpack.lib.dev.config.babel.js --progress --profile --colors --watch",
-    "lib-dist-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors"
+    "dev": "webpack-dev-server --config ./scripts/webpack.exam.dev.config.babel.js --progress --profile --colors",
+    "dist": "npm run dist-exam && npm run dist-lib-dev && npm run dist-lib-pod",
+    "dist-exam": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
+    "dist-lib-dev": "webpack --config ./scripts/webpack.lib.dev.config.babel.js --progress --profile --colors --watch",
+    "dist-lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors"
   }
 }
