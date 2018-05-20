@@ -70,7 +70,7 @@
   },
   "scripts": {
     "dev": "webpack-dev-server --config ./scripts/webpack.exam.dev.config.babel.js --progress --profile --colors",
-    "dist": "npm run dist-exam && npm run dist-lib-dev && npm run dist-lib-pod",
+    "dist": "npm run dist-exam && npm run dist-lib-pod && npm run dist-lib-dev ",
     "dist-exam": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
     "dist-lib-dev": "webpack --config ./scripts/webpack.lib.dev.config.babel.js --progress --profile --colors --watch",
     "dist-lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors"
