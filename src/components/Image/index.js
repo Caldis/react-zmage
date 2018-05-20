@@ -171,18 +171,22 @@ export default class Images extends React.PureComponent {
                     style={springlization({ x: cs.x, y: cs.y, opacity: cs.opacity, scale: cs.scale })}
                     onRest={this.handleMotionRest}
                 >
-                    {({ x, y, scale }) =>
-                        <img
-                            key={page}
-                            className={style.imageLayer}
-                            style={{
-                                top: show ? '50%' : windowHeight()/2 - (window.pageYOffset-this.initialPageOffset),
-                                transform: `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${scale}, ${scale}, 1)`,
-                                cursor: zoom ? 'zoom-out' : 'initial'
-                            }}
-                            src={set[page].src} alt={set[page].alt}
-                            onClick={zoom ? toggleZoom : ()=>{}}
-                        />
+                    {
+                        ({ x, y, scale }) => {
+                            const scrollYOffset = show ? 0 : this.initialPageOffset - window.pageYOffset
+                            return (
+                                <img
+                                    key={page}
+                                    className={style.imageLayer}
+                                    style={{
+                                        transform: `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) translate3d(0px, ${scrollYOffset}px, 0px) scale3d(${scale}, ${scale}, 1)`,
+                                        cursor: zoom ? 'zoom-out' : 'initial'
+                                    }}
+                                    src={set[page].src} alt={set[page].alt}
+                                    onClick={zoom ? toggleZoom : ()=>{}}
+                                />
+                            )
+                        }
                     }
                 </Motion>
 
