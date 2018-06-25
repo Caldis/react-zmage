@@ -4,6 +4,7 @@ import webpack from 'webpack'
 // 从基础设置继承
 import merge from 'webpack-merge'
 import baseConfig from './webpack.base.config.babel.js'
+import nodeExternals from 'webpack-node-externals'
 
 const config =  merge.smart(baseConfig, {
 
@@ -35,12 +36,8 @@ const config =  merge.smart(baseConfig, {
 		})
 	],
 
-	externals: {
-		'react'                  : 'umd react',
-		'react-dom'   			 : 'umd react-dom',
-		'prop-types'  			 : 'umd prop-types',
-		'react-transition-group' : 'umd react-transition-group'
-	}
+	externals: [nodeExternals()]
+
 })
 
 export default config
