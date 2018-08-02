@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A zoomable image container power by react",
   "keywords": [
     "react",
@@ -19,8 +19,8 @@
   "homepage": "http://zmage.caldis.me",
   "dependencies": {
     "prop-types": "^15.6.2",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
     "react-motion": "^0.5.2",
     "react-transition-group": "^1.2.1"
   },
