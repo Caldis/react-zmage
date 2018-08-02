@@ -65,13 +65,12 @@ export default class Wrapper extends React.PureComponent {
         })
     }
     unmountSelf = () => {
-        const { cover,remove } = this.props
+        const { cover } = this.props
         const { page } = this.state
         // 显示封面原图（当前不为第一页时，遮罩从上方移除会迅速露出，需要立即显示，否则交由图片层处理）
         if(page!==0) cover.style.visibility = 'visible'
-        this.setState({ show: false },function(){
-            cover.style.visibility = 'visible';
-            remove()
+        this.setState({
+            show: false
         })
     }
 

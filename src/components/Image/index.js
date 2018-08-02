@@ -39,8 +39,8 @@ export default class Images extends React.PureComponent {
         addListenEventOf('resize', this.handleResize)
     }
     componentWillReceiveProps(nextProps) {
-        const { set, page } = nextProps
-        this.updateImageInfo(set[page].src)
+        const { set, show, zoom, page } = nextProps
+        this.updateImageInfo(set[page].src, show, zoom)
     }
     componentWillUnmount() {
         removeListenEventOf('resize', this.handleResize)
@@ -49,17 +49,21 @@ export default class Images extends React.PureComponent {
     /**
      * 信息获取
      **/
-    updateImageInfo = (src) => {
+    updateImageInfo = (src, show, zoom) => {
         if (!this.image || src!==this.image.src) {
             this.image = new Image()
-            this.image.onload = this.updateImageStyle
+            this.image.onload = () => {
+                this.updateImageStyle(show, zoom)
+            }
             this.image.src = src
         } else {
-            this.updateImageStyle()
+            this.updateImageStyle(show, zoom)
         }
     }
-    updateImageStyle = () => {
-        const { show, zoom } = this.props
+    updateImageStyle = (show, zoom) => {
+        // 此处需要从外部获取最新的 show 与 zoom
+        // 在 componentWillReceiveProps 中调用时, 有可能先于render执行
+        // 则有可能获取到的是旧的 props, 导致异常
         if (show) {
             if (zoom) {
                 this.setStyle(this.zoomingStyle())
@@ -128,7 +132,8 @@ export default class Images extends React.PureComponent {
         this.setStyle(this.zoomingStyle(e))
     }
     handleResize = (e) => {
-        this.updateImageStyle()
+        const { show, zoom } = this.props
+        this.updateImageStyle(show, zoom)
     }
     handleMotionRest = () => {
         const { cover, remove } = this.props
@@ -155,7 +160,7 @@ export default class Images extends React.PureComponent {
 
     render() {
         const { show, zoom, page, set, toggleZoom } = this.props
-		const { defaultStyle:ds, currentStyle: cs } = this.state
+		const { defaultStyle: ds, currentStyle: cs } = this.state
 		return (
 			<Fragment>
 
