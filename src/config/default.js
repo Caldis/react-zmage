@@ -19,7 +19,7 @@ export const defProp = {
 		// 缩放按钮
 		zoom: true,
 		// 左右翻页
-		flip: true
+		flip: true,
 	},
 
 	// 快捷键
@@ -29,8 +29,14 @@ export const defProp = {
 		// 缩放（空格）
 		zoom: true,
 		// 翻页（左右）
-		flip: true
+		flip: true,
 	},
+
+    // 样式相关
+    // 背景色
+    backdrop: "#FFFFFF",
+    // 高度
+    zIndex: 1000,
 
     // 杂项
     // 图片距屏幕边距 (如果有)
@@ -55,7 +61,7 @@ export const defType = {
 			src: PropTypes.string,  // 图片链接
 			alt: PropTypes.string,  // 同 img 标签的 alt
 			text: PropTypes.string, // 图片描述文字
-		})
+		}),
 	]),
 
 	// 控制器
@@ -69,7 +75,7 @@ export const defType = {
 		// 缩放按钮
 		zoom: PropTypes.bool,
 		// 左右翻页
-		flip: PropTypes.bool
+		flip: PropTypes.bool,
 	}),
 
 	// 快捷键
@@ -79,8 +85,14 @@ export const defType = {
 		// 缩放（空格）
 		zoom: PropTypes.bool,
 		// 翻页（左右键）
-		flip: PropTypes.bool
+		flip: PropTypes.bool,
 	}),
+
+    // 样式相关
+    // 背景色
+    backdrop: PropTypes.string,
+    // 高度
+    zIndex: PropTypes.number,
 
     // 杂项
     // 图片距屏幕边距 (如果有)
@@ -89,6 +101,6 @@ export const defType = {
     springOption: PropTypes.shape({
         stiffness: PropTypes.number, // 剛性
         damping: PropTypes.number,   // 阻尼
-    })
+    }),
 
 }

@@ -70,7 +70,7 @@ export default class Wrapper extends React.PureComponent {
         // 显示封面原图（当前不为第一页时，遮罩从上方移除会迅速露出，需要立即显示，否则交由图片层处理）
         if(page!==0) cover.style.visibility = 'visible'
         this.setState({
-            show: false
+            show: false,
         })
     }
 
@@ -138,7 +138,7 @@ export default class Wrapper extends React.PureComponent {
     }
 
 	render() {
-        const { cover, set, controller, remove } = this.props
+        const { cover, set, controller, backdrop, remove } = this.props
         const { show, zoom, page, mobile, margin } = this.state
 		return (
 			<div className={style.wrapperLayer}>
@@ -147,6 +147,7 @@ export default class Wrapper extends React.PureComponent {
                 <Background
                     show={show}
                     zoom={zoom}
+                    backdrop={backdrop}
                     unmountSelf={this.unmountSelf}
                     toggleZoom={this.handleToggleZoom}
                 />
@@ -191,10 +192,12 @@ Wrapper.defaultProps = {
 	controller: defProp.controller,
 	// 快捷键
 	hotKey: defProp.hotKey,
+    // 背景
+    backdrop: defProp.backdrop,
     // 图片距屏幕边距 (如果有)
     margin: defProp.margin,
 	// 卸载函数
-	remove: () => {}
+	remove: () => {},
 }
 
 Wrapper.propTypes = {
@@ -206,8 +209,10 @@ Wrapper.propTypes = {
 	controller: defType.controller,
 	// 快捷键
 	hotKey: defType.hotKey,
+    // 背景
+    backdrop: defType.backdrop,
     // 图片距屏幕边距 (如果有)
     margin: defType.margin,
 	// 卸载函数
-	remove: PropTypes.func
+	remove: PropTypes.func,
 }

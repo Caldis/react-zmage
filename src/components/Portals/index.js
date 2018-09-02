@@ -6,6 +6,7 @@
 // React Libs
 import React from 'react'
 import ReactDOM from 'react-dom'
+import {defProp, defType} from "../../config/default";
 
 export default class Portals extends React.Component {
     constructor(props) {
@@ -13,6 +14,8 @@ export default class Portals extends React.Component {
 
         this.target = props.target || document.body
         this.element = document.createElement('div')
+        this.element.id = "zmage"
+        this.element.style.zIndex = props.zIndex
     }
 
     componentDidMount() {
@@ -29,5 +32,19 @@ export default class Portals extends React.Component {
             this.element,
         )
     }
+
+}
+
+Portals.defaultProps = {
+
+    // 高度
+    zIndex: defProp.zIndex,
+
+}
+
+Portals.propTypes = {
+
+    // 高度
+    zIndex: defType.zIndex,
 
 }
