@@ -71,7 +71,7 @@ export default class ReactZmage extends React.Component {
                     <div>
                         <Zmage
                             className={style.image}
-                            src="imgSet/aboutDeer/1.jpg"
+                            src="asdfsdpg"
                             alt="最简单的使用方式"
                         />
                         <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
