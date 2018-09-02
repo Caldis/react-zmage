@@ -52,7 +52,9 @@ export default class ReactZmage extends React.PureComponent {
             className, src, alt,  // 基本属性
             controller,           // 页面按钮
             hotKey,               // 热键
-            style,                // 样式
+            backdrop,             // 背景颜色
+            zIndex,               // 高度
+            style,                // 图片本体样式
             ...props              // 剩余参数
         } = this.props
         return (
@@ -70,12 +72,13 @@ export default class ReactZmage extends React.PureComponent {
                 {/*查看叠层*/}
                 {
                     browsing &&
-                    <Portals>
+                    <Portals zIndex={zIndex}>
                         <Wrapper
                             set={set}
                             cover={this.cover}
                             controller={{ ...defProp.controller, ...controller }}
                             hotKey={{ ...defProp.hotKey, ...hotKey }}
+                            backdrop={backdrop}
                             remove={this.unBrowsing}
                         />
                     </Portals>
@@ -86,8 +89,6 @@ export default class ReactZmage extends React.PureComponent {
     }
 }
 
-
-// 默认参数
 ReactZmage.defaultProps = {
 
     // 图片 Url
@@ -103,11 +104,15 @@ ReactZmage.defaultProps = {
     // 控制器
     controller: defProp.controller,
     // 快捷键
-    hotKey: defProp.hotKey
+    hotKey: defProp.hotKey,
+
+    // 背景色
+    backdrop: defProp.backdrop,
+    // 高度
+    zIndex: defProp.zIndex,
 
 }
 
-// 参数类型
 ReactZmage.propTypes = {
 
     // 图片 Url
@@ -123,6 +128,11 @@ ReactZmage.propTypes = {
     // 控制器
     controller: defType.controller,
     // 快捷键
-    hotKey: defType.hotKey
+    hotKey: defType.hotKey,
+
+    // 背景色
+    backdrop: defType.backdrop,
+    // 高度
+    zIndex: defType.zIndex,
 
 }

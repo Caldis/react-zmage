@@ -8,12 +8,15 @@ import React from 'react'
 // Style
 import style from './index.less'
 
-export default ({ show, zoom, unmountSelf, toggleZoom }) => {
+export default ({ show, zoom, backdrop, unmountSelf, toggleZoom }) => {
 	return (
 		<div
 			className={style.backgroundLayer}
 			onClick={zoom ? toggleZoom : unmountSelf}
-			style={{ opacity: show ? 1 : 0 }}
+			style={{
+				opacity: show ? 1 : 0,
+                background: backdrop || "",
+			}}
 		/>
 	)
 }
