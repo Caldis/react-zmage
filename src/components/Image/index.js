@@ -135,10 +135,10 @@ export default class Images extends React.PureComponent {
         const { show, zoom } = this.props
         this.updateImageStyle(show, zoom)
     }
-    handleMotionRest = () => {
+    handleMotionRest = (force) => {
         const { cover, remove } = this.props
         const { show } = this.props
-        if (!show) {
+        if (!show || force) {
             // 显示封面原图
             cover.style.visibility = 'visible'
             // 移除节点
@@ -189,6 +189,10 @@ export default class Images extends React.PureComponent {
                                     }}
                                     src={set[page].src} alt={set[page].alt}
                                     onClick={zoom ? toggleZoom : ()=>{}}
+                                    onError={() => {
+                                        console.warn("react-zmage initialization error because the cover image url invalid.")
+                                        this.handleMotionRest(true)
+                                    }}
                                 />
                             )
                         }
