@@ -14,20 +14,22 @@ export const defProp = {
 		pagination: true,
 		// 标题
 		title: true,
-		// 关闭按钮
-		close: true,
+        // 旋转按钮
+        rotate: true,
 		// 缩放按钮
 		zoom: true,
+        // 关闭按钮
+        close: true,
 		// 左右翻页
 		flip: true,
 	},
 
 	// 快捷键
 	hotKey: {
-		// 关闭（ESC）
-		close: true,
 		// 缩放（空格）
 		zoom: true,
+        // 关闭（ESC）
+        close: true,
 		// 翻页（左右）
 		flip: true,
 	},
@@ -42,7 +44,8 @@ export const defProp = {
     // 图片距屏幕边距 (如果有)
     margin: 70,
 	// 动画参数
-    springOption: { stiffness: 200, damping: 25, precision: 0.01 }
+    springOption: { stiffness: 200, damping: 25, precision: 0.01 },
+    getSpringOption: (precision) => ({ stiffness: 200, damping: 25, precision })
 
 }
 
@@ -70,20 +73,22 @@ export const defType = {
 		pagination: PropTypes.bool,
 		// 标题
 		title: PropTypes.bool,
-		// 关闭按钮
-		close: PropTypes.bool,
+        // 旋转按钮
+        rotate: PropTypes.bool,
 		// 缩放按钮
 		zoom: PropTypes.bool,
+        // 关闭按钮
+        close: PropTypes.bool,
 		// 左右翻页
 		flip: PropTypes.bool,
 	}),
 
 	// 快捷键
 	hotKey: PropTypes.shape({
-		// 关闭（ESC）
-		close: PropTypes.bool,
 		// 缩放（空格）
 		zoom: PropTypes.bool,
+        // 关闭（ESC）
+        close: PropTypes.bool,
 		// 翻页（左右键）
 		flip: PropTypes.bool,
 	}),

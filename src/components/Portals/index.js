@@ -6,6 +6,7 @@
 // React Libs
 import React from 'react'
 import ReactDOM from 'react-dom'
+// Config
 import {defProp, defType} from "../../config/default";
 
 export default class Portals extends React.Component {
@@ -36,15 +37,11 @@ export default class Portals extends React.Component {
 }
 
 Portals.defaultProps = {
-
     // 高度
     zIndex: defProp.zIndex,
-
 }
 
 Portals.propTypes = {
-
     // 高度
     zIndex: defType.zIndex,
-
 }
