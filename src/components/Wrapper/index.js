@@ -32,8 +32,10 @@ export default class Wrapper extends React.PureComponent {
 			show: false,
             // 缩放
             zoom: false,
-			// 当前页数
+			// 页数
 			page: 0,
+            // 旋转
+            rotate: 0,
             // 是否移动端
             mobile: mobile,
             // 图片距屏幕边距 (如果有)
@@ -129,6 +131,20 @@ export default class Wrapper extends React.PureComponent {
     }
 
     /**
+     * 旋转控制
+     **/
+    handleToggleRotate = (direction) => {
+        switch (direction) {
+            case "left":
+                return () => this.setState({ rotate: this.state.rotate-90 })
+            case "right":
+                return () => this.setState({ rotate: this.state.rotate+90 })
+            default:
+                return () => this.setState({ rotate: 0 })
+        }
+    }
+
+    /**
      * 缩放控制
      **/
     handleToggleZoom = () => {
@@ -139,7 +155,7 @@ export default class Wrapper extends React.PureComponent {
 
 	render() {
         const { cover, set, controller, backdrop, remove } = this.props
-        const { show, zoom, page, mobile, margin } = this.state
+        const { show, zoom, page, rotate, mobile, margin } = this.state
 		return (
 			<div className={style.wrapperLayer}>
 
@@ -162,6 +178,7 @@ export default class Wrapper extends React.PureComponent {
                     controller={controller}
                     unmountSelf={this.unmountSelf}
                     jumpPages={this.handleJumpPages}
+                    toggleRotate={this.handleToggleRotate}
                     toggleZoom={this.handleToggleZoom}
                 />
 
@@ -172,6 +189,7 @@ export default class Wrapper extends React.PureComponent {
                     zoom={zoom}
                     page={page}
                     cover={cover}
+                    rotate={rotate}
                     mobile={mobile}
                     remove={remove}
                     margin={margin}

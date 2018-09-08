@@ -16,20 +16,27 @@ export default class ReactZmage extends React.PureComponent {
         super(props)
 
         // Refs
-        this.cover = null
+        this.cover = React.createRef()
 
         // States
         this.state = {
             browsing: false,
-            set: this.buildSet(props)
+            set: ReactZmage.buildSet(props)
         }
 
     }
 
+    static getDerivedStateFromProps(nextProps) {
+        return {
+            // 数据更新时刷新 set
+            set: ReactZmage.buildSet(nextProps)
+        }
+    }
+
     // 从初始 props 中生成图片集合
-    buildSet = (props) => {
+    static buildSet = (props) => {
         const { set, src, alt, txt } = props
-        if(set && set.constructor===Array && set.length>1) {
+        if(Array.isArray(set) && set.length>1) {
             return set
         } else {
             return [{ src, alt, txt }]

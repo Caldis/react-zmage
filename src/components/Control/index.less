@@ -10,44 +10,51 @@
 	display: flex;
 }
 
-// 放大按钮
-.zoomButton {
+.controlButton {
     box-sizing: border-box;
-	margin: 7px;
+    margin: 7px;
     width: 26px;
     height: 26px;
     cursor: pointer;
-    border: 1px solid black;
-}
-.zoomButton:hover {
-    transform: scale(1.1);
-}
-.zoomButton:active {
     transform: scale(1);
+    transition: transform .2s;
+}
+.controlButton:hover {
+    transform: scale(1.1) !important;
+}
+.controlButton:active {
+    transform: scale(1) !important;
+}
+
+// 旋转按钮
+.rotateLeft {
+    composes: controlButton;
+    margin: 7px 5px;
+}
+.rotateRight {
+    composes: controlButton;
+    margin: 7px 5px;
+}
+
+// 放大按钮
+.zoomButton {
+    composes: controlButton;
+    border: 2.5px solid black;
 }
 
 // 关闭按钮
 .closeButton {
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    transform: scale(1);
+    composes: controlButton;
 
     .crossLine {
         position: absolute;
-        top: 50%;
-        left: 3px;
-        width: 35px;
-        height: 1px;
+        top: 12px;
+        left: -3px;
+        width: 32px;
+        height: 2.5px;
         background-color: black;
         transform-origin: 50%;
     }
-}
-.closeButton:hover {
-    transform: scale(1.1);
-}
-.closeButton:active {
-    transform: scale(1);
 }
 
 // 页数指示

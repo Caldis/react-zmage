@@ -9,6 +9,7 @@ import React, { Fragment } from 'react'
 import { Motion } from 'react-motion'
 // Style
 import style from './index.less'
+import { RotateLeft, RotateRight } from './icon'
 // Utils
 import { springlization } from '@/utils'
 
@@ -33,14 +34,16 @@ export default class Control extends React.PureComponent {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    static getDerivedStateFromProps(nextProps) {
         const { show } = nextProps
-        // 随状态切换改变样式
-        show ? this.setState({ motionStyle: showingMotionStyle }) : this.setState({ motionStyle: defaultMotionStyle })
+        return {
+            // 随状态切换改变动画
+            motionStyle: show ? showingMotionStyle : defaultMotionStyle
+        }
     }
 
     render() {
-        const { zoom, page, set, mobile, controller, unmountSelf, toggleZoom, jumpPages } = this.props
+        const { zoom, page, set, mobile, controller, unmountSelf, toggleRotate, toggleZoom, jumpPages } = this.props
         const { motionStyle: ms } = this.state
         return (
             <Motion style={springlization({ over: ms.over, rotate: ms.rotate, opacity: ms.opacity, })}>
@@ -49,6 +52,32 @@ export default class Control extends React.PureComponent {
 
                         {/*放大与关闭*/}
                         <div className={style.controls}>
+                            {/*旋转按钮*/}
+                            {!zoom && controller.rotate &&
+                                <div
+                                    className={style.rotateLeft}
+                                    onClick={toggleRotate("left")}
+                                    style={{
+                                        opacity,
+                                        transform: `rotate(${rotate}deg)`
+                                    }}
+                                >
+                                    <RotateLeft/>
+                                </div>
+                            }
+                            {!zoom && controller.rotate &&
+                                <div
+                                    className={style.rotateRight}
+                                    onClick={toggleRotate("right")}
+                                    style={{
+                                        opacity,
+                                        transform: `rotate(${-rotate}deg)`
+                                    }}
+                                >
+                                    <RotateRight/>
+                                </div>
+                            }
+
                             {/*放大按钮*/}
                             {!zoom && controller.zoom &&
                                 <div
@@ -63,7 +92,9 @@ export default class Control extends React.PureComponent {
 
                             {/*关闭按钮*/}
                             {!zoom && controller.close &&
-                                <div className={style.closeButton} onClick={zoom ? toggleZoom : unmountSelf}>
+                                <div
+                                    className={style.closeButton}
+                                    onClick={zoom ? toggleZoom : unmountSelf}>
                                     <div
                                         className={style.crossLine}
                                         style={{
