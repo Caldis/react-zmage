@@ -38,10 +38,10 @@ export const mobileCheck = () => {
 };
 
 // 将传入对象转为 react motion 的 spring 类型
-export const springlization = (attr) => {
+export const springlization = (attr, precision=0.01) => {
     const res = {}
     for (let i in attr) {
-        res[i] = spring(attr[i], defProp.springOption)
+        res[i] = spring(attr[i], defProp.getSpringOption(precision))
     }
     return res
 }

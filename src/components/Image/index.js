@@ -104,19 +104,19 @@ export default class Images extends React.PureComponent {
         const { page, cover, rotate } = props
         const { naturalWidth } = cover
         const { top, left, width, height } = cover.getBoundingClientRect()
-        const { borderRadius } = window.getComputedStyle(cover)
+        const { opacity, borderRadius } = window.getComputedStyle(cover)
         return page === 0 ? {
             x: -scrollWidth()/2 + left + width/2,
             y: -windowHeight()/2 + top + height/2,
-            opacity: 1,
-            scale: width / naturalWidth,
+            opacity: parseInt(opacity) || 1,
+            scale: width/naturalWidth,
             rotate: rotate-rotate%360,
             borderRadius: parseInt(borderRadius) || 0
         } : {
             x: 0,
             y: -windowHeight(),
             opacity: 0,
-            scale: width / naturalWidth,
+            scale: width/naturalWidth,
             rotate: rotate-rotate%360,
             borderRadius: parseInt(borderRadius) || 0
         }
@@ -213,42 +213,51 @@ export default class Images extends React.PureComponent {
 				{/*图片*/}
 				<Motion
                     defaultStyle={ds}
-                    // style={springlization({ x: cs.x, y: cs.y, opacity: cs.opacity, scale: cs.scale, rotate: cs.rotate, borderRadius: cs.borderRadius })}
-                    style={{
-                        x: spring(cs.x, defProp.getSpringOption(1.0)),
-                        y: spring(cs.y, defProp.getSpringOption(1.0)),
-                        // opacity: spring(cs.opacity, defProp.getSpringOption(0.01)),
-                        scale: spring(cs.scale, defProp.getSpringOption(0.01)),
-                        rotate: spring(cs.rotate, defProp.getSpringOption(1.0)),
-                        // borderRadius: spring(cs.borderRadius, defProp.getSpringOption(1.0))
-                    }}
-                    onRest={this.handleMotionRest}
+                    style={springlization({
+                        x: cs.x,  y: cs.y,
+                        // opacity: cs.opacity,
+                        // scale: cs.scale,
+                        rotate: cs.rotate,
+                        // borderRadius 爆卡...
+                        // borderRadius: cs.borderRadius
+                    })}
                 >
                     {
-                        ({ x, y, scale, rotate }) => {
-                            // 计算动态滚动高度
-                            const scrollYOffset = show ? 0 : this.initialPageOffset - window.pageYOffset
-                            return (
-                                <img
-                                    key={`${page}-${set[page].src}`}
-                                    className={style.imageLayer}
-                                    style={{
-                                        transform: `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) translate3d(0px, ${scrollYOffset}px, 0px) scale3d(${scale}, ${scale}, 1) rotate3d(0, 0, 1, ${rotate}deg)`,
-                                        cursor: zoom ? 'zoom-out' : 'initial',
-                                        // borderRadius: borderRadius/scale,
-                                    }}
-                                    src={set[page].src}
-                                    alt={set[page].alt}
-                                    ref={this.imageRef}
-                                    onLoad={() => set[page].src!==cover.getAttribute("src") && this.updateImageStyle()}
-                                    onClick={zoom ? toggleZoom : ()=>{}}
-                                    onError={() => {
-                                        console.warn("react-zmage initialization error because the cover image url invalid.")
-                                        this.handleMotionRest(true)
-                                    }}
-                                />
-                            )
-                        }
+                        ({ x, y, rotate }) => (
+                            <Motion
+                                defaultStyle={ds}
+                                style={springlization({ scale: cs.scale }, 0.025)}
+                                onRest={this.handleMotionRest}
+                            >
+                                {
+                                    ({ scale }) => {
+                                        const scrollYOffset = show ? 0 : this.initialPageOffset - window.pageYOffset
+                                        return (
+                                            <img
+                                                key={`${page}-${set[page].src}`}
+                                                className={style.imageLayer}
+                                                style={{
+                                                    transform: `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) translate3d(0px, ${scrollYOffset}px, 0px) scale3d(${scale}, ${scale}, 1) rotate3d(0, 0, 1, ${rotate}deg)`,
+                                                    cursor: zoom ? 'zoom-out' : 'initial',
+                                                    // borderRadius: borderRadius/scale,
+                                                }}
+                                                src={set[page].src}
+                                                alt={set[page].alt}
+                                                ref={this.imageRef}
+                                                onLoad={() => set[page].src !== cover.getAttribute("src") && this.updateImageStyle()}
+                                                onClick={zoom ? toggleZoom : () => {
+                                                }}
+                                                onError={() => {
+                                                    console.warn("react-zmage initialization error because the cover image url invalid.")
+                                                    this.handleMotionRest(true)
+                                                }}
+                                            />
+                                        )
+                                    }
+
+                                }
+                            </Motion>
+                        )
                     }
                 </Motion>
 
