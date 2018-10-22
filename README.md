@@ -113,6 +113,10 @@ controller: {
     zoom: true,
     // 分页
     pagination: true,
+    // 旋转按钮
+    rotate: true,
+    // 左右翻页
+    flip: true
 }
 ```
 
