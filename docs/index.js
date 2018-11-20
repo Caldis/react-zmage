@@ -168,6 +168,18 @@ export default class ReactZmage extends React.Component {
 	                            src: "imgSet/aboutDeer/8.jpg",
 	                            alt: "關於鹿 · EIGHT"
                             }]}
+                            onBrowsing={state => {
+                                console.info("Browsing State: ", state)
+                            }}
+                            onZooming={state => {
+                                console.info("Zooming State: ", state)
+                            }}
+                            onSwitching={page => {
+                                console.info("Switching page: ", page)
+                            }}
+                            onRotating={deg => {
+                                console.info("Rotating State: ", deg, "deg")
+                            }}
                         />
                         <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
                     </div>

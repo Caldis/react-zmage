@@ -57,13 +57,17 @@ import Zmage from 'react-zmage'
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
-| **`src`** | `{String}` | "" | 图片 Url，与 img 标签的`src`属性一样 | [示例](https://github.com/Caldis/react-zmage#src) |
-| **`alt`** | `{String}` | "" | 图片占位文字，与`img`标签的`alt`属性一样 | [示例](https://github.com/Caldis/react-zmage#alt) |
-| **`set`** | `{{ObjectArray}}` | [] | 如果想在查看模式下呈现多张图片，您可以使用`set`传入一个或多个图片对象，每个图片对象包含了`src` `alt` `txt` | [示例](https://github.com/Caldis/react-zmage#set) |
-| **`hotKey`** | `{Object}` | { allTrue } | 如果想禁用查看模式下的特定快捷键操作，您可以在`hotKey`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
-| **`controller`** | `{Object}` | { allTrue } | 如果想隐藏查看模式下的关闭按钮、放大按钮等操作控件，您可以在`controller`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#controller) |
-| **`backdrop`** | `{String}` | "#FFFFFF" | 控制图片放大后的背景色, 此属性会直接传递到背景层的`background`属性 | [示例](https://github.com/Caldis/react-zmage#backdrop) |
-| **`zIndex`** | `{Number}` | 1000 | 外部容器的`z-index`, 防止被其他元素遮挡 | [示例](https://github.com/Caldis/react-zmage#zIndex) |
+| **`src`** | String | "" | 图片 Url，与 img 标签的`src`属性一样 | [示例](https://github.com/Caldis/react-zmage#src) |
+| **`alt`** | String | "" | 图片占位文字，与`img`标签的`alt`属性一样 | [示例](https://github.com/Caldis/react-zmage#alt) |
+| **`set`** | ObjectArray | [] | 如果想在查看模式下呈现多张图片，您可以使用`set`传入一个或多个图片对象，每个图片对象包含了`src` `alt` `txt` | [示例](https://github.com/Caldis/react-zmage#set) |
+| **`hotKey`** | Object | { allTrue } | 如果想禁用查看模式下的特定快捷键操作，您可以在`hotKey`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
+| **`controller`** | Object | { allTrue } | 如果想隐藏查看模式下的关闭按钮、放大按钮等操作控件，您可以在`controller`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#controller) |
+| **`backdrop`** | String | "#FFFFFF" | 控制图片放大后的背景色, 此属性会直接传递到背景层的`background`属性 | [示例](https://github.com/Caldis/react-zmage#backdrop) |
+| **`zIndex`** | Number | 1000 | 外部容器的`z-index`, 防止被其他元素遮挡 | [示例](https://github.com/Caldis/react-zmage#zIndex) |
+| **`onBrowsing`** | func | ()=>{} | 生命周期方法, 在显示/隐藏时调用, 会回传显示状态 | [示例](https://github.com/Caldis/react-zmage#onBrowsing) |
+| **`onZooming`** | func | ()=>{} | 生命周期方法, 在放大/缩小时调用, 会回传缩放状态 | [示例](https://github.com/Caldis/react-zmage#onZooming) |
+| **`onSwitching`** | func | ()=>{} | 生命周期方法, 在切换图片时调用, 会回传页码 | [示例](https://github.com/Caldis/react-zmage#onSwitching) |
+| **`onRotating`** | func | ()=>{} | 生命周期方法, 在旋转图片时调用, 会回传角度 | [示例](https://github.com/Caldis/react-zmage#onRotating) |
 
 ### `src`
 ```js
@@ -124,6 +128,34 @@ controller: {
 ### `zIndex`
 ```js
 "19260817"
+```
+
+### `onBrowsing`
+```js
+onBrowsing={state => {
+    console.info("Browsing State: ", state)
+}}
+```
+
+### `onZooming`
+```js
+onZooming={state => {
+    console.info("Zooming State: ", state)
+}}
+```
+
+### `onSwitching`
+```js
+onSwitching={page => {
+    console.info("Switching page: ", page)
+}}
+```
+
+### `onRotating`
+```js
+onRotating={deg => {
+    console.info("Rotating State: ", deg, "deg")
+}}
 ```
 
 
