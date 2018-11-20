@@ -46,16 +46,11 @@ export default class ReactZmage extends React.PureComponent {
     // 切换查看状态
     browsing = () => {
         const { onClick } = this.props
-        this.setState({ browsing: true },()=>{
-          onClick && onClick.constructor===Function && onClick(true)     
-        })
+        onClick && onClick.constructor===Function && onClick()
+        this.setState({ browsing: true })
     }
     unBrowsing = () => {
-        // 我的轮播图的，点击切换的时候破坏了，所以需要这个事情帮我重新轮播 
-        const { onClick } = this.props
-        this.setState({ browsing: false },()=>{
-          onClick && onClick.constructor===Function && onClick(false)     
-        })
+        this.setState({ browsing: false })
     }
 
     render() {
