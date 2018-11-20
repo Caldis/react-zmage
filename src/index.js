@@ -44,30 +44,41 @@ export default class ReactZmage extends React.PureComponent {
     }
 
     // 切换查看状态
-    browsing = () => {
-        const { onClick } = this.props
-        this.setState({ browsing: true },()=>{
-          onClick && onClick.constructor===Function && onClick(true)     
+    browsing = (e) => {
+        const { onClick, onBrowsing } = this.props
+        this.setState({
+            browsing: true
+        }, () => {
+            typeof onClick === "function" && onClick(e)
+            typeof onBrowsing === "function" && onBrowsing(true)
         })
     }
     unBrowsing = () => {
-        // 我的轮播图的，点击切换的时候破坏了，所以需要这个事情帮我重新轮播 
-        const { onClick } = this.props
-        this.setState({ browsing: false },()=>{
-          onClick && onClick.constructor===Function && onClick(false)     
+        const { onBrowsing } = this.props
+        this.setState({
+            browsing: false
+        }, () => {
+            typeof onBrowsing === "function" && onBrowsing(false)
         })
     }
 
     render() {
         const { browsing, set } = this.state
         const {
-            className, src, alt,  // 基本属性
+            // 基础
+            className, src, alt, style,
+            // 控制
             controller,           // 页面按钮
             hotKey,               // 热键
-            backdrop,             // 背景颜色
+            // 样式
             zIndex,               // 高度
-            style,                // 图片本体样式
-            ...props              // 剩余参数
+            backdrop,             // 背景颜色
+            // 生命周期方法
+            onZooming,
+            onSwitching,
+            onRotating,
+            // 剩余参数
+            ...props
         } = this.props
         return (
             <Fragment>
@@ -91,6 +102,9 @@ export default class ReactZmage extends React.PureComponent {
                             controller={{ ...defProp.controller, ...controller }}
                             hotKey={{ ...defProp.hotKey, ...hotKey }}
                             backdrop={backdrop}
+                            onZooming={onZooming}
+                            onSwitching={onSwitching}
+                            onRotating={onRotating}
                             remove={this.unBrowsing}
                         />
                     </Portals>
@@ -123,6 +137,12 @@ ReactZmage.defaultProps = {
     // 高度
     zIndex: defProp.zIndex,
 
+    // 生命周期方法
+    onBrowsing: ()=>{},
+    onZooming: ()=>{},
+    onSwitching: ()=>{},
+    onRotating: ()=>{},
+
 }
 
 ReactZmage.propTypes = {
@@ -146,5 +166,11 @@ ReactZmage.propTypes = {
     backdrop: defType.backdrop,
     // 高度
     zIndex: defType.zIndex,
+
+    // 生命周期方法
+    onBrowsing: PropTypes.func,
+    onZooming: PropTypes.func,
+    onSwitching: PropTypes.func,
+    onRotating: PropTypes.func,
 
 }

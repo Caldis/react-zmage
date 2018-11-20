@@ -21,27 +21,27 @@ import {
 } from '@/utils'
 
 export default class Wrapper extends React.PureComponent {
-	constructor(props) {
-		super(props)
+    constructor(props) {
+        super(props)
 
         // 移动端检测
         const mobile = mobileCheck()
 
-		this.state = {
-			// 显示
-			show: false,
+        this.state = {
+            // 显示
+            show: false,
             // 缩放
             zoom: false,
-			// 页数
-			page: 0,
+            // 页数
+            page: 0,
             // 旋转
             rotate: 0,
             // 是否移动端
             mobile: mobile,
             // 图片距屏幕边距 (如果有)
             margin: mobile ? 0 : props.margin,
-		}
-	}
+        }
+	  }
 
     componentDidMount() {
         this.mountSelf()
@@ -66,7 +66,7 @@ export default class Wrapper extends React.PureComponent {
             addListenEventOf('touchmove', this.handleScroll)
         })
     }
-    unmountSelf = () => {
+    unMountSelf = () => {
         const { cover } = this.props
         const { page } = this.state
         // 显示封面原图（当前不为第一页时，遮罩从上方移除会迅速露出，需要立即显示，否则交由图片层处理）
@@ -102,23 +102,27 @@ export default class Wrapper extends React.PureComponent {
                 break
             case "Escape":
                 // 退出
-	            hotKey.close && (zoom ? this.handleToggleZoom() : this.unmountSelf())
+	            hotKey.close && (zoom ? this.handleToggleZoom() : this.unMountSelf())
                 break
             default:
                 return
         }
     }
     handleScroll = () => {
-        this.state.show && this.unmountSelf()
+        this.state.show && this.unMountSelf()
     }
 
     /**
      * 翻页控制
      **/
     handleJumpPages = (page) => {
-        this.setState({ page })
+        const { onSwitching } = this.props
+        this.setState({ page }, () => {
+            typeof onSwitching === "function" && onSwitching(this.state.page)
+        })
     }
     handleSwitchPages = (direction) => {
+        const { onSwitching } = this.props
         return () => {
             const { set } = this.props
             const { page } = this.state
@@ -126,6 +130,8 @@ export default class Wrapper extends React.PureComponent {
                 page: direction === "prev" ?
                     Math.abs(set.length + page - 1) % set.length:
                     (page + 1) % set.length
+            }, () => {
+                typeof onSwitching === "function" && onSwitching(this.state.page)
             })
         }
     }
@@ -134,13 +140,26 @@ export default class Wrapper extends React.PureComponent {
      * 旋转控制
      **/
     handleToggleRotate = (direction) => {
+        const { onRotating } = this.props
         switch (direction) {
             case "left":
-                return () => this.setState({ rotate: this.state.rotate-90 })
+                return () => this.setState({
+                    rotate: this.state.rotate-90
+                }, () => {
+                    typeof onRotating === "function" && onRotating(this.state.rotate)
+                })
             case "right":
-                return () => this.setState({ rotate: this.state.rotate+90 })
+                return () => this.setState({
+                    rotate: this.state.rotate+90
+                }, () => {
+                    typeof onRotating === "function" && onRotating(this.state.rotate)
+                })
             default:
-                return () => this.setState({ rotate: 0 })
+                return () => this.setState({
+                    rotate: 0
+                }, () => {
+                    typeof onRotating === "function" && onRotating(0)
+                })
         }
     }
 
@@ -148,23 +167,26 @@ export default class Wrapper extends React.PureComponent {
      * 缩放控制
      **/
     handleToggleZoom = () => {
+        const { onZooming } = this.props
         this.setState({
             zoom: !this.state.zoom
+        }, () => {
+            typeof onZooming === "function" && onZooming(this.state.zoom)
         })
     }
 
-	render() {
+    render() {
         const { cover, set, controller, backdrop, remove } = this.props
         const { show, zoom, page, rotate, mobile, margin } = this.state
-		return (
-			<div className={style.wrapperLayer}>
+        return (
+            <div className={style.wrapperLayer}>
 
-				{/*背景层*/}
+                {/*背景层*/}
                 <Background
                     show={show}
                     zoom={zoom}
                     backdrop={backdrop}
-                    unmountSelf={this.unmountSelf}
+                    unmountSelf={this.unMountSelf}
                     toggleZoom={this.handleToggleZoom}
                 />
 
@@ -176,7 +198,7 @@ export default class Wrapper extends React.PureComponent {
                     page={page}
                     mobile={mobile}
                     controller={controller}
-                    unmountSelf={this.unmountSelf}
+                    unmountSelf={this.unMountSelf}
                     jumpPages={this.handleJumpPages}
                     toggleRotate={this.handleToggleRotate}
                     toggleZoom={this.handleToggleZoom}
@@ -197,40 +219,54 @@ export default class Wrapper extends React.PureComponent {
                 />
 
             </div>
-		)
-	}
+        )
+    }
 }
 
 Wrapper.defaultProps = {
-	// 封面节点
+
+    // 封面节点
     cover: {},
-	// 图片列表
+    // 图片列表
     set: [],
-	// 控制器
-	controller: defProp.controller,
-	// 快捷键
-	hotKey: defProp.hotKey,
+    // 控制器
+    controller: defProp.controller,
+    // 快捷键
+    hotKey: defProp.hotKey,
     // 背景
     backdrop: defProp.backdrop,
     // 图片距屏幕边距 (如果有)
     margin: defProp.margin,
-	// 卸载函数
-	remove: () => {},
+    // 卸载函数
+    remove: () => {},
+
+    // 生命周期方法
+    onZooming: ()=>{},
+    onSwitching: ()=>{},
+    onRotating: ()=>{},
+
 }
 
 Wrapper.propTypes = {
-	// 封面节点
+
+    // 封面节点
     cover: PropTypes.object,
-	// 图片列表
+    // 图片列表
     set: defType.set,
-	// 控制器
-	controller: defType.controller,
-	// 快捷键
-	hotKey: defType.hotKey,
+    // 控制器
+    controller: defType.controller,
+    // 快捷键
+    hotKey: defType.hotKey,
     // 背景
     backdrop: defType.backdrop,
     // 图片距屏幕边距 (如果有)
     margin: defType.margin,
-	// 卸载函数
-	remove: PropTypes.func,
+    // 卸载函数
+    remove: PropTypes.func,
+
+    // 生命周期方法
+    onZooming: PropTypes.func,
+    onSwitching: PropTypes.func,
+    onRotating: PropTypes.func,
+
 }
