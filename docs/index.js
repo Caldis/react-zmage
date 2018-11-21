@@ -38,7 +38,7 @@ export default class ReactZmage extends React.Component {
 
                         <div align="center">
                             <a href="https://github.com/Caldis/react-zmage">
-                                <img width="200" height="200" src="logo.png"/>
+                                <img src="logo.png"/>
                             </a>
                         </div>
 
