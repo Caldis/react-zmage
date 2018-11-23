@@ -1,23 +1,20 @@
 {
   "presets": [
-    ["es2015", { "modules": false }],
-    "stage-0",
-    "react"
+    [
+      "@babel/preset-env",
+      {
+        "modules": false
+      }
+    ],
+    "@babel/preset-react"
   ],
   "plugins": [
-    "transform-es2015-modules-commonjs",
-    "add-module-exports"
+    "@babel/plugin-proposal-class-properties"
   ],
-  "env": {
-    "production": {
-      "presets": ["react-optimize"],
-      "plugins": ["babel-plugin-dev-expression"]
-    },
-    "dev": {
-      "plugins": [
-        "transform-class-properties",
-        "transform-es2015-classes"
-      ]
-    }
-  }
+  "overrides": [{
+    "test": ["./scripts"],
+    "presets": [
+      ["@babel/preset-env"]
+    ]
+  }]
 }
