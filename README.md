@@ -2,7 +2,7 @@
 
 <div align="center">
   <a href="https://github.com/Caldis/react-zmage">
-    <img width="200" height="200" src="docs/logo.png">
+    <img width="150" height="150" src="docs/logo.png">
   </a>
   <h1>react-zmage</h1>
 </div>
