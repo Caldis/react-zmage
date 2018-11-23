@@ -20,8 +20,7 @@
 git clone https://github.com/Caldis/react-zmage
 cd react-zmage
 npm i
-npm exam-dev
-open http://127.0.0.1:8080/
+npm run dev
 ```
 
 
