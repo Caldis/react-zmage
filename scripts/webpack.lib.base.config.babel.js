@@ -18,15 +18,15 @@ const config =  merge.smart(baseConfig, {
 	output: {
 		path: path.resolve(__dirname, '../lib'),
 		library: 'react-zmage',
-		libraryTarget: 'umd'
+		libraryTarget: 'commonjs2'
 	},
 
-	performance: {
+    performance: {
 		hints: false
 	},
 
 	plugins: [
-		// 启用范围提升 (webpack3, 避免在 dev 中使用! 会造成更新性能问题, 且导致热更新出错)
+		// 启用范围提升
 		new webpack.optimize.ModuleConcatenationPlugin(),
 		// 设置环境变量
 		new webpack.DefinePlugin({
@@ -37,7 +37,6 @@ const config =  merge.smart(baseConfig, {
 	],
 
 	externals: [nodeExternals()]
-
 })
 
 export default config

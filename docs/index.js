@@ -12,8 +12,6 @@ import 'prismjs/themes/prism.css'
 import PrismCode from 'react-prism'
 // Style
 import style from './index.less'
-// Debugging flags
-let debugging = process.env.NODE_ENV === "development"
 
 export default class ReactZmage extends React.Component {
 
