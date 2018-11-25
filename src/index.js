@@ -44,7 +44,7 @@ export default class ReactZmage extends React.PureComponent {
     }
 
     // 切换查看状态
-    browsing = (e) => {
+    inBrowsing = (e) => {
         const { onClick, onBrowsing } = this.props
         this.setState({
             browsing: true
@@ -74,6 +74,7 @@ export default class ReactZmage extends React.PureComponent {
             zIndex,               // 高度
             backdrop,             // 背景颜色
             // 生命周期方法
+            onBrowsing,
             onZooming,
             onSwitching,
             onRotating,
@@ -88,7 +89,7 @@ export default class ReactZmage extends React.PureComponent {
                     ref={ref => this.cover = ref}
                     className={className} src={src} alt={alt} title={alt}
                     style={{ cursor:'zoom-in', ...style }}
-                    onClick={this.browsing}
+                    onClick={this.inBrowsing}
                     {...props}
                 />
 
