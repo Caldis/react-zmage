@@ -1,13 +1,16 @@
 // libs
 import path from 'path'
 import webpack from 'webpack'
-import autoprefixer from 'autoprefixer'
-// 本地服务器配置
+// Config
 export const host = process.env.HOST || '127.0.0.1'
 export const port = process.env.PORT || 8080
+// Plugins
+import autoprefixer from 'autoprefixer'
 
 // 基础配置集
 export default {
+
+    entry: './docs/hmr.js',
 
 	resolve: {
 		extensions: ['.js', '.jsx', '.json'],
@@ -21,11 +24,7 @@ export default {
 	},
 
 	plugins: [
-		// 热加载时直接返回更新文件名，而不是文件的id。
-		new webpack.NamedModulesPlugin(),
-		// 跳过编译时出错的代码并记录，使编译后运行时的包不会发生错误
-		new webpack.NoEmitOnErrorsPlugin(),
-		// postcss配置, 补全浏览器前缀
+		// postcss配置
         new webpack.LoaderOptionsPlugin({ options: { postcss: [ autoprefixer ] } })
 	],
 

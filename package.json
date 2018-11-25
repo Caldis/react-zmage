@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "A zoomable image container power by react",
   "keywords": [
     "react",
@@ -25,14 +25,16 @@
     "react-transition-group": "^2.5.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.1.5",
     "@babel/core": "^7.1.6",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/preset-env": "^7.1.6",
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.0.0",
     "@babel/runtime": "^7.1.5",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
     "autoprefixer": "^9.3.1",
     "babel-loader": "^8.0.4",
+    "cross-env": "^5.2.0",
     "css-loader": "^1.0.1",
     "file-loader": "^2.0.0",
     "html-webpack-plugin": "^3.2.0",
@@ -57,9 +59,10 @@
   },
   "scripts": {
     "dev": "webpack-dev-server --config ./scripts/webpack.exam.dev.config.babel.js --progress --profile --colors",
-    "dist": "npm run dist-exam && npm run dist-lib-pod && npm run dist-lib-dev ",
-    "dist-exam": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
-    "dist-lib-dev": "webpack --config ./scripts/webpack.lib.dev.config.babel.js --progress --profile --colors --watch",
-    "dist-lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors"
+    "dist": "npm run dist:exam && npm run dist:lib",
+    "dist:exam": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
+    "dist:lib": "npm run dist:lib-dev && npm run dist:lib-pod",
+    "dist:lib-dev": "webpack --config ./scripts/webpack.lib.dev.config.babel.js --progress --profile --colors",
+    "dist:lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors"
   }
 }
