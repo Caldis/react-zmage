@@ -2,28 +2,28 @@
  * 用于输出 riz.production.min.js 文件
  **/
 
-// 基本库
+// Libs
 import webpack from 'webpack'
-import UglifyJsPlugin  from 'uglifyjs-webpack-plugin'
-// 从基础设置继承
+// Merges
 import merge from 'webpack-merge'
 import baseConfig from './webpack.lib.base.config.babel.js'
+// Plugins
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const BrotliPlugin = require('brotli-webpack-plugin');
 
 const config =  merge.smart(baseConfig, {
+
+    mode: "production",
+
     output: {
         filename: 'zmage.production.min.js',
     },
 
-	plugins: [
-		// 代码压缩
-		new UglifyJsPlugin({
-			sourceMap: false
-		}),
-		// Loader压缩
-		new webpack.LoaderOptionsPlugin({
-			minimize: true
-		})
-	]
+    plugins: [
+        // 输出包文件分析图
+        new BundleAnalyzerPlugin(),
+    ]
+
 })
 
 export default config
