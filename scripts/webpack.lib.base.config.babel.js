@@ -13,7 +13,7 @@ const config =  merge.smart(baseConfig, {
 	output: {
 		path: path.resolve(__dirname, '../lib'),
 		library: 'react-zmage',
-		libraryTarget: 'commonjs2'
+		libraryTarget: 'umd'
 	},
 
     performance: {
@@ -25,8 +25,13 @@ const config =  merge.smart(baseConfig, {
 		new webpack.optimize.ModuleConcatenationPlugin()
 	],
 
-	externals: [nodeExternals()]
-
+    externals: {
+        'react'            : 'react',
+        'react-dom'        : 'react-dom',
+        'react-motion'     : 'react-motion',
+        'react-hot-loader' : 'react-hot-loader',
+        'prop-types'       : 'prop-types',
+    }
 })
 
 export default config
