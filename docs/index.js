@@ -7,6 +7,7 @@ import React from 'react'
 import 'prismjs'
 import 'prismjs/themes/prism.css'
 import PrismCode from 'react-prism'
+import { hot } from 'react-hot-loader'
 // Style
 import style from './index.less'
 // App Entry
@@ -210,4 +211,4 @@ alt: "Second image description"
 
 )
 
-export default App
+export default hot(module)(App)
