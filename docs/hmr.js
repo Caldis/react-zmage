@@ -6,9 +6,7 @@
 // Libs
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { hot } from 'react-hot-loader'
 // App Entry
 import App from './index'
 
-const HMRApp = hot(module)(App)
-ReactDOM.render(<HMRApp/>, document.querySelector('#app'))
+ReactDOM.render(<App/>, document.querySelector('#app'))
