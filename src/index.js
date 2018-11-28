@@ -78,6 +78,7 @@ export default class ReactZmage extends React.PureComponent {
             onZooming,
             onSwitching,
             onRotating,
+            defaultPage,
             // 剩余参数
             ...props
         } = this.props
@@ -107,6 +108,7 @@ export default class ReactZmage extends React.PureComponent {
                             onSwitching={onSwitching}
                             onRotating={onRotating}
                             remove={this.unBrowsing}
+                            page={defaultPage}
                         />
                     </Portals>
                 }
@@ -157,7 +159,7 @@ ReactZmage.propTypes = {
 
     // 图片集合, 可以传入单独的图片类型或数组包裹的图片类型
     set: defType.set,
-    defaultPage:PropTypes.number,
+    defaultPage: PropTypes.number,
     // 控制器
     controller: defType.controller,
     // 快捷键
