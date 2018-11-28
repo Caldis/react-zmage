@@ -157,7 +157,7 @@ ReactZmage.propTypes = {
 
     // 图片集合, 可以传入单独的图片类型或数组包裹的图片类型
     set: defType.set,
-
+    defaultPage:PropTypes.number,
     // 控制器
     controller: defType.controller,
     // 快捷键
@@ -173,5 +173,5 @@ ReactZmage.propTypes = {
     onZooming: PropTypes.func,
     onSwitching: PropTypes.func,
     onRotating: PropTypes.func,
-
+    
 }
