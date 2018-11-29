@@ -21,8 +21,7 @@
   "dependencies": {
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-motion": "^0.5.2"
+    "react-dom": "^16.6.3"
   },
   "devDependencies": {
     "@babel/core": "^7.1.6",
@@ -42,8 +41,8 @@
     "open-browser-webpack-plugin": "0.0.5",
     "postcss-loader": "^3.0.0",
     "prismjs": "^1.15.0",
-    "react-prism": "^4.3.2",
     "react-hot-loader": "^4.3.12",
+    "react-prism": "^4.3.2",
     "source-map-support": "^0.5.9",
     "style-loader": "^0.23.1",
     "transfer-webpack-plugin": "^0.1.4",
@@ -58,11 +57,9 @@
   },
   "scripts": {
     "dev": "webpack-dev-server --config ./scripts/webpack.exam.dev.config.babel.js --progress --profile --colors",
-    "dist": "npm run dist:exam && npm run dist:lib",
+    "dist": "npm run dist:exam && npm run dist:lib-dev && npm run dist:lib-pod",
     "dist:exam": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
-    "dist:lib": "npm run dist:lib-dev && npm run dist:lib-pod",
     "dist:lib-dev": "webpack --config ./scripts/webpack.lib.dev.config.babel.js --progress --profile --colors",
-    "dist:lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors",
-    "dist:test": "babel src --out-dir lib"
+    "dist:lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors"
   }
 }
