@@ -3,12 +3,14 @@
  * 叠加半透明背景
  **/
 
-// React Libs
+// Libs
 import React from 'react'
+// Context
+import { ContextConsumer } from "@/components/context"
 // Style
 import style from './index.less'
 
-export default ({ show, zoom, backdrop, unmountSelf, toggleZoom }) => {
+export default ContextConsumer(({ show, zoom, backdrop, unmountSelf, toggleZoom }) => {
 	return (
 		<div
 			className={style.backgroundLayer}
@@ -19,4 +21,4 @@ export default ({ show, zoom, backdrop, unmountSelf, toggleZoom }) => {
 			}}
 		/>
 	)
-}
+})

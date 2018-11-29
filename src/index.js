@@ -2,9 +2,8 @@
  * 应用主入口
  **/
 
-// React Libs
+// Libs
 import React, { Fragment } from 'react'
-import PropTypes from 'prop-types'
 // Components
 import Portals from './components/Portals'
 import Wrapper from './components/Wrapper'
@@ -15,10 +14,8 @@ export default class ReactZmage extends React.PureComponent {
     constructor(props){
         super(props)
 
-        // Refs
         this.cover = React.createRef()
 
-        // States
         this.state = {
             browsing: false,
             set: ReactZmage.buildSet(props)
@@ -63,16 +60,20 @@ export default class ReactZmage extends React.PureComponent {
     }
 
     render() {
+
         const { browsing, set } = this.state
         const {
             // 基础
             className, src, alt, style,
+            // 平台
+            mobile,
             // 控制
             controller,           // 页面按钮
             hotKey,               // 热键
             // 样式
+            backdrop,             // 背景色
             zIndex,               // 高度
-            backdrop,             // 背景颜色
+            edge,                 // 边距
             // 生命周期方法
             onBrowsing,
             onZooming,
@@ -81,6 +82,7 @@ export default class ReactZmage extends React.PureComponent {
             // 剩余参数
             ...props
         } = this.props
+
         return (
             <Fragment>
 
@@ -103,6 +105,7 @@ export default class ReactZmage extends React.PureComponent {
                             controller={{ ...defProp.controller, ...controller }}
                             hotKey={{ ...defProp.hotKey, ...hotKey }}
                             backdrop={backdrop}
+                            edge={edge}
                             onZooming={onZooming}
                             onSwitching={onSwitching}
                             onRotating={onRotating}
@@ -118,60 +121,88 @@ export default class ReactZmage extends React.PureComponent {
 
 ReactZmage.defaultProps = {
 
-    // 图片 Url
-    src: "",
+    /**
+     * 基础数据
+     **/
+    // 图片地址
+    src: defProp.src,
     // 图片标题
-    alt: "",
-    // 图片文字
-    txt: "",
+    alt: defProp.alt,
+    // 图片描述
+    txt: defProp.txt,
+    // 图片集合
+    set: defProp.set,
 
-    // 图片列表
-    set: [],
-
+    /**
+     * 功能控制
+     **/
     // 控制器
     controller: defProp.controller,
     // 快捷键
     hotKey: defProp.hotKey,
+    // 移动端
+    mobile: defProp.mobile,
 
+    /**
+     * 界面样式
+     **/
     // 背景色
     backdrop: defProp.backdrop,
     // 高度
     zIndex: defProp.zIndex,
+    // 边距
+    edge: defProp.edge,
 
-    // 生命周期方法
-    onBrowsing: ()=>{},
-    onZooming: ()=>{},
-    onSwitching: ()=>{},
-    onRotating: ()=>{},
+    /**
+     * 生命周期
+     **/
+    onBrowsing: defProp.onBrowsing,
+    onZooming: defProp.onZooming,
+    onSwitching: defProp.onSwitching,
+    onRotating: defProp.onRotating,
 
 }
 
 ReactZmage.propTypes = {
 
+    /**
+     * 基础数据
+     **/
     // 图片 Url
-    src: PropTypes.string.isRequired,
+    src: defType.src,
     // 图片标题
-    alt: PropTypes.string,
+    alt: defType.alt,
     // 图片描述
-    txt: PropTypes.string,
-
-    // 图片集合, 可以传入单独的图片类型或数组包裹的图片类型
+    txt: defType.txt,
+    // 图片集合
     set: defType.set,
 
+    /**
+     * 功能控制
+     **/
     // 控制器
     controller: defType.controller,
     // 快捷键
     hotKey: defType.hotKey,
+    // 移动端
+    mobile: defType.mobile,
 
+    /**
+     * 界面样式
+     **/
     // 背景色
     backdrop: defType.backdrop,
     // 高度
     zIndex: defType.zIndex,
+    // 边距
+    edge: defType.edge,
 
-    // 生命周期方法
-    onBrowsing: PropTypes.func,
-    onZooming: PropTypes.func,
-    onSwitching: PropTypes.func,
-    onRotating: PropTypes.func,
+    /**
+     * 生命周期
+     **/
+    onBrowsing: defType.onBrowsing,
+    onZooming: defType.onZooming,
+    onSwitching: defType.onSwitching,
+    onRotating: defType.onRotating,
 
 }
