@@ -3,9 +3,11 @@
  * 储存主要状态，组织架构
  **/
 
-// React Libs
+// Libs
 import React from 'react'
 import PropTypes from 'prop-types'
+// Context
+import { Context } from "@/components/context"
 // Style
 import style from './index.less'
 // Components
@@ -15,10 +17,7 @@ import Background from '../Background'
 // Config
 import { defType, defProp } from '@/config/default'
 // Utils
-import {
-    addListenEventOf, removeListenEventOf,
-    mobileCheck, scrollWidth, windowHeight,
-} from '@/utils'
+import { addListenScroll, removeListenScroll, mobileCheck, scrollWidth, windowHeight } from '@/utils'
 
 export default class Wrapper extends React.PureComponent {
     constructor(props) {
@@ -39,17 +38,16 @@ export default class Wrapper extends React.PureComponent {
             // 是否移动端
             mobile: mobile,
             // 图片距屏幕边距 (如果有)
-            margin: mobile ? 0 : props.margin,
+            edge: mobile ? 0 : props.edge,
         }
 	  }
 
     componentDidMount() {
-        this.mountSelf()
+        setTimeout(this.mountSelf, 0)
     }
     componentWillUnmount() {
-        removeListenEventOf('scroll', this.handleScroll)
-	    removeListenEventOf('keydown', this.handleKeyDown)
-        removeListenEventOf('touchmove', this.handleScroll)
+        removeListenScroll(this.handleScroll)
+        window.removeEventListener('keydown', this.handleKeyDown)
     }
 
     /**
@@ -61,9 +59,8 @@ export default class Wrapper extends React.PureComponent {
             // 隐藏封面原图
             cover.style.visibility = 'hidden'
             // 绑定事件
-            addListenEventOf('scroll', this.handleScroll)
-            addListenEventOf('keydown', this.handleKeyDown)
-            addListenEventOf('touchmove', this.handleScroll)
+            addListenScroll(this.handleScroll)
+            window.addEventListener('keydown', this.handleKeyDown)
         })
     }
     unMountSelf = () => {
@@ -115,7 +112,7 @@ export default class Wrapper extends React.PureComponent {
     /**
      * 翻页控制
      **/
-    handleJumpPages = (page) => {
+    handleToPages = (page) => {
         const { onSwitching } = this.props
         this.setState({ page }, () => {
             typeof onSwitching === "function" && onSwitching(this.state.page)
@@ -134,6 +131,18 @@ export default class Wrapper extends React.PureComponent {
                 typeof onSwitching === "function" && onSwitching(this.state.page)
             })
         }
+    }
+
+    /**
+     * 缩放控制
+     **/
+    handleToggleZoom = () => {
+        const { onZooming } = this.props
+        this.setState({
+            zoom: !this.state.zoom
+        }, () => {
+            typeof onZooming === "function" && onZooming(this.state.zoom)
+        })
     }
 
     /**
@@ -163,62 +172,44 @@ export default class Wrapper extends React.PureComponent {
         }
     }
 
-    /**
-     * 缩放控制
-     **/
-    handleToggleZoom = () => {
-        const { onZooming } = this.props
-        this.setState({
-            zoom: !this.state.zoom
-        }, () => {
-            typeof onZooming === "function" && onZooming(this.state.zoom)
-        })
-    }
-
     render() {
-        const { cover, set, controller, backdrop, remove } = this.props
-        const { show, zoom, page, rotate, mobile, margin } = this.state
+        const { cover, set, controller, backdrop, mobile, edge, remove } = this.props
+        const { show, zoom, page, rotate } = this.state
+
+        const contextValue = {
+            // Props
+            cover, set, controller, backdrop, mobile, edge, remove,
+            // State
+            show, zoom, page, rotate,
+        }
+
         return (
-            <div className={style.wrapperLayer}>
+            <Context.Provider value={contextValue}>
 
-                {/*背景层*/}
-                <Background
-                    show={show}
-                    zoom={zoom}
-                    backdrop={backdrop}
-                    unmountSelf={this.unMountSelf}
-                    toggleZoom={this.handleToggleZoom}
-                />
+                <div className={style.wrapperLayer}>
 
-                {/*控制层*/}
-                <Control
-                    set={set}
-                    show={show}
-                    zoom={zoom}
-                    page={page}
-                    mobile={mobile}
-                    controller={controller}
-                    unmountSelf={this.unMountSelf}
-                    jumpPages={this.handleJumpPages}
-                    toggleRotate={this.handleToggleRotate}
-                    toggleZoom={this.handleToggleZoom}
-                />
+                    {/*背景层*/}
+                    <Background
+                        unmountSelf={this.unMountSelf}
+                        toggleZoom={this.handleToggleZoom}
+                    />
 
-                {/*图片层*/}
-                <Image
-                    set={set}
-                    show={show}
-                    zoom={zoom}
-                    page={page}
-                    cover={cover}
-                    rotate={rotate}
-                    mobile={mobile}
-                    remove={remove}
-                    margin={margin}
-                    toggleZoom={this.handleToggleZoom}
-                />
+                    {/*控制层*/}
+                    <Control
+                        unmountSelf={this.unMountSelf}
+                        toPages={this.handleToPages}
+                        toggleZoom={this.handleToggleZoom}
+                        toggleRotate={this.handleToggleRotate}
+                    />
 
-            </div>
+                    {/*图片层*/}
+                    <Image
+                        toggleZoom={this.handleToggleZoom}
+                    />
+
+                </div>
+
+            </Context.Provider>
         )
     }
 }
@@ -227,46 +218,74 @@ Wrapper.defaultProps = {
 
     // 封面节点
     cover: {},
+    // 卸载函数
+    remove: () => {},
+
+    /**
+     * 基础数据
+     **/
     // 图片列表
-    set: [],
+    set: defProp.set,
+
+    /**
+     * 功能控制
+     **/
     // 控制器
     controller: defProp.controller,
     // 快捷键
     hotKey: defProp.hotKey,
+
+    /**
+     * 界面样式
+     **/
     // 背景
     backdrop: defProp.backdrop,
-    // 图片距屏幕边距 (如果有)
-    margin: defProp.margin,
-    // 卸载函数
-    remove: () => {},
+    // 边距
+    edge: defProp.edge,
 
-    // 生命周期方法
-    onZooming: ()=>{},
-    onSwitching: ()=>{},
-    onRotating: ()=>{},
+    /**
+     * 生命周期
+     **/
+    onZooming: defProp.onZooming,
+    onSwitching: defProp.onSwitching,
+    onRotating: defProp.onRotating,
 
 }
 
 Wrapper.propTypes = {
 
     // 封面节点
-    cover: PropTypes.object,
+    cover: defType.cover,
+    // 卸载函数
+    remove: defType.remove,
+
+    /**
+     * 基础数据
+     **/
     // 图片列表
     set: defType.set,
+
+    /**
+     * 功能控制
+     **/
     // 控制器
     controller: defType.controller,
     // 快捷键
     hotKey: defType.hotKey,
+
+    /**
+     * 界面样式
+     **/
     // 背景
     backdrop: defType.backdrop,
-    // 图片距屏幕边距 (如果有)
-    margin: defType.margin,
-    // 卸载函数
-    remove: PropTypes.func,
+    // 边距
+    edge: defType.edge,
 
-    // 生命周期方法
-    onZooming: PropTypes.func,
-    onSwitching: PropTypes.func,
-    onRotating: PropTypes.func,
+    /**
+     * 生命周期
+     **/
+    onZooming: defType.onZooming,
+    onSwitching: defType.onSwitching,
+    onRotating: defType.onRotating,
 
 }
