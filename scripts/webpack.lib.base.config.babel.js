@@ -26,11 +26,10 @@ const config =  merge.smart(baseConfig, {
 	],
 
     externals: {
-        'react'            : 'react',
-        'react-dom'        : 'react-dom',
-        'react-motion'     : 'react-motion',
-        'react-hot-loader' : 'react-hot-loader',
-        'prop-types'       : 'prop-types',
+        'prop-types'             : 'prop-types',
+        'react'                  : 'react',
+        'react-dom'              : 'react-dom',
+        'react-hot-loader'       : 'react-hot-loader',
     }
 })
 
