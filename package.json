@@ -1,7 +1,7 @@
 {
   "name": "react-zmage",
-  "version": "0.5.5",
-  "description": "A zoomable image container power by react",
+  "version": "0.5.7",
+  "description": "A zoomable image container",
   "keywords": [
     "react",
     "image",
@@ -10,6 +10,7 @@
     "zoomable",
     "slidershow"
   ],
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Caldis/react-zmage.git"
@@ -20,12 +21,9 @@
   "dependencies": {
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-motion": "^0.5.2",
-    "react-transition-group": "^2.5.0"
+    "react-dom": "^16.6.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.5",
     "@babel/core": "^7.1.6",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/preset-env": "^7.1.6",
@@ -59,9 +57,8 @@
   },
   "scripts": {
     "dev": "webpack-dev-server --config ./scripts/webpack.exam.dev.config.babel.js --progress --profile --colors",
-    "dist": "npm run dist:exam && npm run dist:lib",
+    "dist": "npm run dist:exam && npm run dist:lib-dev && npm run dist:lib-pod",
     "dist:exam": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
-    "dist:lib": "npm run dist:lib-dev && npm run dist:lib-pod",
     "dist:lib-dev": "webpack --config ./scripts/webpack.lib.dev.config.babel.js --progress --profile --colors",
     "dist:lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors"
   }
