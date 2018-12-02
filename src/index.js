@@ -79,6 +79,7 @@ export default class ReactZmage extends React.PureComponent {
             onZooming,
             onSwitching,
             onRotating,
+            defaultPage,
             // 剩余参数
             ...props
         } = this.props
@@ -110,6 +111,7 @@ export default class ReactZmage extends React.PureComponent {
                             onSwitching={onSwitching}
                             onRotating={onRotating}
                             remove={this.unBrowsing}
+                            page={defaultPage}
                         />
                     </Portals>
                 }
@@ -176,6 +178,7 @@ ReactZmage.propTypes = {
     txt: defType.txt,
     // 图片集合
     set: defType.set,
+    defaultPage: PropTypes.number,
 
     /**
      * 功能控制
@@ -197,6 +200,14 @@ ReactZmage.propTypes = {
     // 边距
     edge: defType.edge,
 
+    // 生命周期方法
+    onBrowsing: PropTypes.func,
+    onZooming: PropTypes.func,
+    onSwitching: PropTypes.func,
+    onRotating: PropTypes.func,
+    
+    
+
     /**
      * 生命周期
      **/
@@ -204,5 +215,4 @@ ReactZmage.propTypes = {
     onZooming: defType.onZooming,
     onSwitching: defType.onSwitching,
     onRotating: defType.onRotating,
-
 }
