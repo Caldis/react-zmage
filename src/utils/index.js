@@ -1,22 +1,25 @@
 // Config
 import { defProp } from "@/config/default";
-// React Motion
-import { spring } from "react-motion";
 
 /**
  * 工具函数
  **/
 
-// 通过屏幕尺寸以及图片尺寸，计算出图片在屏幕中完整显示的缩放比例
-export const calcFitScale = (naturalWidth, naturalHeight, margin) => {
-    const scaleX = clientWidth() / (naturalWidth + 2*margin)
-    const scaleY = clientHeight() / (naturalHeight + 2*margin)
-    return Math.min(scaleX, scaleY)
+export const addListenScroll = (handler) => {
+    window.addEventListener('scroll', handler)
+    window.addEventListener('touchmove', handler)
+}
+export const removeListenScroll = (handler) => {
+    window.removeEventListener('scroll', handler)
+    window.removeEventListener('touchmove', handler)
 }
 
-// 事件绑定
-export const addListenEventOf = (event, handler) => window.addEventListener(event, handler)
-export const removeListenEventOf = (event, handler) => window.removeEventListener(event, handler)
+// 通过屏幕尺寸以及图片尺寸，计算出图片在屏幕中完整显示的缩放比例
+export const calcFitScale = (naturalWidth, naturalHeight, edge) => {
+    const scaleX = clientWidth() / (naturalWidth + 2*edge)
+    const scaleY = clientHeight() / (naturalHeight + 2*edge)
+    return Math.min(scaleX, scaleY)
+}
 
 // 屏幕尺寸
 export const windowWidth = () => window.innerWidth
@@ -37,11 +40,7 @@ export const mobileCheck = () => {
     return isMobile
 };
 
-// 将传入对象转为 react motion 的 spring 类型
-export const springlization = (attr, precision=0.01) => {
-    const res = {}
-    for (let i in attr) {
-        res[i] = spring(attr[i], defProp.getSpringOption(precision))
-    }
-    return res
+// 根据传入的属性, 返回附带对应显示状态的类名
+export const withShowingStatus = (defClassName="", isShow=false, showName="show") => {
+    return isShow ? `${defClassName} ${showName}` : defClassName
 }

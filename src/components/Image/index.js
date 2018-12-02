@@ -3,23 +3,24 @@
  * 展示图片, 控制图片尺寸
  **/
 
-// React Libs
+// Libs
 import React, { Fragment } from 'react'
-// React Motion
-import {Motion, spring} from 'react-motion'
-// Style
+// Context
+import { ContextConsumer } from "@/components/context"
+// Styles
 import style from './index.less'
 // Utils
 import {
+    addListenScroll, removeListenScroll,
     calcFitScale, springlization,
-    addListenEventOf, removeListenEventOf,
     scrollWidth, windowWidth, clientWidth,
     scrollHeight,windowHeight, clientHeight
 } from '@/utils'
 // Config
 import { defProp } from "@/config/default"
 
-export default class Images extends React.PureComponent {
+class Images extends React.PureComponent {
+
     constructor(props) {
         super(props)
 
@@ -30,18 +31,16 @@ export default class Images extends React.PureComponent {
         this.initialPageOffset = window.pageYOffset
         // 监听状态
         this.listeningMouseMove = false
-        // 初始封面样式
-        const { x, y, opacity, scale, rotate, borderRadius } = Images.getCoverStyle(props)
 
         this.state = {
-            // 样式
-            defaultStyle: { x, y, opacity, scale, rotate, borderRadius },
-            currentStyle: { x, y, opacity, scale, rotate, borderRadius },
+            currentStyle: Images.getCoverStyle(props),
         }
     }
 
     componentDidMount() {
-        addListenEventOf('resize', this.handleResize)
+        addListenScroll(this.handleScroll)
+        window.addEventListener('resize', this.handleResize)
+        window.addEventListener("transitionend", this.handleTransitionEnded)
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
         // 更新样式
@@ -49,9 +48,9 @@ export default class Images extends React.PureComponent {
         const { show: currShow, zoom: currZoom, rotate: currRotate } = this.props
         // Page 导致的 src 变化的 update 交给图片自身的 onload 调用
         if (prevShow!==currShow || prevZoom!==currZoom || prevRotate!==currRotate) {
-            // 更新样式 (初次显示时添加延迟, 避免 Safari 初次获取不到 ref 的 bug
+            // 更新样式 (添加延迟, 避免 Safari 初次获取不到 ref 的 bug)
             if (!prevShow) {
-                setTimeout(this.updateImageStyle, 50)
+                setTimeout(this.updateImageStyle, 0)
             } else {
                 this.updateImageStyle()
             }
@@ -60,7 +59,9 @@ export default class Images extends React.PureComponent {
         }
     }
     componentWillUnmount() {
-        removeListenEventOf('resize', this.handleResize)
+        window.removeEventListener("transitionend", this.handleTransitionEnded)
+        window.removeEventListener('resize', this.handleResize)
+        removeListenScroll(this.handleScroll)
     }
 
     /**
@@ -77,10 +78,10 @@ export default class Images extends React.PureComponent {
     updateZoomEventListenerWithState = () => {
         const { show, zoom } = this.props
         if (show && zoom && !this.listeningMouseMove) {
-            addListenEventOf('mousemove', this.handleMouseMove)
+            window.addEventListener('mousemove', this.handleMouseMove)
             this.listeningMouseMove = true
         } else {
-            removeListenEventOf('mousemove', this.handleMouseMove)
+            window.removeEventListener('mousemove', this.handleMouseMove)
             this.listeningMouseMove = false
         }
     }
@@ -92,7 +93,7 @@ export default class Images extends React.PureComponent {
         const { show, zoom } = props
         if (show) {
             if (zoom) {
-                return Images.getZoomingStyle(undefined, props, imageRef)
+                return Images.getZoomingStyle(props, imageRef)
             } else {
                 return Images.getBrowsingStyle(props, imageRef)
             }
@@ -101,48 +102,48 @@ export default class Images extends React.PureComponent {
         }
     }
     static getCoverStyle = (props) => {
-        const { page, cover, rotate } = props
+        const { page, cover, rotate, mobile } = props
         const { naturalWidth } = cover
         const { top, left, width, height } = cover.getBoundingClientRect()
         const { opacity, borderRadius } = window.getComputedStyle(cover)
         return page === 0 ? {
             x: -scrollWidth()/2 + left + width/2,
             y: -windowHeight()/2 + top + height/2,
-            opacity: parseInt(opacity) || 1,
+            opacity: ~~opacity || 1,
             scale: width/naturalWidth,
             rotate: rotate-rotate%360,
-            borderRadius: parseInt(borderRadius) || 0
+            borderRadius: !mobile && ~~borderRadius || 0
         } : {
             x: 0,
             y: -windowHeight(),
             opacity: 0,
             scale: width/naturalWidth,
             rotate: rotate-rotate%360,
-            borderRadius: parseInt(borderRadius) || 0
+            borderRadius: !mobile && ~~borderRadius || 0
         }
     }
     static getBrowsingStyle = (props, imageRef) => {
-        const { margin, rotate } = props
+        const { edge, rotate } = props
         const { naturalWidth, naturalHeight } = imageRef.current
         return {
             x: 0,
             y: 0,
             opacity: 1,
-            scale: calcFitScale(naturalWidth, naturalHeight, margin),
+            scale: calcFitScale(naturalWidth, naturalHeight, edge),
             rotate,
             borderRadius: 10
         }
     }
-    static getZoomingStyle = ({ clientX:mouseX=scrollWidth()/2, clientY:mouseY=windowHeight()/2 }={}, props, imageRef) => {
-        const { margin, rotate } = props
+    static getZoomingStyle = (props, imageRef, { clientX:mouseX=scrollWidth()/2, clientY:mouseY=windowHeight()/2 }={}) => {
+        const { edge, rotate } = props
         const { naturalWidth, naturalHeight } = imageRef.current
         const cw = scrollWidth()
         const ch = windowHeight()
-        const rangeX = naturalWidth - scrollWidth() + (2*margin)
-        const rangeY = naturalHeight - windowHeight() + (2*margin)
+        const rangeX = naturalWidth - scrollWidth() + (2*edge)
+        const rangeY = naturalHeight - windowHeight() + (2*edge)
         // 计算偏移量
-        const imgPosX = naturalWidth>cw ? ((naturalWidth - cw)/2 + margin) - (rangeX*(mouseX/cw)) : 0
-        const imgPosY = naturalHeight>ch ? ((naturalHeight - ch)/2 + margin) - (rangeY*(mouseY/ch)) : 0
+        const imgPosX = naturalWidth>cw ? ((naturalWidth - cw)/2 + edge) - (rangeX*(mouseX/cw)) : 0
+        const imgPosY = naturalHeight>ch ? ((naturalHeight - ch)/2 + edge) - (rangeY*(mouseY/ch)) : 0
         // 返回位置
         return {
             x: imgPosX,
@@ -158,50 +159,64 @@ export default class Images extends React.PureComponent {
      * 事件响应
      **/
     handleMouseMove = (e) => {
-        const zoomingStyle = Images.getZoomingStyle(e, this.props, this.imageRef)
+        const zoomingStyle = Images.getZoomingStyle(this.props, this.imageRef, e)
         this.setStyle(zoomingStyle)
     }
     handleResize = (e) => {
         this.updateImageStyle()
     }
-    handleMotionRest = (force) => {
-        const { cover, remove } = this.props
-        const { show } = this.props
-        if (!show || force) {
-            // 显示封面原图
-            cover.style.visibility = 'visible'
-            // 移除节点
-            remove()
+    handleTransitionEnded = (e) => {
+        if (e.target === this.imageRef.current) {
+            const { show } = this.props
+            !show && this.removeImage()
         }
+    }
+    handleScroll = () => {
+        if (this.imageRef.current) {
+            // 这里跟滚动挂钩就直接修改样式避免 setState 会快
+            const { show } = this.props
+            this.imageRef.current.style.top = `calc(50% + ${show ? 0 : this.initialPageOffset-window.pageYOffset}px)`
+        }
+    }
+    handleImageLoad = () => {
+        const { page, set, cover } = this.props
+        set[page].src !== cover.getAttribute("src") && this.updateImageStyle()
+    }
+    handleImageClick = () => {
+        const { zoom, toggleZoom } = this.props
+        zoom && toggleZoom()
+    }
+    handleImageError = () => {
+        console.warn("Initialization error because the cover image url invalid.")
+        this.removeImage()
     }
 
     /**
      * 样式应用
      **/
-    static mergeStyle = (currentStyle, newStyle) => {
-        const {
-            x            = currentStyle.x,
-            y            = currentStyle.y,
-            opacity      = currentStyle.opacity,
-            scale        = currentStyle.opacity,
-            rotate       = currentStyle.rotate,
-            borderRadius = currentStyle.borderRadius
-        } = newStyle
-        return { x, y, opacity, scale, rotate, borderRadius }
-    }
     setStyle = (newStyle) => {
-        const mergedStyle = Images.mergeStyle(this.state.currentStyle, newStyle)
+        const mergedStyle = { ...this.state.currentStyle, ...newStyle }
         this.setState({
             loading: false,
             currentStyle: mergedStyle
         })
     }
 
+    /**
+     * 移除节点
+     **/
+    removeImage = () => {
+        const { cover, remove } = this.props
+        // 显示封面原图
+        cover.style.visibility = 'visible'
+        // 移除节点
+        remove()
+    }
 
     render() {
 
-        const { show, zoom, page, set, cover, toggleZoom } = this.props
-        const { defaultStyle: ds, currentStyle: cs } = this.state
+        const { show, zoom, page, set } = this.props
+        const { currentStyle:cs } = this.state
 
         return (
             <Fragment>
@@ -213,57 +228,26 @@ export default class Images extends React.PureComponent {
                 </div>}
 
                 {/*图片*/}
-                <Motion
-                    defaultStyle={ds}
-                    style={springlization({
-                        x: cs.x,  y: cs.y,
-                        // opacity: cs.opacity,
-                        // scale: cs.scale,
-                        rotate: cs.rotate,
-                        // borderRadius 爆卡...
-                        // borderRadius: cs.borderRadius
-                    })}
-                >
-                {
-                    ({ x, y, rotate }) => (
-                        <Motion
-                            defaultStyle={ds}
-                            style={springlization({ scale: cs.scale }, 0.025)}
-                            onRest={this.handleMotionRest}
-                        >
-                            {
-                                ({ scale }) => {
-                                    const scrollYOffset = show ? 0 : this.initialPageOffset - window.pageYOffset
-                                    return (
-                                        <img
-                                            key={`${page}-${set[page].src}`}
-                                            className={style.imageLayer}
-                                            style={{
-                                                transform: `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) translate3d(0px, ${scrollYOffset}px, 0px) scale3d(${scale}, ${scale}, 1) rotate3d(0, 0, 1, ${rotate}deg)`,
-                                                cursor: zoom ? 'zoom-out' : 'initial',
-                                                // borderRadius: borderRadius/scale,
-                                            }}
-                                            src={set[page].src}
-                                            alt={set[page].alt}
-                                            ref={this.imageRef}
-                                            onLoad={() => set[page].src !== cover.getAttribute("src") && this.updateImageStyle()}
-                                            onClick={zoom ? toggleZoom : () => {
-                                            }}
-                                            onError={() => {
-                                                console.warn("react-zmage initialization error because the cover image url invalid.")
-                                                this.handleMotionRest(true)
-                                            }}
-                                        />
-                                    )
-                                }
-
-                            }
-                        </Motion>
-                    )
-                }
-                </Motion>
+                <img
+                    key={`${page}-${set[page].src}`}
+                    className={`${style.imageLayer}${zoom ? ` ${style.zooming}` : ""}`}
+                    style={{
+                        transform: `translate3d(-50%, -50%, 0) translate3d(${cs.x}px, ${cs.y}px, 0px) scale3d(${cs.scale}, ${cs.scale}, 1) rotate3d(0, 0, 1, ${cs.rotate}deg)`,
+                        cursor: zoom ? 'zoom-out' : 'initial',
+                        top: `50%`,
+                        // borderRadius: cs.borderRadius/cs.scale,
+                    }}
+                    src={set[page].src}
+                    alt={set[page].alt}
+                    ref={this.imageRef}
+                    onLoad={this.handleImageLoad}
+                    onClick={this.handleImageClick}
+                    onError={this.handleImageError}
+                />
 
             </Fragment>
         )
     }
 }
+
+export default ContextConsumer(Images)

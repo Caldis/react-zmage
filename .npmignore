@@ -1,6 +1,7 @@
 .idea
 .babelrc
 .eslintrc
+src
 docs
 scripts
 package-lock.json
