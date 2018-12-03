@@ -172,11 +172,18 @@ pre {
         justify-content: space-between;
         align-items: center;
 
+        &:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
         > div {
           max-width: 50%;
           padding: 30px 40px;
         }
         @media only screen and (max-width: @breakpointWidth) {
+            &:nth-child(odd) {
+                flex-direction: row;
+            }
             > div {
                 max-width: 100%;
                 padding: 20px;
@@ -243,6 +250,10 @@ pre {
         >div {
             padding: 60px;
             margin: auto;
+
+            h2 {
+                margin: 20px 0 10px;
+            }
         }
     }
 
