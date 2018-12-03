@@ -48,8 +48,8 @@ const App = () => (
         <div className={style.horizon}>
             <div>
                 <h2>基本用法</h2>
-                <p>一如原生的 {"<img/>"} 标签, 只需要直接替换 img 为 Zmage 即可, 您依旧可以使用 style, className 等原生属性。</p>
-                <p>现在, 点击图片, 您即可进入<b>查看模式</b>。</p>
+                <p>一如原生的 {"<img/>"} 标签, 只需要直接替换 img 为 Zmage 即可, 您依旧可以使用 style, className 等原生属性</p>
+                <p>现在, 点击图片, 您即可进入<b>查看模式</b></p>
                 <pre>
 <PrismCode className="language-javascript">
 {`<Zmage
@@ -73,9 +73,9 @@ const App = () => (
             <div>
                 <h2>图片放大</h2>
                 <p>点击右上角的放大图标, 即可进入放大模式。</p>
-                <p>滑动鼠标则可以浏览超出屏幕的部分, 对浏览大尺寸图片时尤为方便。</p>
-                <p>在<b>放大模式</b>中, 图片会设置为 100%放大, 确保不会有任何失真。</p>
-                <p>再次点击屏幕即可退出<b>放大模式</b>。</p>
+                <p>滑动鼠标则可以浏览超出屏幕的部分, 对浏览大尺寸图片时尤为方便</p>
+                <p>在<b>放大模式</b>中, 图片会设置为 100%放大, 确保不会有任何失真</p>
+                <p>再次点击屏幕即可退出<b>放大模式</b></p>
                 <pre>
 <PrismCode className="language-javascript">
 {`<Zmage
@@ -98,8 +98,8 @@ const App = () => (
         <div className={style.horizon}>
             <div>
                 <h2>展示序列图片</h2>
-                <p>您可以传入一系列图片来显示一系列幻灯片, 使用 <b>set</b> 来包裹它们。</p>
-                <p>点击放大后使用键盘的 <b>←</b> 或 <b>→</b> 即可切换图片。</p>
+                <p>您可以传入一系列图片来显示一系列幻灯片, 使用 <b>set</b> 来包裹它们</p>
+                <p>点击放大后使用键盘的 <b>←</b> 或 <b>→</b> 即可切换图片</p>
                 <pre>
 <PrismCode className="language-javascript">
 {`<Zmage
@@ -140,9 +140,9 @@ const App = () => (
             <div>
                 <h2>快捷操作</h2>
                 <p>您可以使用键盘来快捷操作</p>
-                <p>除了在展示序列图片时使用键盘的 <b>←</b> 或 <b>→</b> 来切换页面, 你可以可以使用 <b>SPACE(空格键)</b>, 来激活<b>放大模式</b></p>
-                <p>处于放大模式时, 点击 <b>ESC</b> 可以退出<b>放大模式</b>, 再次点击即可退出<b>查看模式</b>。</p>
-                <p>滚动页面同样也可以退出<b>查看模式</b>。</p>
+                <p>除了在展示序列图片时使用键盘的 <b>←</b> 或 <b>→</b> 来切换页面, 你可以可以使用 <b>SPACE|空格键</b>, 来激活<b>放大模式</b></p>
+                <p>处于放大模式时, 点击 <b>退出|ESC</b> 可以退出<b>放大模式</b>, 再次点击即可退出<b>查看模式</b></p>
+                <p>滚动页面同样也可以退出<b>查看模式</b></p>
             </div>
             <div>
                 <Zmage
@@ -171,6 +171,32 @@ const App = () => (
                     onRotating={deg => {
                         console.info("Rotating State: ", deg, "deg")
                     }}
+                />
+                <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
+            </div>
+        </div>
+
+        <div className={style.horizon}>
+            <div>
+                <h2>预设配置 (beta)</h2>
+                <p>我们自带了两套默认配置项</p>
+                <p>分别是 <b>桌面端(DESKTOP)</b> 以及 <b>移动端 (MOBILE)</b></p>
+                <p>处于桌面端配置时, 即为您先前所见</p>
+                <p>而移动端配置则不包含任何多余的操作项, 样式也会有些许变化</p>
+            </div>
+            <div>
+                <Zmage
+                    className={style.image}
+                    src="imgSet/aboutDeer/9.jpg"
+                    alt="使用键盘进行快捷操作"
+                    preset="mobile"
+                    set={[{
+                        src: "imgSet/aboutDeer/9.jpg",
+                        alt: "關於鹿 · NIGHT"
+                    },{
+                        src: "imgSet/aboutDeer/10.jpg",
+                        alt: "關於鹿 · TEN"
+                    }]}
                 />
                 <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
             </div>
