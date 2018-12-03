@@ -72,8 +72,8 @@ import Zmage from 'react-zmage'
 
 |配置项|类型|默认值(桌/移)|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
-| **`controller`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L148)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L166) | 如果想隐藏查看模式下的关闭按钮、放大按钮等操作控件，您可以在`controller`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#controller) |
-| **`hotKey`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L155)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L173) | 如果想禁用查看模式下的特定快捷键操作，您可以在`hotKey`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
+| **`controller`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L148)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L166) | 如果需要隐藏查看模式下的操作控件, 可以在 `controller` 中将特定项设为 `false` | [示例](https://github.com/Caldis/react-zmage#controller) |
+| **`hotKey`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L155)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L173) | 如果需要禁用查看模式下的快捷键，您可以在 `hotKey` 中将特定项设为 `false` | [示例](https://github.com/Caldis/react-zmage#hotKey) |
 
 - 界面样式
 
