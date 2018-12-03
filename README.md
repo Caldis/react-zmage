@@ -70,19 +70,19 @@ import Zmage from 'react-zmage'
 
 - 功能控制
 
-|配置项|类型|默认值(桌/移)|描述|示例|
+|配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
 | **`controller`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L148)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L166) | 如果需要隐藏查看模式下的操作控件, 可以在 `controller` 中将特定项设为 `false` | [示例](https://github.com/Caldis/react-zmage#controller) |
 | **`hotKey`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L155)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L173) | 如果需要禁用查看模式下的快捷键，您可以在 `hotKey` 中将特定项设为 `false` | [示例](https://github.com/Caldis/react-zmage#hotKey) |
 
 - 界面样式
 
-|配置项|类型|默认值(桌/移)|描述|示例|
+|配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
 | **`backdrop`** | String | "#FFFFFF" | 控制图片放大后的背景色 | [示例](https://github.com/Caldis/react-zmage#backdrop) |
 | **`zIndex`** | Number | 1000 | 外部容器的 `z-index`, 防止被其他元素遮挡 | [示例](https://github.com/Caldis/react-zmage#zIndex) |
-| **`radius`** | Number | 5/0 | 控制图片在查看模式下的圆角 | [示例](https://github.com/Caldis/react-zmage#radius) |
-| **`edge`** | Number | 20/0 | 控制图片在查看模式下距离屏幕边缘的距离 | [示例](https://github.com/Caldis/react-zmage#edge) |
+| **`radius`** | Number | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L160)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L178) | 控制图片在查看模式下的圆角 | [示例](https://github.com/Caldis/react-zmage#radius) |
+| **`edge`** | Number | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L161)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L179) | 控制图片在查看模式下距离屏幕边缘的距离 | [示例](https://github.com/Caldis/react-zmage#edge) |
 
 - 生命周期
 
