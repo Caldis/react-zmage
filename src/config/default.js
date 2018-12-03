@@ -89,10 +89,10 @@ export const defType = {
     hotKey: PropTypes.oneOfType([
         PropTypes.bool,
         PropTypes.shape({
-            // 缩放（空格）
-            zoom: PropTypes.bool,
             // 关闭（ESC）
             close: PropTypes.bool,
+            // 缩放（空格）
+            zoom: PropTypes.bool,
             // 翻页（左右键）
             flip: PropTypes.bool,
         }),
@@ -153,8 +153,8 @@ export const defPreset = {
             flip: true,
         },
         hotKey: {
-            zoom: true,
             close: true,
+            zoom: true,
             flip: true,
         },
         radius: 5,
@@ -171,8 +171,8 @@ export const defPreset = {
             flip: false,
         },
         hotKey: {
-            zoom: false,
             close: false,
+            zoom: false,
             flip: false,
         },
         radius: 0,
