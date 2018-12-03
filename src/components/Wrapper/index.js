@@ -5,7 +5,6 @@
 
 // Libs
 import React from 'react'
-import PropTypes from 'prop-types'
 // Context
 import { Context } from "@/components/context"
 // Style
@@ -17,14 +16,11 @@ import Background from '../Background'
 // Config
 import { defType, defProp } from '@/config/default'
 // Utils
-import { addListenScroll, removeListenScroll, mobileCheck, scrollWidth, windowHeight } from '@/utils'
+import { addListenScroll, removeListenScroll } from '@/utils'
 
 export default class Wrapper extends React.PureComponent {
     constructor(props) {
         super(props)
-
-        // 移动端检测
-        const mobile = mobileCheck()
 
         this.state = {
             // 显示
@@ -35,10 +31,6 @@ export default class Wrapper extends React.PureComponent {
             page: 0,
             // 旋转
             rotate: 0,
-            // 是否移动端
-            mobile: mobile,
-            // 图片距屏幕边距 (如果有)
-            edge: mobile ? 0 : props.edge,
         }
 	  }
 
@@ -68,9 +60,7 @@ export default class Wrapper extends React.PureComponent {
         const { page } = this.state
         // 显示封面原图（当前不为第一页时，遮罩从上方移除会迅速露出，需要立即显示，否则交由图片层处理）
         if(page!==0) cover.style.visibility = 'visible'
-        this.setState({
-            show: false,
-        })
+        this.setState({ show: false })
     }
 
     /**
@@ -173,12 +163,20 @@ export default class Wrapper extends React.PureComponent {
     }
 
     render() {
-        const { cover, set, controller, backdrop, mobile, edge, remove } = this.props
+
+        const { cover, remove, set, controller, preset, backdrop, radius, edge } = this.props
         const { show, zoom, page, rotate } = this.state
 
         const contextValue = {
             // Props
-            cover, set, controller, backdrop, mobile, edge, remove,
+            // 内部
+            cover, remove,
+            // 基础数据
+            set,
+            // 功能控制
+            controller, preset,
+            // 界面样式
+            backdrop, radius, edge,
             // State
             show, zoom, page, rotate,
         }
@@ -216,31 +214,30 @@ export default class Wrapper extends React.PureComponent {
 
 Wrapper.defaultProps = {
 
-    // 封面节点
+    /**
+     * 内部
+     **/
     cover: {},
-    // 卸载函数
     remove: () => {},
 
     /**
      * 基础数据
      **/
-    // 图片列表
+    alt: defProp.alt,
+    txt: defProp.txt,
     set: defProp.set,
 
     /**
      * 功能控制
      **/
-    // 控制器
     controller: defProp.controller,
-    // 快捷键
     hotKey: defProp.hotKey,
 
     /**
      * 界面样式
      **/
-    // 背景
     backdrop: defProp.backdrop,
-    // 边距
+    radius: defProp.radius,
     edge: defProp.edge,
 
     /**
@@ -254,31 +251,30 @@ Wrapper.defaultProps = {
 
 Wrapper.propTypes = {
 
-    // 封面节点
+    /**
+     * 内部
+     **/
     cover: defType.cover,
-    // 卸载函数
     remove: defType.remove,
 
     /**
      * 基础数据
      **/
-    // 图片列表
+    alt: defType.alt,
+    txt: defType.txt,
     set: defType.set,
 
     /**
      * 功能控制
      **/
-    // 控制器
     controller: defType.controller,
-    // 快捷键
     hotKey: defType.hotKey,
 
     /**
      * 界面样式
      **/
-    // 背景
     backdrop: defType.backdrop,
-    // 边距
+    radius: defType.radius,
     edge: defType.edge,
 
     /**

@@ -8,7 +8,7 @@ import React, { Fragment } from 'react'
 import Portals from './components/Portals'
 import Wrapper from './components/Wrapper'
 // Config
-import { defType, defProp } from './config/default'
+import { defType, defProp, defPropDesktop, defPropMobile, defPropAuto } from './config/default'
 
 export default class ReactZmage extends React.PureComponent {
     constructor(props){
@@ -17,27 +17,9 @@ export default class ReactZmage extends React.PureComponent {
         this.cover = React.createRef()
 
         this.state = {
-            browsing: false,
-            set: ReactZmage.buildSet(props)
+            browsing: false
         }
 
-    }
-
-    static getDerivedStateFromProps(nextProps) {
-        return {
-            // 数据更新时刷新 set
-            set: ReactZmage.buildSet(nextProps)
-        }
-    }
-
-    // 从初始 props 中生成图片集合
-    static buildSet = (props) => {
-        const { set, src, alt, txt } = props
-        if(Array.isArray(set) && set.length>1) {
-            return set
-        } else {
-            return [{ src, alt, txt }]
-        }
     }
 
     // 切换查看状态
@@ -59,27 +41,39 @@ export default class ReactZmage extends React.PureComponent {
         })
     }
 
+    // 从 set 中提取图片集合
+    buildSet = (set) => {
+        const { src, alt, txt } = this.props
+        return (Array.isArray(set) && set.length>0) ? set : [{ src, alt, txt }]
+    }
+
     render() {
 
-        const { browsing, set } = this.state
+        const { browsing } = this.state
         const {
-            // 基础
-            className, src, alt, style,
-            // 平台
-            mobile,
-            // 控制
-            controller,           // 页面按钮
-            hotKey,               // 热键
-            // 样式
-            backdrop,             // 背景色
-            zIndex,               // 高度
-            edge,                 // 边距
-            // 生命周期方法
+            // 内部
+            className,
+            style,
+            // 基础数据
+            src,
+            alt,
+            txt,
+            set,
+            // 功能控制
+            controller,
+            hotKey,
+            preset,
+            // 界面样式
+            backdrop,
+            zIndex,
+            radius,
+            edge,
+            // 生命周期
             onBrowsing,
             onZooming,
             onSwitching,
             onRotating,
-            // 剩余参数
+            // 剩余
             ...props
         } = this.props
 
@@ -88,30 +82,47 @@ export default class ReactZmage extends React.PureComponent {
 
                 {/*封面图片*/}
                 <img
-                    ref={ref => this.cover = ref}
-                    className={className} src={src} alt={alt} title={alt}
+                    ref={ref => this.cover=ref}
+                    className={className}
                     style={{ cursor:'zoom-in', ...style }}
+                    src={src} alt={alt} title={alt}
                     onClick={this.inBrowsing}
                     {...props}
                 />
 
                 {/*查看叠层*/}
                 {
-                    browsing &&
-                    <Portals zIndex={zIndex}>
-                        <Wrapper
-                            set={set}
-                            cover={this.cover}
-                            controller={{ ...defProp.controller, ...controller }}
-                            hotKey={{ ...defProp.hotKey, ...hotKey }}
-                            backdrop={backdrop}
-                            edge={edge}
-                            onZooming={onZooming}
-                            onSwitching={onSwitching}
-                            onRotating={onRotating}
-                            remove={this.unBrowsing}
-                        />
-                    </Portals>
+                    browsing && (() => {
+                        const defPropWithEnv = preset===defType.preset.desktop
+                            ? defPropDesktop
+                            : defType.preset.mobile
+                                ? defPropMobile
+                                : defPropAuto(true)
+                        return (
+                            <Portals zIndex={zIndex}>
+                                <Wrapper
+                                    // 内部
+                                    cover={this.cover}
+                                    remove={this.unBrowsing}
+                                    // 基础数据
+                                    alt={alt}
+                                    txt={txt}
+                                    set={this.buildSet(set)}
+                                    // 功能控制
+                                    controller={{ ...defPropWithEnv.controller, ...controller }}
+                                    hotKey={{ ...defPropWithEnv.hotKey, ...hotKey }}
+                                    // 界面样式
+                                    backdrop={backdrop}
+                                    radius={radius || defPropWithEnv.radius}
+                                    edge={edge || defPropWithEnv.edge}
+                                    // 生命周期
+                                    onZooming={onZooming}
+                                    onSwitching={onSwitching}
+                                    onRotating={onRotating}
+                                />
+                            </Portals>
+                        )
+                    })()
                 }
 
             </Fragment>
@@ -124,33 +135,28 @@ ReactZmage.defaultProps = {
     /**
      * 基础数据
      **/
-    // 图片地址
     src: defProp.src,
-    // 图片标题
     alt: defProp.alt,
-    // 图片描述
     txt: defProp.txt,
-    // 图片集合
     set: defProp.set,
+
+    /**
+     * 预设
+     **/
+    preset: defProp.preset,
 
     /**
      * 功能控制
      **/
-    // 控制器
     controller: defProp.controller,
-    // 快捷键
     hotKey: defProp.hotKey,
-    // 移动端
-    mobile: defProp.mobile,
 
     /**
      * 界面样式
      **/
-    // 背景色
     backdrop: defProp.backdrop,
-    // 高度
     zIndex: defProp.zIndex,
-    // 边距
+    radius: defProp.radius,
     edge: defProp.edge,
 
     /**
@@ -168,33 +174,28 @@ ReactZmage.propTypes = {
     /**
      * 基础数据
      **/
-    // 图片 Url
     src: defType.src,
-    // 图片标题
     alt: defType.alt,
-    // 图片描述
     txt: defType.txt,
-    // 图片集合
     set: defType.set,
+
+    /**
+     * 预设
+     **/
+    preset: defType.preset,
 
     /**
      * 功能控制
      **/
-    // 控制器
     controller: defType.controller,
-    // 快捷键
     hotKey: defType.hotKey,
-    // 移动端
-    mobile: defType.mobile,
 
     /**
      * 界面样式
      **/
-    // 背景色
     backdrop: defType.backdrop,
-    // 高度
     zIndex: defType.zIndex,
-    // 边距
+    radius: defType.radius,
     edge: defType.edge,
 
     /**

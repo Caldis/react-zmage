@@ -1,43 +1,35 @@
 // Libs
 @import "../../config/anim.less";
 // Vars
-@baseDelay: 0.03s;
+@baseDelay: 0.06s;
 
 // 控制容器
 .controls {
 	box-sizing: border-box;
 	position: absolute;
-	padding: 0.5em;
-	top: 0;
-	right: 0;
+	top: 0.6em;
+	right: 0.6em;
+    opacity: 0;
 	display: flex;
     z-index: 1000;
+    border-radius: 5em;
+    transform: translateX(100%);
+    transition: transform .3s @animationFunction, opacity 0.3s;
 
-    .background {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        border-radius: 0 0 0 8px;
-        transition: opacity 0.2s 0.33s;
-
-        &.show {
-            opacity: 1.0;
-        }
+    &.show {
+        opacity: 0.8;
+        transform: translateX(0);
     }
 
     // 基础按钮
     .baseButton {
         box-sizing: border-box;
-        margin: 0.2em;
+        margin: 0.4em 0.1em;
         width: 2em;
         height: 2em;
         cursor: pointer;
-        opacity: 0;
-        transform: translateY(-10em);
-        transition: transform .3s @animationFunction, opacity .3s @animationFunction;
+        transform: translateX(50%);
+        transition: transform .5s @animationFunction, opacity .3s @animationFunction;
 
         &:hover {
             opacity: 0.8 !important;
@@ -46,9 +38,15 @@
             opacity: 1.0 !important;
         }
 
+        &:first-of-type {
+            margin-left: 0.6em;
+        }
+        &:last-of-type {
+            margin-right: 0.6em;
+        }
+
         &.show {
-            opacity: 1.0;
-            transform: translateY(0);
+            transform: translateX(0);
         }
 
         >svg {
@@ -64,8 +62,6 @@
         >svg {
             transform: scaleX(-1);
         }
-
-        transition-delay: @baseDelay*4;
     }
     .rotateRight {
         .baseButton;
@@ -73,22 +69,16 @@
         >svg {
             transform: scaleX(1);
         }
-
-        transition-delay: @baseDelay*3;
     }
 
     // 放大
     .zoomButton {
         .baseButton;
-
-        transition-delay: @baseDelay*2;
     }
 
     // 关闭
     .closeButton {
         .baseButton;
-
-        transition-delay: @baseDelay*1;
     }
 }
 
@@ -98,33 +88,46 @@
     display: flex;
     position: absolute;
     left: 50%;
-    bottom: 0;
+    bottom: 0.4em;
     z-index: 110;
     opacity: 0;
+    border-radius: 2em;
     transform: translate(-50%, 100px);
     transition: transform .3s @animationFunction, opacity .3s @animationFunction;
 
     &.show {
-        opacity: 1.0;
+        opacity: 0.8;
         transform: translate(-50%, 0);
     }
 
-    .blackDot {
+    .dot {
         cursor: pointer;
-        margin: 10px 4px;
+        margin: 0.7em 0.4em;;
         display: block;
-        width: 8px;
-        height: 8px;
-        border-radius: 4px;
+        width: 0.7em;
+        height: 0.7em;
+        border-radius: 0.7em;
+        background: black;
+        transition: transform .3s @animationFunction, opacity .3s @animationFunction;
+
+        &:first-of-type {
+            margin-left: 0.7em;
+        }
+        &:last-of-type {
+            margin-right: 0.7em;
+        }
+
+        &:hover {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+    }
+    .blackDot {
+        .dot;
         background: black;
     }
     .whiteDot {
-        cursor: pointer;
-        margin: 10px 4px;
-        display: block;
-        width: 8px;
-        height: 8px;
-        border-radius: 4px;
+        .dot;
         background: #999;
     }
 }

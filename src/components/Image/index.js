@@ -12,12 +12,10 @@ import style from './index.less'
 // Utils
 import {
     addListenScroll, removeListenScroll,
-    calcFitScale, springlization,
+    calcFitScale,
     scrollWidth, windowWidth, clientWidth,
     scrollHeight,windowHeight, clientHeight
 } from '@/utils'
-// Config
-import { defProp } from "@/config/default"
 
 class Images extends React.PureComponent {
 
@@ -50,7 +48,7 @@ class Images extends React.PureComponent {
         if (prevShow!==currShow || prevZoom!==currZoom || prevRotate!==currRotate) {
             // 更新样式 (添加延迟, 避免 Safari 初次获取不到 ref 的 bug)
             if (!prevShow) {
-                setTimeout(this.updateImageStyle, 0)
+                setTimeout(this.updateImageStyle, 50)
             } else {
                 this.updateImageStyle()
             }
@@ -102,7 +100,7 @@ class Images extends React.PureComponent {
         }
     }
     static getCoverStyle = (props) => {
-        const { page, cover, rotate, mobile } = props
+        const { cover, page, rotate } = props
         const { naturalWidth } = cover
         const { top, left, width, height } = cover.getBoundingClientRect()
         const { opacity, borderRadius } = window.getComputedStyle(cover)
@@ -112,18 +110,18 @@ class Images extends React.PureComponent {
             opacity: ~~opacity || 1,
             scale: width/naturalWidth,
             rotate: rotate-rotate%360,
-            borderRadius: !mobile && ~~borderRadius || 0
+            borderRadius: borderRadius
         } : {
             x: 0,
             y: -windowHeight(),
             opacity: 0,
             scale: width/naturalWidth,
             rotate: rotate-rotate%360,
-            borderRadius: !mobile && ~~borderRadius || 0
+            borderRadius: borderRadius
         }
     }
     static getBrowsingStyle = (props, imageRef) => {
-        const { edge, rotate } = props
+        const { radius, edge, rotate } = props
         const { naturalWidth, naturalHeight } = imageRef.current
         return {
             x: 0,
@@ -131,11 +129,11 @@ class Images extends React.PureComponent {
             opacity: 1,
             scale: calcFitScale(naturalWidth, naturalHeight, edge),
             rotate,
-            borderRadius: 10
+            borderRadius: radius
         }
     }
     static getZoomingStyle = (props, imageRef, { clientX:mouseX=scrollWidth()/2, clientY:mouseY=windowHeight()/2 }={}) => {
-        const { edge, rotate } = props
+        const { radius, edge, rotate } = props
         const { naturalWidth, naturalHeight } = imageRef.current
         const cw = scrollWidth()
         const ch = windowHeight()
@@ -151,7 +149,7 @@ class Images extends React.PureComponent {
             opacity: 1,
             scale: 1,
             rotate,
-            borderRadius: 20
+            borderRadius: radius
         }
     }
 
@@ -173,7 +171,6 @@ class Images extends React.PureComponent {
     }
     handleScroll = () => {
         if (this.imageRef.current) {
-            // 这里跟滚动挂钩就直接修改样式避免 setState 会快
             const { show } = this.props
             this.imageRef.current.style.top = `calc(50% + ${show ? 0 : this.initialPageOffset-window.pageYOffset}px)`
         }
@@ -210,7 +207,7 @@ class Images extends React.PureComponent {
         // 显示封面原图
         cover.style.visibility = 'visible'
         // 移除节点
-        remove()
+        setTimeout(remove, 200)
     }
 
     render() {
@@ -234,8 +231,7 @@ class Images extends React.PureComponent {
                     style={{
                         transform: `translate3d(-50%, -50%, 0) translate3d(${cs.x}px, ${cs.y}px, 0px) scale3d(${cs.scale}, ${cs.scale}, 1) rotate3d(0, 0, 1, ${cs.rotate}deg)`,
                         cursor: zoom ? 'zoom-out' : 'initial',
-                        top: `50%`,
-                        // borderRadius: cs.borderRadius/cs.scale,
+                        borderRadius: cs.borderRadius,
                     }}
                     src={set[page].src}
                     alt={set[page].alt}
