@@ -94,9 +94,9 @@ export default class ReactZmage extends React.PureComponent {
                 {/*查看叠层*/}
                 {
                     browsing && (() => {
-                        const defPropWithEnv = preset===defType.preset.desktop
+                        const defPropWithEnv = preset.toString()==="desktop"
                             ? defPropDesktop
-                            : defType.preset.mobile
+                            : preset.toString()==="mobile"
                                 ? defPropMobile
                                 : defPropAuto(true)
                         return (
