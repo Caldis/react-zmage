@@ -207,7 +207,7 @@ class Images extends React.PureComponent {
         // 显示封面原图
         cover.style.visibility = 'visible'
         // 移除节点
-        setTimeout(remove, 200)
+        remove()
     }
 
     render() {
