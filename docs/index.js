@@ -62,10 +62,10 @@ const App = () => (
             <div>
                 <Zmage
                     className={style.image}
-                    src="imgSet/aboutDeer/1.jpg"
+                    src="imgSet/childsDream/1.jpg"
                     alt="最简单的使用方式"
                 />
-                <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
+                <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
             </div>
         </div>
 
@@ -88,10 +88,10 @@ const App = () => (
             <div>
                 <Zmage
                     className={style.image}
-                    src="imgSet/aboutDeer/2.jpg"
+                    src="imgSet/childsDream/2.jpg"
                     alt="放大图片并并滑动预览"
                 />
-                <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
+                <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
             </div>
         </div>
 
@@ -119,20 +119,17 @@ const App = () => (
             <div>
                 <Zmage
                     className={style.image}
-                    src="imgSet/aboutDeer/3.jpg"
+                    src="imgSet/childsDream/3.jpg"
                     alt="展示序列图片"
                     set={[{
-                        src: "imgSet/aboutDeer/3.jpg",
-                        alt: "關於鹿 · THREE"
+                        src: "imgSet/childsDream/3.jpg",
+                        alt: "童夢 · THREE"
                     },{
-                        src: "imgSet/aboutDeer/4.jpg",
-                        alt: "關於鹿 · FOUR"
-                    },{
-                        src: "imgSet/aboutDeer/5.jpg",
-                        alt: "關於鹿 · FIVE"
+                        src: "imgSet/childsDream/4.jpg",
+                        alt: "童夢 · FOUR"
                     }]}
                 />
-                <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
+                <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
             </div>
         </div>
 
@@ -147,17 +144,14 @@ const App = () => (
             <div>
                 <Zmage
                     className={style.image}
-                    src="imgSet/aboutDeer/6.jpg"
+                    src="imgSet/childsDream/5.jpg"
                     alt="使用键盘进行快捷操作"
                     set={[{
-                        src: "imgSet/aboutDeer/6.jpg",
-                        alt: "關於鹿 · SIX"
+                        src: "imgSet/childsDream/5.jpg",
+                        alt: "童夢 · SIX"
                     },{
-                        src: "imgSet/aboutDeer/7.jpg",
-                        alt: "關於鹿 · SEVEN"
-                    },{
-                        src: "imgSet/aboutDeer/8.jpg",
-                        alt: "關於鹿 · EIGHT"
+                        src: "imgSet/childsDream/6.jpg",
+                        alt: "童夢 · SEVEN"
                     }]}
                     onBrowsing={state => {
                         console.info("Browsing State: ", state)
@@ -172,7 +166,7 @@ const App = () => (
                         console.info("Rotating State: ", deg, "deg")
                     }}
                 />
-                <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
+                <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
             </div>
         </div>
 
@@ -187,18 +181,18 @@ const App = () => (
             <div>
                 <Zmage
                     className={style.image}
-                    src="imgSet/aboutDeer/9.jpg"
+                    src="imgSet/childsDream/7.jpg"
                     alt="使用键盘进行快捷操作"
                     preset="mobile"
                     set={[{
-                        src: "imgSet/aboutDeer/9.jpg",
-                        alt: "關於鹿 · NIGHT"
+                        src: "imgSet/childsDream/7.jpg",
+                        alt: "童夢 · NIGHT"
                     },{
-                        src: "imgSet/aboutDeer/10.jpg",
-                        alt: "關於鹿 · TEN"
+                        src: "imgSet/childsDream/8.jpg",
+                        alt: "童夢 · TEN"
                     }]}
                 />
-                <a href="https://www.behance.net/gallery/58036101/_">via. sslololss Guihuahuzi on behance</a>
+                <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
             </div>
         </div>
 
@@ -222,7 +216,7 @@ const App = () => (
             </div>
             <div>
                 <span>Illustrator from </span>
-                <a href="https://www.behance.net/gallery/58036101/_">sslololss Guihuahuzi </a>
+                <a href="https://www.behance.net/gallery/56119387/_">sslololss Guihuahuzi </a>
                 <span>on </span>
                 <a href="https://www.behance.net">behance</a>
             </div>
