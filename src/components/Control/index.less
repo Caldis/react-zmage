@@ -28,25 +28,26 @@
         width: 2em;
         height: 2em;
         cursor: pointer;
-        transform: translateX(50%);
-        transition: transform .5s @animationFunction, opacity .3s @animationFunction;
+        transition: transform .2s @animationFunction, opacity .3s @animationFunction;
 
         &:hover {
             opacity: 0.8 !important;
+            transform: scale(1.1) !important;
         }
         &:active {
             opacity: 1.0 !important;
+            transform: scale(1.0) !important;
         }
 
         &:first-of-type {
-            margin-left: 0.6em;
+            margin-left: 0.4em;
         }
         &:last-of-type {
-            margin-right: 0.6em;
+            margin-right: 0.4em;
         }
 
         &.show {
-            transform: translateX(0);
+
         }
 
         >svg {
@@ -108,7 +109,7 @@
         height: 0.7em;
         border-radius: 0.7em;
         background: black;
-        transition: transform .3s @animationFunction, opacity .3s @animationFunction;
+        transition: transform .2s @animationFunction, opacity .3s @animationFunction;
 
         &:first-of-type {
             margin-left: 0.7em;
@@ -118,8 +119,12 @@
         }
 
         &:hover {
-            opacity: 0.8;
-            transform: scale(1.1);
+            opacity: 0.8 !important;
+            transform: scale(1.1) !important;
+        }
+        &:hover {
+            opacity: 1.0 !important;
+            transform: scale(1.0) !important;
         }
     }
     .blackDot {

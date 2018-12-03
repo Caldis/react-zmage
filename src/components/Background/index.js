@@ -18,6 +18,7 @@ export default ContextConsumer(({ show, zoom, backdrop, unmountSelf, toggleZoom 
 			style={{
 				opacity: show ? 1 : 0,
                 background: backdrop || "",
+				transitionDelay: show ? '.3s' : '0s'
 			}}
 		/>
 	)
