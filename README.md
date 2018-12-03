@@ -51,7 +51,7 @@ import Zmage from 'react-zmage'
 
 <h2 align="center">配置</h2>
 
-#### 简单上手，请参见 简单上手，请参见 [https://zmage.caldis.me](https://zmage.caldis.me)
+#### 简单上手，请参见 [https://zmage.caldis.me](https://zmage.caldis.me)
 
 - 基础数据
 
