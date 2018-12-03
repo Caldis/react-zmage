@@ -66,14 +66,14 @@ import Zmage from 'react-zmage'
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
-| **`preset`** | String | "auto" | 可以通过预设来简单配置界面的功能及样式, 其允许设置为 `auto` `desktop` `mobile` 中的任一个 | [示例](https://github.com/Caldis/react-zmage#preset) [受影响项](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L144) |
+| **`preset`** | String | "auto" | 轻松配置界面的功能及样式, 其允许设置为 `auto` `desktop` `mobile` 中的任一个 | [示例](https://github.com/Caldis/react-zmage#preset) [受影响项](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L144) |
 
 - 功能控制
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
-| **`controller`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L148)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L166) | 如果需要隐藏查看模式下的操作控件, 可以在 `controller` 中将特定项设为 `false` | [示例](https://github.com/Caldis/react-zmage#controller) |
-| **`hotKey`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L155)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L173) | 如果需要禁用查看模式下的快捷键，您可以在 `hotKey` 中将特定项设为 `false` | [示例](https://github.com/Caldis/react-zmage#hotKey) |
+| **`controller`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L148)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L166) | 将特定项设为 `false` 来隐藏查看模式下的操作控件 | [示例](https://github.com/Caldis/react-zmage#controller) |
+| **`hotKey`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L155)/[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L173) | 将特定项设为 `false` 来禁用查看模式下的快捷键 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
 
 - 界面样式
 
