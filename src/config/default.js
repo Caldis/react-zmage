@@ -63,6 +63,8 @@ export const defType = {
             text: PropTypes.string, // 图片描述
         }),
     ]),
+    // 图片默认页
+    defaultPage: PropTypes.number,
 
     /**
      * 功能控制
@@ -191,6 +193,8 @@ export const defProp = {
     txt: "",
     // 图片集合
     set: [],
+    // 图片默认页
+    defaultPage: 0,
 
     /**
      * 预设
