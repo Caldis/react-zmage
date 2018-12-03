@@ -75,6 +75,14 @@ export default class Wrapper extends React.PureComponent {
         const toPrevPage = this.handleSwitchPages("prev")
         const toNextPage = this.handleSwitchPages("next")
         switch (e.key) {
+            case "Escape":
+                // 退出
+                hotKey.close && (zoom ? this.handleToggleZoom() : this.unMountSelf())
+                break
+            case " ":
+                // 缩放
+	            hotKey.zoom && this.handleToggleZoom()
+                break
             case "ArrowLeft":
                 // 上一张
                 !zoom && hotKey.flip && hasImageSet && toPrevPage()
@@ -82,14 +90,6 @@ export default class Wrapper extends React.PureComponent {
             case "ArrowRight":
                 // 下一张
                 !zoom && hotKey.flip && hasImageSet && toNextPage()
-                break
-            case " ":
-                // 缩放
-	            hotKey.zoom && this.handleToggleZoom()
-                break
-            case "Escape":
-                // 退出
-	            hotKey.close && (zoom ? this.handleToggleZoom() : this.unMountSelf())
                 break
             default:
                 return

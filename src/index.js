@@ -60,10 +60,11 @@ export default class ReactZmage extends React.PureComponent {
             txt,
             set,
             defaultPage,
+            // 预设
+            preset,
             // 功能控制
             controller,
             hotKey,
-            preset,
             // 界面样式
             backdrop,
             zIndex,
