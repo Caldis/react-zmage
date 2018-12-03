@@ -66,7 +66,7 @@ import Zmage from 'react-zmage'
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
-| **`preset`** | String | "auto" | 轻松配置界面的功能及样式, 可设置为 `auto` `desktop` `mobile` | [示例](https://github.com/Caldis/react-zmage#preset) [受影响项](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L144) |
+| **`preset`** | String | "auto" | 轻松配置界面的功能及样式, 可设置为 `auto` `desktop` `mobile` | [示例](https://github.com/Caldis/react-zmage#preset) [受影响的配置项](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L144) |
 
 - 功能控制
 
