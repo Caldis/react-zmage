@@ -11,16 +11,14 @@ import baseConfig from './webpack.base.config.babel.js'
 
 const config =  merge.smart(baseConfig, {
 
+    entry: './docs/hmr.js',
+
     mode: "production",
 
     output: {
 	    path: path.resolve(__dirname, '../docs'),
         filename: 'bundle.js',
     },
-
-	performance: {
-		hints: false
-	},
 
 	plugins: [
         // 作用域提升

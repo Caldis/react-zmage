@@ -10,8 +10,6 @@ import autoprefixer from 'autoprefixer'
 // 基础配置集
 export default {
 
-    entry: './docs/hmr.js',
-
 	resolve: {
 		extensions: ['.js', '.jsx', '.json'],
 		alias: {
@@ -34,12 +32,14 @@ export default {
 			{
 				test: /\.js$|\.jsx$/,
 				exclude: /node_modules/,
-				use: {
-					loader: 'babel-loader',
-					options: {
-						cacheDirectory: true
+				use: [
+					{
+						loader: 'babel-loader',
+						options: {
+							cacheDirectory: true
+						}
 					}
-				}
+				]
 			},
 			// Style
 			{

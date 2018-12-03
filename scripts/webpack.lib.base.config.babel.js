@@ -6,18 +6,14 @@ import merge from 'webpack-merge'
 import baseConfig from './webpack.base.config.babel.js'
 import nodeExternals from 'webpack-node-externals'
 
-const config =  merge.smart(baseConfig, {
+const config = merge.smart(baseConfig, {
 
 	entry: './src/index.js',
 
 	output: {
 		path: path.resolve(__dirname, '../lib'),
 		library: 'react-zmage',
-		libraryTarget: 'umd'
-	},
-
-    performance: {
-		hints: false
+		libraryTarget: 'commonjs2'
 	},
 
 	plugins: [
@@ -25,12 +21,7 @@ const config =  merge.smart(baseConfig, {
 		new webpack.optimize.ModuleConcatenationPlugin()
 	],
 
-    externals: {
-        'prop-types'             : 'prop-types',
-        'react'                  : 'react',
-        'react-dom'              : 'react-dom',
-        'react-hot-loader'       : 'react-hot-loader',
-    }
+    externals: [nodeExternals()]
 })
 
 export default config

@@ -12,6 +12,8 @@ import OpenBrowserPlugin from 'open-browser-webpack-plugin'
 
 export default merge.smart(baseConfig, {
 
+    entry: './docs/hmr.js',
+
     mode: "development",
 
     devtool: 'inline-source-map',
@@ -22,8 +24,6 @@ export default merge.smart(baseConfig, {
 	},
 
 	plugins: [
-		// 热加载
-        new webpack.HotModuleReplacementPlugin(),
 		// 自动打开浏览器
         new OpenBrowserPlugin({
 			url: `http://${host}:${port}`,
@@ -32,7 +32,6 @@ export default merge.smart(baseConfig, {
 	],
 
 	devServer: {
-    	hot: true,
 		host: host,
 		port: port,
 		stats: 'errors-only',
