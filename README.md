@@ -57,16 +57,16 @@ import Zmage from 'react-zmage'
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
-| **`src`** | String | "" | 图片 Url，与 img 标签的`src`属性一样 | [示例](https://github.com/Caldis/react-zmage#src) |
-| **`alt`** | String | "" | 图片占位文字，与`img`标签的`alt`属性一样 | [示例](https://github.com/Caldis/react-zmage#alt) |
-| **`set`** | ObjectArray | [] | 如果想在查看模式下呈现多张图片，您可以使用`set`传入一个或多个图片对象，每个图片对象包含了`src` `alt` `txt` | [示例](https://github.com/Caldis/react-zmage#set) |
-| **`defaultPage`** | Number | 0 | 如果想禁用查看模式下的特定快捷键操作，您可以在`hotKey`中将特定项设为`false`以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#defaultPage) |
+| **`src`** | String | "" | 图片 Url，与 `img` 标签的 `src` 属性相同 | [示例](https://github.com/Caldis/react-zmage#src) |
+| **`alt`** | String | "" | 图片占位文字，与 `img` 标签的 `alt` 属性相同 | [示例](https://github.com/Caldis/react-zmage#alt) |
+| **`set`** | ObjectArray | [] | 如果想在查看模式下呈现多张图片，您可以使用 `set` 传入一个或多个图片对象，每个图片对象包含了 `src` `alt` `txt` | [示例](https://github.com/Caldis/react-zmage#set) |
+| **`defaultPage`** | Number | 0 | 如果想禁用查看模式下的特定快捷键操作，您可以在 `hotKey` 中将特定项设为 `false` 以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#defaultPage) |
 
 - 预设配置 (beta)
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
-| **`preset`** | String | "auto" | 您可以通过预设来简单配置界面的功能及样式, 可以设置为 `auto`, `desktop`, `mobile` 中的任意一个 | [示例](https://github.com/Caldis/react-zmage#preset) [受影响的配置项](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L144) |
+| **`preset`** | String | "auto" | 您可以通过预设来简单配置界面的功能及样式, 可以设置为 `auto` `desktop` `mobile` 中的任意一个 | [示例](https://github.com/Caldis/react-zmage#preset) [受影响的配置项](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L144) |
 
 - 功能控制
 
@@ -79,8 +79,8 @@ import Zmage from 'react-zmage'
 
 |配置项|类型|默认值(桌/移)|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
-| **`backdrop`** | String | "#FFFFFF" | 控制图片放大后的背景色, 此属性会直接传递到背景层的`background`属性 | [示例](https://github.com/Caldis/react-zmage#backdrop) |
-| **`zIndex`** | Number | 1000 | 外部容器的`z-index`, 防止被其他元素遮挡 | [示例](https://github.com/Caldis/react-zmage#zIndex) |
+| **`backdrop`** | String | "#FFFFFF" | 控制图片放大后的背景色, 此属性会直接传递到背景层的 `background` 属性 | [示例](https://github.com/Caldis/react-zmage#backdrop) |
+| **`zIndex`** | Number | 1000 | 外部容器的 `z-index`, 防止被其他元素遮挡 | [示例](https://github.com/Caldis/react-zmage#zIndex) |
 | **`radius`** | Number | 5/0 | 控制图片在查看模式下的圆角 | [示例](https://github.com/Caldis/react-zmage#radius) |
 | **`edge`** | Number | 20/0 | 控制图片在查看模式下距离屏幕边缘的距离 | [示例](https://github.com/Caldis/react-zmage#edge) |
 
