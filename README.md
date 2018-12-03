@@ -7,7 +7,7 @@
   <h1>react-zmage</h1>
 </div>
 
-> react-zmage 是一个基于 React 的的图片缩放控件, 使用 Zmage 标签包裹后的图片可以获得缩放效果, 您可以用这个控件完全替代原生的 img 标签, 令其附带图片缩放功能
+> react-zmage 是一个基于 React 的的图片缩放控件, 使用 Zmage 标签包裹后的图片可以获得缩放效果, 您可以用这个控件替代原生的 img 标签, 令其附带图片缩放功能
 
 **需 react 版本大于 v16.3.0**
 <h2 align="center">演示</h2>
