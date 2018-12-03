@@ -59,14 +59,14 @@ import Zmage from 'react-zmage'
 |:--:|:--:|:-----:|:-----|:----------:|
 | **`src`** | String | "" | 图片 Url，与 `img` 标签的 `src` 属性相同 | [示例](https://github.com/Caldis/react-zmage#src) |
 | **`alt`** | String | "" | 图片占位文字，与 `img` 标签的 `alt` 属性相同 | [示例](https://github.com/Caldis/react-zmage#alt) |
-| **`set`** | ObjectArray | [] | 如果想在查看模式下呈现多张图片，您可以使用 `set` 传入一个或多个图片对象，每个图片对象包含了 `src` `alt` `txt` | [示例](https://github.com/Caldis/react-zmage#set) |
-| **`defaultPage`** | Number | 0 | 如果想禁用查看模式下的特定快捷键操作，您可以在 `hotKey` 中将特定项设为 `false` 以隐藏它们 | [示例](https://github.com/Caldis/react-zmage#defaultPage) |
+| **`set`** | ObjectArray | [] | 如果想在查看模式下呈现多张图片，可以在 `set` 中传入多个图片对象 | [示例](https://github.com/Caldis/react-zmage#set) |
+| **`defaultPage`** | Number | 0 | 如果传入了多张图片, 可以指定打开后的默认页 | [示例](https://github.com/Caldis/react-zmage#defaultPage) |
 
 - 预设配置 (beta)
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:-----|:----------:|
-| **`preset`** | String | "auto" | 您可以通过预设来简单配置界面的功能及样式, 可以设置为 `auto` `desktop` `mobile` 中的任意一个 | [示例](https://github.com/Caldis/react-zmage#preset) [受影响的配置项](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L144) |
+| **`preset`** | String | "auto" | 可以通过预设来简单配置界面的功能及样式, 其允许设置为 `auto` `desktop` `mobile` 中的任一个 | [示例](https://github.com/Caldis/react-zmage#preset) [受影响项](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L144) |
 
 - 功能控制
 
@@ -105,6 +105,8 @@ import Zmage from 'react-zmage'
 
 ### `set`
 ```js
+// 如果设置了 Set, 则进入查看模式后第一张图片将会是 set 的首图, 而不是 src
+// 如果你需要在查看模式中呈现高精度图片, 可以将其设置为 set 的首图, 或使用 defaultPage 指定
 set={[
     {
         // 图片 Url
