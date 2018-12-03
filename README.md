@@ -56,7 +56,7 @@ import Zmage from 'react-zmage'
 - 基础数据
 
 |配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:-----|:----------:|
+|:--:|:--:|:-----:|:----------|:----------:|
 | **`src`** | String | "" | 图片 Url，与 `img` 标签的 `src` 属性相同 | [示例](https://github.com/Caldis/react-zmage#src) |
 | **`alt`** | String | "" | 图片占位文字，与 `img` 标签的 `alt` 属性相同 | [示例](https://github.com/Caldis/react-zmage#alt) |
 | **`set`** | ObjectArray | [] | 如果想在查看模式下呈现多张图片，可以在 `set` 中传入多个图片对象 | [示例](https://github.com/Caldis/react-zmage#set) |
@@ -65,20 +65,20 @@ import Zmage from 'react-zmage'
 - 预设配置 (beta)
 
 |配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:-----|:----------:|
+|:--:|:--:|:-----:|:----------|:----------:|
 | **`preset`** | String | "auto" | 轻松配置界面的功能及样式, 可设置为 `auto` `desktop` `mobile` | [示例](https://github.com/Caldis/react-zmage#preset) [受影响的配置项](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L144) |
 
 - 功能控制
 
 |配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:-----|:----------:|
+|:--:|:--:|:-----:|:----------|:----------:|
 | **`controller`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L148)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L166) | 将特定项设为 `false` 来隐藏查看模式下的操作控件 | [示例](https://github.com/Caldis/react-zmage#controller) |
 | **`hotKey`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L155)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L173) | 将特定项设为 `false` 来禁用查看模式下的快捷键 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
 
 - 界面样式
 
 |配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:-----|:----------:|
+|:--:|:--:|:-----:|:----------|:----------:|
 | **`backdrop`** | String | "#FFFFFF" | 控制图片放大后的背景色 | [示例](https://github.com/Caldis/react-zmage#backdrop) |
 | **`zIndex`** | Number | 1000 | 外部容器的 `z-index`, 防止被其他元素遮挡 | [示例](https://github.com/Caldis/react-zmage#zIndex) |
 | **`radius`** | Number | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L160)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L178) | 控制图片在查看模式下的圆角 | [示例](https://github.com/Caldis/react-zmage#radius) |
@@ -87,7 +87,7 @@ import Zmage from 'react-zmage'
 - 生命周期
 
 |配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:-----|:----------:|
+|:--:|:--:|:-----:|:----------|:----------:|
 | **`onBrowsing`** | func | ()=>{} | 生命周期方法, 在显示/隐藏时调用, 会回传显示状态 | [示例](https://github.com/Caldis/react-zmage#onBrowsing) |
 | **`onZooming`** | func | ()=>{} | 生命周期方法, 在放大/缩小时调用, 会回传缩放状态 | [示例](https://github.com/Caldis/react-zmage#onZooming) |
 | **`onSwitching`** | func | ()=>{} | 生命周期方法, 在切换图片时调用, 会回传页码 | [示例](https://github.com/Caldis/react-zmage#onSwitching) |
