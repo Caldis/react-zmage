@@ -50,8 +50,13 @@ pre {
 }
 
 // Prism
-:global(span.string) {
-    color: #c083de !important;
+:global {
+    code, kbd, samp {
+        font-size: 0.5em;
+    }
+    span.string {
+        color: #c083de !important;
+    }
 }
 
 .image {

@@ -7,7 +7,6 @@ import React from 'react'
 import 'prismjs'
 import 'prismjs/themes/prism.css'
 import PrismCode from 'react-prism'
-import { hot } from 'react-hot-loader'
 // Style
 import style from './index.less'
 // App Entry
@@ -54,8 +53,8 @@ const App = () => (
                 <pre>
 <PrismCode className="language-javascript">
 {`<Zmage
-src="https://your.image.link.jpg"
-alt="最简单的使用方式"
+    src="https://your.image.link.jpg"
+    alt="最简单的使用方式"
 />`}
 </PrismCode>
                 </pre>
@@ -80,8 +79,8 @@ alt="最简单的使用方式"
                 <pre>
 <PrismCode className="language-javascript">
 {`<Zmage
-src="https://your.image.link.jpg"
-alt="放大图片并并滑动预览"
+    src="https://your.image.link.jpg"
+    alt="放大图片并并滑动预览"
 />`}
 </PrismCode>
                 </pre>
@@ -104,15 +103,15 @@ alt="放大图片并并滑动预览"
                 <pre>
 <PrismCode className="language-javascript">
 {`<Zmage
-src="your.cover.image.link.jpg"
-alt="展示序列图片"
-set={[{
-src: "your.cover.image.link.jpg",
-alt: "First image description"
-},{
-src: "your.another.image.link.jpg",
-alt: "Second image description"
-}]}
+    src="your.cover.image.link.jpg"
+    alt="展示序列图片"
+    set={[{
+        src: "your.cover.image.link.jpg",
+        alt: "First image description"
+    },{
+        src: "your.another.image.link.jpg",
+        alt: "Second image description"
+    }]}
 />`}
 </PrismCode>
                 </pre>
@@ -211,4 +210,4 @@ alt: "Second image description"
 
 )
 
-export default hot(module)(App)
+export default App
