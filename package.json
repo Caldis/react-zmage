@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.5.7",
+  "version": "0.6.0",
   "description": "A zoomable image container",
   "keywords": [
     "react",
@@ -32,7 +32,6 @@
     "@babel/runtime": "^7.1.5",
     "autoprefixer": "^9.3.1",
     "babel-loader": "^8.0.4",
-    "cross-env": "^5.2.0",
     "css-loader": "^1.0.1",
     "file-loader": "^2.0.0",
     "html-webpack-plugin": "^3.2.0",
@@ -41,7 +40,6 @@
     "open-browser-webpack-plugin": "0.0.5",
     "postcss-loader": "^3.0.0",
     "prismjs": "^1.15.0",
-    "react-hot-loader": "^4.3.12",
     "react-prism": "^4.3.2",
     "source-map-support": "^0.5.9",
     "style-loader": "^0.23.1",
