@@ -4,6 +4,32 @@
 
 // Libs
 import PropTypes from 'prop-types';
+// Utils
+import { isDesktop, isMobile } from '@/utils'
+
+/**
+ * 全局变量缓存
+ **/
+const env = { isDesktop: null, isMobile: null }
+const updateEnv = (force) => {
+    if (window) {
+        if (!window.__ZMAGE_INITIALIZED___ || force) {
+            const mobile = isMobile()
+            window.__ZMAGE_INITIALIZED___ = true
+            window.__ZMAGE_ENV_IS_DESKTOP___ = !mobile
+            window.__ZMAGE_ENV_IS_MOBILE___ = mobile
+        }
+        env.isDesktop = window.__ZMAGE_ENV_IS_DESKTOP___
+        env.isMobile = window.__ZMAGE_ENV_IS_MOBILE___
+    } else {
+        const mobile = isMobile()
+        env.isDesktop = !mobile
+        env.isMobile = mobile
+    }
+    return env
+}
+updateEnv()
+export { env }
 
 /**
  * 默认类型
@@ -17,7 +43,7 @@ export const defType = {
     src: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.func,
-    ]).isRequire,
+    ]),
     // 图片标题
     alt: PropTypes.string,
     // 图片描述
@@ -47,8 +73,6 @@ export const defType = {
         PropTypes.shape({
             // 分页
             pagination: PropTypes.bool,
-            // 标题
-            title: PropTypes.bool,
             // 旋转按钮
             rotate: PropTypes.bool,
             // 缩放按钮
@@ -60,18 +84,25 @@ export const defType = {
         }),
     ]),
     // 快捷键
-    hotKey: PropTypes.shape({
-        // 缩放（空格）
-        zoom: PropTypes.bool,
-        // 关闭（ESC）
-        close: PropTypes.bool,
-        // 翻页（左右键）
-        flip: PropTypes.bool,
-    }),
-    // 移动端
-    mobile: PropTypes.oneOfType([
-        PropTypes.string,
+    hotKey: PropTypes.oneOfType([
         PropTypes.bool,
+        PropTypes.shape({
+            // 缩放（空格）
+            zoom: PropTypes.bool,
+            // 关闭（ESC）
+            close: PropTypes.bool,
+            // 翻页（左右键）
+            flip: PropTypes.bool,
+        }),
+    ]),
+    // 预设
+    preset: PropTypes.oneOf([
+        // 自动
+        "auto",
+        // 桌面端
+        "desktop",
+        // 移动端
+        "mobile",
     ]),
 
     /**
@@ -81,6 +112,8 @@ export const defType = {
     backdrop: PropTypes.string,
     // 高度
     zIndex: PropTypes.number,
+    // 圆角
+    radius: PropTypes.number,
     // 边距
     edge: PropTypes.number,
 
@@ -93,24 +126,58 @@ export const defType = {
     onRotating: PropTypes.func,
 
     /**
-     * 杂项
+     * 内部
      **/
-    // 传导信息
+    // components/Wrapper
+    // 封面节点
     cover: PropTypes.object,
+    // 卸载函数
     remove: PropTypes.func,
-    // 动画参数
-    springOption: PropTypes.shape({
-        // 剛性
-        stiffness: PropTypes.number,
-        // 阻尼
-        damping: PropTypes.number,
-    }),
-    getSpringOption: PropTypes.func,
 }
 
 /**
  * 默认值
  **/
+
+export const defPreset = {
+
+    // 桌面
+    desktop: {
+        controller: {
+            pagination: true,
+            rotate: true,
+            zoom: true,
+            close: true,
+            flip: true,
+        },
+        hotKey: {
+            zoom: true,
+            close: true,
+            flip: true,
+        },
+        radius: 5,
+        edge: 20,
+    },
+
+    // 移动端
+    mobile: {
+        controller: {
+            pagination: true,
+            rotate: false,
+            zoom: false,
+            close: false,
+            flip: false,
+        },
+        hotKey: {
+            zoom: false,
+            close: false,
+            flip: false,
+        },
+        radius: 0,
+        edge: 0,
+    }
+
+}
 export const defProp = {
 
     /**
@@ -124,38 +191,20 @@ export const defProp = {
     txt: "",
     // 图片集合
     set: [],
+
+    /**
+     * 预设
+     **/
+    preset: "auto",
 	
     /**
      * 功能控制
      **/
-	// 控制器
-	controller: {
-		// 分页
-		pagination: true,
-		// 标题
-		title: true,
-        // 旋转按钮
-        rotate: true,
-		// 缩放按钮
-		zoom: true,
-        // 关闭按钮
-        close: true,
-		// 左右翻页
-		flip: true,
-	},
-	// 快捷键
-	hotKey: {
-		// 缩放（空格）
-		zoom: true,
-        // 关闭（ESC）
-        close: true,
-		// 翻页（左右）
-		flip: true,
-	},
-    // 移动端
-    mobile: "auto",
+	// 控制器 (受制于 preset)
+	controller: {},
+	// 快捷键 (受制于 preset)
+	hotKey: {},
 
-    
     /**
      * 界面样式
      **/
@@ -163,8 +212,10 @@ export const defProp = {
     backdrop: "#FFFFFF",
     // 高度
     zIndex: 1000,
-    // 边距
-    edge: 20,
+    // 圆角 (受制于 preset)
+    radius: null,
+    // 边距 (受制于 preset)
+    edge: null,
 	
     /**
      * 生命周期
@@ -175,13 +226,28 @@ export const defProp = {
     onRotating: ()=>{},
 
     /**
-     * 杂项
+     * 内部
      **/
-    // 传导信息
+    // components/Wrapper
+    // 封面节点
     cover: {},
+    // 卸载函数
     remove: ()=>{},
-	// 动画参数
-    springOption: { stiffness: 230, damping: 25, precision: 0.01 },
-    getSpringOption: (precision) => ({ stiffness: 230, damping: 25, precision })
 
+}
+
+/**
+ * 默认值 (不同平台)
+ **/
+export const defPropAuto = (force) => ({
+    ...defProp,
+    ...(updateEnv(force).isDesktop ? defPreset.desktop : defPreset.mobile)
+})
+export const defPropDesktop = {
+    ...defProp,
+    ...defPreset.desktop
+}
+export const defPropMobile = {
+    ...defProp,
+    ...defPreset.mobile
 }

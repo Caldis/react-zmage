@@ -17,8 +17,8 @@ import { withShowingStatus } from '@/utils'
 class Control extends React.PureComponent {
 
     withShow = (className) => {
-        const { show } = this.props
-        return withShowingStatus(className, show, style.show)
+        const { show, zoom } = this.props
+        return withShowingStatus(className, !zoom&&show, style.show)
     }
 
     render() {
@@ -29,17 +29,14 @@ class Control extends React.PureComponent {
             <Fragment>
 
                 {/*控制按钮*/}
-                <div className={style.controls}>
-
-                    {/*背景*/}
-                    <div
-                        className={this.withShow(style.background)}
-                        style={{ backgroundColor: backdrop }}
-                    />
+                <div
+                    className={this.withShow(style.controls)}
+                    style={{ backgroundColor: backdrop }}
+                >
 
                     {/*旋转*/}
                     {
-                        !zoom && controller.rotate &&
+                        controller.rotate &&
                         <div
                             className={this.withShow(style.rotateLeft)}
                             onClick={toggleRotate("left")}
@@ -48,7 +45,7 @@ class Control extends React.PureComponent {
                         </div>
                     }
                     {
-                        !zoom && controller.rotate &&
+                        controller.rotate &&
                         <div
                             className={this.withShow(style.rotateRight)}
                             onClick={toggleRotate("right")}
@@ -59,7 +56,7 @@ class Control extends React.PureComponent {
 
                     {/*放大*/}
                     {
-                        !zoom && controller.zoom &&
+                        controller.zoom &&
                         <div
                             className={this.withShow(style.zoomButton)}
                             onClick={mobile ? ()=>window.open(set[page].src) : toggleZoom}
@@ -70,7 +67,7 @@ class Control extends React.PureComponent {
 
                     {/*关闭*/}
                     {
-                        !zoom && controller.close &&
+                        controller.close &&
                         <div
                             className={this.withShow(style.closeButton)}
                             onClick={zoom ? toggleZoom : unmountSelf}
@@ -83,8 +80,11 @@ class Control extends React.PureComponent {
 
                 {/*页数指示*/}
                 {
-                    !zoom && Array.isArray(set) && set.length>1 && controller.pagination &&
-                    <div className={this.withShow(style.pages)}>
+                    Array.isArray(set) && set.length>1 && controller.pagination &&
+                    <div
+                        className={this.withShow(style.pages)}
+                        style={{ backgroundColor: backdrop }}
+                    >
                         {
                             set.map((_, i) =>
                                 i === page ?
