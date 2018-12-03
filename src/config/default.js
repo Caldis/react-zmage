@@ -167,7 +167,7 @@ export const defPreset = {
             pagination: true,
             rotate: false,
             zoom: false,
-            close: false,
+            close: true,
             flip: false,
         },
         hotKey: {
