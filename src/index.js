@@ -59,6 +59,7 @@ export default class ReactZmage extends React.PureComponent {
             alt,
             txt,
             set,
+            defaultPage,
             // 功能控制
             controller,
             hotKey,
@@ -73,7 +74,6 @@ export default class ReactZmage extends React.PureComponent {
             onZooming,
             onSwitching,
             onRotating,
-            defaultPage,
             // 剩余参数
             ...props
         } = this.props
@@ -109,7 +109,7 @@ export default class ReactZmage extends React.PureComponent {
                                     alt={alt}
                                     txt={txt}
                                     set={this.buildSet(set)}
-                                    page={defaultPage}
+                                    defaultPage={defaultPage}
                                     // 功能控制
                                     controller={{ ...defPropWithEnv.controller, ...controller }}
                                     hotKey={{ ...defPropWithEnv.hotKey, ...hotKey }}
@@ -141,6 +141,7 @@ ReactZmage.defaultProps = {
     alt: defProp.alt,
     txt: defProp.txt,
     set: defProp.set,
+    defaultPage: defProp.defaultPage,
 
     /**
      * 预设
@@ -180,7 +181,7 @@ ReactZmage.propTypes = {
     alt: defType.alt,
     txt: defType.txt,
     set: defType.set,
-    defaultPage: PropTypes.number,
+    defaultPage: defType.defaultPage,
 
     /**
      * 预设
