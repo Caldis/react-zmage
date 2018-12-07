@@ -104,7 +104,7 @@ export default class ReactZmage extends React.PureComponent {
                             <Portals zIndex={zIndex}>
                                 <Wrapper
                                     // 内部
-                                    cover={this.cover}
+                                    cover={this.props.cover||this.cover}
                                     remove={this.unBrowsing}
                                     // 基础数据
                                     alt={alt}
