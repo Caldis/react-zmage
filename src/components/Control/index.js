@@ -10,7 +10,7 @@ import { ContextConsumer } from "@/components/context"
 // Style
 import style from './index.less'
 // Icons
-import { RotateIcon, ZoomIcon, CloseIcon } from './icon'
+import { RotateIcon, ZoomIcon, ArrowLeftIcon, ArrowRightIcon, CloseIcon } from './icon'
 // Utils
 import { withShowingStatus } from '@/utils'
 
@@ -23,7 +23,7 @@ class Control extends React.PureComponent {
 
     render() {
 
-        const { zoom, page, set, backdrop, mobile, controller, unmountSelf, toggleRotate, toggleZoom, toPages } = this.props
+        const { zoom, page, set, backdrop, mobile, controller, unmountSelf, toggleRotate, toggleZoom, toPages, toPrevPage, toNextPage } = this.props
 
         return (
             <Fragment>
@@ -77,6 +77,27 @@ class Control extends React.PureComponent {
                     }
 
                 </div>
+
+                {/*翻页控制*/}
+                {
+                    Array.isArray(set) && set.length>1 && controller.flip &&
+                    <Fragment>
+                        <div
+                            className={this.withShow(style.flipLeft)}
+                            style={{ backgroundColor: backdrop }}
+                            onClick={toPrevPage}
+                        >
+                            <ArrowLeftIcon/>
+                        </div>
+                        <div
+                            className={this.withShow(style.flipRight)}
+                            style={{ backgroundColor: backdrop }}
+                            onClick={toNextPage}
+                        >
+                            <ArrowRightIcon/>
+                        </div>
+                    </Fragment>
+                }
 
                 {/*页数指示*/}
                 {

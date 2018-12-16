@@ -15,8 +15,6 @@ import Image from '../Image'
 import Background from '../Background'
 // Config
 import { defType, defProp } from '@/config/default'
-// Utils
-import { addListenScroll, removeListenScroll } from '@/utils'
 
 export default class Wrapper extends React.PureComponent {
     constructor(props) {
@@ -38,7 +36,7 @@ export default class Wrapper extends React.PureComponent {
         setTimeout(this.mountSelf, 0)
     }
     componentWillUnmount() {
-        removeListenScroll(this.handleScroll)
+        window.addEventListener('scroll', this.handleScroll)
         window.removeEventListener('keydown', this.handleKeyDown)
     }
 
@@ -51,7 +49,7 @@ export default class Wrapper extends React.PureComponent {
             // 隐藏封面原图
             cover.style.visibility = 'hidden'
             // 绑定事件
-            addListenScroll(this.handleScroll)
+            window.addEventListener('scroll', this.handleScroll)
             window.addEventListener('keydown', this.handleKeyDown)
         })
     }
@@ -72,8 +70,6 @@ export default class Wrapper extends React.PureComponent {
         const { set, hotKey } = this.props
         const { zoom } = this.state
         const hasImageSet = set && set.constructor===Array
-        const toPrevPage = this.handleSwitchPages("prev")
-        const toNextPage = this.handleSwitchPages("next")
         switch (e.key) {
             case "Escape":
                 // 退出
@@ -85,11 +81,11 @@ export default class Wrapper extends React.PureComponent {
                 break
             case "ArrowLeft":
                 // 上一张
-                !zoom && hotKey.flip && hasImageSet && toPrevPage()
+                !zoom && hotKey.flip && hasImageSet && this.handleToPrevPage()
                 break
             case "ArrowRight":
                 // 下一张
-                !zoom && hotKey.flip && hasImageSet && toNextPage()
+                !zoom && hotKey.flip && hasImageSet && this.handleToNextPage()
                 break
             default:
                 return
@@ -122,6 +118,8 @@ export default class Wrapper extends React.PureComponent {
             })
         }
     }
+    handleToPrevPage = this.handleSwitchPages("prev")
+    handleToNextPage = this.handleSwitchPages("next")
 
     /**
      * 缩放控制
@@ -196,6 +194,8 @@ export default class Wrapper extends React.PureComponent {
                     <Control
                         unmountSelf={this.unMountSelf}
                         toPages={this.handleToPages}
+                        toPrevPage={this.handleToPrevPage}
+                        toNextPage={this.handleToNextPage}
                         toggleZoom={this.handleToggleZoom}
                         toggleRotate={this.handleToggleRotate}
                     />
