@@ -20,6 +20,10 @@ export default class ReactZmage extends React.PureComponent {
             browsing: false
         }
 
+        // TODO:FEATURE 翻页动画
+        // TODO:FEATURE 懒加载
+        // TODO:FEATURE 移动端的拖拽翻页
+
     }
 
     // 切换查看状态
@@ -79,6 +83,7 @@ export default class ReactZmage extends React.PureComponent {
             ...props
         } = this.props
 
+
         return (
             <Fragment>
 
@@ -116,8 +121,8 @@ export default class ReactZmage extends React.PureComponent {
                                     hotKey={{ ...defPropWithEnv.hotKey, ...hotKey }}
                                     // 界面样式
                                     backdrop={backdrop}
-                                    radius={radius || defPropWithEnv.radius}
-                                    edge={edge || defPropWithEnv.edge}
+                                    radius={radius!==null ? radius : defPropWithEnv.radius}
+                                    edge={edge!==null ? edge : defPropWithEnv.edge}
                                     // 生命周期
                                     onZooming={onZooming}
                                     onSwitching={onSwitching}
