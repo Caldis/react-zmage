@@ -2,15 +2,6 @@
  * 工具函数
  **/
 
-export const addListenScroll = (handler) => {
-    window.addEventListener('scroll', handler)
-    window.addEventListener('touchmove', handler)
-}
-export const removeListenScroll = (handler) => {
-    window.removeEventListener('scroll', handler)
-    window.removeEventListener('touchmove', handler)
-}
-
 // 通过屏幕尺寸以及图片尺寸，计算出图片在屏幕中完整显示的缩放比例
 export const calcFitScale = (naturalWidth, naturalHeight, edge) => {
     const scaleX = clientWidth() / (naturalWidth + 2*edge)
