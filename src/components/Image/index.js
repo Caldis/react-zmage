@@ -11,7 +11,6 @@ import { ContextConsumer } from "@/components/context"
 import style from './index.less'
 // Utils
 import {
-    addListenScroll, removeListenScroll,
     calcFitScale,
     scrollWidth, windowWidth, clientWidth,
     scrollHeight,windowHeight, clientHeight
@@ -36,7 +35,7 @@ class Images extends React.PureComponent {
     }
 
     componentDidMount() {
-        addListenScroll(this.handleScroll)
+        window.addEventListener('scroll', this.handleScroll)
         window.addEventListener('resize', this.handleResize)
         window.addEventListener("transitionend", this.handleTransitionEnded)
     }
@@ -59,7 +58,7 @@ class Images extends React.PureComponent {
     componentWillUnmount() {
         window.removeEventListener("transitionend", this.handleTransitionEnded)
         window.removeEventListener('resize', this.handleResize)
-        removeListenScroll(this.handleScroll)
+        window.removeEventListener('scroll', this.handleScroll)
     }
 
     /**
