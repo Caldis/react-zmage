@@ -154,12 +154,12 @@ controller={{
     close: true,
     // 缩放按钮
     zoom: true,
-    // 分页
-    pagination: true,
     // 旋转按钮
     rotate: true,
-    // 左右翻页
-    flip: true
+    // 翻页按钮
+    flip: true,
+    // 多页指示
+    pagination: true,
 }}
 ```
 

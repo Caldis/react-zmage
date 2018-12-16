@@ -3,6 +3,19 @@
 // Vars
 @baseDelay: 0.06s;
 
+// 基础按钮
+.baseButton {
+    z-index: 1000;
+    box-sizing: border-box;
+    cursor: pointer;
+
+    >svg {
+        display: block;
+        width: 2em;
+        height: 2em;
+    }
+}
+
 // 控制容器
 .controls {
 	box-sizing: border-box;
@@ -21,14 +34,13 @@
         transform: translateX(0);
     }
 
-    // 基础按钮
-    .baseButton {
-        box-sizing: border-box;
+    .pinButton {
+        .baseButton;
+
         margin: 0.4em 0.1em;
         width: 2em;
         height: 2em;
-        cursor: pointer;
-        transition: transform .2s @animationFunction, opacity .3s @animationFunction;
+        transition: transform .15s @animationFunction, opacity .3s @animationFunction;
 
         &:hover {
             opacity: 0.8 !important;
@@ -45,27 +57,18 @@
         &:last-of-type {
             margin-right: 0.4em;
         }
-
-        &.show {
-
-        }
-
-        >svg {
-            width: 2em;
-            height: 2em;
-        }
     }
 
     // 旋转
     .rotateLeft {
-        .baseButton;
+        .pinButton;
 
         >svg {
             transform: scaleX(-1);
         }
     }
     .rotateRight {
-        .baseButton;
+        .pinButton;
 
         >svg {
             transform: scaleX(1);
@@ -74,12 +77,69 @@
 
     // 放大
     .zoomButton {
-        .baseButton;
+        .pinButton;
     }
 
     // 关闭
     .closeButton {
-        .baseButton;
+        .pinButton;
+    }
+}
+
+// 翻页控制
+.sideButton {
+    .baseButton;
+
+    opacity: 0;
+    position: absolute;
+    top: 50%;
+    padding: 0.4em;
+    transition: transform .15s @animationFunction, opacity .3s @animationFunction;
+
+    &:hover {
+        opacity: 0.8 !important;
+        transform: translateX(0) !important;
+    }
+    &:active {
+        opacity: 1.0 !important;
+    }
+
+    &.show {
+        opacity: 0.8;
+    }
+}
+.flipLeft {
+    .sideButton;
+
+    left: 0;
+    padding-left: 0.6em;
+    border-radius: 0 0.5em 0.5em 0;
+    transform: translateX(-100%);
+
+    &:active {
+        transform: translate(-0.2em) !important;
+    }
+
+    &.show {
+        opacity: 0.8;
+        transform: translate(-0.2em);
+    }
+}
+.flipRight {
+    .sideButton;
+
+    right: 0;
+    padding-right: 0.6em;
+    border-radius: 0.5em 0 0 0.5em;
+    transform: translateX(100%);
+
+    &:active {
+        transform: translate(0.2em) !important;
+    }
+
+    &.show {
+        opacity: 0.8;
+        transform: translate(0.2em);
     }
 }
 
@@ -122,7 +182,7 @@
             opacity: 0.8 !important;
             transform: scale(1.1) !important;
         }
-        &:hover {
+        &:active {
             opacity: 1.0 !important;
             transform: scale(1.0) !important;
         }

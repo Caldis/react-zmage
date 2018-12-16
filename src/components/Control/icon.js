@@ -1,7 +1,7 @@
 // React Libs
 import React from 'react'
 
-class RotateIcon extends React.PureComponent {
+export class RotateIcon extends React.PureComponent {
     render() {
         return (
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 1024 1024">
@@ -11,7 +11,7 @@ class RotateIcon extends React.PureComponent {
     }
 }
 
-class ZoomIcon extends React.PureComponent {
+export class ZoomIcon extends React.PureComponent {
     render() {
         return (
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 1024 1024">
@@ -22,7 +22,26 @@ class ZoomIcon extends React.PureComponent {
     }
 }
 
-class CloseIcon extends React.PureComponent {
+export class ArrowLeftIcon extends React.PureComponent {
+    render() {
+        return (
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 1024 1024">
+                <path d="M663.4,928.8L269,534.4c-11.9-11.9-11.9-31.8,0-43.7L663.4,95.3c11.9-11.9,31.8-11.9,43.7,0c11.9,11.9,11.9,31.8,0,43.7L334.5,512L707,884.6c11.9,11.9,11.9,31.8,0,43.7C695.1,940.7,675.3,940.7,663.4,928.8z"/>
+            </svg>
+        )
+    }
+}
+export class ArrowRightIcon extends React.PureComponent {
+    render() {
+        return (
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 1024 1024">
+                <path d="M269,928.3c-11.9-11.9-11.9-31.8,0-43.7L641.5,512L269,139c-11.9-11.9-11.9-31.8,0-43.7c11.9-11.9,31.8-11.9,43.7,0L707,490.7c11.9,11.9,11.9,31.8,0,43.7L312.6,928.8C300.7,940.7,280.9,940.7,269,928.3z"/>
+            </svg>
+        )
+    }
+}
+
+export class CloseIcon extends React.PureComponent {
     render() {
         return (
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 1024 1024">
@@ -31,5 +50,3 @@ class CloseIcon extends React.PureComponent {
         )
     }
 }
-
-export { RotateIcon, ZoomIcon, CloseIcon };
