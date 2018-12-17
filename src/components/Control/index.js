@@ -10,7 +10,7 @@ import { ContextConsumer } from "@/components/context"
 // Style
 import style from './index.less'
 // Icons
-import { RotateIcon, ZoomIcon, ArrowLeftIcon, ArrowRightIcon, CloseIcon } from './icon'
+import { RotateLeftIcon, RotateRightIcon, ZoomIcon, ArrowLeftIcon, ArrowRightIcon, CloseIcon } from '@/asserts/icons'
 // Utils
 import { withShowingStatus } from '@/utils'
 
@@ -41,7 +41,7 @@ class Control extends React.PureComponent {
                             className={this.withShow(style.rotateLeft)}
                             onClick={toggleRotate("left")}
                         >
-                            <RotateIcon/>
+                            <RotateLeftIcon/>
                         </div>
                     }
                     {
@@ -50,7 +50,7 @@ class Control extends React.PureComponent {
                             className={this.withShow(style.rotateRight)}
                             onClick={toggleRotate("right")}
                         >
-                            <RotateIcon/>
+                            <RotateRightIcon/>
                         </div>
                     }
 
