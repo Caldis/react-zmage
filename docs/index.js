@@ -36,7 +36,7 @@ const App = () => (
                 <h1>react-zmage</h1>
                 <h4>一个基于 React 的可缩放图片控件, 您可以用这个控件替代原生的 img 标签, 令其附带图片缩放功能</h4>
 
-                <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage")}>马上使用</div>
+                <div className={style.button} onClick={() => window.open("https://github.com/Caldis/react-zmage")}>马上开始</div>
             </div>
 
             <div className={style.scrollDownHint}>
@@ -47,7 +47,7 @@ const App = () => (
         {/*特性介绍*/}
         <div className={style.horizon}>
             <div>
-                <h2>基本用法</h2>
+                <h2>轻松使用</h2>
                 <p>一如原生的 {"<img/>"} 标签, 只需要直接替换 img 为 Zmage 即可, 您依旧可以使用 style, className 等原生属性</p>
                 <p>现在, 点击图片, 您即可进入<b>查看模式</b></p>
                 <pre>
@@ -62,7 +62,7 @@ const App = () => (
             <div>
                 <Zmage
                     className={style.image}
-                    src="imgSet/childsDream/1.jpg"
+                    src="http://127.0.0.1:8080/imgSet/childsDream/1.jpg"
                     alt="最简单的使用方式"
                 />
                 <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
