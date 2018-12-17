@@ -178,12 +178,12 @@ class Images extends React.PureComponent {
             <Fragment>
 
                 {/*加载*/}
-                { show && isFetching && <Loading didInvalidate={didInvalidate} onReload={this.handleImageReload}/>}
+                { show && <Loading didInvalidate={didInvalidate} onReload={this.handleImageReload}/>}
 
                 {/*图片*/}
                 <img
                     key={`${page}-${set[page].src}`}
-                    className={`${style.imageLayer}${zoom ? ` ${style.zooming}` : ""}`}
+                    className={`${style.imageLayer}${zoom ? ` ${style.zooming}` : ""}${didInvalidate ? ` ${style.didInvalidate}` : ""}`}
                     style={{
                         transform: `translate3d(-50%, -50%, 0) translate3d(${cs.x}px, ${cs.y}px, 0px) scale3d(${cs.scale}, ${cs.scale}, 1) rotate3d(0, 0, 1, ${cs.rotate}deg)`,
                         cursor: zoom ? 'zoom-out' : 'initial',
