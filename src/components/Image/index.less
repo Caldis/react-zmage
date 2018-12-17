@@ -1,30 +1,5 @@
 @import "../../config/anim";
 
-.loadingContainer {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    animation: fadeIn 1s linear forwards;
-    .loading {
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid black;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        transform: translate(-50%, -50%);
-        animation: spin 1s linear infinite;
-    }
-}
-@keyframes fadeIn {
-    0%   { opacity: 0; }
-    50%  { opacity: 0; }
-    100% { opacity: 1; }
-}
-@keyframes spin {
-    0%   { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
 .imageLayer {
     transition: transform @animationDurations @animationFunction;
     position: absolute;
