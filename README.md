@@ -217,6 +217,8 @@ onRotating={deg => {
 我们随时欢迎发起一个 [PR](https://github.com/Caldis/react-zmage/pulls) 来帮助我们改进代码
 如果发现任何问题, 也欢迎 [发起一个ISSUE](https://github.com/Caldis/react-zmage/issues) 来反馈你的意见
 
+<h2 align="center">引用</h2>
+- [Material Icons](https://material.io/tools/icons/)
 
 <h2 align="center">证书</h2>
 
