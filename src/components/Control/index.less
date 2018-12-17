@@ -37,7 +37,7 @@
     .pinButton {
         .baseButton;
 
-        margin: 0.4em 0.1em;
+        margin: 0.4em 0;
         width: 2em;
         height: 2em;
         transition: transform .15s @animationFunction, opacity .3s @animationFunction;
@@ -60,18 +60,30 @@
     }
 
     // 旋转
-    .rotateLeft {
+    .rotate {
         .pinButton;
 
-        >svg {
-            transform: scaleX(-1);
+        svg {
+            width: 1.75em;
+            transition: transform @animationDurations @animationFunction;
+        }
+    }
+    .rotateLeft {
+        .rotate;
+
+        &:hover {
+            svg {
+                transform: rotate(-30deg);
+            }
         }
     }
     .rotateRight {
-        .pinButton;
+        .rotate;
 
-        >svg {
-            transform: scaleX(1);
+        &:hover {
+            svg {
+                transform: rotate(30deg);
+            }
         }
     }
 
@@ -98,7 +110,7 @@
 
     &:hover {
         opacity: 0.8 !important;
-        transform: translateX(0) !important;
+        transform: translateX(0) translateY(-50%) !important;
     }
     &:active {
         opacity: 1.0 !important;
@@ -114,15 +126,15 @@
     left: 0;
     padding-left: 0.6em;
     border-radius: 0 0.5em 0.5em 0;
-    transform: translateX(-100%);
+    transform: translateX(-100%) translateY(-50%);
 
     &:active {
-        transform: translate(-0.2em) !important;
+        transform: translate(-0.2em) translateY(-50%) !important;
     }
 
     &.show {
         opacity: 0.8;
-        transform: translate(-0.2em);
+        transform: translate(-0.2em) translateY(-50%);
     }
 }
 .flipRight {
@@ -131,15 +143,15 @@
     right: 0;
     padding-right: 0.6em;
     border-radius: 0.5em 0 0 0.5em;
-    transform: translateX(100%);
+    transform: translateX(100%) translateY(-50%);
 
     &:active {
-        transform: translate(0.2em) !important;
+        transform: translate(0.2em) translateY(-50%) !important;
     }
 
     &.show {
         opacity: 0.8;
-        transform: translate(0.2em);
+        transform: translate(0.2em) translateY(-50%);
     }
 }
 
@@ -149,7 +161,7 @@
     display: flex;
     position: absolute;
     left: 50%;
-    bottom: 0.4em;
+    bottom: 0.6em;
     z-index: 110;
     opacity: 0;
     border-radius: 2em;
