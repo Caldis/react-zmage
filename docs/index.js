@@ -62,7 +62,7 @@ const App = () => (
             <div>
                 <Zmage
                     className={style.image}
-                    src="http://127.0.0.1:8080/imgSet/childsDream/1.jpg"
+                    src="imgSet/childsDream/1.jpg"
                     alt="最简单的使用方式"
                 />
                 <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
