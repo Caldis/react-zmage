@@ -55,8 +55,8 @@
   },
   "scripts": {
     "dev": "webpack-dev-server --config ./scripts/webpack.exam.dev.config.babel.js --progress --profile --colors",
-    "dist": "npm run dist:exam && npm run dist:lib-dev && npm run dist:lib-pod",
-    "dist:exam": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
+    "dist": "npm run dist:doc && npm run dist:lib-dev && npm run dist:lib-pod",
+    "dist:doc": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
     "dist:lib-dev": "webpack --config ./scripts/webpack.lib.dev.config.babel.js --progress --profile --colors",
     "dist:lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors"
   }
