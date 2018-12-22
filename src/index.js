@@ -20,9 +20,12 @@ export default class ReactZmage extends React.PureComponent {
             browsing: false
         }
 
-        // TODO:FEATURE 翻页动画
         // TODO:FEATURE 懒加载
+        // TODO:FEATURE 翻页动画
         // TODO:FEATURE 移动端的拖拽翻页
+        // TODO:ENHANCE 禁用移动端的滑动退出及禁用滚动
+        // TODO:ENHANCE 移动端下点击隐藏的背景按下时会变暗
+        // TODO:BUG     移动端下左右按钮
 
     }
 
