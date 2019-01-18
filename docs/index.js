@@ -123,10 +123,12 @@ const App = () => (
                     alt="展示序列图片"
                     set={[{
                         src: "imgSet/childsDream/3.jpg",
-                        alt: "童夢 · THREE"
+                        alt: "童夢 · THREE",
+                        style: { opacity: 0.5 }
                     },{
                         src: "imgSet/childsDream/4.jpg",
-                        alt: "童夢 · FOUR"
+                        alt: "童夢 · FOUR",
+                        style: { opacity: 0.5 }
                     }]}
                 />
                 <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
