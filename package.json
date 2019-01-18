@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "description": "A zoomable image container",
   "keywords": [
     "react",
@@ -19,6 +19,7 @@
   "license": "MIT",
   "homepage": "http://zmage.caldis.me",
   "dependencies": {
+    "classnames": "^2.2.6",
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
     "react-dom": "^16.6.3"
