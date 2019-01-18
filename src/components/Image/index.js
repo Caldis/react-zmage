@@ -4,6 +4,7 @@
  **/
 
 // Libs
+import classnames from 'classnames';
 import React, { Fragment } from 'react'
 // Context
 import { ContextConsumer } from "@/components/context"
@@ -117,22 +118,20 @@ class Images extends React.PureComponent {
         this.setStyle(zoomingStyle)
     }
     // 加载事件
-    handleImageLoadStart = () => {
+    handleImageLoading = (callback) => {
         this.setState({
             isFetching: true,
             didInvalidate: false,
-        })
+        }, callback)
     }
-    handleImageLoaded = ({ didInvalidate }) => {
+    handleImageLoaded = ({ didInvalidate }={}) => {
         this.setState({
             isFetching: false,
             didInvalidate,
         })
     }
     handleImageLoad = () => {
-        const { page, set, cover } = this.props
-        set[page].src !== cover.getAttribute("src") && this.updateCurrentImageStyle()
-        this.handleImageLoadStart()
+        this.handleImageLoading(this.updateCurrentImageStyle)
     }
     handleImageLoadError = () => {
         this.handleImageLoaded({ didInvalidate: true })
@@ -156,7 +155,9 @@ class Images extends React.PureComponent {
      **/
     setStyle = (newStyle) => {
         const mergedStyle = { ...this.state.currentStyle, ...newStyle }
-        this.setState({ currentStyle: mergedStyle })
+        this.setState({
+            currentStyle: mergedStyle
+        }, this.handleImageLoaded)
     }
 
     /**
@@ -174,20 +175,30 @@ class Images extends React.PureComponent {
 
         const { show, zoom, page, set } = this.props
         const { isFetching, didInvalidate, currentStyle:cs, timestamp } = this.state
+
+        const imgClassNames = classnames(style.imageLayer, set[page].className, {
+            [style.zooming]: zoom,
+            [style.didInvalidate]: didInvalidate,
+        })
+
         return (
             <Fragment>
 
                 {/*加载*/}
-                { show && <Loading didInvalidate={didInvalidate} onReload={this.handleImageReload}/>}
+                {
+                    show && isFetching &&
+                    <Loading didInvalidate={didInvalidate} onReload={this.handleImageReload}/>
+                }
 
                 {/*图片*/}
                 <img
                     key={`${page}-${set[page].src}`}
-                    className={`${style.imageLayer}${zoom ? ` ${style.zooming}` : ""}${didInvalidate ? ` ${style.didInvalidate}` : ""}`}
+                    className={imgClassNames}
                     style={{
                         transform: `translate3d(-50%, -50%, 0) translate3d(${cs.x}px, ${cs.y}px, 0px) scale3d(${cs.scale}, ${cs.scale}, 1) rotate3d(0, 0, 1, ${cs.rotate}deg)`,
                         cursor: zoom ? 'zoom-out' : 'initial',
                         borderRadius: cs.borderRadius,
+                        ...(set[page].style || {}),
                     }}
                     src={
                         timestamp
