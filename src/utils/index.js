@@ -29,3 +29,16 @@ export const isDesktop = () => !isMobile()
 export const withShowingStatus = (defClassName="", isShow=false, showName="show") => {
     return isShow ? `${defClassName} ${showName}` : defClassName
 }
+
+// 检查图片是否完全载入
+let checkImageLoadedCompleteTimer;
+export const checkImageLoadedComplete = (imageRef, callback) => {
+    const checker = () => {
+        if (!imageRef || imageRef.complete) {
+            clearInterval(checkImageLoadedCompleteTimer)
+            callback && callback()
+        }
+    }
+    checkImageLoadedCompleteTimer = setInterval(checker, 600)
+    return checkImageLoadedCompleteTimer
+}

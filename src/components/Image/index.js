@@ -16,7 +16,8 @@ import Loading from './loading';
 import {
     calcFitScale,
     scrollWidth, windowWidth, clientWidth,
-    scrollHeight,windowHeight, clientHeight
+    scrollHeight,windowHeight, clientHeight,
+    checkImageLoadedComplete
 } from '@/utils'
 
 class Images extends React.PureComponent {
@@ -31,6 +32,8 @@ class Images extends React.PureComponent {
         this.initialPageOffset = window.pageYOffset
         // 监听状态
         this.listeningMouseMove = false
+        // 图片加载
+        this.imageLoadingTimer = null
 
         this.state = {
             // Loadings State
@@ -55,22 +58,26 @@ class Images extends React.PureComponent {
         if (prevShow!==currShow || prevZoom!==currZoom || prevRotate!==currRotate) {
             // 在初次进入时添加延迟, 避免 Safari 初次获取不到 ref 的 bug
             if (!prevShow) {
-                setTimeout(this.updateCurrentImageStyle, 50)
+                setTimeout(() => {
+                    this.updateCurrentImageStyle()
+                    this.handleImageLoading()
+                }, 50)
             } else {
                 this.updateCurrentImageStyle()
             }
             // 更新监听状态
             this.updateZoomEventListenerWithState()
         }
-        // 切换页面时去除加载时间戳
+        // 切换页面时显示加载, 并去除加载时间戳
         if (prevPage!==currPage) {
-            this.setState({ timestamp: null })
+            this.handleImageLoading({ timestamp: null })
         }
     }
     componentWillUnmount() {
         window.removeEventListener("transitionend", this.handleTransitionEnded)
         window.removeEventListener('resize', this.handleResize)
         window.removeEventListener('scroll', this.handleScroll)
+        clearInterval(this.imageLoadingTimer)
     }
 
     /**
@@ -118,11 +125,14 @@ class Images extends React.PureComponent {
         this.setStyle(zoomingStyle)
     }
     // 加载事件
-    handleImageLoading = (callback) => {
+    handleImageLoading = (state={}) => {
         this.setState({
             isFetching: true,
             didInvalidate: false,
-        }, callback)
+            ...state,
+        }, () => {
+            this.imageLoadingTimer = checkImageLoadedComplete(this.currentImageRef.current, this.handleImageLoaded)
+        })
     }
     handleImageLoaded = ({ didInvalidate }={}) => {
         this.setState({
@@ -131,7 +141,7 @@ class Images extends React.PureComponent {
         })
     }
     handleImageLoad = () => {
-        this.handleImageLoading(this.updateCurrentImageStyle)
+        this.updateCurrentImageStyle()
     }
     handleImageLoadError = () => {
         this.handleImageLoaded({ didInvalidate: true })
@@ -157,7 +167,7 @@ class Images extends React.PureComponent {
         const mergedStyle = { ...this.state.currentStyle, ...newStyle }
         this.setState({
             currentStyle: mergedStyle
-        }, this.handleImageLoaded)
+        })
     }
 
     /**
@@ -187,7 +197,10 @@ class Images extends React.PureComponent {
                 {/*加载*/}
                 {
                     show && isFetching &&
-                    <Loading didInvalidate={didInvalidate} onReload={this.handleImageReload}/>
+                    <Loading
+                        didInvalidate={didInvalidate}
+                        onReload={this.handleImageReload}
+                    />
                 }
 
                 {/*图片*/}
