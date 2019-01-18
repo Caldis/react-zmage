@@ -24,10 +24,9 @@ export default merge.smart(baseConfig, {
 	},
 
 	plugins: [
-		// 自动打开浏览器
-        new OpenBrowserPlugin({
+	  // 自动打开浏览器
+    new OpenBrowserPlugin({
 			url: `http://${host}:${port}`,
-			browser: 'Chrome'
 		})
 	],
 
