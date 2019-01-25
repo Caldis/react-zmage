@@ -31,7 +31,7 @@ class Control extends React.PureComponent {
                 {/*控制按钮*/}
                 <div
                     className={this.withShow(style.controls)}
-                    style={{ backgroundColor: backdrop }}
+                    style={{ backgroundColor: '#FFF' }}
                 >
 
                     {/*旋转*/}
