@@ -4,6 +4,7 @@
 
 // Libs
 import React from 'react'
+import classnames from 'classnames'
 // Styles
 import style from './loading.less'
 // Icons
@@ -14,18 +15,23 @@ import { ContextConsumer } from "@/components/context"
 class Loading extends React.PureComponent {
     render() {
 
-        const { didInvalidate, onReload, backdrop } = this.props;
+        const { show, load, invalidate, onReload, backdrop } = this.props
+
+        const imageClassNames = classnames(style.loadingContainer, {
+            [style.show]: show
+        })
 
         return (
-            <div className={style.loadingContainer}>
+            <div className={imageClassNames}>
                 {
-                    didInvalidate
-                        ? <button
-                            className={style.reload}
-                            onClick={onReload}
-                            style={{ background: backdrop }}
-                        ><Refresh/></button>
-                        : <div className={style.loading}/>
+                    load &&
+                    <div className={style.loading}/>
+                }
+                {
+                    invalidate &&
+                    <button className={style.reload} onClick={onReload} style={{ background: backdrop }}>
+                        <Refresh/>
+                    </button>
                 }
             </div>
         )

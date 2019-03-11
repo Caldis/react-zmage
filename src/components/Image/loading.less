@@ -5,7 +5,12 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    animation: fadeIn 1s linear forwards;
+    opacity: 0;
+    transition: opacity @animationDurations;
+
+    &.show {
+        opacity: 1;
+    }
 
     .reload {
         border: 2px solid;
@@ -43,10 +48,16 @@
         animation: spin 1s linear infinite;
     }
 }
+
 @keyframes fadeIn {
     0%   { opacity: 0; }
     50%  { opacity: 0; }
     100% { opacity: 1; }
+}
+@keyframes fadeOut {
+    0%   { opacity: 1; }
+    50%  { opacity: 0; }
+    100% { opacity: 0; }
 }
 @keyframes spin {
     0%   { transform: translate(-50%, -50%) rotate(0deg); }
