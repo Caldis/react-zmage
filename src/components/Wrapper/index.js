@@ -26,7 +26,7 @@ export default class Wrapper extends React.PureComponent {
             // 缩放
             zoom: false,
             // 页数
-            page: props.defaultPage || 0,
+            page: props.defaultPage && props.defaultPage>props.set.length-1 ? props.set.length-1 : 0,
             // 旋转
             rotate: 0,
         }
@@ -44,10 +44,12 @@ export default class Wrapper extends React.PureComponent {
      * 加载器
      **/
     mountSelf = () => {
-        const { cover } = this.props
+        const { cover, defaultPage } = this.props
         this.setState({ show: true }, () => {
-            // 隐藏封面原图
-            cover.style.visibility = 'hidden'
+            // 隐藏封面原图 (当设定的 defaultPage 不为首张图片时, 图片将从上方进入, 此时不需要隐藏封面图片)
+            if (defaultPage === 0) {
+                cover.style.visibility = 'hidden'
+            }
             // 绑定事件
             window.addEventListener('scroll', this.handleScroll)
             window.addEventListener('keydown', this.handleKeyDown)
