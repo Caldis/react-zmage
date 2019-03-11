@@ -4,8 +4,10 @@
 
 // 通过屏幕尺寸以及图片尺寸，计算出图片在屏幕中完整显示的缩放比例
 export const calcFitScale = (naturalWidth, naturalHeight, edge) => {
-    const scaleX = clientWidth() / (naturalWidth + 2*edge)
-    const scaleY = clientHeight() / (naturalHeight + 2*edge)
+    const figureWidth = naturalWidth + 2*edge
+    const figureHeight = naturalHeight + 2*edge
+    const scaleX = figureWidth>clientWidth() ? clientWidth()/(naturalWidth+2*edge) : 1
+    const scaleY = figureHeight>clientHeight() ? clientHeight()/(naturalHeight+2*edge) : 1
     return Math.min(scaleX, scaleY)
 }
 
@@ -41,4 +43,10 @@ export const checkImageLoadedComplete = (imageRef, callback) => {
     }
     checkImageLoadedCompleteTimer = setInterval(checker, 600)
     return checkImageLoadedCompleteTimer
+}
+
+// 为 Url 附加参数
+export const appendParams = (url, params={}) => {
+    const paramString = Object.keys(params).reduce((acc, cur) => params[cur] ? acc.concat(`${cur}=${params[cur]}`) : acc, []).join("&")
+    return paramString ? `${url}${url.includes('?') ? '&' : '?'}${paramString}` : url
 }
