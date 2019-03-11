@@ -44,10 +44,11 @@ export default class Wrapper extends React.PureComponent {
      * 加载器
      **/
     mountSelf = () => {
-        const { cover, defaultPage } = this.props
+        const { cover } = this.props
+        const { page } = this.state
         this.setState({ show: true }, () => {
             // 隐藏封面原图 (当设定的 defaultPage 不为首张图片时, 图片将从上方进入, 此时不需要隐藏封面图片)
-            if (defaultPage === 0) {
+            if (page === 0) {
                 cover.style.visibility = 'hidden'
             }
             // 绑定事件
