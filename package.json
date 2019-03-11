@@ -1,7 +1,7 @@
 {
   "name": "react-zmage",
-  "version": "0.6.9",
-  "description": "A zoomable image container",
+  "version": "0.6.10",
+  "description": "A scalable image container",
   "keywords": [
     "react",
     "image",
