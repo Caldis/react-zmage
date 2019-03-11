@@ -56,7 +56,6 @@ export default class ReactZmage extends React.PureComponent {
 
     render() {
 
-        const { browsing } = this.state
         const {
             // 内部
             className,
@@ -85,7 +84,7 @@ export default class ReactZmage extends React.PureComponent {
             // 剩余参数
             ...props
         } = this.props
-
+        const { browsing } = this.state
 
         return (
             <Fragment>
