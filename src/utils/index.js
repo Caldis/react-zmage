@@ -33,16 +33,16 @@ export const withShowingStatus = (defClassName="", isShow=false, showName="show"
 }
 
 // 检查图片是否完全载入
-let checkImageLoadedCompleteTimer;
 export const checkImageLoadedComplete = (imageRef, callback) => {
+    let timer
     const checker = () => {
         if (!imageRef || imageRef.complete) {
-            clearInterval(checkImageLoadedCompleteTimer)
+            clearInterval(timer)
             callback && callback()
         }
     }
-    checkImageLoadedCompleteTimer = setInterval(checker, 600)
-    return checkImageLoadedCompleteTimer
+    timer = setInterval(checker, 500)
+    return timer
 }
 
 // 为 Url 附加参数

@@ -77,6 +77,7 @@ class Images extends React.PureComponent {
         window.removeEventListener("transitionend", this.handleTransitionEnded)
         window.removeEventListener('resize', this.handleResize)
         window.removeEventListener('scroll', this.handleScroll)
+        window.removeEventListener('mousemove', this.handleMouseMove)
         clearInterval(this.imageLoadingTimer)
     }
 
@@ -133,6 +134,7 @@ class Images extends React.PureComponent {
         }, this.handleDetectImageLoadComplete)
     }
     handleDetectImageLoadComplete = () => {
+        clearInterval(this.imageLoadingTimer)
         this.imageLoadingTimer = checkImageLoadedComplete(this.currentImageRef.current, this.handleImageLoadEnd)
     }
     handleImageLoadEnd = ({ invalidate }={}) => {
@@ -199,8 +201,6 @@ class Images extends React.PureComponent {
             opacity: invalidate ? 0 : currentStyle.opacity,
             ...set[page].style,
         }
-
-        console.log("render", invalidate)
 
         return (
             <Fragment>
