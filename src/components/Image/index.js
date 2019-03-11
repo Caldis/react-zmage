@@ -186,7 +186,7 @@ class Images extends React.PureComponent {
 
     render() {
 
-        const { show, zoom, page, set } = this.props
+        const { show, cover, zoom, page, set } = this.props
         const { isFetching, invalidate, currentStyle, timestamp } = this.state
 
         const imageClassNames = classnames(style.imageLayer, set[page].className, {
@@ -207,7 +207,7 @@ class Images extends React.PureComponent {
 
                 {/*加载*/}
                 <Loading
-                    show={show}
+                    show={show && (!cover || cover.getAttribute("src")!==set[page].src)}
                     load={isFetching}
                     invalidate={invalidate}
                     onReload={this.handleImageReload}
