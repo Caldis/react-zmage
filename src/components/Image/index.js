@@ -17,7 +17,7 @@ import {
     calcFitScale,
     scrollWidth, windowWidth, clientWidth,
     scrollHeight,windowHeight, clientHeight,
-    checkImageLoadedComplete
+    checkImageLoadedComplete, appendParams,
 } from '@/utils'
 
 class Images extends React.PureComponent {
@@ -38,7 +38,7 @@ class Images extends React.PureComponent {
         this.state = {
             // Loadings State
             isFetching: true,
-            didInvalidate: false,
+            invalidate: false,
             // Style
             currentStyle: Images.getCoverStyle(props),
             // Flag
@@ -60,7 +60,7 @@ class Images extends React.PureComponent {
             if (!prevShow) {
                 setTimeout(() => {
                     this.updateCurrentImageStyle()
-                    this.handleImageLoading()
+                    this.handleDetectImageLoadComplete()
                 }, 50)
             } else {
                 this.updateCurrentImageStyle()
@@ -70,7 +70,7 @@ class Images extends React.PureComponent {
         }
         // 切换页面时显示加载, 并去除加载时间戳
         if (prevPage!==currPage) {
-            this.handleImageLoading({ timestamp: null })
+            this.handleImageLoadStart({ timestamp: null })
         }
     }
     componentWillUnmount() {
@@ -125,29 +125,31 @@ class Images extends React.PureComponent {
         this.setStyle(zoomingStyle)
     }
     // 加载事件
-    handleImageLoading = (state={}) => {
+    handleImageLoadStart = (state={}) => {
         this.setState({
             isFetching: true,
-            didInvalidate: false,
+            invalidate: false,
             ...state,
-        }, () => {
-            this.imageLoadingTimer = checkImageLoadedComplete(this.currentImageRef.current, this.handleImageLoaded)
-        })
+        }, this.handleDetectImageLoadComplete)
     }
-    handleImageLoaded = ({ didInvalidate }={}) => {
+    handleDetectImageLoadComplete = () => {
+        this.imageLoadingTimer = checkImageLoadedComplete(this.currentImageRef.current, this.handleImageLoadEnd)
+    }
+    handleImageLoadEnd = ({ invalidate }={}) => {
+        clearInterval(this.imageLoadingTimer)
         this.setState({
             isFetching: false,
-            didInvalidate,
+            invalidate: invalidate===undefined ? this.state.invalidate : invalidate,
         })
     }
     handleImageLoad = () => {
         this.updateCurrentImageStyle()
     }
-    handleImageLoadError = () => {
-        this.handleImageLoaded({ didInvalidate: true })
+    handleImageError = () => {
+        this.handleImageLoadEnd({ invalidate: true })
     }
-    handleImageLoadAbort = () => {
-        this.handleImageLoaded({ didInvalidate: true })
+    handleImageAbort = () => {
+        this.handleImageLoadEnd({ invalidate: true })
     }
     handleImageReload = () => {
         this.setState({ timestamp: new Date().getTime() })
@@ -164,9 +166,8 @@ class Images extends React.PureComponent {
      * 样式应用
      **/
     setStyle = (newStyle) => {
-        const mergedStyle = { ...this.state.currentStyle, ...newStyle }
         this.setState({
-            currentStyle: mergedStyle
+            currentStyle: { ...this.state.currentStyle, ...newStyle }
         })
     }
 
@@ -184,47 +185,45 @@ class Images extends React.PureComponent {
     render() {
 
         const { show, zoom, page, set } = this.props
-        const { isFetching, didInvalidate, currentStyle:cs, timestamp } = this.state
+        const { isFetching, invalidate, currentStyle, timestamp } = this.state
 
-        const imgClassNames = classnames(style.imageLayer, set[page].className, {
+        const imageClassNames = classnames(style.imageLayer, set[page].className, {
             [style.zooming]: zoom,
-            [style.didInvalidate]: didInvalidate,
+            [style.invalidate]: invalidate,
         })
+        const imageStyle = {
+            transform: `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`,
+            cursor: zoom ? 'zoom-out' : 'initial',
+            // borderRadius: currentStyle.borderRadius,
+            clipPath: `inset(0% 0% 0% 0% round ${currentStyle.borderRadius}px)`,
+            opacity: invalidate ? 0 : currentStyle.opacity,
+            ...set[page].style,
+        }
+
+        console.log("render", invalidate)
 
         return (
             <Fragment>
 
                 {/*加载*/}
-                {
-                    show && isFetching &&
-                    <Loading
-                        didInvalidate={didInvalidate}
-                        onReload={this.handleImageReload}
-                    />
-                }
+                <Loading
+                    show={show}
+                    load={isFetching}
+                    invalidate={invalidate}
+                    onReload={this.handleImageReload}
+                />
 
                 {/*图片*/}
                 <img
                     key={`${page}-${set[page].src}`}
-                    className={imgClassNames}
-                    style={{
-                        transform: `translate3d(-50%, -50%, 0) translate3d(${cs.x}px, ${cs.y}px, 0px) scale3d(${cs.scale}, ${cs.scale}, 1) rotate3d(0, 0, 1, ${cs.rotate}deg)`,
-                        cursor: zoom ? 'zoom-out' : 'initial',
-                        borderRadius: cs.borderRadius,
-                        ...(set[page].style || {}),
-                    }}
-                    src={
-                        timestamp
-                            ? set[page].src.includes('?')
-                                ? `${set[page].src}&t=${timestamp}`
-                                : `${set[page].src}?t=${timestamp}`
-                            : set[page].src
-                    }
+                    className={imageClassNames}
+                    style={imageStyle}
+                    src={appendParams(set[page].src, { t: timestamp })}
                     alt={set[page].alt}
                     ref={this.currentImageRef}
                     onLoad={this.handleImageLoad}
-                    onError={this.handleImageLoadError}
-                    onAbort={this.handleImageLoadAbort}
+                    onError={this.handleImageError}
+                    onAbort={this.handleImageAbort}
                     onClick={this.handleClick}
                 />
 
@@ -256,15 +255,15 @@ Images.getCoverStyle = (props) => {
     return page === 0 ? {
         x: -scrollWidth()/2 + left + width/2,
         y: -windowHeight()/2 + top + height/2,
-        opacity: ~~opacity || 1,
-        scale: width/naturalWidth,
+        opacity: Number(opacity) || 1,
+        scale: naturalWidth ? width/naturalWidth : 1,
         rotate: rotate-rotate%360,
         borderRadius: borderRadius
     } : {
         x: 0,
         y: -windowHeight(),
         opacity: 0,
-        scale: width/naturalWidth,
+        scale: naturalWidth ? width/naturalWidth : 1,
         rotate: rotate-rotate%360,
         borderRadius: borderRadius
     }
