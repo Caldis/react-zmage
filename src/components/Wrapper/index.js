@@ -26,7 +26,7 @@ export default class Wrapper extends React.PureComponent {
             // 缩放
             zoom: false,
             // 页数
-            page: props.defaultPage && props.defaultPage>props.set.length-1 ? props.set.length-1 : 0,
+            page: props.defaultPage && props.defaultPage>props.set.length-1 ? props.set.length-1 : props.defaultPage,
             // 旋转
             rotate: 0,
         }
