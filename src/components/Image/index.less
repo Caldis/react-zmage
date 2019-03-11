@@ -2,18 +2,22 @@
 
 .imageLayer {
     user-select: none;
-    transition: transform @animationDurations @animationFunction;
+    transition: transform @animationDurations @animationFunction, opacity @animationDurations @animationFunction;
     position: absolute;
     left: 50%;
     top: 50%;
     z-index: 10;
-    will-change: transform, top;
+    will-change: transform, top, opacity;
 
     &.zooming {
         transition-timing-function: @animationFunctionOnZooming;
     }
-    &.didInvalidate {
+    &.invalidate {
         opacity: 0;
         pointer-events: none;
     }
+}
+
+.clipRadius {
+    clip-path: inset(0% 0% 0% 0% round 10px);
 }
