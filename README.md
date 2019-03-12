@@ -60,7 +60,7 @@ import Zmage from 'react-zmage'
 |:--:|:--:|:-----:|:----------|:----------:|
 | **`src`** | String | "" | 图片 Url，与 `img` 标签的 `src` 属性相同 | [示例](https://github.com/Caldis/react-zmage#src) |
 | **`alt`** | String | "" | 图片占位文字，与 `img` 标签的 `alt` 属性相同 | [示例](https://github.com/Caldis/react-zmage#alt) |
-| **`set`** | Object[] | [] | 如果想在查看模式下呈现多张图片，可以在 `set` 中传入多个图片对象, 或是用于传入放大后的高清图片 | [示例](https://github.com/Caldis/react-zmage#set) |
+| **`set`** | Object[] | [] | 序列图片, 可以在 `set` 中传入多个图片对象用于在查看模式下呈现多张图片，也可用于呈现放大后的高清图片 | [示例](https://github.com/Caldis/react-zmage#set) |
 | **`defaultPage`** | Number | 0 | 如果传入了`set`来展示多张图片, 可以用于指定打开后的默认页 | [示例](https://github.com/Caldis/react-zmage#defaultPage) |
 
 <h2 align="center">高级配置</h2>
