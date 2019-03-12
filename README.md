@@ -13,7 +13,9 @@
 <h2 align="center">演示</h2>
 
 **在线**
+
 [https://zmage.caldis.me](https://zmage.caldis.me)
+
 
 **本地**
 ```bash
@@ -50,19 +52,19 @@ import Zmage from 'react-zmage'
 
 
 <h2 align="center">基础配置</h2>
-<h6 align="center">你只需要了解下面的几个参数就可以开始使用了</h2>
+<h6 align="center">立即上手, 你仅仅需要了解下面的几个参数就足够了</h2>
 
-#### 简单上手，请参见 [https://zmage.caldis.me](https://zmage.caldis.me)
+#### 在线示例, 请参见 [https://zmage.caldis.me](https://zmage.caldis.me)
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:----------|:----------:|
 | **`src`** | String | "" | 图片 Url，与 `img` 标签的 `src` 属性相同 | [示例](https://github.com/Caldis/react-zmage#src) |
 | **`alt`** | String | "" | 图片占位文字，与 `img` 标签的 `alt` 属性相同 | [示例](https://github.com/Caldis/react-zmage#alt) |
-| **`set`** | Object[] | [] | 如果想在查看模式下呈现多张图片，可以在 `set` 中传入多个图片对象 | [示例](https://github.com/Caldis/react-zmage#set) |
-| **`defaultPage`** | Number | 0 | 如果传入了多张图片, 可以指定打开后的默认页 | [示例](https://github.com/Caldis/react-zmage#defaultPage) |
+| **`set`** | Object[] | [] | 如果想在查看模式下呈现多张图片，可以在 `set` 中传入多个图片对象, 或是用于传入放大后的高清图片 | [示例](https://github.com/Caldis/react-zmage#set) |
+| **`defaultPage`** | Number | 0 | 如果传入了`set`来展示多张图片, 可以用于指定打开后的默认页 | [示例](https://github.com/Caldis/react-zmage#defaultPage) |
 
 <h2 align="center">高级配置</h2>
-<h6 align="center">如果你需要进一步的定制, 可以查阅下面的内容</h2>
+<h6 align="center">不需要了解这些参数也可以很好的使用, 但如果你需要更详细的定制, 可以进一步查阅下面的内容</h2>
 
 - 预设配置 (beta)
 
@@ -73,7 +75,7 @@ import Zmage from 'react-zmage'
 - 功能控制
 
 |配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:----------|:----------:|
+|:--:|:--:|:-----:|:---------------|:----------:|
 | **`controller`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L148)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L166) | 将特定项设为 `false` 来隐藏查看模式下的操作控件 | [示例](https://github.com/Caldis/react-zmage#controller) |
 | **`hotKey`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L155)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L173) | 将特定项设为 `false` 来禁用查看模式下的快捷键 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
 
