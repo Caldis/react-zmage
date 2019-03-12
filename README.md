@@ -49,18 +49,20 @@ import Zmage from 'react-zmage'
 **现在这些图片都可以放大查看了 ！**
 
 
-<h2 align="center">配置</h2>
+<h2 align="center">基础配置</h2>
+<h6 align="center">你只需要了解下面的几个参数就可以开始使用了</h2>
 
 #### 简单上手，请参见 [https://zmage.caldis.me](https://zmage.caldis.me)
-
-- 基础数据
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:----------|:----------:|
 | **`src`** | String | "" | 图片 Url，与 `img` 标签的 `src` 属性相同 | [示例](https://github.com/Caldis/react-zmage#src) |
 | **`alt`** | String | "" | 图片占位文字，与 `img` 标签的 `alt` 属性相同 | [示例](https://github.com/Caldis/react-zmage#alt) |
-| **`set`** | ObjectArray | [] | 如果想在查看模式下呈现多张图片，可以在 `set` 中传入多个图片对象 | [示例](https://github.com/Caldis/react-zmage#set) |
+| **`set`** | Object[] | [] | 如果想在查看模式下呈现多张图片，可以在 `set` 中传入多个图片对象 | [示例](https://github.com/Caldis/react-zmage#set) |
 | **`defaultPage`** | Number | 0 | 如果传入了多张图片, 可以指定打开后的默认页 | [示例](https://github.com/Caldis/react-zmage#defaultPage) |
+
+<h2 align="center">高级配置</h2>
+<h6 align="center">如果你需要进一步的定制, 可以查阅下面的内容</h2>
 
 - 预设配置 (beta)
 
