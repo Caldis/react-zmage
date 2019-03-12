@@ -84,7 +84,7 @@ import Zmage from 'react-zmage'
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:----------|:----------:|
 | **`backdrop`** | String | "#FFFFFF" | 控制图片放大后的背景色 | [示例](https://github.com/Caldis/react-zmage#backdrop) |
-| **`zIndex`** | Number | 1000 | 外部容器的 `z-index`, 防止被其他元素遮挡 | [示例](https://github.com/Caldis/react-zmage#zIndex) |
+| **`zIndex`** | Number | 1000 | 控制外部容器的 `z-index`, 防止被其他元素遮挡 | [示例](https://github.com/Caldis/react-zmage#zIndex) |
 | **`radius`** | Number | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L160)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L178) | 控制图片在查看模式下的圆角 | [示例](https://github.com/Caldis/react-zmage#radius) |
 | **`edge`** | Number | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L161)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L179) | 控制图片在查看模式下距离屏幕边缘的距离 | [示例](https://github.com/Caldis/react-zmage#edge) |
 
