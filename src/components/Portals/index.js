@@ -15,7 +15,7 @@ export default class Portals extends React.Component {
 
         this.target = props.target || document.body
         this.element = document.createElement('div')
-        this.element.id = "zmage"
+        this.element.id = props.id
         this.element.style.zIndex = props.zIndex
         this.element.style.position = "relative"
     }

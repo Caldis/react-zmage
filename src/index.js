@@ -109,7 +109,7 @@ export default class ReactZmage extends React.PureComponent {
                                 ? defPropMobile
                                 : defPropAuto(true)
                         return (
-                            <Portals zIndex={zIndex}>
+                            <Portals id="zmage" zIndex={zIndex}>
                                 <Wrapper
                                     // 内部
                                     cover={this.props.cover||this.cover}
