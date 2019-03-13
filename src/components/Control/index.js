@@ -10,15 +10,20 @@ import { ContextConsumer } from "@/components/context"
 // Style
 import style from './index.less'
 // Icons
-import { RotateLeftIcon, RotateRightIcon, ZoomIcon, ArrowLeftIcon, ArrowRightIcon, CloseIcon } from '@/asserts/icons'
+import { DownloadIcon, RotateLeftIcon, RotateRightIcon, ZoomIcon, ArrowLeftIcon, ArrowRightIcon, CloseIcon } from '@/asserts/icons'
 // Utils
-import { withShowingStatus } from '@/utils'
+import { withShowingStatus, downloadFromLink } from '@/utils'
 
 class Control extends React.PureComponent {
 
     withShow = (className) => {
         const { show, zoom } = this.props
         return withShowingStatus(className, !zoom&&show, style.show)
+    }
+
+    handleDownload = () => {
+        const { page, set } = this.props
+        downloadFromLink(set[page].src)
     }
 
     render() {
@@ -30,6 +35,7 @@ class Control extends React.PureComponent {
 
                 {/*控制按钮*/}
                 <div
+                    id="zmageControl"
                     className={this.withShow(style.controls)}
                     style={{ backgroundColor: backdrop }}
                 >
@@ -38,6 +44,7 @@ class Control extends React.PureComponent {
                     {
                         controller.rotate &&
                         <div
+                            id="zmageControlRotateLeft"
                             className={this.withShow(style.rotateLeft)}
                             onClick={toggleRotate("left")}
                         >
@@ -47,6 +54,7 @@ class Control extends React.PureComponent {
                     {
                         controller.rotate &&
                         <div
+                            id="zmageControlRotateRight"
                             className={this.withShow(style.rotateRight)}
                             onClick={toggleRotate("right")}
                         >
@@ -54,11 +62,24 @@ class Control extends React.PureComponent {
                         </div>
                     }
 
+                    {/*下载*/}
+                    {
+                        controller.download &&
+                        <div
+                            id="zmageControlDownload"
+                            className={this.withShow(style.download)}
+                            onClick={this.handleDownload}
+                        >
+                            <DownloadIcon/>
+                        </div>
+                    }
+
                     {/*放大*/}
                     {
                         controller.zoom &&
                         <div
-                            className={this.withShow(style.zoomButton)}
+                            id="zmageControlZoom"
+                            className={this.withShow(style.zoom)}
                             onClick={mobile ? ()=>window.open(set[page].src) : toggleZoom}
                         >
                             <ZoomIcon/>
@@ -69,7 +90,8 @@ class Control extends React.PureComponent {
                     {
                         controller.close &&
                         <div
-                            className={this.withShow(style.closeButton)}
+                            id="zmageControlClose"
+                            className={this.withShow(style.close)}
                             onClick={zoom ? toggleZoom : unmountSelf}
                         >
                             <CloseIcon/>
@@ -83,6 +105,7 @@ class Control extends React.PureComponent {
                     Array.isArray(set) && set.length>1 && controller.flip &&
                     <Fragment>
                         <div
+                            id="zmageControlFlipLeft"
                             className={this.withShow(style.flipLeft)}
                             style={{ backgroundColor: backdrop }}
                             onClick={toPrevPage}
@@ -90,6 +113,7 @@ class Control extends React.PureComponent {
                             <ArrowLeftIcon/>
                         </div>
                         <div
+                            id="zmageControlFlipRight"
                             className={this.withShow(style.flipRight)}
                             style={{ backgroundColor: backdrop }}
                             onClick={toNextPage}
@@ -103,13 +127,14 @@ class Control extends React.PureComponent {
                 {
                     Array.isArray(set) && set.length>1 && controller.pagination &&
                     <div
+                        id="zmageControlPagination"
                         className={this.withShow(style.pages)}
                         style={{ backgroundColor: backdrop }}
                     >
                         {
                             set.map((_, i) =>
                                 i === page ?
-                                    <span key={i} className={style.blackDot}/>:
+                                    <span key={i} id="zmageControlPaginationActive" className={style.blackDot}/>:
                                     <span key={i} className={style.whiteDot} onClick={()=>toPages(i)}/>
                             )
                         }
