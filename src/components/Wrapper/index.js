@@ -185,7 +185,7 @@ export default class Wrapper extends React.PureComponent {
         return (
             <Context.Provider value={contextValue}>
 
-                <div className={style.wrapperLayer}>
+                <div id="zmageWrapper" className={style.wrapperLayer}>
 
                     {/*背景层*/}
                     <Background

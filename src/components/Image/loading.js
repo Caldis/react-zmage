@@ -8,7 +8,7 @@ import classnames from 'classnames'
 // Styles
 import style from './loading.less'
 // Icons
-import { Refresh } from '@/asserts/icons'
+import { RefreshIcon } from '@/asserts/icons'
 // Utils
 import { ContextConsumer } from "@/components/context"
 
@@ -22,7 +22,7 @@ class Loading extends React.PureComponent {
         })
 
         return (
-            <div className={imageClassNames}>
+            <div id="zmageLoading" className={imageClassNames}>
                 {
                     load &&
                     <div className={style.loading}/>
@@ -30,7 +30,7 @@ class Loading extends React.PureComponent {
                 {
                     invalidate &&
                     <button className={style.reload} onClick={onReload} style={{ background: backdrop }}>
-                        <Refresh/>
+                        <RefreshIcon/>
                     </button>
                 }
             </div>

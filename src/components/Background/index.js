@@ -13,6 +13,7 @@ import style from './index.less'
 export default ContextConsumer(({ show, zoom, backdrop, unmountSelf, toggleZoom }) => {
 	return (
 		<div
+			id="zmageBackground"
 			className={style.backgroundLayer}
 			onClick={zoom ? toggleZoom : unmountSelf}
 			style={{
