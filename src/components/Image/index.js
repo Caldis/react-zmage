@@ -17,7 +17,7 @@ import {
     calcFitScale,
     scrollWidth, windowWidth, clientWidth,
     scrollHeight,windowHeight, clientHeight,
-    checkImageLoadedComplete, appendParams,
+    checkImageLoadedComplete, appendParams, numberOfStyleUnits,
 } from '@/utils'
 
 class Images extends React.PureComponent {
@@ -195,10 +195,9 @@ class Images extends React.PureComponent {
         })
         const imageStyle = {
             transform: `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`,
-            cursor: zoom ? 'zoom-out' : 'initial',
-            // borderRadius: currentStyle.borderRadius,
-            clipPath: `inset(0% 0% 0% 0% round ${currentStyle.borderRadius}px)`,
+            clipPath: currentStyle.borderRadius ? `inset(0% 0% 0% 0% round ${currentStyle.borderRadius/currentStyle.scale}px)` : `inset(0% 0% 0% 0% round 0)`,
             opacity: invalidate ? 0 : currentStyle.opacity,
+            cursor: zoom ? 'zoom-out' : 'initial',
             ...set[page].style,
         }
 
@@ -216,6 +215,7 @@ class Images extends React.PureComponent {
                 {/*图片*/}
                 <img
                     key={`${page}-${set[page].src}`}
+                    id="zmageImage"
                     className={imageClassNames}
                     style={imageStyle}
                     src={appendParams(set[page].src, { t: timestamp })}
@@ -258,14 +258,14 @@ Images.getCoverStyle = (props) => {
         opacity: Number(opacity) || 1,
         scale: naturalWidth ? width/naturalWidth : 1,
         rotate: rotate-rotate%360,
-        borderRadius: borderRadius
+        borderRadius: numberOfStyleUnits(borderRadius, width),
     } : {
         x: 0,
         y: -windowHeight(),
         opacity: 0,
         scale: naturalWidth ? width/naturalWidth : 1,
         rotate: rotate-rotate%360,
-        borderRadius: borderRadius
+        borderRadius: numberOfStyleUnits(borderRadius, width),
     }
 }
 Images.getBrowsingStyle = (props, imageRef) => {
