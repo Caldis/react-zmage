@@ -92,10 +92,10 @@ import Zmage from 'react-zmage'
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:----------|:----------:|
-| **`onBrowsing`** | func | ()=>{} | 生命周期方法, 在显示/隐藏时调用, 会回传显示状态 | [示例](https://github.com/Caldis/react-zmage#onBrowsing) |
-| **`onZooming`** | func | ()=>{} | 生命周期方法, 在放大/缩小时调用, 会回传缩放状态 | [示例](https://github.com/Caldis/react-zmage#onZooming) |
-| **`onSwitching`** | func | ()=>{} | 生命周期方法, 在切换图片时调用, 会回传页码 | [示例](https://github.com/Caldis/react-zmage#onSwitching) |
-| **`onRotating`** | func | ()=>{} | 生命周期方法, 在旋转图片时调用, 会回传角度 | [示例](https://github.com/Caldis/react-zmage#onRotating) |
+| **`onBrowsing`** | func | (browsing)=>{} | 生命周期方法, 在显示/隐藏时调用, 会回传显示状态 | [示例](https://github.com/Caldis/react-zmage#onBrowsing) |
+| **`onZooming`** | func | (zooming)=>{} | 生命周期方法, 在放大/缩小时调用, 会回传缩放状态 | [示例](https://github.com/Caldis/react-zmage#onZooming) |
+| **`onSwitching`** | func | (paging)=>{} | 生命周期方法, 在切换图片时调用, 会回传页码 | [示例](https://github.com/Caldis/react-zmage#onSwitching) |
+| **`onRotating`** | func | (deg)=>{} | 生命周期方法, 在旋转图片时调用, 会回传角度 | [示例](https://github.com/Caldis/react-zmage#onRotating) |
 
 ### `src`
 ```js
@@ -162,6 +162,8 @@ controller={{
     close: true,
     // 缩放按钮
     zoom: true,
+    // 下载按钮
+    download: true,
     // 旋转按钮
     rotate: true,
     // 翻页按钮
