@@ -8,7 +8,7 @@ import classnames from 'classnames'
 // Styles
 import style from './loading.less'
 // Icons
-import { RefreshIcon } from '@/asserts/icons'
+import { LoadingIcon, RefreshIcon } from '@/asserts/icons'
 // Utils
 import { ContextConsumer } from "@/components/context"
 
@@ -25,7 +25,9 @@ class Loading extends React.PureComponent {
             <div id="zmageLoading" className={imageClassNames}>
                 {
                     load &&
-                    <div className={style.loading}/>
+                    <div className={style.loading}>
+                        <LoadingIcon/>
+                    </div>
                 }
                 {
                     invalidate &&
