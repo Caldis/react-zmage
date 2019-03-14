@@ -13,11 +13,13 @@ import style from './index.less'
 // Components
 import Loading from './loading';
 // Utils
+import { env } from "@/config/default";
 import {
     calcFitScale,
     scrollWidth, windowWidth, clientWidth,
     scrollHeight,windowHeight, clientHeight,
     checkImageLoadedComplete, appendParams, numberOfStyleUnits,
+    lockTouchInteraction, unlockTouchInteraction
 } from '@/utils'
 
 class Images extends React.PureComponent {
@@ -56,20 +58,26 @@ class Images extends React.PureComponent {
         const { show: currShow, zoom: currZoom, rotate: currRotate, page: currPage } = this.props
         // 状态改变时更新样式 (Page 导致的 src 变化的 update 交给图片自身的 onload 调用)
         if (prevShow!==currShow || prevZoom!==currZoom || prevRotate!==currRotate) {
-            // 在初次进入时添加延迟, 避免 Safari 初次获取不到 ref 的 bug
+            // 显示状态切换
             if (!prevShow) {
+                // 显示
+                // 在初次进入时添加延迟, 避免 Safari 初次获取不到 ref 的 bu
                 setTimeout(() => {
                     this.updateCurrentImageStyle()
                     this.handleDetectImageLoadComplete()
+                    env.isMobile && lockTouchInteraction()
                 }, 50)
             } else {
+                // 隐藏
                 this.updateCurrentImageStyle()
+                env.isMobile && unlockTouchInteraction()
             }
             // 更新监听状态
             this.updateZoomEventListenerWithState()
         }
-        // 切换页面时显示加载, 并去除加载时间戳
+        // 切换页面时
         if (prevPage!==currPage) {
+            // 显示加载, 并去除加载时间戳
             this.handleImageLoadStart({ timestamp: null })
         }
     }
@@ -110,7 +118,7 @@ class Images extends React.PureComponent {
     handleResize = (e) => {
         this.updateCurrentImageStyle()
     }
-    handleScroll = () => {
+    handleScroll = (e) => {
         if (this.currentImageRef.current) {
             const { show } = this.props
             this.currentImageRef.current.style.top = `calc(50% + ${show ? 0 : this.initialPageOffset-window.pageYOffset}px)`
