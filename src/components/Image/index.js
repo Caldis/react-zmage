@@ -19,7 +19,8 @@ import {
     scrollWidth, windowWidth, clientWidth,
     scrollHeight,windowHeight, clientHeight,
     checkImageLoadedComplete, appendParams, numberOfStyleUnits,
-    lockTouchInteraction, unlockTouchInteraction
+    lockTouchInteraction, unlockTouchInteraction,
+    withVendorPrefix,
 } from '@/utils'
 
 class Images extends React.PureComponent {
@@ -194,7 +195,7 @@ class Images extends React.PureComponent {
 
     render() {
 
-        const { show, cover, zoom, page, set } = this.props
+        const { show, zoom, page, set, isMatchCover } = this.props
         const { isFetching, invalidate, currentStyle, timestamp } = this.state
 
         const imageClassNames = classnames(style.imageLayer, set[page].className, {
@@ -202,8 +203,8 @@ class Images extends React.PureComponent {
             [style.invalidate]: invalidate,
         })
         const imageStyle = {
-            transform: `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`,
-            clipPath: currentStyle.borderRadius ? `inset(0% 0% 0% 0% round ${currentStyle.borderRadius/currentStyle.scale}px)` : `inset(0% 0% 0% 0% round 0)`,
+            ...withVendorPrefix({ transform: `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)` }),
+            // ...withVendorPrefix({ clipPath: currentStyle.borderRadius ? `inset(0% 0% 0% 0% round ${currentStyle.borderRadius/currentStyle.scale}px)` : `inset(0% 0% 0% 0% round 0)` }),
             opacity: invalidate ? 0 : currentStyle.opacity,
             cursor: zoom ? 'zoom-out' : 'initial',
             ...set[page].style,
@@ -214,7 +215,7 @@ class Images extends React.PureComponent {
 
                 {/*加载*/}
                 <Loading
-                    show={show && (!cover || cover.getAttribute("src")!==set[page].src)}
+                    show={show && !isMatchCover}
                     load={isFetching}
                     invalidate={invalidate}
                     onReload={this.handleImageReload}
@@ -256,11 +257,11 @@ Images.getCurrentImageStyle = (props, imageRef) => {
     }
 }
 Images.getCoverStyle = (props) => {
-    const { cover, page, rotate } = props
+    const { cover, rotate, isMatchCover } = props
     const { naturalWidth } = cover
     const { top, left, width, height } = cover.getBoundingClientRect()
     const { opacity, borderRadius } = window.getComputedStyle(cover)
-    return page === 0 ? {
+    return isMatchCover ? {
         x: -scrollWidth()/2 + left + width/2,
         y: -windowHeight()/2 + top + height/2,
         opacity: Number(opacity) || 1,
@@ -269,11 +270,11 @@ Images.getCoverStyle = (props) => {
         borderRadius: numberOfStyleUnits(borderRadius, width),
     } : {
         x: 0,
-        y: -windowHeight(),
-        opacity: 0,
-        scale: naturalWidth ? width/naturalWidth : 1,
-        rotate: rotate-rotate%360,
-        borderRadius: numberOfStyleUnits(borderRadius, width),
+            y: -windowHeight(),
+            opacity: 0,
+            scale: naturalWidth ? width/naturalWidth : 1,
+            rotate: rotate-rotate%360,
+            borderRadius: numberOfStyleUnits(borderRadius, width),
     }
 }
 Images.getBrowsingStyle = (props, imageRef) => {

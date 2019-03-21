@@ -102,7 +102,7 @@ export const appendParams = (url, params={}) => {
  */
 export const numberOfStyleUnits = (unit, percentRef=100) => unit ? unit.includes('%') ? percentRef*Number(unit.substring(0, unit.length - 1))/100 : Number(unit.substring(0, unit.length - 2)) : unit
 
-/*
+/**
  * 下载文件
  * @param {string}  href - 下载目标地址
  * @param {string} [name] - 下载文件名称
@@ -114,4 +114,28 @@ export const downloadFromLink = (href, name) => {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+}
+
+/**
+ * 令首字母大写
+ * @param {string} string - 目标文本
+ */
+export const uppercaseFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
+/**
+ * 增加浏览器前缀
+ * @param {object} style - 目标样式
+ */
+export const withVendorPrefix = (style) => {
+    const vendorPrefixList = ['webkit', 'moz', 'ms', 'o']
+    return Object.keys(style).reduce((styleAcc, styleCur) => {
+        const stylesWithPrefix = vendorPrefixList.reduce((prefixAcc, prefixCur) => {
+            return Object.assign(prefixAcc, {
+                [`${prefixCur}${uppercaseFirstLetter(styleCur)}`]: style[styleCur]
+            })
+        }, {})
+        return Object.assign(styleAcc, stylesWithPrefix)
+    }, {})
 }
