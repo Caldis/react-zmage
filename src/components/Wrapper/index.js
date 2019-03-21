@@ -47,8 +47,8 @@ export default class Wrapper extends React.PureComponent {
         const { cover } = this.props
         const { page } = this.state
         this.setState({ show: true }, () => {
-            // 隐藏封面原图 (当设定的 defaultPage 不为首张图片时, 图片将从上方进入, 此时不需要隐藏封面图片)
-            if (page === 0) {
+            // 隐藏封面原图 (当当图片与封面不一致时, 图片将从上方进入, 此时不需要隐藏封面图片)
+            if (this.isMatchCover()) {
                 cover.style.visibility = 'hidden'
             }
             // 绑定事件
@@ -59,8 +59,10 @@ export default class Wrapper extends React.PureComponent {
     unMountSelf = () => {
         const { cover } = this.props
         const { page } = this.state
-        // 显示封面原图（当前不为第一页时，遮罩从上方移除会迅速露出，需要立即显示，否则交由图片层处理）
-        if(page!==0) cover.style.visibility = 'visible'
+        // 显示封面原图（当图片与封面不一致时，遮罩从上方移除会迅速露出，需要立即显示，否则交由图片层处理）
+        if(!this.isMatchCover()) {
+            cover.style.visibility = 'visible'
+        }
         this.setState({ show: false })
     }
 
@@ -163,6 +165,13 @@ export default class Wrapper extends React.PureComponent {
         }
     }
 
+    // Hooks
+    isMatchCover = () => {
+        const { cover, set } = this.props
+        const { page } = this.state
+        return cover && cover.getAttribute("src")===set[page].src
+    }
+
     render() {
 
         const { cover, remove, set, controller, preset, backdrop, radius, edge } = this.props
@@ -180,6 +189,8 @@ export default class Wrapper extends React.PureComponent {
             backdrop, radius, edge,
             // State
             show, zoom, page, rotate,
+            // Cal
+            isMatchCover: this.isMatchCover()
         }
 
         return (
