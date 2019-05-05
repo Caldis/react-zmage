@@ -35,8 +35,20 @@ export default class Wrapper extends React.PureComponent {
     componentDidMount() {
         setTimeout(this.mountSelf, 0)
     }
+    // componentDidUpdate(prevProps, prevState, snapshot) {
+    //     if (prevProps.show!==this.props.show) {
+    //         // 显示由外部 index 层控制
+    //         !this.props.show && this.unMountSelf()
+    //     }
+    //     if (prevProps.zoom!==this.props.zoom) {
+    //         this.handleToggleZoom()
+    //     }
+    //     if (prevProps.page!==this.props.page) {
+    //         this.handleToPages(this.props.page)
+    //     }
+    // }
     componentWillUnmount() {
-        window.addEventListener('scroll', this.handleScroll)
+        window.removeEventListener('scroll', this.handleScroll)
         window.removeEventListener('keydown', this.handleKeyDown)
     }
 
@@ -74,20 +86,24 @@ export default class Wrapper extends React.PureComponent {
         e.preventDefault()
         const { set, hotKey } = this.props
         const { zoom } = this.state
-        const hasImageSet = set && set.constructor===Array
+        const hasImageSet = Array.isArray(set)
         switch (e.key) {
+            case "Esc":
             case "Escape":
                 // 退出
                 hotKey.close && (zoom ? this.handleToggleZoom() : this.unMountSelf())
                 break
             case " ":
+            case "Spacebar":
                 // 缩放
 	            hotKey.zoom && this.handleToggleZoom()
                 break
+            case "Left":
             case "ArrowLeft":
                 // 上一张
                 !zoom && hotKey.flip && hasImageSet && this.handleToPrevPage()
                 break
+            case "Right":
             case "ArrowRight":
                 // 下一张
                 !zoom && hotKey.flip && hasImageSet && this.handleToNextPage()
