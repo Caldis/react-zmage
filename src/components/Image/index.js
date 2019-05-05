@@ -17,7 +17,7 @@ import { env } from "@/config/default";
 import {
     calcFitScale,
     scrollWidth, windowWidth, clientWidth,
-    scrollHeight,windowHeight, clientHeight,
+    scrollHeight, windowHeight, clientHeight,
     checkImageLoadedComplete, appendParams, numberOfStyleUnits,
     lockTouchInteraction, unlockTouchInteraction,
     withVendorPrefix,
@@ -202,9 +202,10 @@ class Images extends React.PureComponent {
             [style.zooming]: zoom,
             [style.invalidate]: invalidate,
         })
+
         const imageStyle = {
             ...withVendorPrefix({ transform: `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)` }),
-            // ...withVendorPrefix({ clipPath: currentStyle.borderRadius ? `inset(0% 0% 0% 0% round ${currentStyle.borderRadius/currentStyle.scale}px)` : `inset(0% 0% 0% 0% round 0)` }),
+            // ...withVendorPrefix({ clipPath: currentStyle.radius ? `inset(0% 0% 0% 0% round ${currentStyle.radius/currentStyle.scale}px)` : `inset(0% 0% 0% 0% round 0)` }),
             opacity: invalidate ? 0 : currentStyle.opacity,
             cursor: zoom ? 'zoom-out' : 'initial',
             ...set[page].style,
@@ -267,14 +268,14 @@ Images.getCoverStyle = (props) => {
         opacity: Number(opacity) || 1,
         scale: naturalWidth ? width/naturalWidth : 1,
         rotate: rotate-rotate%360,
-        borderRadius: numberOfStyleUnits(borderRadius, width),
+        radius: numberOfStyleUnits(borderRadius, { ref:width }),
     } : {
         x: 0,
-            y: -windowHeight(),
-            opacity: 0,
-            scale: naturalWidth ? width/naturalWidth : 1,
-            rotate: rotate-rotate%360,
-            borderRadius: numberOfStyleUnits(borderRadius, width),
+        y: -windowHeight(),
+        opacity: 0,
+        scale: naturalWidth ? width/naturalWidth : 1,
+        rotate: rotate-rotate%360,
+        radius: numberOfStyleUnits(borderRadius, { ref:width }),
     }
 }
 Images.getBrowsingStyle = (props, imageRef) => {
@@ -286,19 +287,20 @@ Images.getBrowsingStyle = (props, imageRef) => {
         opacity: 1,
         scale: calcFitScale(naturalWidth, naturalHeight, edge),
         rotate,
-        borderRadius: radius
+        radius,
     }
 }
 Images.getZoomingStyle = (props, imageRef, { clientX:mouseX=scrollWidth()/2, clientY:mouseY=windowHeight()/2 }={}) => {
     const { radius, edge, rotate } = props
     const { naturalWidth, naturalHeight } = imageRef.current
-    const cw = scrollWidth()
-    const ch = windowHeight()
-    const rangeX = naturalWidth - scrollWidth() + (2*edge)
-    const rangeY = naturalHeight - windowHeight() + (2*edge)
-    // 计算偏移量
-    const imgPosX = naturalWidth>cw ? ((naturalWidth - cw)/2 + edge) - (rangeX*(mouseX/cw)) : 0
-    const imgPosY = naturalHeight>ch ? ((naturalHeight - ch)/2 + edge) - (rangeY*(mouseY/ch)) : 0
+    // 随鼠标位移偏移量
+    const saveEdge = edge || 50
+    const viewWidth = scrollWidth()
+    const viewHeight = windowHeight()
+    const rangeX = naturalWidth - viewWidth + (2*saveEdge)
+    const rangeY = naturalHeight - viewHeight + (2*saveEdge)
+    const imgPosX = naturalWidth>viewWidth ? ((naturalWidth - viewWidth)/2 + saveEdge) - (rangeX*(mouseX/viewWidth)) : 0
+    const imgPosY = naturalHeight>viewHeight ? ((naturalHeight - viewHeight)/2 + saveEdge) - (rangeY*(mouseY/viewHeight)) : 0
     // 返回位置
     return {
         x: imgPosX,
@@ -306,7 +308,7 @@ Images.getZoomingStyle = (props, imageRef, { clientX:mouseX=scrollWidth()/2, cli
         opacity: 1,
         scale: 1,
         rotate,
-        borderRadius: radius
+        radius,
     }
 }
 
