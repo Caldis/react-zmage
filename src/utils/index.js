@@ -100,7 +100,11 @@ export const appendParams = (url, params={}) => {
  * @param {string}  unit - 目标样式对象
  * @param {number} [percentRef] - 当 unit 为百分比时的基准参考数值
  */
-export const numberOfStyleUnits = (unit, percentRef=100) => unit ? unit.includes('%') ? percentRef*Number(unit.substring(0, unit.length - 1))/100 : Number(unit.substring(0, unit.length - 2)) : unit
+export const numberOfStyleUnits = (unit, { ref=100 }={}) => unit
+    ? unit.includes('%')
+        ? ref*Number(unit.substring(0, unit.length - 1))/100
+        : Number(unit.substring(0, unit.length - 2))
+    : unit
 
 /**
  * 下载文件
@@ -129,13 +133,14 @@ export const uppercaseFirstLetter = (string) => {
  * @param {object} style - 目标样式
  */
 export const withVendorPrefix = (style) => {
-    const vendorPrefixList = ['webkit', 'moz', 'ms', 'o']
+    const vendorPrefixList = ['Webkit', 'Moz', 'Ms', 'O']
     return Object.keys(style).reduce((styleAcc, styleCur) => {
         const stylesWithPrefix = vendorPrefixList.reduce((prefixAcc, prefixCur) => {
-            return Object.assign(prefixAcc, {
+            return {
+                ...prefixAcc,
                 [`${prefixCur}${uppercaseFirstLetter(styleCur)}`]: style[styleCur]
-            })
+            }
         }, {})
-        return Object.assign(styleAcc, stylesWithPrefix)
-    }, {})
+        return { ...styleAcc, ...stylesWithPrefix }
+    }, style)
 }
