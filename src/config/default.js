@@ -159,7 +159,7 @@ export const defPreset = {
             flip: true,
         },
         radius: 5,
-        edge: 20,
+        edge: 0,
     },
 
     // 移动端
