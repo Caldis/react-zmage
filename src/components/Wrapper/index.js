@@ -35,18 +35,6 @@ export default class Wrapper extends React.PureComponent {
     componentDidMount() {
         setTimeout(this.mountSelf, 0)
     }
-    // componentDidUpdate(prevProps, prevState, snapshot) {
-    //     if (prevProps.show!==this.props.show) {
-    //         // 显示由外部 index 层控制
-    //         !this.props.show && this.unMountSelf()
-    //     }
-    //     if (prevProps.zoom!==this.props.zoom) {
-    //         this.handleToggleZoom()
-    //     }
-    //     if (prevProps.page!==this.props.page) {
-    //         this.handleToPages(this.props.page)
-    //     }
-    // }
     componentWillUnmount() {
         window.removeEventListener('scroll', this.handleScroll)
         window.removeEventListener('keydown', this.handleKeyDown)

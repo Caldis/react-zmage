@@ -11,6 +11,7 @@ import Wrapper from './components/Wrapper'
 import { defType, defProp, defPropDesktop, defPropMobile, defPropAuto } from './config/default'
 
 export default class ReactZmage extends React.PureComponent {
+
     constructor(props){
         super(props)
 
@@ -27,7 +28,6 @@ export default class ReactZmage extends React.PureComponent {
         // TODO:ENHANCE 禁用移动端的滑动退出及禁用滚动
         // TODO:ENHANCE 移动端下点击隐藏的背景按下时会变暗
         // TODO:BUG     移动端下左右按钮
-
     }
 
     // 切换查看状态
@@ -112,7 +112,7 @@ export default class ReactZmage extends React.PureComponent {
                             <Portals id="zmage" zIndex={zIndex}>
                                 <Wrapper
                                     // 内部
-                                    cover={this.props.cover||this.cover}
+                                    cover={this.props.cover || this.cover}
                                     remove={this.unBrowsing}
                                     // 基础数据
                                     alt={alt}
