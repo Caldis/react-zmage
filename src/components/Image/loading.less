@@ -6,7 +6,7 @@
     left: 50%;
     top: 50%;
     opacity: 0;
-    transition: opacity @animationDurations .15s;
+    transition: opacity @animationFunction @animationDuration/2;
 
     &.show {
         opacity: 1;
@@ -34,7 +34,7 @@
 
         svg {
             display: block;
-            transition: transform @animationDurations @animationFunction;
+            transition: transform @animationDuration @animationFunction;
         }
     }
 

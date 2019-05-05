@@ -27,7 +27,7 @@
     z-index: 1000;
     border-radius: 5rem;
     transform: translateX(100%);
-    transition: transform .3s @animationFunction, opacity 0.3s;
+    transition: transform @animationDuration @animationFunction, opacity @animationDuration;
 
     &.show {
         opacity: 0.8;
@@ -40,7 +40,7 @@
         margin: 0.4em 0;
         width: 2rem;
         height: 2rem;
-        transition: transform .15s @animationFunction, opacity .3s @animationFunction;
+        transition: transform @animationDuration/2 @animationFunction, opacity @animationDuration @animationFunction;
 
         &:hover {
             opacity: 0.8 !important;
@@ -65,7 +65,7 @@
 
         svg {
             width: 1.75rem;
-            transition: transform @animationDurations @animationFunction;
+            transition: transform @animationDuration @animationFunction;
         }
     }
     .rotateLeft {
@@ -116,7 +116,7 @@
     position: absolute;
     top: 50%;
     padding: 0.4rem;
-    transition: transform .15s @animationFunction, opacity .3s @animationFunction;
+    transition: transform @animationDuration/2 @animationFunction, opacity @animationDuration @animationFunction;
 
     &:hover {
         opacity: 0.8 !important;
@@ -176,7 +176,7 @@
     opacity: 0;
     border-radius: 2rem;
     transform: translate(-50%, 100px);
-    transition: transform .3s @animationFunction, opacity .3s @animationFunction;
+    transition: transform @animationDuration @animationFunction, opacity @animationDuration @animationFunction;
 
     &.show {
         opacity: 0.8;
@@ -191,7 +191,7 @@
         height: 0.6rem;
         border-radius: 1.2rem;
         background: black;
-        transition: transform @animationDurations @animationFunction, opacity @animationDurations @animationFunction, width @animationDurations @animationFunction;
+        transition: transform @animationDuration @animationFunction, opacity @animationDuration @animationFunction, width @animationDuration @animationFunction;
 
         &:first-of-type {
             margin-left: 0.6rem;
