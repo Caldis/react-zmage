@@ -35,28 +35,14 @@ export default class ReactZmage extends React.PureComponent {
     }
 
     /* 切换查看状态 */
-    inBrowsing = ({ force } ={}) => {
-        const { onBrowsing } = this.props
-        if (this.isControlled && !force) {
-            typeof onBrowsing === "function" && onBrowsing()
-        } else {
-            this.setState({
-                browsing: true
-            }, () => {
-                typeof onBrowsing === "function" && onBrowsing()
-            })
+    inBrowsing = () => {
+        if (!this.isControlled) {
+            this.setState({ browsing: true })
         }
     }
     outBrowsing = () => {
-        const { unBrowsing } = this.props
-        if (this.isControlled) {
-            typeof unBrowsing === "function" && unBrowsing()
-        } else {
-            this.setState({
-                browsing: false
-            }, () => {
-                typeof unBrowsing === "function" && unBrowsing()
-            })
+        if (!this.isControlled) {
+            this.setState({ browsing: false })
         }
     }
 
@@ -73,14 +59,17 @@ export default class ReactZmage extends React.PureComponent {
             controller, hotKey,
             // Styles
             zIndex, backdrop, radius, edge,
-            // 生命周期
-            onBrowsing, unBrowsing, onZooming, onSwitching, onRotating,
-            // 受控属性
-            browsing: controlledBrowsing,
-            // 剩余参数
+            // Life cycle functions
+            onBrowsing, onZooming, onSwitching, onRotating,
+            // Controlled props
+            browsing:controlledBrowsing,
+            // rest
             ...restProps
         } = this.props
-        const { browsing } = this.state
+        const {
+            // Main state
+            browsing:stateBrowsing
+        } = this.state
 
         const defProp = defPropWithEnv(preset)
 
@@ -103,7 +92,7 @@ export default class ReactZmage extends React.PureComponent {
                 {/*查看叠层*/}
                 <Browser
                     // Controlled status
-                    browsing={browsing}
+                    browsing={this.isControlled ? controlledBrowsing : stateBrowsing}
                     // Internal
                     coverRef={this.coverRef}
                     outBrowsing={this.outBrowsing}
@@ -118,6 +107,11 @@ export default class ReactZmage extends React.PureComponent {
                     backdrop={backdrop}
                     radius={radius}
                     edge={edge}
+                    // Life cycle functions
+                    onBrowsing={onBrowsing}
+                    onZooming={onZooming}
+                    onSwitching={onSwitching}
+                    onRotating={onRotating}
                 />
 
             </Fragment>
@@ -138,12 +132,16 @@ ReactZmage.browsing = ({ browsing, ...props }) => {
         <ReactZmage
             {...props}
             source={SOURCE_TYPE.COMMAND}
-            unBrowsing={() => {
-                typeof props.unBrowsing === "function" && props.unBrowsing()
-                try { setTimeout(() => commandTarget.removeChild(commandContainer), 350) } catch (e) {}
+            onBrowsing={(status) => {
+                if (!status) {
+                    try { setTimeout(() => commandTarget.removeChild(commandContainer), 350) } catch (e) {}
+                }
             }}
         />, commandContainer
     )
+    return () => {
+        // Unmount target
+    }
 }
 
 // 属性默认值
@@ -181,7 +179,6 @@ ReactZmage.defaultProps = {
      * 生命周期
      **/
     onBrowsing: defProp.onBrowsing,
-    unBrowsing: defProp.unBrowsing,
     onZooming: defProp.onZooming,
     onSwitching: defProp.onSwitching,
     onRotating: defProp.onRotating,
@@ -227,7 +224,6 @@ ReactZmage.propTypes = {
      * 生命周期
      **/
     onBrowsing: defType.onBrowsing,
-    unBrowsing: defType.unBrowsing,
     onZooming: defType.onZooming,
     onSwitching: defType.onSwitching,
     onRotating: defType.onRotating,
