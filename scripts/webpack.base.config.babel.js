@@ -1,6 +1,7 @@
 // libs
 import path from 'path'
 import webpack from 'webpack'
+import ExtractTextPlugin from "extract-text-webpack-plugin"
 // Config
 export const host = process.env.HOST || '127.0.0.1'
 export const port = process.env.PORT || 8080
@@ -23,7 +24,9 @@ export default {
 
 	plugins: [
 		// postcss配置
-        new webpack.LoaderOptionsPlugin({ options: { postcss: [ autoprefixer ] } })
+        new webpack.LoaderOptionsPlugin({ options: { postcss: [ autoprefixer ] } }),
+		// 样式
+		new ExtractTextPlugin("styles.css"),
 	],
 
 	module: {
@@ -111,7 +114,9 @@ export default {
 // 生成对应的样式参数配置
 function styleProcessor(type = 'css', options = { modules: false }) {
     // 各类型 Style 的 Loader 配置项
-    const styleLoader = { loader: 'style-loader' }
+    const styleLoader = {
+    	loader: 'style-loader'
+    }
     const cssLoader = {
         loader: 'css-loader',
         options: options.modules ? {
@@ -133,9 +138,17 @@ function styleProcessor(type = 'css', options = { modules: false }) {
 
     // 根据传入的配置返回不同的组合
 	if(type === 'css') {
-        return [styleLoader, cssLoader, postcssLoader]
+		return [styleLoader, cssLoader, postcssLoader]
+	  // return ExtractTextPlugin.extract({
+		// 	fallback: 'style-loader',
+		// 	use: [cssLoader, postcssLoader]
+		// })
 	}
 	if(type === 'less') {
-        return [styleLoader, cssLoader, postcssLoader, lessLoader]
+		return [styleLoader, cssLoader, postcssLoader, lessLoader]
+		// return ExtractTextPlugin.extract({
+		// 	fallback: 'style-loader',
+		// 	use: [cssLoader, postcssLoader, lessLoader]
+		// })
 	}
 }
