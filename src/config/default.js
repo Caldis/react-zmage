@@ -98,7 +98,6 @@ export const defType = {
      * 生命周期
      **/
     onBrowsing: PropTypes.func,
-    unBrowsing: PropTypes.func,
     onZooming: PropTypes.func,
     onSwitching: PropTypes.func,
     onRotating: PropTypes.func,
@@ -192,7 +191,6 @@ export const defProp = {
      * 生命周期
      **/
     onBrowsing: ()=>{},
-    unBrowsing: ()=>{},
     onZooming: ()=>{},
     onSwitching: ()=>{},
     onRotating: ()=>{},
