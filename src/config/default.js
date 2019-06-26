@@ -206,10 +206,6 @@ export const defProp = {
 /**
  * 默认值 (不同平台)
  **/
-export const defPropAuto = {
-    ...defProp,
-    ...(env.isDesktop ? defPreset.desktop : defPreset.mobile)
-}
 export const defPropDesktop = {
     ...defProp,
     ...defPreset.desktop,
@@ -217,4 +213,34 @@ export const defPropDesktop = {
 export const defPropMobile = {
     ...defProp,
     ...defPreset.mobile,
+}
+export const defPropAuto = {
+    ...defProp,
+    ...(env.isDesktop ? defPreset.desktop : defPreset.mobile)
+}
+// 获取默认值
+const DEF_PROP = "__ZMAGE_DEF_PROP__"
+export const defPropWithEnv = (preset) => {
+    if (window) {
+        if (window.hasOwnProperty(DEF_PROP)) {
+            return window[DEF_PROP]
+        } else {
+            switch (preset) {
+                case 'desktop':
+                    window[DEF_PROP] = defPropDesktop
+                    break
+                case 'mobile':
+                    window[DEF_PROP] = defPropMobile
+                    break
+                case 'auto':
+                    window[DEF_PROP] = defPropAuto
+                    break
+                default:
+                    window[DEF_PROP] = defPropAuto
+            }
+            return window[DEF_PROP]
+        }
+    } else {
+        return {}
+    }
 }
