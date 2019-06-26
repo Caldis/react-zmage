@@ -1,0 +1,222 @@
+// Libs
+@import "../../config/anim.less";
+// Vars
+@baseDelay: 0.06s;
+
+// 基础按钮
+.baseButton {
+    z-index: 1000;
+    box-sizing: border-box;
+    cursor: pointer;
+
+    >svg {
+        display: block;
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+// 控制容器
+.controls {
+	box-sizing: border-box;
+	position: absolute;
+	top: 0.6rem;
+	right: 0.6rem;
+    opacity: 0;
+	display: flex;
+    z-index: 1000;
+    border-radius: 5rem;
+    transform: translateX(100%);
+    transition: transform @animationDuration @animationFunction, opacity @animationDuration;
+
+    &.show {
+        opacity: 0.8;
+        transform: translateX(0);
+    }
+
+    .pinButton {
+        .baseButton;
+
+        margin: 0.4em 0;
+        width: 2rem;
+        height: 2rem;
+        transition: transform @animationDuration/2 @animationFunction, opacity @animationDuration @animationFunction;
+
+        &:hover {
+            opacity: 0.8 !important;
+            transform: scale(1.1) !important;
+        }
+        &:active {
+            opacity: 1.0 !important;
+            transform: scale(1.0) !important;
+        }
+
+        &:first-of-type {
+            margin-left: 0.4rem;
+        }
+        &:last-of-type {
+            margin-right: 0.4rem;
+        }
+    }
+
+    // 旋转
+    .rotate {
+        .pinButton;
+
+        svg {
+            width: 1.75rem;
+            transition: transform @animationDuration @animationFunction;
+        }
+    }
+    .rotateLeft {
+        .rotate;
+
+        &:hover {
+            svg {
+                transform: rotate(-30deg);
+            }
+        }
+    }
+    .rotateRight {
+        .rotate;
+
+        &:hover {
+            svg {
+                transform: rotate(30deg);
+            }
+        }
+    }
+
+    // 下载
+    .download {
+        .pinButton;
+
+        svg {
+            margin-top: -0.06rem;
+            width: 1.75rem;
+        }
+    }
+
+    // 放大
+    .zoom {
+        .pinButton;
+    }
+
+    // 关闭
+    .close {
+        .pinButton;
+    }
+}
+
+// 翻页控制
+.sideButton {
+    .baseButton;
+
+    opacity: 0;
+    position: absolute;
+    top: 50%;
+    padding: 0.4rem;
+    transition: transform @animationDuration/2 @animationFunction, opacity @animationDuration @animationFunction;
+
+    &:hover {
+        opacity: 0.8 !important;
+        transform: translateX(0) translateY(-50%) !important;
+    }
+    &:active {
+        opacity: 1.0 !important;
+    }
+
+    &.show {
+        opacity: 0.8;
+    }
+}
+.flipLeft {
+    .sideButton;
+
+    left: 0;
+    padding-left: 0.6rem;
+    border-radius: 0 0.5em 0.5em 0;
+    transform: translateX(-100%) translateY(-50%);
+
+    &:active {
+        transform: translate(-0.2em) translateY(-50%) !important;
+    }
+
+    &.show {
+        opacity: 0.8;
+        transform: translate(-0.2em) translateY(-50%);
+    }
+}
+.flipRight {
+    .sideButton;
+
+    right: 0;
+    padding-right: 0.6rem;
+    border-radius: 0.5rem 0 0 0.5rem;
+    transform: translateX(100%) translateY(-50%);
+
+    &:active {
+        transform: translate(0.2em) translateY(-50%) !important;
+    }
+
+    &.show {
+        opacity: 0.8;
+        transform: translate(0.2em) translateY(-50%);
+    }
+}
+
+// 页数指示
+.pages {
+    box-sizing: border-box;
+    display: flex;
+    position: absolute;
+    left: 50%;
+    bottom: 0.6rem;
+    z-index: 110;
+    opacity: 0;
+    border-radius: 2rem;
+    transform: translate(-50%, 100px);
+    transition: transform @animationDuration @animationFunction, opacity @animationDuration @animationFunction;
+
+    &.show {
+        opacity: 0.8;
+        transform: translate(-50%, 0);
+    }
+
+    .dot {
+        cursor: pointer;
+        margin: 0.45rem 0.25rem;;
+        display: block;
+        width: 0.6rem;
+        height: 0.6rem;
+        border-radius: 1.2rem;
+        background: black;
+        transition: transform @animationDuration @animationFunction, opacity @animationDuration @animationFunction, width @animationDuration @animationFunction;
+
+        &:first-of-type {
+            margin-left: 0.6rem;
+        }
+        &:last-of-type {
+            margin-right: 0.6rem;
+        }
+    }
+    .blackDot {
+        .dot;
+        cursor: initial;
+        width: 1rem;
+        background: black;
+    }
+    .whiteDot {
+        .dot;
+        background: #999;
+
+        &:hover {
+            opacity: 0.8 !important;
+            transform: scale(1.1) !important;
+        }
+        &:active {
+            opacity: 1.0 !important;
+            transform: scale(1.0) !important;
+        }
+    }
+}

@@ -14,6 +14,13 @@ import Zmage from '@/index'
 
 
 export default class App extends React.Component {
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            browsing: false,
+        }
+    }
 
     render() {
         return (
@@ -175,6 +182,35 @@ export default class App extends React.Component {
                 </div>
 
                 <div className={style.horizon}>
+                    <div>
+                        <h2>受控属性与 (beta)</h2>
+                        <button onClick={() => Zmage.browsing({
+                            src: "imgSet/childsDream/5.jpg"
+                        })}>啊啊啊</button>
+                        <button onClick={() => this.setState({browsing:!this.state.browsing})}>切换</button>
+                    </div>
+                    <div>
+                        <Zmage
+                          className={style.image}
+                          src="imgSet/childsDream/7.jpg"
+                          alt="使用键盘进行快捷操作"
+                          preset="mobile"
+                          browsing={this.state.browsing}
+                          onBrowsing={() => this.setState({ browsing:true })}
+                          unBrowsing={() => this.setState({ browsing:false })}
+                          set={[{
+                              src: "imgSet/childsDream/7.jpg",
+                              alt: "童夢 · SIX"
+                          },{
+                              src: "imgSet/childsDream/8.jpg",
+                              alt: "童夢 · SEVEN"
+                          }]}
+                        />
+                        <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>
+                    </div>
+                </div>
+
+                <div className={style.horizon} style={{ display:'none' }}>
                     <div>
                         <h2>预设配置 (beta)</h2>
                         <p>我们自带了两套默认配置项</p>

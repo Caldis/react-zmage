@@ -6,13 +6,13 @@
 import React from 'react'
 import classnames from 'classnames'
 // Styles
-import style from './loading.less'
+import style from './Loading.less'
 // Icons
-import { LoadingIcon, RefreshIcon } from '@/asserts/icons'
+import { IconLoading, IconRefresh } from '@/asserts/icons'
 // Utils
-import { ContextConsumer } from "@/components/context"
+import { Context } from "../context"
 
-class Loading extends React.PureComponent {
+export default class Loading extends React.PureComponent {
     render() {
 
         const { show, load, invalidate, onReload, backdrop } = this.props
@@ -26,13 +26,13 @@ class Loading extends React.PureComponent {
                 {
                     load &&
                     <div className={style.loading}>
-                        <LoadingIcon/>
+                        <IconLoading/>
                     </div>
                 }
                 {
                     invalidate &&
                     <button className={style.reload} onClick={onReload} style={{ background: backdrop }}>
-                        <RefreshIcon/>
+                        <IconRefresh/>
                     </button>
                 }
             </div>
@@ -40,4 +40,4 @@ class Loading extends React.PureComponent {
     }
 }
 
-export default ContextConsumer(Loading)
+Loading.contextType = Context

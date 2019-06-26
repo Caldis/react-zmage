@@ -3,33 +3,8 @@
  **/
 
 // Libs
-import PropTypes from 'prop-types';
-// Utils
-import { isDesktop, isMobile } from '@/utils'
-
-/**
- * 全局变量缓存
- **/
-const env = { isDesktop: null, isMobile: null }
-const updateEnv = (force) => {
-    if (window) {
-        if (!window.__ZMAGE_INITIALIZED___ || force) {
-            const mobile = isMobile()
-            window.__ZMAGE_INITIALIZED___ = true
-            window.__ZMAGE_ENV_IS_DESKTOP___ = !mobile
-            window.__ZMAGE_ENV_IS_MOBILE___ = mobile
-        }
-        env.isDesktop = window.__ZMAGE_ENV_IS_DESKTOP___
-        env.isMobile = window.__ZMAGE_ENV_IS_MOBILE___
-    } else {
-        const mobile = isMobile()
-        env.isDesktop = !mobile
-        env.isMobile = mobile
-    }
-    return env
-}
-updateEnv()
-export { env }
+import PropTypes from 'prop-types'
+import { env } from "@/utils/env"
 
 /**
  * 默认类型
@@ -123,18 +98,15 @@ export const defType = {
      * 生命周期
      **/
     onBrowsing: PropTypes.func,
+    unBrowsing: PropTypes.func,
     onZooming: PropTypes.func,
     onSwitching: PropTypes.func,
     onRotating: PropTypes.func,
 
     /**
-     * 内部
+     * 受控屬性
      **/
-    // components/Wrapper
-    // 封面节点
-    cover: PropTypes.object,
-    // 卸载函数
-    remove: PropTypes.func,
+    browsing: PropTypes.bool,
 }
 
 /**
@@ -142,7 +114,6 @@ export const defType = {
  **/
 
 export const defPreset = {
-
     // 桌面
     desktop: {
         controller: {
@@ -158,10 +129,7 @@ export const defPreset = {
             zoom: true,
             flip: true,
         },
-        radius: 5,
-        edge: 0,
     },
-
     // 移动端
     mobile: {
         controller: {
@@ -177,10 +145,7 @@ export const defPreset = {
             zoom: false,
             flip: false,
         },
-        radius: 0,
-        edge: 0,
     }
-
 }
 export const defProp = {
 
@@ -206,10 +171,10 @@ export const defProp = {
     /**
      * 功能控制
      **/
-	// 控制器 (受制于 preset)
-	controller: {},
-	// 快捷键 (受制于 preset)
-	hotKey: {},
+    // 控制器 (受制于 preset)
+    controller: {},
+    // 快捷键 (受制于 preset)
+    hotKey: {},
 
     /**
      * 界面样式
@@ -219,41 +184,37 @@ export const defProp = {
     // 高度
     zIndex: 1000,
     // 圆角 (受制于 preset)
-    radius: null,
+    radius: 0,
     // 边距 (受制于 preset)
-    edge: null,
+    edge: 0,
 	
     /**
      * 生命周期
      **/
     onBrowsing: ()=>{},
+    unBrowsing: ()=>{},
     onZooming: ()=>{},
     onSwitching: ()=>{},
     onRotating: ()=>{},
 
     /**
-     * 内部
+     * 受控屬性
      **/
-    // components/Wrapper
-    // 封面节点
-    cover: {},
-    // 卸载函数
-    remove: ()=>{},
-
+    browsing: undefined,
 }
 
 /**
  * 默认值 (不同平台)
  **/
-export const defPropAuto = (force) => ({
+export const defPropAuto = {
     ...defProp,
-    ...(updateEnv(force).isDesktop ? defPreset.desktop : defPreset.mobile)
-})
+    ...(env.isDesktop ? defPreset.desktop : defPreset.mobile)
+}
 export const defPropDesktop = {
     ...defProp,
-    ...defPreset.desktop
+    ...defPreset.desktop,
 }
 export const defPropMobile = {
     ...defProp,
-    ...defPreset.mobile
+    ...defPreset.mobile,
 }
