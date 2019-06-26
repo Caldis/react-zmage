@@ -8,7 +8,7 @@ import React, {Fragment} from 'react'
 // Components
 import Browser from './components/Browser'
 // Utils
-import { defType, defProp, defPropDesktop, defPropMobile, defPropAuto } from './config/default'
+import { defType, defProp, defPropWithEnv } from './config/default'
 import { SOURCE_TYPE } from "./Zmage.constant"
 import { convertSet } from './Zmage.utils'
 
@@ -82,11 +82,7 @@ export default class ReactZmage extends React.PureComponent {
         } = this.props
         const { browsing } = this.state
 
-        const defPropWithEnv = preset.toString()==="desktop"
-            ? defPropDesktop
-            : preset.toString()==="mobile"
-                ? defPropMobile
-                : defPropAuto
+        const defProp = defPropWithEnv(preset)
 
         return (
             <Fragment>
@@ -115,8 +111,8 @@ export default class ReactZmage extends React.PureComponent {
                     defaultPage={defaultPage}
                     set={convertSet({ set, src, alt, txt })}
                     // Control
-                    controller={{ ...defPropWithEnv.controller, ...controller }}
-                    hotKey={{ ...defPropWithEnv.hotKey, ...hotKey }}
+                    controller={{ ...defProp.controller, ...controller }}
+                    hotKey={{ ...defProp.hotKey, ...hotKey }}
                     // Styles
                     zIndex={zIndex}
                     backdrop={backdrop}

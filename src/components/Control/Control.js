@@ -41,8 +41,6 @@ export default class Control extends React.PureComponent {
             toggleRotate,
         } = this.context
 
-        console.log('controller', controller)
-
         return (
             <Fragment>
 
