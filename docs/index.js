@@ -181,19 +181,16 @@ export default class App extends React.Component {
                     </div>
                 </div>
 
-                <div className={style.horizon}>
+                <div className={style.horizon} style={{ display:'none' }}>
                     <div>
-                        <h2>受控属性与 (beta)</h2>
-                        <button onClick={() => Zmage.browsing({
-                            src: "imgSet/childsDream/5.jpg"
-                        })}>啊啊啊</button>
+                        <h2>受控属性与命令式调用</h2>
+                        <button onClick={() => Zmage.browsing({ src:"imgSet/childsDream/5.jpg" })}>点击显示</button>
                         <button onClick={() => this.setState({browsing:!this.state.browsing})}>切换</button>
                     </div>
                     <div>
                         <Zmage
                           className={style.image}
                           src="imgSet/childsDream/7.jpg"
-                          alt="使用键盘进行快捷操作"
                           preset="mobile"
                           browsing={this.state.browsing}
                           onBrowsing={() => this.setState({ browsing:true })}
