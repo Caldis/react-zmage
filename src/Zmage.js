@@ -36,12 +36,16 @@ export default class ReactZmage extends React.PureComponent {
 
     /* 切换查看状态 */
     inBrowsing = () => {
-        if (!this.isControlled) {
+        if (this.isControlled) {
+            this.props.onBrowsing(true)
+        } else {
             this.setState({ browsing: true })
         }
     }
     outBrowsing = () => {
-        if (!this.isControlled) {
+        if (this.isControlled) {
+            this.props.onBrowsing(false)
+        } else {
             this.setState({ browsing: false })
         }
     }
@@ -68,7 +72,7 @@ export default class ReactZmage extends React.PureComponent {
         } = this.props
         const {
             // Main state
-            browsing:stateBrowsing
+            browsing:internalBrowsing
         } = this.state
 
         const defProp = defPropWithEnv(preset)
@@ -92,7 +96,8 @@ export default class ReactZmage extends React.PureComponent {
                 {/*查看叠层*/}
                 <Browser
                     // Controlled status
-                    browsing={this.isControlled ? controlledBrowsing : stateBrowsing}
+                    isControlled={this.isControlled}
+                    browsing={this.isControlled ? controlledBrowsing : internalBrowsing}
                     // Internal
                     coverRef={this.coverRef}
                     outBrowsing={this.outBrowsing}
@@ -119,28 +124,31 @@ export default class ReactZmage extends React.PureComponent {
     }
 }
 
-// 命令式
-let commandTarget, commandContainer
-ReactZmage.browsing = ({ browsing, ...props }) => {
+/* 命令式调用 */
+let renderContainer, renderPortal
+ReactZmage.browsing = ({ browsing, set, src, alt, txt, controller, hotKey, ...restProps }) => {
     // Init env
-    commandTarget = document.body;
-    commandContainer = document.createElement('div')
-    commandContainer.id = 'zmagePortal'
-    commandTarget.appendChild(commandContainer)
+    renderContainer = document.body;
+    renderPortal = document.createElement('div')
+    renderPortal.id = 'zmagePortal'
+    renderContainer.appendChild(renderPortal)
     // Mount target
     ReactDOM.render(
-        <ReactZmage
-            {...props}
-            source={SOURCE_TYPE.COMMAND}
-            onBrowsing={(status) => {
-                if (!status) {
-                    try { setTimeout(() => commandTarget.removeChild(commandContainer), 350) } catch (e) {}
-                }
-            }}
-        />, commandContainer
+        <Browser
+            // Controlled status
+            browsing={true}
+            // Internal
+            onBrowsing={(status) => !status && renderContainer.removeChild(renderPortal)}
+            // Data
+            set={convertSet({ set, src, alt, txt })}
+            // Control
+            controller={{ ...defProp.controller, ...controller }}
+            hotKey={{ ...defProp.hotKey, ...hotKey }}
+            {...restProps}
+        />, renderPortal
     )
     return () => {
-        // Unmount target
+        // Unmount
     }
 }
 
