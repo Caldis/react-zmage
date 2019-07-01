@@ -69,7 +69,7 @@ export default class Browser extends React.PureComponent {
      * 载入/卸载
      **/
     init = () => {
-        const { coverRef, set, onBrowsing } = this.props
+        const { isControlled, coverRef, set, onBrowsing } = this.props
         const { show, page, pageIsCover } = this.state
         if (!show) {
             window.addEventListener('keydown', this.handleKeyDown)
@@ -77,13 +77,13 @@ export default class Browser extends React.PureComponent {
             window.requestAnimationFrame(() => {
                 this.setState({ show:true, zoom:false, rotate:0, }, () => {
                     pageIsCover && hideCover(coverRef, set, page)
-                    typeof onBrowsing === "function" && onBrowsing(true)
+                    !isControlled && typeof onBrowsing === "function" && onBrowsing(true)
                 })
             })
         }
     }
     unInit = ({ force }={}) => {
-        const { coverRef, set, onBrowsing } = this.props
+        const { isControlled, coverRef, set, onBrowsing } = this.props
         const { show, page, pageIsCover } = this.state
         if (show || force) {
             window.removeEventListener('keydown', this.handleKeyDown)
@@ -92,7 +92,7 @@ export default class Browser extends React.PureComponent {
             this.setState({ show:false, zoom:false, rotate:0 }, () => setTimeout(() => {
                 this.setState({ mount:false }, () => {
                     pageIsCover && showCover(coverRef, set, page)
-                    typeof onBrowsing === "function" && onBrowsing(false)
+                    !isControlled && typeof onBrowsing === "function" && onBrowsing(false)
                 })
             }, 350))
         }
