@@ -3,7 +3,7 @@
  **/
 
 // Libs
-import React from 'react'
+import React, { Fragment } from 'react'
 import classnames from 'classnames'
 // Styles
 import style from './Loading.less'
@@ -22,20 +22,25 @@ export default class Loading extends React.PureComponent {
         })
 
         return (
-            <div id="zmageLoading" className={imageClassNames}>
+            <Fragment>
                 {
-                    load &&
-                    <div className={style.loading}>
-                        <IconLoading/>
+                    (load || invalidate) &&
+                    <div id="zmageLoading" className={imageClassNames}>
+                        {
+                            load &&
+                            <div className={style.loading}>
+                                <IconLoading/>
+                            </div>
+                        }
+                        {
+                            invalidate &&
+                            <button className={style.reload} onClick={onReload} style={{ background: backdrop }}>
+                                <IconRefresh/>
+                            </button>
+                        }
                     </div>
                 }
-                {
-                    invalidate &&
-                    <button className={style.reload} onClick={onReload} style={{ background: backdrop }}>
-                        <IconRefresh/>
-                    </button>
-                }
-            </div>
+            </Fragment>
         )
     }
 }
