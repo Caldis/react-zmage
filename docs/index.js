@@ -193,8 +193,7 @@ export default class App extends React.Component {
                           src="imgSet/childsDream/7.jpg"
                           preset="mobile"
                           browsing={this.state.browsing}
-                          onBrowsing={() => this.setState({ browsing:true })}
-                          unBrowsing={() => this.setState({ browsing:false })}
+                          onBrowsing={(status) => this.setState({ browsing:status })}
                           set={[{
                               src: "imgSet/childsDream/7.jpg",
                               alt: "童夢 · SIX"
