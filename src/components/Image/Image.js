@@ -86,7 +86,7 @@ export default class Images extends React.PureComponent {
      * 事件监听
      **/
     updateZoomEventListenerWithState = () => {
-        const { show, zoom } = this.props
+        const { show, zoom } = this.context
         if (show && zoom && !this.listeningMouseMove) {
             window.addEventListener('mousemove', this.handleMouseMove)
             this.listeningMouseMove = true
@@ -113,12 +113,12 @@ export default class Images extends React.PureComponent {
     }
     handleScroll = () => {
         if (this.imageRef.current) {
-            const { show } = this.props
+            const { show } = this.context
             this.imageRef.current.style.top = `calc(50% + ${show ? 0 : this.initialPageOffset-window.pageYOffset}px)`
         }
     }
     handleClick = () => {
-        const { zoom, toggleZoom } = this.props
+        const { zoom, toggleZoom } = this.context
         zoom && toggleZoom()
     }
     // 鼠标事件
@@ -169,8 +169,7 @@ export default class Images extends React.PureComponent {
 
     render() {
 
-        const { show } = this.props
-        const { set, zoom, page, pageIsCover } = this.context
+        const { set, show, zoom, page, pageIsCover } = this.context
         const { isFetching, invalidate, currentStyle, timestamp } = this.state
 
         const imageClassNames = classnames(style.imageLayer, set[page].className, {
@@ -190,8 +189,9 @@ export default class Images extends React.PureComponent {
             <Fragment>
 
                 {/*加载*/}
+                {/*仅在默认图片非封面, 或图片不可用时显示*/}
                 <Loading
-                    show={show && !pageIsCover}
+                    show={show && (!pageIsCover || invalidate)}
                     load={isFetching}
                     invalidate={invalidate}
                     onReload={this.handleImageReload}
