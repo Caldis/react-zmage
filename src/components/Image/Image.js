@@ -20,7 +20,7 @@ import {
 } from '@/utils'
 import { getCurrentImageStyle, getCoverStyle, getZoomingStyle } from './Image.utils'
 
-export default class Images extends React.PureComponent {
+export default class Image extends React.PureComponent {
 
     constructor(props, context) {
         super(props)
@@ -217,4 +217,4 @@ export default class Images extends React.PureComponent {
     }
 }
 
-Images.contextType = Context
+Image.contextType = Context
