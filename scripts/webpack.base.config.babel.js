@@ -1,12 +1,14 @@
 // libs
 import path from 'path'
 import webpack from 'webpack'
-import ExtractTextPlugin from "extract-text-webpack-plugin"
 // Config
 export const host = process.env.HOST || '127.0.0.1'
 export const port = process.env.PORT || 8080
 // Plugins
 import autoprefixer from 'autoprefixer'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+// Env
+const isDev = process.env.NODE_ENV !== 'production';
 
 // 基础配置集
 export default {
@@ -25,8 +27,6 @@ export default {
 	plugins: [
 		// postcss配置
         new webpack.LoaderOptionsPlugin({ options: { postcss: [ autoprefixer ] } }),
-		// 样式
-		new ExtractTextPlugin("styles.css"),
 	],
 
 	module: {
@@ -112,7 +112,7 @@ export default {
 }
 
 // 生成对应的样式参数配置
-function styleProcessor(type = 'css', options = { modules: false }) {
+function styleProcessor(type = 'css', options = { modules:false, mode:'development' }) {
     // 各类型 Style 的 Loader 配置项
     const styleLoader = {
     	loader: 'style-loader'
@@ -125,7 +125,9 @@ function styleProcessor(type = 'css', options = { modules: false }) {
             localIdentName: '[local]__[hash:base64:5]',
         } : {}
     }
-    const lessLoader = { loader: 'less-loader' }
+    const lessLoader = {
+    	loader: 'less-loader'
+    }
     const postcssLoader =  {
         loader: 'postcss-loader',
         options: {
@@ -139,16 +141,8 @@ function styleProcessor(type = 'css', options = { modules: false }) {
     // 根据传入的配置返回不同的组合
 	if(type === 'css') {
 		return [styleLoader, cssLoader, postcssLoader]
-	  // return ExtractTextPlugin.extract({
-		// 	fallback: 'style-loader',
-		// 	use: [cssLoader, postcssLoader]
-		// })
 	}
 	if(type === 'less') {
 		return [styleLoader, cssLoader, postcssLoader, lessLoader]
-		// return ExtractTextPlugin.extract({
-		// 	fallback: 'style-loader',
-		// 	use: [cssLoader, postcssLoader, lessLoader]
-		// })
 	}
 }
