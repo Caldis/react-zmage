@@ -8,7 +8,7 @@ import webpack from 'webpack'
 import merge from 'webpack-merge'
 import baseConfig from './webpack.lib.base.config.babel.js'
 // Plugins
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 
 const config =  merge.smart(baseConfig, {
 
