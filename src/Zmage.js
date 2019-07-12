@@ -1,15 +1,14 @@
 /**
- * 应用主入口
+ * 常规组件入口
  **/
 
 // Libs
-import ReactDOM from 'react-dom'
 import React, {Fragment} from 'react'
 // Components
+import callee from './Zmage.callee'
 import Browser from './components/Browser'
 // Utils
 import { defType, defProp, defPropWithEnv } from './config/default'
-import { SOURCE_TYPE } from "./Zmage.constant"
 import { convertSet } from './Zmage.utils'
 
 // 基础组件
@@ -123,34 +122,8 @@ export default class ReactZmage extends React.PureComponent {
         )
     }
 }
-
-/* 命令式调用 */
-let renderContainer, renderPortal
-ReactZmage.browsing = ({ browsing, set, src, alt, txt, controller, hotKey, ...restProps }) => {
-    // Init env
-    renderContainer = document.body;
-    renderPortal = document.createElement('div')
-    renderPortal.id = 'zmagePortal'
-    renderContainer.appendChild(renderPortal)
-    // Mount target
-    ReactDOM.render(
-        <Browser
-            // Controlled status
-            browsing={true}
-            // Internal
-            onBrowsing={(status) => !status && renderContainer.removeChild(renderPortal)}
-            // Data
-            set={convertSet({ set, src, alt, txt })}
-            // Control
-            controller={{ ...defProp.controller, ...controller }}
-            hotKey={{ ...defProp.hotKey, ...hotKey }}
-            {...restProps}
-        />, renderPortal
-    )
-    return () => {
-        // Unmount
-    }
-}
+// 命令式调用组件
+ReactZmage.browsing = callee
 
 // 属性默认值
 ReactZmage.defaultProps = {
