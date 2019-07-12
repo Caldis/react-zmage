@@ -141,8 +141,7 @@ export default class Browser extends React.PureComponent {
      * 翻页控制
      **/
     handleToPage = (page) => {
-        const { coverRef, onSwitching } = this.props
-        const { set } = this.state
+        const { coverRef, set, onSwitching } = this.props
         this.setState({
             page,
             pageIsCover: pageIsCover(coverRef, set, page),
@@ -265,3 +264,17 @@ export default class Browser extends React.PureComponent {
 }
 
 Browser.contextType = Context
+
+Browser.defaultProps = {
+
+    // Controlled status
+    isControlled: false,
+    browsing: false,
+    // Internal
+    coverRef: React.createRef(),
+    outBrowsing: () => {},
+    // Data
+    defaultPage: 0,
+    set: [],
+
+};
