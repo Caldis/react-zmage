@@ -72,6 +72,20 @@ export const defType = {
             flip: PropTypes.bool,
         }),
     ]),
+    // 动画
+    animate: PropTypes.shape({
+        browsing: PropTypes.bool,
+        flip: PropTypes.oneOf([
+            // 渐变
+            "fade",
+            // 交叉渐变 (仅在set多于等于3时可用)
+            "crossFade",
+            // 翻页
+            "swipe",
+            // 缩放
+            "zoom",
+        ]),
+    }),
     // 预设
     preset: PropTypes.oneOf([
         // 自动
@@ -83,7 +97,7 @@ export const defType = {
     ]),
 
     /**
-     * 界面样式
+     * 界面与交互
      **/
     // 背景色
     backdrop: PropTypes.string,
@@ -93,6 +107,8 @@ export const defType = {
     radius: PropTypes.number,
     // 边距
     edge: PropTypes.number,
+    // 循环
+    loop: PropTypes.bool,
 
     /**
      * 生命周期
@@ -170,13 +186,18 @@ export const defProp = {
     /**
      * 功能控制
      **/
-    // 控制器 (受制于 preset)
+    // 控制器 (从 preset 初始化)
     controller: {},
-    // 快捷键 (受制于 preset)
+    // 快捷键 (从 preset 初始化)
     hotKey: {},
+    // 动画
+    animate: {
+        browsing: true,
+        flip: 'fade',
+    },
 
     /**
-     * 界面样式
+     * 界面与交互
      **/
     // 背景色
     backdrop: "#FFFFFF",
@@ -186,6 +207,8 @@ export const defProp = {
     radius: 0,
     // 边距 (受制于 preset)
     edge: 0,
+    // 是否循环查看
+    loop: true,
 	
     /**
      * 生命周期

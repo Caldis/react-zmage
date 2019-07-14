@@ -16,7 +16,7 @@ export default class Portals extends React.PureComponent {
 
         // Init Env
         this.target = props.target || document.body
-        this.container = document.createElement('div')
+        this.container = document.createElement('figure')
         this.container.id = props.id
         this.container.className = props.className
         this.container.style.zIndex = props.zIndex
