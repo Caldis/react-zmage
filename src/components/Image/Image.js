@@ -188,8 +188,7 @@ export default class Image extends React.PureComponent {
         return (
             <Fragment>
 
-                {/*加载*/}
-                {/*仅在默认图片非封面, 或图片不可用时显示*/}
+                {/*加载 (仅在默认图片非封面, 或图片不可用时显示)*/}
                 <Loading
                     show={show && (!pageIsCover || invalidate)}
                     load={isFetching}

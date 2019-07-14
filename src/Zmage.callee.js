@@ -9,8 +9,9 @@ import ReactDOM from "react-dom";
 import Browser from './components/Browser'
 // Utils
 import { convertSet } from "@/Zmage.utils"
-import { defProp } from "@/config/default"
-
+import {defProp, defPropWithEnv, defType} from "@/config/default"
+import { animationDuration } from "@/config/anim"
+// Constants
 const RENDER = {
     REF: React.createRef(),
     CONTAINER: null,
@@ -27,10 +28,9 @@ class ReactZmageCallee extends React.PureComponent {
     }
 
     outBrowsing = () => {
-        console.log('outBrowsing')
         const { destroyer } = this.props
         this.setState({ browsing:false })
-        setTimeout(destroyer, 350)
+        setTimeout(destroyer, animationDuration)
     }
 
     render() {
@@ -56,6 +56,8 @@ class ReactZmageCallee extends React.PureComponent {
             // Main state
             browsing:internalBrowsing
         } = this.state
+
+        const defProp = defPropWithEnv(preset)
 
         return (
             <Browser
@@ -84,6 +86,13 @@ class ReactZmageCallee extends React.PureComponent {
     }
 }
 
+// 属性类型
+ReactZmageCallee.propTypes = defType
+
+// 属性默认值
+ReactZmageCallee.defaultProps = defProp
+
+// 调用函数
 const callee = (props) => {
     // Init env
     RENDER.PORTAL = document.createElement('div')

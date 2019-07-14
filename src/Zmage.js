@@ -122,95 +122,13 @@ export default class ReactZmage extends React.PureComponent {
         )
     }
 }
+
+
 // 命令式调用组件
 ReactZmage.browsing = callee
 
-// 属性默认值
-ReactZmage.defaultProps = {
-
-    /**
-     * 基础数据
-     **/
-    src: defProp.src,
-    alt: defProp.alt,
-    txt: defProp.txt,
-    set: defProp.set,
-    defaultPage: defProp.defaultPage,
-
-    /**
-     * 预设
-     **/
-    preset: defProp.preset,
-
-    /**
-     * 功能控制
-     **/
-    controller: defProp.controller,
-    hotKey: defProp.hotKey,
-
-    /**
-     * 界面样式
-     **/
-    backdrop: defProp.backdrop,
-    zIndex: defProp.zIndex,
-    radius: defProp.radius,
-    edge: defProp.edge,
-
-    /**
-     * 生命周期
-     **/
-    onBrowsing: defProp.onBrowsing,
-    onZooming: defProp.onZooming,
-    onSwitching: defProp.onSwitching,
-    onRotating: defProp.onRotating,
-
-    /**
-     * 受控屬性
-     **/
-    // browsing: defProp.browsing,
-}
-
 // 属性类型
-ReactZmage.propTypes = {
+ReactZmage.propTypes = defType
 
-    /**
-     * 基础数据
-     **/
-    src: defType.src,
-    alt: defType.alt,
-    txt: defType.txt,
-    set: defType.set,
-    defaultPage: defType.defaultPage,
-
-    /**
-     * 预设
-     **/
-    preset: defType.preset,
-
-    /**
-     * 功能控制
-     **/
-    controller: defType.controller,
-    hotKey: defType.hotKey,
-
-    /**
-     * 界面样式
-     **/
-    backdrop: defType.backdrop,
-    zIndex: defType.zIndex,
-    radius: defType.radius,
-    edge: defType.edge,
-
-    /**
-     * 生命周期
-     **/
-    onBrowsing: defType.onBrowsing,
-    onZooming: defType.onZooming,
-    onSwitching: defType.onSwitching,
-    onRotating: defType.onRotating,
-
-    /**
-     * 受控屬性
-     **/
-    browsing: defType.browsing,
-}
+// 属性默认值
+ReactZmage.defaultProps = defProp
