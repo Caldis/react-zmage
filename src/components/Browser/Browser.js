@@ -13,6 +13,7 @@ import Control from '../Control'
 import Image from '../Image'
 import Background from '../Background'
 // Utils
+import { animationDuration } from "@/config/anim"
 import { Context } from '../context'
 import { pageSet, showCover, hideCover, pageIsCover } from './Browser.utils'
 
@@ -94,7 +95,7 @@ export default class Browser extends React.PureComponent {
                     pageIsCover && showCover(coverRef, set, page)
                     !isControlled && typeof onBrowsing === "function" && onBrowsing(false)
                 })
-            }, 350))
+            }, animationDuration))
         }
     }
 

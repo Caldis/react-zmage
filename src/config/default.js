@@ -195,10 +195,6 @@ export const defProp = {
     onSwitching: ()=>{},
     onRotating: ()=>{},
 
-    /**
-     * 受控屬性
-     **/
-    browsing: undefined,
 }
 
 /**
