@@ -106,8 +106,8 @@ export default class Browser extends React.PureComponent {
      **/
     handleKeyDown = (e) => {
         // 阻止默认事件
-        const { set, hotKey, outBrowsing } = this.props
-        const { zoom } = this.state
+        const { set, hotKey, loop, outBrowsing } = this.props
+        const { zoom, page } = this.state
         const hasImageSet = Array.isArray(set)
         switch (e.key) {
             case "Esc":
@@ -126,13 +126,13 @@ export default class Browser extends React.PureComponent {
             case "ArrowLeft":
                 // 上一张
                 e.preventDefault()
-                !zoom && hotKey.flip && hasImageSet && this.handleToPrevPage()
+                !(!loop && page===0) && !zoom && hotKey.flip && hasImageSet && this.handleToPrevPage()
                 break
             case "Right":
             case "ArrowRight":
                 // 下一张
                 e.preventDefault()
-                !zoom && hotKey.flip && hasImageSet && this.handleToNextPage()
+                !(!loop && page===set.length-1) && !zoom && hotKey.flip && hasImageSet && this.handleToNextPage()
                 break
             default:
                 return
