@@ -15,6 +15,7 @@ import Background from '../Background'
 // Utils
 import { animationDuration } from "@/config/anim"
 import { Context } from '../context'
+import { getTargetPage } from "@/utils"
 import { pageSet, showCover, hideCover, pageIsCover } from './Browser.utils'
 
 export default class Browser extends React.PureComponent {
@@ -105,7 +106,6 @@ export default class Browser extends React.PureComponent {
      **/
     handleKeyDown = (e) => {
         // 阻止默认事件
-        e.preventDefault()
         const { set, hotKey, outBrowsing } = this.props
         const { zoom } = this.state
         const hasImageSet = Array.isArray(set)
@@ -113,21 +113,25 @@ export default class Browser extends React.PureComponent {
             case "Esc":
             case "Escape":
                 // 退出
+                e.preventDefault()
                 hotKey.close && (zoom ? this.handleToggleZoom() : outBrowsing())
                 break
             case " ":
             case "Spacebar":
                 // 缩放
+                e.preventDefault()
 	            hotKey.zoom && this.handleToggleZoom()
                 break
             case "Left":
             case "ArrowLeft":
                 // 上一张
+                e.preventDefault()
                 !zoom && hotKey.flip && hasImageSet && this.handleToPrevPage()
                 break
             case "Right":
             case "ArrowRight":
                 // 下一张
+                e.preventDefault()
                 !zoom && hotKey.flip && hasImageSet && this.handleToNextPage()
                 break
             default:
@@ -151,16 +155,16 @@ export default class Browser extends React.PureComponent {
         })
     }
     handleSwitchPages = (direction) => {
-        const { coverRef, onSwitching } = this.props
+        const { coverRef, onSwitching, loop } = this.props
         return () => {
             const { set } = this.props
             const { page } = this.state
-            const nextPage = direction==="prev" ? Math.abs(set.length+page-1)%set.length : (page+1)%set.length
+            const targetPage = getTargetPage(page, set.length, direction, { loop })
             this.setState({
-                page: nextPage,
-                pageIsCover: pageIsCover(coverRef, set, nextPage),
+                page: targetPage,
+                pageIsCover: pageIsCover(coverRef, set, targetPage),
             }, () => {
-                typeof onSwitching === "function" && onSwitching(this.state.page)
+                typeof onSwitching === "function" && onSwitching(targetPage)
             })
         }
     }
@@ -208,9 +212,9 @@ export default class Browser extends React.PureComponent {
             // Data
             set,
             // Control
-            controller, hotKey, preset,
-            // Styles
-            zIndex, backdrop, radius, edge,
+            controller, hotKey, animate,
+            // Styles & interactive
+            zIndex, backdrop, radius, edge, loop
         } = this.props
         const {
             // Internal
@@ -229,9 +233,9 @@ export default class Browser extends React.PureComponent {
             // Data
             set,
             // Control
-            controller, hotKey, preset,
-            // Styles
-            backdrop, radius, edge,
+            controller, hotKey, animate,
+            // Styles & interactive
+            backdrop, radius, edge, loop,
             // Status
             ...statusValue,
             // Action

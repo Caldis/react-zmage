@@ -6,7 +6,6 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    z-index: 10;
     will-change: transform, top, opacity, clip-path;
 
     &.zooming {
@@ -15,7 +14,8 @@
         -ms-transition-duration: @animationDurationOnZooming;
     }
     &.invalidate {
-        opacity: 0;
+        opacity: 0 !important;
         pointer-events: none;
     }
+
 }

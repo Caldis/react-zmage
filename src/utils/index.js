@@ -140,3 +140,46 @@ export const withVendorPrefix = (style) => {
  * @param {number} num - 数字
  */
 export const isInteger = (num) => (num^0)===num
+
+
+/**
+ * 获取目标页码
+ */
+const calPage = (step, current, length, direction, options) => {
+    return options.loop
+        ? Math.abs((length+step)+current)%length
+        : (current+step<0 || current+step>length-1) ? undefined : current+step
+}
+/**
+ * @param {number} current - 当前页码
+ * @param {string} direction - 目标方向
+ * @param {number} length - 集合总长度
+ * @param {object} options - 配置项
+ * @param {boolean} options.loop - 是否循环
+ */
+export const getTargetPage = (current, length, direction, options={loop:true}) => {
+    // Guards
+    if (length === 0) {
+        return 0
+    }
+    if (current<0 || current>length-1) {
+        console.warn("Current index overflow !")
+        return undefined
+    }
+    // Processing
+    switch (direction) {
+        case "before":
+            return calPage(-2, current, length, direction, options)
+        case "prev":
+            return calPage(-1, current, length, direction, options)
+        case "curr":
+            return current
+        case "next":
+            return calPage(1, current, length, direction, options)
+        case "after":
+            return calPage(2, current, length, direction, options)
+        default:
+            console.warn("Arguments 'direction' missing !")
+            break
+    }
+}

@@ -28,8 +28,8 @@ export default class Control extends React.PureComponent {
             set,
             // Control
             controller,
-            // Styles
-            backdrop,
+            // Styles & interactive
+            backdrop, loop,
             // Status
             zoom, page,
             // Action
@@ -115,22 +115,28 @@ export default class Control extends React.PureComponent {
                 {
                     Array.isArray(set) && set.length>1 && controller.flip &&
                     <Fragment>
-                        <div
-                            id="zmageControlFlipLeft"
-                            className={this.withShow(style.flipLeft)}
-                            style={{ backgroundColor: backdrop }}
-                            onClick={toPrevPage}
-                        >
-                            <IconArrowLeft/>
-                        </div>
-                        <div
-                            id="zmageControlFlipRight"
-                            className={this.withShow(style.flipRight)}
-                            style={{ backgroundColor: backdrop }}
-                            onClick={toNextPage}
-                        >
-                            <IconArrowRight/>
-                        </div>
+                        {
+                            loop || page!==0 &&
+                            <div
+                                id="zmageControlFlipLeft"
+                                className={this.withShow(style.flipLeft)}
+                                style={{ backgroundColor: backdrop }}
+                                onClick={toPrevPage}
+                            >
+                                <IconArrowLeft/>
+                            </div>
+                        }
+                        {
+                            loop || page!==set.length-1 &&
+                            <div
+                                id="zmageControlFlipRight"
+                                className={this.withShow(style.flipRight)}
+                                style={{ backgroundColor: backdrop }}
+                                onClick={toNextPage}
+                            >
+                                <IconArrowRight/>
+                            </div>
+                        }
                     </Fragment>
                 }
 

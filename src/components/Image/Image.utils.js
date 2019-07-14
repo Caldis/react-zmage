@@ -35,6 +35,7 @@ export const getCoverStyle = (props, context) => {
         const { top, left, width, height } = coverRef.current.getBoundingClientRect()
         const { opacity, borderRadius } = window.getComputedStyle(coverRef.current)
         return pageIsCover ? {
+            _type: 'cover',
             x: -scrollWidth()/2 + left + width/2,
             y: -windowHeight()/2 + top + height/2,
             opacity: Number(opacity) || 1,
@@ -42,6 +43,7 @@ export const getCoverStyle = (props, context) => {
             rotate: rotate-rotate%360,
             radius: numberOfStyleUnits(borderRadius, { ref:width }),
         } : {
+            _type: 'cover',
             x: 0,
             y: -windowHeight(),
             opacity: 0,
@@ -51,6 +53,7 @@ export const getCoverStyle = (props, context) => {
         }
     } else {
         return {
+            _type: 'cover',
             x: 0,
             y: 0,
             opacity: 0,
@@ -66,6 +69,7 @@ export const getBrowsingStyle = (props, context, imageRef) => {
     const { radius, edge, rotate } = context
     const { naturalWidth, naturalHeight } = imageRef.current
     return {
+        _type: 'browsing',
         x: 0,
         y: 0,
         opacity: 1,
@@ -89,6 +93,7 @@ export const getZoomingStyle = (props, context, imageRef, { clientX:mouseX=scrol
     const imgPosY = naturalHeight>viewHeight ? ((naturalHeight - viewHeight)/2 + saveEdge) - (rangeY*(mouseY/viewHeight)) : 0
     // 返回位置
     return {
+        _type: 'zooming',
         x: imgPosX,
         y: imgPosY,
         opacity: 1,
