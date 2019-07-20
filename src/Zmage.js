@@ -8,8 +8,8 @@ import React, {Fragment} from 'react'
 import callee from './Zmage.callee'
 import Browser from './components/Browser'
 // Utils
-import { defType, defProp, defPropWithEnv } from './config/default'
 import { convertSet } from './Zmage.utils'
+import { defType, defProp } from './config/default'
 
 // 基础组件
 export default class ReactZmage extends React.PureComponent {
@@ -74,8 +74,6 @@ export default class ReactZmage extends React.PureComponent {
             browsing:internalBrowsing
         } = this.state
 
-        const defProp = defPropWithEnv(preset)
-
         return (
             <Fragment>
 
@@ -103,10 +101,12 @@ export default class ReactZmage extends React.PureComponent {
                     // Data
                     defaultPage={defaultPage}
                     set={convertSet({ set, src, alt, txt })}
+                    // Preset
+                    preset={preset}
                     // Control
-                    controller={{ ...defProp.controller, ...controller }}
-                    hotKey={{ ...defProp.hotKey, ...hotKey }}
-                    animate={{ ...defProp.animate, ...animate }}
+                    controller={controller}
+                    hotKey={hotKey}
+                    animate={animate}
                     // Styles & interactive
                     zIndex={zIndex}
                     backdrop={backdrop}

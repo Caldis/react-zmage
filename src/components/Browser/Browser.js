@@ -13,9 +13,10 @@ import Control from '../Control'
 import Image from '../Image'
 import Background from '../Background'
 // Utils
-import { animationDuration } from "@/config/anim"
 import { Context } from '../context'
 import { getTargetPage } from "@/utils"
+import { defPropWithEnv } from "@/config/default"
+import { animationDuration } from "@/config/anim"
 import { pageSet, showCover, hideCover, pageIsCover } from './Browser.utils'
 
 export default class Browser extends React.PureComponent {
@@ -24,6 +25,7 @@ export default class Browser extends React.PureComponent {
         super(props)
 
         const { page, pageIsCover } = pageSet(props.coverRef, props.defaultPage, props.set)
+
         this.state = {
             // 载入
             mount: false,
@@ -36,6 +38,7 @@ export default class Browser extends React.PureComponent {
             // 页数
             page,
             pageIsCover,
+            pageWithStep: page,
         }
     }
 
@@ -105,34 +108,32 @@ export default class Browser extends React.PureComponent {
      * 事件处理
      **/
     handleKeyDown = (e) => {
-        // 阻止默认事件
-        const { set, hotKey, loop, outBrowsing } = this.props
+        const { preset, set, hotKey:userHotKey, loop, outBrowsing } = this.props
         const { zoom, page } = this.state
-        const hasImageSet = Array.isArray(set)
-        switch (e.key) {
-            case "Esc":
-            case "Escape":
+        // 合并熱鍵設定
+        const { hotKey:defaultHotKey } = defPropWithEnv(preset)
+        const hotKey = { ...defaultHotKey, ...userHotKey }
+        // 判斷按鍵編碼
+        switch (e.keyCode) {
+            case 27: // Escape
                 // 退出
                 e.preventDefault()
                 hotKey.close && (zoom ? this.handleToggleZoom() : outBrowsing())
                 break
-            case " ":
-            case "Spacebar":
+            case 32: // SpaceBar
                 // 缩放
                 e.preventDefault()
 	            hotKey.zoom && this.handleToggleZoom()
                 break
-            case "Left":
-            case "ArrowLeft":
+            case 37: // ArrowLeft
                 // 上一张
                 e.preventDefault()
-                !(!loop && page===0) && !zoom && hotKey.flip && hasImageSet && this.handleToPrevPage()
+                !(!loop && page===0) && !zoom && hotKey.flip && this.handleToPrevPage()
                 break
-            case "Right":
-            case "ArrowRight":
+            case 39: // ArrowRight
                 // 下一张
                 e.preventDefault()
-                !(!loop && page===set.length-1) && !zoom && hotKey.flip && hasImageSet && this.handleToNextPage()
+                !(!loop && page===set.length-1) && !zoom && hotKey.flip && this.handleToNextPage()
                 break
             default:
                 return
@@ -154,22 +155,25 @@ export default class Browser extends React.PureComponent {
             typeof onSwitching === "function" && onSwitching(this.state.page)
         })
     }
-    handleSwitchPages = (direction) => {
+    handleSwitchPages = (step) => {
         const { coverRef, onSwitching, loop } = this.props
         return () => {
             const { set } = this.props
-            const { page } = this.state
-            const targetPage = getTargetPage(page, set.length, direction, { loop })
+            const { page, pageWithStep } = this.state
+            const targetPage = getTargetPage(page, set.length, step, { loop })
             this.setState({
                 page: targetPage,
                 pageIsCover: pageIsCover(coverRef, set, targetPage),
+                pageWithStep: pageWithStep+step,
+                zoom: false,
+                rotate: 0,
             }, () => {
                 typeof onSwitching === "function" && onSwitching(targetPage)
             })
         }
     }
-    handleToPrevPage = this.handleSwitchPages("prev")
-    handleToNextPage = this.handleSwitchPages("next")
+    handleToPrevPage = this.handleSwitchPages(-1)
+    handleToNextPage = this.handleSwitchPages(1)
 
     /**
      * 缩放控制
@@ -211,6 +215,8 @@ export default class Browser extends React.PureComponent {
             coverRef, outBrowsing,
             // Data
             set,
+            // Preset
+            preset,
             // Control
             controller, hotKey, animate,
             // Styles & interactive
@@ -220,20 +226,25 @@ export default class Browser extends React.PureComponent {
             // Internal
             mount,
             // Status
-            show, zoom, rotate, page, pageIsCover,
+            show, zoom, rotate, page, pageIsCover, pageWithStep,
         } = this.state
 
-        const statusValue = {
-            show, zoom, rotate, page, pageIsCover,
-        }
+        const defProp = defPropWithEnv(preset)
+        const statusValue = { show, zoom, rotate, page, pageIsCover, pageWithStep }
 
         const contextValue = {
             // Internal
             coverRef, outBrowsing,
             // Data
             set,
+            // Preset
+            preset,
+            presetIsMobile: preset==='mobile',
+            presetIsDesktop: preset==='desktop',
             // Control
-            controller, hotKey, animate,
+            controller: { ...defProp.controller, ...controller },
+            hotKey: { ...defProp.hotKey, ...hotKey },
+            animate: { ...defProp.animate, ...animate },
             // Styles & interactive
             backdrop, radius, edge, loop,
             // Status

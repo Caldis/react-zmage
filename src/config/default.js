@@ -42,6 +42,18 @@ export const defType = {
     defaultPage: PropTypes.number,
 
     /**
+     * 預設
+     **/
+    preset: PropTypes.oneOf([
+        // 自动
+        "auto",
+        // 桌面端
+        "desktop",
+        // 移动端
+        "mobile",
+    ]),
+
+    /**
      * 功能控制
      **/
     // 控制器
@@ -76,9 +88,9 @@ export const defType = {
     animate: PropTypes.shape({
         browsing: PropTypes.bool,
         flip: PropTypes.oneOf([
-            // 渐变
+            // 渐变 (set小於3時强制使用)
             "fade",
-            // 交叉渐变 (仅在set多于等于3时可用)
+            // 交叉渐变
             "crossFade",
             // 翻页
             "swipe",
@@ -86,15 +98,6 @@ export const defType = {
             "zoom",
         ]),
     }),
-    // 预设
-    preset: PropTypes.oneOf([
-        // 自动
-        "auto",
-        // 桌面端
-        "desktop",
-        // 移动端
-        "mobile",
-    ]),
 
     /**
      * 界面与交互
@@ -127,7 +130,6 @@ export const defType = {
 /**
  * 默认值
  **/
-
 export const defPreset = {
     // 桌面
     desktop: {
@@ -144,6 +146,10 @@ export const defPreset = {
             zoom: true,
             flip: true,
         },
+        animate: {
+            browsing: true,
+            flip: 'fade',
+        },
     },
     // 移动端
     mobile: {
@@ -159,6 +165,10 @@ export const defPreset = {
             close: false,
             zoom: false,
             flip: false,
+        },
+        animate: {
+            browsing: true,
+            flip: 'fade',
         },
     }
 }
@@ -190,11 +200,8 @@ export const defProp = {
     controller: {},
     // 快捷键 (从 preset 初始化)
     hotKey: {},
-    // 动画
-    animate: {
-        browsing: true,
-        flip: 'fade',
-    },
+    // 动画  (从 preset 初始化)
+    animate: {},
 
     /**
      * 界面与交互
@@ -223,40 +230,41 @@ export const defProp = {
 /**
  * 默认值 (不同平台)
  **/
-export const defPropDesktop = {
-    ...defProp,
-    ...defPreset.desktop,
-}
-export const defPropMobile = {
-    ...defProp,
-    ...defPreset.mobile,
-}
-export const defPropAuto = {
-    ...defProp,
-    ...(env.isDesktop ? defPreset.desktop : defPreset.mobile)
-}
-// 获取默认值
 const DEF_PROP = "__ZMAGE_DEF_PROP__"
 export const defPropWithEnv = (preset) => {
     if (window) {
-        if (window.hasOwnProperty(DEF_PROP)) {
-            return window[DEF_PROP]
-        } else {
+        if (!window.hasOwnProperty(DEF_PROP)) {
+            window[DEF_PROP] = {}
+        }
+        if (!window[DEF_PROP].hasOwnProperty(preset)) {
             switch (preset) {
                 case 'desktop':
-                    window[DEF_PROP] = defPropDesktop
+                    window[DEF_PROP][preset] = {
+                        ...defProp,
+                        ...defPreset.desktop,
+                    }
                     break
                 case 'mobile':
-                    window[DEF_PROP] = defPropMobile
+                    window[DEF_PROP][preset] = {
+                        ...defProp,
+                        ...defPreset.mobile,
+                    }
                     break
                 case 'auto':
-                    window[DEF_PROP] = defPropAuto
+                    window[DEF_PROP][preset] = {
+                        ...defProp,
+                        ...env.isDesktop && defPreset.desktop,
+                        ...env.isMobile && defPreset.mobile,
+                    }
                     break
                 default:
-                    window[DEF_PROP] = defPropAuto
+                    window[DEF_PROP][preset] = {
+                        ...defProp,
+                        ...defPreset.desktop,
+                    }
             }
-            return window[DEF_PROP]
         }
+        return window[DEF_PROP][preset]
     } else {
         return {}
     }
