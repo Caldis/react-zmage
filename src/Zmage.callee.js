@@ -9,7 +9,7 @@ import ReactDOM from "react-dom";
 import Browser from './components/Browser'
 // Utils
 import { convertSet } from "@/Zmage.utils"
-import {defProp, defPropWithEnv, defType} from "@/config/default"
+import { defProp, defType } from "@/config/default"
 import { animationDuration } from "@/config/anim"
 // Constants
 const RENDER = {
@@ -57,8 +57,6 @@ class ReactZmageCallee extends React.PureComponent {
             browsing:internalBrowsing
         } = this.state
 
-        const defProp = defPropWithEnv(preset)
-
         return (
             <Browser
                 // Controlled status
@@ -68,10 +66,12 @@ class ReactZmageCallee extends React.PureComponent {
                 // Data
                 defaultPage={defaultPage}
                 set={convertSet({ set, src, alt, txt })}
+                // Preset
+                preset={preset}
                 // Control
-                controller={{ ...defProp.controller, ...controller }}
-                hotKey={{ ...defProp.hotKey, ...hotKey }}
-                animate={{ ...defProp.animate, ...animate }}
+                controller={controller}
+                hotKey={hotKey}
+                animate={animate}
                 // Styles & interactive
                 zIndex={zIndex}
                 backdrop={backdrop}
