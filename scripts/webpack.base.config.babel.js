@@ -6,7 +6,7 @@ export const host = process.env.HOST || '127.0.0.1'
 export const port = process.env.PORT || 8080
 // Plugins
 import autoprefixer from 'autoprefixer'
-import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+
 // Env
 const isDev = process.env.NODE_ENV !== 'production';
 
