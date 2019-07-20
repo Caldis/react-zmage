@@ -2,6 +2,9 @@
  * 工具函数
  **/
 
+// Libs
+import memoize from 'lodash.memoize'
+
 /**
  * 通过屏幕尺寸以及图片尺寸，计算出图片在屏幕中完整显示的缩放比例
  * @param {number} naturalWidth - 图片原始宽
@@ -90,11 +93,13 @@ export const appendParams = (url, params={}) => {
  * @param {string}  unit - 目标样式对象
  * @param {number} [percentRef] - 当 unit 为百分比时的基准参考数值
  */
-export const numberOfStyleUnits = (unit, { ref=100 }={}) => unit
-    ? unit.includes('%')
-        ? ref*Number(unit.substring(0, unit.length - 1))/100
-        : Number(unit.substring(0, unit.length - 2))
-    : unit
+export const numberOfStyleUnits = memoize((unit, { ref=100 }={}) => {
+    return unit
+        ? unit.includes('%')
+            ? ref*Number(unit.substring(0, unit.length - 1))/100
+            : Number(unit.substring(0, unit.length - 2))
+        : unit
+})
 
 /**
  * 下载文件
@@ -122,7 +127,7 @@ export const uppercaseFirstLetter = (string) => {
  * 增加浏览器前缀
  * @param {object} style - 目标样式
  */
-export const withVendorPrefix = (style) => {
+export const withVendorPrefix = memoize((style) => {
     const vendorPrefixList = ['Webkit', 'Moz', 'Ms', 'O']
     return Object.keys(style).reduce((styleAcc, styleCur) => {
         const stylesWithPrefix = vendorPrefixList.reduce((prefixAcc, prefixCur) => {
@@ -133,7 +138,7 @@ export const withVendorPrefix = (style) => {
         }, {})
         return { ...styleAcc, ...stylesWithPrefix }
     }, style)
-}
+})
 
 /**
  * 是否数字
@@ -145,41 +150,35 @@ export const isInteger = (num) => (num^0)===num
 /**
  * 获取目标页码
  */
-const calPage = (step, current, length, direction, options) => {
-    return options.loop
-        ? Math.abs((length+step)+current)%length
-        : (current+step<0 || current+step>length-1) ? undefined : current+step
-}
 /**
  * @param {number} current - 当前页码
- * @param {string} direction - 目标方向
  * @param {number} length - 集合总长度
+ * @param {number} step - 目标方向
  * @param {object} options - 配置项
  * @param {boolean} options.loop - 是否循环
  */
-export const getTargetPage = (current, length, direction, options={loop:true}) => {
+export const getTargetPage = (current, length, step, options={loop:true}) => {
     // Guards
     if (length === 0) {
         return 0
+    }
+    if (step===0) {
+        return current
     }
     if (current<0 || current>length-1) {
         console.warn("Current index overflow !")
         return undefined
     }
     // Processing
-    switch (direction) {
-        case "before":
-            return calPage(-2, current, length, direction, options)
-        case "prev":
-            return calPage(-1, current, length, direction, options)
-        case "curr":
-            return current
-        case "next":
-            return calPage(1, current, length, direction, options)
-        case "after":
-            return calPage(2, current, length, direction, options)
-        default:
-            console.warn("Arguments 'direction' missing !")
-            break
-    }
+    return options.loop
+        ? Math.abs((length+step)+current)%length
+        : (current+step<0 || current+step>length-1) ? undefined : current+step
 }
+
+/**
+ * 生成鏡像數組
+ * @param {number} distance - 距離0點的長度
+ */
+export const mirrorRange = memoize((distance) => {
+    return [...([...Array(distance).keys()].map(k => -k - 1).reverse()), ...([...Array(distance + 1).keys()])]
+})
