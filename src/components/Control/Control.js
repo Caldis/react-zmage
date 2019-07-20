@@ -11,7 +11,6 @@ import style from './Control.less'
 import { IconDownload, IconRotateLeft, IconRotateRight, IconZoom, IconArrowLeft, IconArrowRight, IconClose } from '@/asserts/icons'
 // Utils
 import { Context } from '../context'
-import { env } from '@/utils/env'
 import { withShowingStatus, downloadFromLink } from '@/utils'
 
 export default class Control extends React.PureComponent {
@@ -26,6 +25,10 @@ export default class Control extends React.PureComponent {
         const {
             // Data
             set,
+            // Preset
+            preset,
+            presetIsMobile,
+            presetIsDesktop,
             // Control
             controller,
             // Styles & interactive
@@ -91,7 +94,7 @@ export default class Control extends React.PureComponent {
                         <div
                             id="zmageControlZoom"
                             className={this.withShow(style.zoom)}
-                            onClick={env.isMobile ? ()=>window.open(set[page].src) : toggleZoom}
+                            onClick={presetIsMobile ? ()=>window.open(set[page].src) : toggleZoom}
                         >
                             <IconZoom/>
                         </div>
@@ -116,7 +119,7 @@ export default class Control extends React.PureComponent {
                     Array.isArray(set) && set.length>1 && controller.flip &&
                     <Fragment>
                         {
-                            loop || page!==0 &&
+                            (loop || page!==0) &&
                             <div
                                 id="zmageControlFlipLeft"
                                 className={this.withShow(style.flipLeft)}
@@ -127,7 +130,7 @@ export default class Control extends React.PureComponent {
                             </div>
                         }
                         {
-                            loop || page!==set.length-1 &&
+                            (loop || page!==set.length-1) &&
                             <div
                                 id="zmageControlFlipRight"
                                 className={this.withShow(style.flipRight)}
