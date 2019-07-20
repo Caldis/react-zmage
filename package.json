@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "A scalable image container",
   "keywords": [
     "react",
@@ -20,6 +20,7 @@
   "homepage": "http://zmage.caldis.me",
   "dependencies": {
     "classnames": "^2.2.6",
+    "lodash.memoize": "^4.1.2",
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
     "react-dom": "^16.6.3"
