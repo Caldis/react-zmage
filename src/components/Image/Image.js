@@ -12,13 +12,13 @@ import style from './Image.less'
 import Loading from './Loading';
 // Utils
 import { Context } from '../context'
-import { env } from '@/utils/env'
 import {
     scrollWidth,
     checkImageLoadedComplete, appendParams,
     lockTouchInteraction, unlockTouchInteraction,
     withVendorPrefix,
     isInteger, getTargetPage,
+    mirrorRange,
 } from '@/utils'
 import { getCurrentImageStyle, getCoverStyle, getZoomingStyle } from './Image.utils'
 
@@ -43,8 +43,8 @@ export default class Image extends React.PureComponent {
             invalidate: false,
             // Style
             currentStyle: getCoverStyle(props, context),
-            // Flag
-            timestamp: null,
+            // Reload Flag
+            timestamp: {},
         }
     }
 
@@ -55,6 +55,7 @@ export default class Image extends React.PureComponent {
     componentDidUpdate(prevProps) {
         const { show: prevShow, zoom: prevZoom, rotate: prevRotate, page: prevPage } = prevProps
         const { show: currShow, zoom: currZoom, rotate: currRotate, page: currPage } = this.props
+        const { presetIsMobile } = this.props
         // 状态改变时更新样式 (Page 导致的 src 变化的 update 交给图片自身的 onload 调用)
         if (prevShow!==currShow || prevZoom!==currZoom || prevRotate!==currRotate) {
             // 显示状态切换
@@ -62,19 +63,19 @@ export default class Image extends React.PureComponent {
                 // 显示
                 this.updateCurrentImageStyle()
                 this.handleDetectImageLoadComplete()
-                env.isMobile && lockTouchInteraction()
+                presetIsMobile && lockTouchInteraction()
             } else {
                 // 隐藏
                 this.updateCurrentImageStyle()
-                env.isMobile && unlockTouchInteraction()
+                presetIsMobile && unlockTouchInteraction()
             }
             // 更新监听状态
             this.updateZoomEventListenerWithState()
         }
         // 切换页面时
         if (prevPage!==currPage) {
-            // 显示加载, 并去除加载时间戳
-            this.handleImageLoadStart({ timestamp: null })
+            // 显示加载
+            this.handleImageLoadStart()
         }
     }
     componentWillUnmount() {
@@ -129,11 +130,10 @@ export default class Image extends React.PureComponent {
         this.setStyle(zoomingStyle)
     }
     // 加载事件
-    handleImageLoadStart = (state={}) => {
+    handleImageLoadStart = () => {
         this.setState({
             isFetching: true,
             invalidate: false,
-            ...state,
         }, this.handleDetectImageLoadComplete)
     }
     handleDetectImageLoadComplete = () => {
@@ -157,7 +157,27 @@ export default class Image extends React.PureComponent {
         this.handleImageLoadEnd({ invalidate: true })
     }
     handleImageReload = () => {
-        this.setState({ timestamp: new Date().getTime() })
+        const { page } = this.context
+        this.handleSetTimestamp(page)
+    }
+
+    /**
+     * 時間戳
+     **/
+    handleSetTimestamp = (page) => {
+        const { set } = this.context
+        const { timestamp } = this.state
+        this.setState({
+            timestamp: {
+                ...timestamp,
+                [set[page].src]: new Date().getTime(),
+            }
+        })
+    }
+    handleGetTimestamp = (page) => {
+        const { set } = this.context
+        const { timestamp } = this.state
+        return timestamp[set[page].src]
     }
 
     /**
@@ -168,78 +188,95 @@ export default class Image extends React.PureComponent {
             currentStyle: newStyle
         })
     }
-    getStyle = (direction, index) => {
-        const { loop, animate, set, show, zoom, page, pageIsCover } = this.context
-        const { isFetching, invalidate, currentStyle, timestamp } = this.state
+    getStyle = (step) => {
+        const { animate, set, zoom, page } = this.context
+        const { invalidate, currentStyle } = this.state
         // 获取动画配置
-        let offset=0, overflow=0, transform, clipPath, opacity, zIndex, pointerEvents
-        const flipAnim = set.length>=3 ? animate.flip : 'fade'
-        const isFade = flipAnim==='fade'
-        const isCrossFade = flipAnim==='crossFade'
+        let offset=0, overflow=0, transform, clipPath, zIndex, opacity, pointerEvents
+        const isFade = animate.flip==='fade'
+        const isCrossFade = animate.flip==='crossFade'
         isCrossFade && (offset = 30)
-        const isSwipe = flipAnim==='swipe'
-        isSwipe && (offset = scrollWidth())
-        const isZoom = flipAnim==='zoom'
+        const isSwipe = animate.flip==='swipe'
+        isSwipe && (offset = scrollWidth()*step)
+        const isZoom = animate.flip==='zoom'
         isZoom && (overflow = 0.08)
         // 计算样式
-        switch (direction) {
-            case 'prev':
-                transform = `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x+offset}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale+overflow}, ${currentStyle.scale+overflow}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
-                opacity = (isFade || isCrossFade || isZoom) ? 0 : 1
-                zIndex = 20
-                pointerEvents = 'none'
-                break
-            case 'curr':
-                transform = `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
-                // clipPath = currentStyle.radius ? `inset(0% 0% 0% 0% round ${currentStyle.radius/currentStyle.scale}px)` : `inset(0% 0% 0% 0% round 0)`
-                opacity = currentStyle.opacity
-                zIndex = 10
-                pointerEvents = 'initial'
-                break
-            case 'next':
-                transform = `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x-offset}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale+overflow}, ${currentStyle.scale+overflow}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
-                opacity = (isFade || isCrossFade || isZoom) ? 0 : 1
-                zIndex = 20
-                pointerEvents = 'none'
-                break
+        const distance = Math.abs(step)
+        const isSideImage = distance > 0
+        // FIXME 縮放時其他圖片遮擋問題
+        if (isSideImage) {
+            transform = `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x+offset}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale+overflow}, ${currentStyle.scale+overflow}, 1) rotate3d(0, 0, 1, 0deg)`
+            zIndex = 10*distance
+            opacity = (isFade || isCrossFade || isZoom) ? 0 : 1
+            pointerEvents = 'none'
+        } else {
+            transform = `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
+            // clipPath = currentStyle.radius ? `inset(0% 0% 0% 0% round ${currentStyle.radius/currentStyle.scale}px)` : `inset(0% 0% 0% 0% round 0)`
+            opacity = currentStyle.opacity
+            zIndex = 10
         }
         return {
             ...withVendorPrefix({ transform }),
-            opacity: invalidate ? 0 : opacity,
             cursor: zoom ? 'zoom-out' : 'initial',
             zIndex,
+            opacity: invalidate ? 0 : opacity,
             pointerEvents,
-            ...set[index].style,
+            ...set[page].style,
+        }
+    }
+
+    /**
+     * 圖片構建
+     **/
+    buildImageSeries = (distance) => {
+        const rangeList = mirrorRange(distance)
+        return rangeList.map(i => this.buildImage(i))
+    }
+    buildImage = (step) => {
+        const { loop, set, show, zoom, page, pageWithStep } = this.context
+        const { invalidate } = this.state
+        // 是否邊圖
+        const isSideImage = Math.abs(step)>0
+        // 計算索引
+        const imageIndexWithStep = pageWithStep+step
+        const imageIndex = getTargetPage(page, set.length, step, { loop })
+        if (isInteger(imageIndex)) {
+            // 計算樣式
+            const imageStyle = this.getStyle(step)
+            const imageClass = classnames(style.imageLayer, set[imageIndex].className, {
+                [style.zooming]: zoom,
+                [style.invalidate]: invalidate,
+            })
+            // 組裝屬性
+            const commonProps = {
+                key: `${imageIndexWithStep}-${set[imageIndex].src}`,
+                style: imageStyle,
+                className: imageClass,
+                src: appendParams(set[imageIndex].src, { t: this.handleGetTimestamp(page) }),
+                alt: set[imageIndex].alt,
+            }
+            const centerProps = {
+                id: "zmageImage",
+                ref: this.imageRef,
+                onLoad: this.handleImageLoad,
+                onError: this.handleImageError,
+                onAbort: this.handleImageAbort,
+                onClick: this.handleClick,
+            }
+            // 構建内容
+            if (isSideImage) {
+                const sideImageShow = show && set.length>1 && !zoom
+                return sideImageShow && <img {...commonProps}/>
+            } else {
+                return <img {...commonProps} {...centerProps}/>
+            }
         }
     }
 
     render() {
 
-        const { loop, set, show, zoom, page, pageIsCover } = this.context
-        const { isFetching, invalidate, currentStyle, timestamp } = this.state
-
-        const prevIndex = getTargetPage(page, set.length, 'prev', { loop })
-        const showPrev = show && isInteger(prevIndex) && set.length>1 && !zoom
-        const prevStyle = showPrev && this.getStyle('prev', prevIndex)
-        const prevClass = showPrev && classnames(style.imageLayer, set[prevIndex].className, {
-            [style.zooming]: zoom,
-            [style.invalidate]: invalidate,
-        })
-
-        const currIndex = page
-        const currStyle = this.getStyle('curr', currIndex)
-        const currClass = classnames(style.imageLayer, style.curr, set[page].className, {
-            [style.zooming]: zoom,
-            [style.invalidate]: invalidate,
-        })
-
-        const nextIndex = getTargetPage(page, set.length, 'next', { loop })
-        const showNext = show && isInteger(nextIndex) && prevIndex!==nextIndex && set.length>1 && !zoom
-        const nextStyle = showNext && this.getStyle('next', nextIndex)
-        const nextClass = showNext && classnames(style.imageLayer, set[nextIndex].className, {
-            [style.zooming]: zoom,
-            [style.invalidate]: invalidate,
-        })
+        const { set, show, zoom, page, pageIsCover, pageWithStep } = this.context
+        const { isFetching, invalidate } = this.state
 
         return (
             <Fragment>
@@ -253,41 +290,7 @@ export default class Image extends React.PureComponent {
                 />
 
                 {/*图片*/}
-                {
-                    showPrev &&
-                    <img
-                        key={`${prevIndex}-${set[prevIndex].src}`}
-                        id="zmageImage-prev"
-                        className={prevClass}
-                        style={prevStyle}
-                        src={set[prevIndex].src}
-                        alt={set[prevIndex].alt}
-                    />
-                }
-                <img
-                    key={`${currIndex}-${set[currIndex].src}`}
-                    id="zmageImage"
-                    className={currClass}
-                    style={currStyle}
-                    src={appendParams(set[currIndex].src, { t: timestamp })}
-                    alt={set[currIndex].alt}
-                    ref={this.imageRef}
-                    onLoad={this.handleImageLoad}
-                    onError={this.handleImageError}
-                    onAbort={this.handleImageAbort}
-                    onClick={this.handleClick}
-                />
-                {
-                    showNext &&
-                    <img
-                        key={`${nextIndex}-${set[nextIndex].src}`}
-                        id="zmageImage-next"
-                        className={nextClass}
-                        style={nextStyle}
-                        src={set[nextIndex].src}
-                        alt={set[nextIndex].alt}
-                    />
-                }
+                { this.buildImageSeries(2) }
 
             </Fragment>
         )
