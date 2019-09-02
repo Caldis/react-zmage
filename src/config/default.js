@@ -86,7 +86,9 @@ export const defType = {
     ]),
     // 动画
     animate: PropTypes.shape({
+        // 缩放动画 (未实现)
         browsing: PropTypes.bool,
+        // 翻页动画
         flip: PropTypes.oneOf([
             // 渐变 (set小於3時强制使用)
             "fade",
