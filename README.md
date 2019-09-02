@@ -36,25 +36,31 @@ npm i react-zmage --save
 <h2 align="center">使用</h2>
 
 
-**1.引入**
+#### 1.引入组件
 ```js
 import Zmage from 'react-zmage'
 ```
 
-**2.将页面中的 img 标签替换为 Zmage**
+#### 2.将页面中的 img 标签替换为 Zmage 组件
 ```js
 <img src="图片源连接"/>
 👆 to 👇
 <Zmage src="图片源连接"/>
 ```
+<h6>现在这些图片都可以放大查看了 ！</h6>
 
-**现在这些图片都可以放大查看了 ！**
-
+#### 也可以通过函数调用来唤出图片
+```js
+// Zmage.browsing 函数接受的参数与 <Zmage/> 组件完全一致
+<a onClick={() => Zmage.browsing({ src:imagePath })}>任意元素</a>
+```
 
 <h2 align="center">基础配置</h2>
-<h6 align="center">立即上手, 你仅仅需要了解下面的几个参数就足够了</h2>
+<h6 align="center">立即上手, 你仅仅需要了解下面的几个参数就足够了</h6>
 
 #### 在线示例, 请参见 [https://zmage.caldis.me](https://zmage.caldis.me)
+
+- 基础调用属性
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:----------|:----------:|
