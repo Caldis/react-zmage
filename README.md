@@ -48,6 +48,33 @@ import Zmage from 'react-zmage'
 <Zmage src="图片源连接"/>
 ```
 
+**3.在`typescript`中使用**
+
+```typescript
+import ReactZmage from 'react-zmage';
+
+// 在生命周期等方法中使用
+public componentDidMount() {
+    const zmage = new ReactZmage({
+        // ...options
+    });
+}
+
+// 也支持组件方式使用
+public render(): JSX.Element {
+    const defaultConfig = {
+        src: 'http://zmage.caldis.me/imgSet/childsDream/demo.jpg',
+        alt: '示例图片',
+    };
+
+    return (
+        <ReactZmage
+            {...defaultConfig}
+        />
+    );
+}
+```
+
 **现在这些图片都可以放大查看了 ！**
 
 
