@@ -57,7 +57,7 @@ export default class App extends React.Component {
 
                 {/*特性介绍*/}
                 <div className={style.horizon}>
-                    <div>
+                    <div className={style.helpBox}>
                         <h2>轻松使用</h2>
                         <p>一如原生的 {"<img/>"} 标签, 只需要直接替换 img 为 Zmage 即可, 您依旧可以使用 style, className 等原生属性</p>
                         <p>现在, 点击图片, 您即可进入<b>查看模式</b></p>
@@ -70,7 +70,7 @@ export default class App extends React.Component {
 </PrismCode>
                 </pre>
                     </div>
-                    <div>
+                    <div className={style.imageBox}>
                         <Zmage
                             className={style.image}
                             src="imgSet/childsDream/1.jpg"
@@ -81,7 +81,7 @@ export default class App extends React.Component {
                 </div>
 
                 <div className={style.horizon}>
-                    <div>
+                    <div className={style.helpBox}>
                         <h2>图片放大</h2>
                         <p>点击右上角的放大图标, 即可进入放大模式。</p>
                         <p>滑动鼠标则可以浏览超出屏幕的部分, 对浏览大尺寸图片时尤为方便</p>
@@ -96,7 +96,7 @@ export default class App extends React.Component {
 </PrismCode>
                 </pre>
                     </div>
-                    <div>
+                    <div className={style.imageBox}>
                         <Zmage
                             className={style.image}
                             src="imgSet/childsDream/2.jpg"
@@ -107,7 +107,7 @@ export default class App extends React.Component {
                 </div>
 
                 <div className={style.horizon}>
-                    <div>
+                    <div className={style.helpBox}>
                         <h2>展示序列图片</h2>
                         <p>您可以传入一系列图片来显示一系列幻灯片, 使用 <b>set</b> 来包裹它们</p>
                         <p>点击放大后使用键盘的 <b>←</b> 或 <b>→</b> 即可切换图片</p>
@@ -127,7 +127,7 @@ export default class App extends React.Component {
 </PrismCode>
                 </pre>
                     </div>
-                    <div>
+                    <div className={style.imageBox}>
                         <Zmage
                             className={style.image}
                             src="imgSet/childsDream/3.jpg"
@@ -145,14 +145,14 @@ export default class App extends React.Component {
                 </div>
 
                 <div className={style.horizon}>
-                    <div>
+                    <div className={style.helpBox}>
                         <h2>快捷操作</h2>
                         <p>您可以使用键盘来快捷操作</p>
                         <p>除了在展示序列图片时使用键盘的 <b>←</b> 或 <b>→</b> 来切换页面, 你可以可以使用 <b>SPACE|空格键</b>, 来激活<b>放大模式</b></p>
                         <p>处于放大模式时, 点击 <b>退出|ESC</b> 可以退出<b>放大模式</b>, 再次点击即可退出<b>查看模式</b></p>
                         <p>滚动页面同样也可以退出<b>查看模式</b></p>
                     </div>
-                    <div>
+                    <div className={style.imageBox}>
                         <Zmage
                             className={style.image}
                             src="imgSet/childsDream/5.jpg"
@@ -181,17 +181,16 @@ export default class App extends React.Component {
                     </div>
                 </div>
 
-                <div className={style.horizon} style={{ display:'none' }}>
-                    <div>
+                <div className={style.horizon}>
+                    <div className={style.helpBox}>
                         <h2>受控属性与命令式调用</h2>
-                        <button onClick={() => Zmage.browsing({ src:"imgSet/childsDream/5.jpg" })}>点击显示</button>
-                        <button onClick={() => this.setState({browsing:!this.state.browsing})}>切换</button>
+                        <p>即使在文本中，您也可以为 <a onClick={() => Zmage.browsing({ src:"imgSet/childsDream/5.jpg" })}>任意元素</a> 绑定一个事件， 以直接显示一个不存在的图片</p>
+                        <p>也可以使用 <a onClick={() => this.setState({browsing:!this.state.browsing})}>browsing</a> 属性来直接操作右侧的图片状态</p>
                     </div>
-                    <div>
+                    <div className={style.imageBox}>
                         <Zmage
                           className={style.image}
                           src="imgSet/childsDream/7.jpg"
-                          preset="mobile"
                           browsing={this.state.browsing}
                           onBrowsing={(status) => this.setState({ browsing:status })}
                           set={[{
@@ -207,14 +206,14 @@ export default class App extends React.Component {
                 </div>
 
                 <div className={style.horizon} style={{ display:'none' }}>
-                    <div>
+                    <div className={style.helpBox}>
                         <h2>预设配置 (beta)</h2>
                         <p>我们自带了两套默认配置项</p>
                         <p>分别是 <b>桌面端(DESKTOP)</b> 以及 <b>移动端 (MOBILE)</b></p>
                         <p>处于桌面端配置时, 即为您先前所见</p>
                         <p>而移动端配置则不包含任何多余的操作项, 样式也会有些许变化</p>
                     </div>
-                    <div>
+                    <div className={style.imageBox}>
                         <Zmage
                             className={style.image}
                             src="imgSet/childsDream/7.jpg"
