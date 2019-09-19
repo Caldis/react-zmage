@@ -55,7 +55,7 @@ import Zmage from 'react-zmage'
 <a onClick={() => Zmage.browsing({ src:imagePath })}>任意元素</a>
 ```
 
-#### 在`typescript`中使用**
+#### 在`typescript`中使用
 
 ```typescript
 import ReactZmage from 'react-zmage';
