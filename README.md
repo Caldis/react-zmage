@@ -36,19 +36,26 @@ npm i react-zmage --save
 <h2 align="center">使用</h2>
 
 
-**1.引入**
+#### 1.引入组件
 ```js
 import Zmage from 'react-zmage'
 ```
 
-**2.将页面中的 img 标签替换为 Zmage**
+#### 2.将页面中的 img 标签替换为 Zmage 组件
 ```js
 <img src="图片源连接"/>
 👆 to 👇
 <Zmage src="图片源连接"/>
 ```
+<h6>现在这些图片都可以放大查看了 ！</h6>
 
-**3.在`typescript`中使用**
+#### 也可以通过函数调用来唤出图片
+```js
+// Zmage.browsing 函数接受的参数与 <Zmage/> 组件完全一致
+<a onClick={() => Zmage.browsing({ src:imagePath })}>任意元素</a>
+```
+
+#### 在`typescript`中使用**
 
 ```typescript
 import ReactZmage from 'react-zmage';
@@ -75,13 +82,12 @@ public render(): JSX.Element {
 }
 ```
 
-**现在这些图片都可以放大查看了 ！**
-
-
 <h2 align="center">基础配置</h2>
-<h6 align="center">立即上手, 你仅仅需要了解下面的几个参数就足够了</h2>
+<h6 align="center">立即上手, 你仅仅需要了解下面的几个参数就足够了</h6>
 
 #### 在线示例, 请参见 [https://zmage.caldis.me](https://zmage.caldis.me)
+
+- 基础调用属性
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:----------|:----------:|
@@ -99,12 +105,19 @@ public render(): JSX.Element {
 |:--:|:--:|:-----:|:----------|:----------:|
 | **`preset`** | String | "auto" | 轻松配置界面的功能及样式, 可设置为 `auto` `desktop` `mobile` | [示例](https://github.com/Caldis/react-zmage#preset) [受影响的配置项](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L144) |
 
+- 受控属性
+
+|配置项|类型|默认值|描述|示例|
+|:--:|:--:|:-----:|:---------------|:----------:|
+| **`browsing`** | Boolean | empty | 控制是否进入查看模式 | [示例](https://github.com/Caldis/react-zmage#browsing) |
+
 - 功能控制
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:---------------|:----------:|
-| **`controller`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L148)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L166) | 将特定项设为 `false` 来隐藏查看模式下的操作控件 | [示例](https://github.com/Caldis/react-zmage#controller) |
-| **`hotKey`** | Object | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L155)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L173) | 将特定项设为 `false` 来禁用查看模式下的快捷键 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
+| **`controller`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L60) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L136)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L156) | 将特定项设为 `false` 来隐藏查看模式下的操作控件 | [示例](https://github.com/Caldis/react-zmage#controller) |
+| **`hotKey`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L76) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L144)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L164) | 将特定项设为 `false` 来禁用查看模式下的快捷键 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
+| **`animate`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L88) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L149)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L169) | 传入特定的参数指定翻页动画（browsing 动画暂不可配置） [可选值](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L62) | [示例](https://github.com/Caldis/react-zmage#animate) |
 
 - 界面样式
 
@@ -170,16 +183,9 @@ set: [
 ]
 ```
 
-### `hotKey`
+### `browsing`
 ```js
-hotKey={{
-    // 关闭（ESC）
-    close: true,
-    // 缩放（空格）
-    zoom: true,
-    // 翻页（左右）
-    flip: true,
-}}
+browsing={this.state.contrlledZmageState}
 ```
 
 ### `controller`
@@ -197,6 +203,25 @@ controller={{
     flip: true,
     // 多页指示
     pagination: true,
+}}
+```
+
+### `hotKey`
+```js
+hotKey={{
+    // 关闭（ESC）
+    close: true,
+    // 缩放（空格）
+    zoom: true,
+    // 翻页（左右）
+    flip: true,
+}}
+```
+
+### `animate`
+```js
+animate={{
+    flip: 'fade',
 }}
 ```
 

@@ -198,8 +198,43 @@ pre {
             }
         }
 
-        a {
-            width: 100%;
+        .clickable {
+            position: relative;
+            cursor: pointer;
+
+            &:after {
+                content: "";
+                display: block;
+                position: absolute;
+                left: -4px;
+                bottom: -2px;
+                width: 0;
+                height: 0.5rem;
+                background-color: rgba(0, 136, 255, 0.51);
+                transition: all .3s;
+            }
+
+            &:hover {
+                &:after {
+                    width: 113%;
+                    height: 0.5rem;
+                }
+            }
+        }
+
+        .helpBox {
+            a {
+                font-size: 1.05rem;
+                text-decoration: underline;
+
+                .clickable;
+            }
+        }
+        .imageBox {
+            a {
+                text-align: center;
+                width: 100%;
+            }
         }
     }
 

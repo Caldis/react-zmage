@@ -29,7 +29,7 @@ export const getCurrentImageStyle = (props, context, imageRef) => {
 
 /* 获取封面样式 */
 export const getCoverStyle = (props, context) => {
-    const { coverRef, rotate, pageIsCover } = context
+    const { coverRef, coverPos, rotate, pageIsCover } = context
     if (coverRef.current) {
         const { naturalWidth } = coverRef.current
         const { top, left, width, height } = coverRef.current.getBoundingClientRect()
@@ -51,7 +51,19 @@ export const getCoverStyle = (props, context) => {
             rotate: rotate-rotate%360,
             radius: numberOfStyleUnits(borderRadius, { ref:width }),
         }
+    } else if (coverPos) {
+        // 获取以鼠标指针为起始点的封面样式
+        return {
+            _type: 'cover',
+            x: coverPos.x ? coverPos.x-scrollWidth()/2 : 0,
+            y: coverPos.y ? coverPos.y-windowHeight()/2 : 0,
+            opacity: 0,
+            scale: 0,
+            rotate: 0,
+            radius: 0,
+        }
     } else {
+        // 获取以屏幕中心为起始点的封面样式
         return {
             _type: 'cover',
             x: 0,
