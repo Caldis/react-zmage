@@ -107,7 +107,6 @@ export default class Browser extends React.PureComponent {
      * 事件处理
      **/
     handleKeyDown = (e) => {
-        console.log('handleKeyDown')
         const { preset, set, hotKey:userHotKey, loop, outBrowsing } = this.props
         const { zoom, page } = this.state
         // 合并熱鍵設定
@@ -123,7 +122,7 @@ export default class Browser extends React.PureComponent {
             case 32: // SpaceBar
                 // 缩放
                 e.preventDefault()
-	            hotKey.zoom && this.handleToggleZoom()
+                hotKey.zoom && this.handleToggleZoom()
                 break
             case 37: // ArrowLeft
                 // 上一张
@@ -212,7 +211,7 @@ export default class Browser extends React.PureComponent {
 
         const {
             // Internal
-            coverRef, outBrowsing,
+            coverRef, coverPos, outBrowsing,
             // Data
             set,
             // Preset
@@ -234,7 +233,7 @@ export default class Browser extends React.PureComponent {
 
         const contextValue = {
             // Internal
-            coverRef, outBrowsing,
+            coverRef, coverPos, outBrowsing,
             // Data
             set,
             // Preset
