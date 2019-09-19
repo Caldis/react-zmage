@@ -166,7 +166,6 @@ export const getTargetPage = (current, length, step, options={loop:true}) => {
         return current
     }
     if (current<0 || current>length-1) {
-        console.warn("Current index overflow !")
         return undefined
     }
     // Processing

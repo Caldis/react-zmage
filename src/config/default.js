@@ -234,7 +234,7 @@ export const defProp = {
  **/
 const DEF_PROP = "__ZMAGE_DEF_PROP__"
 export const defPropWithEnv = (preset) => {
-    if (window) {
+    if (typeof window !== "undefined") {
         if (!window.hasOwnProperty(DEF_PROP)) {
             window[DEF_PROP] = {}
         }
