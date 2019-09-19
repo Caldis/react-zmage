@@ -3,7 +3,7 @@
  **/
 
 // Libs
-import React, {Fragment} from 'react'
+import React, { Fragment } from 'react'
 // Components
 import callee from './Zmage.callee'
 import Browser from './components/Browser'
@@ -12,7 +12,7 @@ import { convertSet } from './Zmage.utils'
 import { defType, defProp } from './config/default'
 
 // 基础组件
-export default class ReactZmage extends React.PureComponent {
+class ReactZmage extends React.PureComponent {
 
     constructor(props){
         super(props)
@@ -50,7 +50,7 @@ export default class ReactZmage extends React.PureComponent {
 
         const {
             // Internal
-            className, style, onClick,
+            className, style, onClick, forwardedRef,
             // Data
             src, alt, txt, set, defaultPage,
             // Presets
@@ -76,13 +76,16 @@ export default class ReactZmage extends React.PureComponent {
 
                 {/*封面图片*/}
                 <img
-                    ref={this.coverRef}
                     className={className}
                     style={{ cursor:'zoom-in', ...style }}
                     src={src} alt={alt} title={alt}
                     onClick={(e) => {
                         this.inBrowsing()
                         typeof onClick === "function" && onClick(e)
+                    }}
+                    ref={(ref) => {
+                        forwardedRef && (forwardedRef.current = ref);
+                        this.coverRef && (this.coverRef.current = ref);
                     }}
                     {...restProps}
                 />
@@ -122,12 +125,14 @@ export default class ReactZmage extends React.PureComponent {
     }
 }
 
-
-// 命令式调用组件
-ReactZmage.browsing = callee
-
 // 属性类型
 ReactZmage.propTypes = defType
-
 // 属性默认值
 ReactZmage.defaultProps = defProp
+
+// 常规组件
+const forwardedReactZmage = React.forwardRef((props, ref) => <ReactZmage {...props} forwardedRef={ref}/>)
+// 命令式调用组件
+forwardedReactZmage.browsing = callee
+
+export default forwardedReactZmage
