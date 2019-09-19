@@ -23,7 +23,6 @@ export default class Browser extends React.PureComponent {
 
     constructor(props) {
         super(props)
-
         const { page, pageIsCover } = pageSet(props.coverRef, props.defaultPage, props.set)
 
         this.state = {
@@ -74,7 +73,7 @@ export default class Browser extends React.PureComponent {
      * 载入/卸载
      **/
     init = () => {
-        const { isControlled, coverRef, set, onBrowsing } = this.props
+        const { isBrowsingControlled, coverRef, set, onBrowsing } = this.props
         const { show, page, pageIsCover } = this.state
         if (!show) {
             window.addEventListener('keydown', this.handleKeyDown)
@@ -82,13 +81,13 @@ export default class Browser extends React.PureComponent {
             window.requestAnimationFrame(() => {
                 this.setState({ show:true, zoom:false, rotate:0, }, () => {
                     pageIsCover && hideCover(coverRef, set, page)
-                    !isControlled && typeof onBrowsing === "function" && onBrowsing(true)
+                    !isBrowsingControlled && typeof onBrowsing === "function" && onBrowsing(true)
                 })
             })
         }
     }
     unInit = ({ force }={}) => {
-        const { isControlled, coverRef, set, onBrowsing } = this.props
+        const { isBrowsingControlled, coverRef, set, onBrowsing } = this.props
         const { show, page, pageIsCover } = this.state
         if (show || force) {
             window.removeEventListener('keydown', this.handleKeyDown)
@@ -97,7 +96,7 @@ export default class Browser extends React.PureComponent {
             this.setState({ show:false, zoom:false, rotate:0 }, () => setTimeout(() => {
                 this.setState({ mount:false }, () => {
                     pageIsCover && showCover(coverRef, set, page)
-                    !isControlled && typeof onBrowsing === "function" && onBrowsing(false)
+                    !isBrowsingControlled && typeof onBrowsing === "function" && onBrowsing(false)
                 })
             }, animationDuration))
         }
@@ -123,7 +122,7 @@ export default class Browser extends React.PureComponent {
             case 32: // SpaceBar
                 // 缩放
                 e.preventDefault()
-	            hotKey.zoom && this.handleToggleZoom()
+                hotKey.zoom && this.handleToggleZoom()
                 break
             case 37: // ArrowLeft
                 // 上一张
@@ -212,7 +211,7 @@ export default class Browser extends React.PureComponent {
 
         const {
             // Internal
-            coverRef, outBrowsing,
+            coverRef, coverPos, outBrowsing,
             // Data
             set,
             // Preset
@@ -234,7 +233,7 @@ export default class Browser extends React.PureComponent {
 
         const contextValue = {
             // Internal
-            coverRef, outBrowsing,
+            coverRef, coverPos, outBrowsing,
             // Data
             set,
             // Preset
@@ -284,7 +283,7 @@ Browser.contextType = Context
 Browser.defaultProps = {
 
     // Controlled status
-    isControlled: false,
+    isBrowsingControlled: false,
     browsing: false,
     // Internal
     coverRef: React.createRef(),
