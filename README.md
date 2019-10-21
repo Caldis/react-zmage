@@ -55,6 +55,33 @@ import Zmage from 'react-zmage'
 <a onClick={() => Zmage.browsing({ src:imagePath })}>任意元素</a>
 ```
 
+#### 在`typescript`中使用
+
+```typescript
+import ReactZmage from 'react-zmage';
+
+// 在生命周期等方法中使用
+public componentDidMount() {
+    const zmage = new ReactZmage({
+        // ...options
+    });
+}
+
+// 也支持组件方式使用
+public render(): JSX.Element {
+    const defaultConfig = {
+        src: 'http://zmage.caldis.me/imgSet/childsDream/demo.jpg',
+        alt: '示例图片',
+    };
+
+    return (
+        <ReactZmage
+            {...defaultConfig}
+        />
+    );
+}
+```
+
 <h2 align="center">基础配置</h2>
 <h6 align="center">立即上手, 你仅仅需要了解下面的几个参数就足够了</h6>
 
