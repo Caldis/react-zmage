@@ -170,7 +170,7 @@ export const defPreset = {
         },
         animate: {
             browsing: true,
-            flip: 'fade',
+            flip: 'swipe',
         },
     }
 }
@@ -194,7 +194,7 @@ export const defProp = {
      * 预设
      **/
     preset: "auto",
-	
+
     /**
      * 功能控制
      **/
@@ -218,7 +218,7 @@ export const defProp = {
     edge: 0,
     // 是否循环查看
     loop: true,
-	
+
     /**
      * 生命周期
      **/
