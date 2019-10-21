@@ -18,6 +18,7 @@ import { getTargetPage } from "@/utils"
 import { defPropWithEnv } from "@/config/default"
 import { animationDuration } from "@/config/anim"
 import { pageSet, showCover, hideCover, pageIsCover } from './Browser.utils'
+import { env } from "@/utils/env";
 
 export default class Browser extends React.PureComponent {
 
@@ -145,30 +146,27 @@ export default class Browser extends React.PureComponent {
     /**
      * 翻页控制
      **/
-    handleToPage = (page) => {
-        const { coverRef, set, onSwitching } = this.props
-        this.setState({
-            page,
-            pageIsCover: pageIsCover(coverRef, set, page),
-        }, () => {
-            typeof onSwitching === "function" && onSwitching(this.state.page)
-        })
+    handleToPage = (targetPage) => {
+        const { page } = this.state
+        this.handleSwitchPages(targetPage - page)()
     }
     handleSwitchPages = (step) => {
         const { coverRef, onSwitching, loop } = this.props
         return () => {
             const { set } = this.props
-            const { page, pageWithStep } = this.state
-            const targetPage = getTargetPage(page, set.length, step, { loop })
-            this.setState({
-                page: targetPage,
-                pageIsCover: pageIsCover(coverRef, set, targetPage),
-                pageWithStep: pageWithStep+step,
-                zoom: false,
-                rotate: 0,
-            }, () => {
-                typeof onSwitching === "function" && onSwitching(targetPage)
-            })
+            if (set.length>1) {
+                const {page, pageWithStep} = this.state
+                const targetPage = getTargetPage(page, set.length, step, {loop})
+                this.setState({
+                    page: targetPage,
+                    pageIsCover: pageIsCover(coverRef, set, targetPage),
+                    pageWithStep: pageWithStep + step,
+                    zoom: false,
+                    rotate: 0,
+                }, () => {
+                    typeof onSwitching === "function" && onSwitching(targetPage)
+                })
+            }
         }
     }
     handleToPrevPage = this.handleSwitchPages(-1)
@@ -238,8 +236,8 @@ export default class Browser extends React.PureComponent {
             set,
             // Preset
             preset,
-            presetIsMobile: preset==='mobile',
-            presetIsDesktop: preset==='desktop',
+            presetIsMobile: preset==='mobile' || (preset==='auto' && env.isMobile),
+            presetIsDesktop: preset==='desktop' || (preset==='auto' && env.isDesktop),
             // Control
             controller: { ...defProp.controller, ...controller },
             hotKey: { ...defProp.hotKey, ...hotKey },
