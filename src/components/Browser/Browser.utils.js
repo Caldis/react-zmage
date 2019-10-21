@@ -26,7 +26,10 @@ export const showCover = (coverRef) => {
     }
 }
 export const hideCover = (coverRef) => {
-    if(coverRef.current) {
-        coverRef && coverRef.current && (coverRef.current.style.visibility = 'hidden')
-    }
+    // 隐藏太快会闪
+    setTimeout(() => {
+        if (coverRef.current) {
+            coverRef && coverRef.current && (coverRef.current.style.visibility = 'hidden')
+        }
+    }, 50)
 }
