@@ -58,7 +58,7 @@ class ReactZmage extends React.PureComponent {
             // Control
             controller, hotKey, animate,
             // Styles & interactive
-            zIndex, backdrop, radius, edge, loop,
+            coverVisible, backdrop, zIndex, radius, edge, loop,
             // Life cycle functions
             onBrowsing, onZooming, onSwitching, onRotating,
             // Controlled props
@@ -108,8 +108,9 @@ class ReactZmage extends React.PureComponent {
                     hotKey={hotKey}
                     animate={animate}
                     // Styles & interactive
-                    zIndex={zIndex}
+                    coverVisible={coverVisible}
                     backdrop={backdrop}
+                    zIndex={zIndex}
                     radius={radius}
                     edge={edge}
                     loop={loop}

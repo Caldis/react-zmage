@@ -53,12 +53,16 @@ export default class Image extends React.PureComponent {
         const { presetIsMobile, presetIsDesktop } = this.context
         window.addEventListener('resize', this.handleResize)
         if (presetIsMobile) {
-            window.addEventListener('touchstart', this.handleTouchStart)
-            window.addEventListener('touchmove', this.handleTouchMove)
-            window.addEventListener('touchend', this.handleTouchEnd)
+            setTimeout(() => {
+                window.addEventListener('touchstart', this.handleTouchStart)
+                window.addEventListener('touchmove', this.handleTouchMove)
+                window.addEventListener('touchend', this.handleTouchEnd)
+            }, 0)
         }
         if (presetIsDesktop) {
-            window.addEventListener('scroll', this.handleScroll)
+            setTimeout(() => {
+                window.addEventListener('scroll', this.handleScroll)
+            }, 0)
         }
     }
     componentDidUpdate(prevProps) {

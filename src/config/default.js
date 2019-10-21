@@ -104,6 +104,8 @@ export const defType = {
     /**
      * 界面与交互
      **/
+    // 封面可见性
+    coverVisible: PropTypes.bool,
     // 背景色
     backdrop: PropTypes.string,
     // 高度
@@ -208,6 +210,8 @@ export const defProp = {
     /**
      * 界面与交互
      **/
+    // 封面可见性
+    coverVisible: false,
     // 背景色
     backdrop: "#FFFFFF",
     // 高度
