@@ -114,3 +114,72 @@ export const getZoomingStyle = (props, context, imageRef, { clientX:mouseX=scrol
         radius,
     }
 }
+
+/* 触控属性 */
+const TOUCH_BEHAVIOR_BEGIN_THRESHOLD = 10
+const TOUCH_BEHAVIOR_END_THRESHOLD = 200
+export const TOUCH_BEHAVIOR_PHASE = {
+    "BEGIN": "BEGIN",
+    "MOVING": "MOVING",
+    "END": "END",
+}
+export const TOUCH_BEHAVIOR_TYPE = {
+    "SWIPING": "SWIPING",
+    "LIVING": "LIVING",
+}
+export const TOUCH_STYLE = function ({ origin }={}) {
+    return {
+        phase: TOUCH_BEHAVIOR_PHASE.BEGIN,
+        behavior: undefined,
+        begin: {
+            time: new Date().getTime(),
+            origin: origin || { x:0, y:0 },
+            offset: { x:0, y:0 },
+        },
+        current: {
+            time: new Date().getTime(),
+            origin: origin || { x:0, y:0 },
+            offset: { x:0, y:0 },
+        },
+        update: function({ origin }={}) {
+            // 更新阶段属性
+            this.phase = TOUCH_BEHAVIOR_PHASE.MOVING
+            // 更新坐标属性
+            this.current = {
+                time: new Date().getTime(),
+                origin: origin,
+                offset: { x:origin.x - this.begin.origin.x, y:origin.y - this.begin.origin.y }
+            }
+            // 更新行为属性
+            if (!this.behavior) {
+                const distanceX = Math.abs(this.current.offset.x)
+                const distanceY = Math.abs(this.current.offset.y)
+                if (distanceX>distanceY) {
+                    if (distanceX>TOUCH_BEHAVIOR_BEGIN_THRESHOLD) {
+                        this.behavior = TOUCH_BEHAVIOR_TYPE.SWIPING
+                    }
+                } else {
+                    if (distanceY>TOUCH_BEHAVIOR_BEGIN_THRESHOLD) {
+                        this.behavior = TOUCH_BEHAVIOR_TYPE.LIVING
+                    }
+                }
+            }
+            return this
+        },
+        end: function () {
+            const time = new Date().getTime();
+            // 更新阶段属性
+            this.phase = TOUCH_BEHAVIOR_PHASE.END
+            // 更新行为属性
+            // 如果结束间隔大于 1000ms, 且对应距离小于 200px, 则视为无操作
+            if (((time - this.current.time) > 1000) && this.behavior) {
+                if (this.behavior===TOUCH_BEHAVIOR_TYPE.SWIPING && this.current.offset.x<TOUCH_BEHAVIOR_END_THRESHOLD) {
+                    this.behavior = undefined
+                } else if (this.behavior===TOUCH_BEHAVIOR_TYPE.LIVING && this.current.offset.y<TOUCH_BEHAVIOR_END_THRESHOLD){
+                    this.behavior = undefined
+                }
+            }
+            return this
+        }
+    }
+}

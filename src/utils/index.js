@@ -16,7 +16,7 @@ export const calcFitScale = (naturalWidth, naturalHeight, edge=0) => {
     const figureHeight = naturalHeight + 2*edge
     const scaleX = figureWidth>clientWidth() ? clientWidth()/(naturalWidth+2*edge) : 1
     const scaleY = figureHeight>clientHeight() ? clientHeight()/(naturalHeight+2*edge) : 1
-    return Math.min(scaleX, scaleY) + 0.002 // 防止在高dpi设备出现无法占满边距的问题
+    return Math.min(scaleX, scaleY) // + 0.002 // 防止在高dpi设备出现无法占满边距的问题
 }
 
 /**
@@ -178,6 +178,6 @@ export const getTargetPage = (current, length, step, options={loop:true}) => {
  * 生成鏡像數組
  * @param {number} distance - 距離0點的長度
  */
-export const mirrorRange = memoize((distance) => {
-    return [...([...Array(distance).keys()].map(k => -k - 1).reverse()), ...([...Array(distance + 1).keys()])]
+export const mirrorRange = memoize((edge) => {
+    return [...([...Array(edge).keys()].map(k => -k - 1).reverse()), ...([...Array(edge + 1).keys()])]
 })

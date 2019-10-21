@@ -20,7 +20,7 @@ import {
     isInteger, getTargetPage,
     mirrorRange,
 } from '@/utils'
-import { getCurrentImageStyle, getCoverStyle, getZoomingStyle } from './Image.utils'
+import { getCurrentImageStyle, getCoverStyle, getZoomingStyle, TOUCH_BEHAVIOR_TYPE, TOUCH_BEHAVIOR_PHASE, TOUCH_STYLE } from './Image.utils'
 
 export default class Image extends React.PureComponent {
 
@@ -43,19 +43,28 @@ export default class Image extends React.PureComponent {
             invalidate: false,
             // Style
             currentStyle: getCoverStyle(props, context),
+            touchStyle: new TOUCH_STYLE(),
             // Reload Flag
             timestamp: {},
         }
     }
 
     componentDidMount() {
-        window.addEventListener('scroll', this.handleScroll)
+        const { presetIsMobile, presetIsDesktop } = this.context
         window.addEventListener('resize', this.handleResize)
+        if (presetIsMobile) {
+            window.addEventListener('touchstart', this.handleTouchStart)
+            window.addEventListener('touchmove', this.handleTouchMove)
+            window.addEventListener('touchend', this.handleTouchEnd)
+        }
+        if (presetIsDesktop) {
+            window.addEventListener('scroll', this.handleScroll)
+        }
     }
     componentDidUpdate(prevProps) {
         const { show: prevShow, zoom: prevZoom, rotate: prevRotate, page: prevPage } = prevProps
         const { show: currShow, zoom: currZoom, rotate: currRotate, page: currPage } = this.props
-        const { presetIsMobile } = this.props
+        const { presetIsMobile } = this.context
         // 状态改变时更新样式 (Page 导致的 src 变化的 update 交给图片自身的 onload 调用)
         if (prevShow!==currShow || prevZoom!==currZoom || prevRotate!==currRotate) {
             // 显示状态切换
@@ -79,8 +88,16 @@ export default class Image extends React.PureComponent {
         }
     }
     componentWillUnmount() {
+        const { presetIsMobile, presetIsDesktop } = this.context
+        if (presetIsMobile) {
+            window.removeEventListener('touchstart', this.handleTouchStart)
+            window.removeEventListener('touchmove', this.handleTouchMove)
+            window.removeEventListener('touchend', this.handleTouchEnd)
+        }
+        if (presetIsDesktop) {
+            window.removeEventListener('scroll', this.handleScroll)
+        }
         window.removeEventListener('resize', this.handleResize)
-        window.removeEventListener('scroll', this.handleScroll)
         window.removeEventListener('mousemove', this.handleMouseMove)
         clearInterval(this.imageLoadingTimer)
     }
@@ -103,8 +120,8 @@ export default class Image extends React.PureComponent {
      * 信息更新
      **/
     updateCurrentImageStyle = () => {
-        const newStyle = getCurrentImageStyle(this.props, this.context, this.imageRef)
-        this.setStyle(newStyle)
+        const nextStyle = getCurrentImageStyle(this.props, this.context, this.imageRef)
+        this.setCurrentStyle(nextStyle)
     }
 
     /**
@@ -124,10 +141,24 @@ export default class Image extends React.PureComponent {
         const { zoom, toggleZoom } = this.context
         zoom && toggleZoom()
     }
+    // 触摸事件
+    handleTouchStart = (e) => {
+        const { clientX, clientY } = e.touches[0]
+        this.setTouchStyle(new TOUCH_STYLE({ origin:{ x:clientX, y:clientY } }))
+    }
+    handleTouchMove = (e) => {
+        const { touchStyle } = this.state
+        const { clientX, clientY } = e.touches[0]
+        this.setTouchStyle(touchStyle.update({ origin:{ x:clientX, y:clientY }}))
+    }
+    handleTouchEnd = (e) => {
+        const { touchStyle } = this.state
+        this.setTouchStyle(touchStyle.end())
+    }
     // 鼠标事件
     handleMouseMove = (e) => {
         const zoomingStyle = getZoomingStyle(this.props, this.context, this.imageRef, e)
-        this.setStyle(zoomingStyle)
+        this.setCurrentStyle(zoomingStyle)
     }
     // 加载事件
     handleImageLoadStart = () => {
@@ -183,16 +214,31 @@ export default class Image extends React.PureComponent {
     /**
      * 样式应用
      **/
-    setStyle = (newStyle) => {
+    setCurrentStyle = (nextStyle) => {
         this.setState({
-            currentStyle: newStyle
+            currentStyle: nextStyle
         })
     }
-    getStyle = (step) => {
+    setTouchStyle = (nextStyle) => {
+        this.setState({
+            touchStyle: { ...nextStyle }
+        }, () => {
+            const { outBrowsing, toPrevPage, toNextPage } = this.context
+            const { touchStyle } = this.state
+             if (touchStyle.phase===TOUCH_BEHAVIOR_PHASE.END) {
+                 if (touchStyle.behavior===TOUCH_BEHAVIOR_TYPE.SWIPING) {
+                     touchStyle.current.offset.x<0 ? toNextPage() : toPrevPage()
+                 } else if (touchStyle.behavior===TOUCH_BEHAVIOR_TYPE.LIVING) {
+                     outBrowsing()
+                 }
+             }
+        })
+    }
+    getStyle = (step, distance, isSideImage) => {
         const { animate, set, zoom, page } = this.context
-        const { invalidate, currentStyle } = this.state
+        const { invalidate, currentStyle, touchStyle } = this.state
         // 获取动画配置
-        let offset=0, overflow=0, transform, clipPath, zIndex, opacity, pointerEvents
+        let offset=0, overflow=0, transform, clipPath, zIndex, opacity, pointerEvents, transition
         const isFade = animate.flip==='fade'
         const isCrossFade = animate.flip==='crossFade'
         isCrossFade && (offset = 30)
@@ -200,17 +246,26 @@ export default class Image extends React.PureComponent {
         isSwipe && (offset = scrollWidth()*step)
         const isZoom = animate.flip==='zoom'
         isZoom && (overflow = 0.08)
+        // 获取触摸配置
+        let touch = { x:0, y:0 }
+        if (touchStyle && touchStyle.phase===TOUCH_BEHAVIOR_PHASE.MOVING) {
+            if (touchStyle.behavior === TOUCH_BEHAVIOR_TYPE.SWIPING) {
+                touch.x = touchStyle.current.offset.x
+                transition = `none`
+            } else if (touchStyle.behavior === TOUCH_BEHAVIOR_TYPE.LIVING) {
+                touch.y = touchStyle.current.offset.y
+                transition = `none`
+            }
+        }
         // 计算样式
-        const distance = Math.abs(step)
-        const isSideImage = distance > 0
         // FIXME 縮放時其他圖片遮擋問題
         if (isSideImage) {
-            transform = `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x+offset}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale+overflow}, ${currentStyle.scale+overflow}, 1) rotate3d(0, 0, 1, 0deg)`
+            transform = `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x+touch.x+offset}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale+overflow}, ${currentStyle.scale+overflow}, 1) rotate3d(0, 0, 1, 0deg)`
             zIndex = 10*distance
             opacity = (isFade || isCrossFade || isZoom) ? 0 : 1
             pointerEvents = 'none'
         } else {
-            transform = `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
+            transform = `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x+touch.x}px, ${currentStyle.y+touch.y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
             // clipPath = currentStyle.radius ? `inset(0% 0% 0% 0% round ${currentStyle.radius/currentStyle.scale}px)` : `inset(0% 0% 0% 0% round 0)`
             opacity = currentStyle.opacity
             zIndex = 10
@@ -221,6 +276,7 @@ export default class Image extends React.PureComponent {
             zIndex,
             opacity: invalidate ? 0 : opacity,
             pointerEvents,
+            transition,
             ...set[page].style,
         }
     }
@@ -228,21 +284,22 @@ export default class Image extends React.PureComponent {
     /**
      * 圖片構建
      **/
-    buildImageSeries = (distance) => {
-        const rangeList = mirrorRange(distance)
+    buildImageSeries = (edge) => {
+        const rangeList = mirrorRange(edge)
         return rangeList.map(i => this.buildImage(i))
     }
     buildImage = (step) => {
         const { loop, set, show, zoom, page, pageWithStep } = this.context
         const { invalidate } = this.state
         // 是否邊圖
-        const isSideImage = Math.abs(step)>0
+        const distance = Math.abs(step)
+        const isSideImage = distance>0
         // 計算索引
         const imageIndexWithStep = pageWithStep+step
         const imageIndex = getTargetPage(page, set.length, step, { loop })
         if (isInteger(imageIndex)) {
             // 計算樣式
-            const imageStyle = this.getStyle(step)
+            const imageStyle = this.getStyle(step, distance, isSideImage)
             const imageClass = classnames(style.imageLayer, set[imageIndex].className, {
                 [style.zooming]: zoom,
                 [style.invalidate]: invalidate,
@@ -277,7 +334,6 @@ export default class Image extends React.PureComponent {
 
         const { set, show, zoom, page, pageIsCover, pageWithStep } = this.context
         const { isFetching, invalidate } = this.state
-
         return (
             <Fragment>
 
