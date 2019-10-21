@@ -11,13 +11,17 @@ import style from './Control.less'
 import { IconDownload, IconRotateLeft, IconRotateRight, IconZoom, IconArrowLeft, IconArrowRight, IconClose } from '@/asserts/icons'
 // Utils
 import { Context } from '../context'
-import { withShowingStatus, downloadFromLink } from '@/utils'
+import { withToggleStatus, downloadFromLink } from '@/utils'
 
 export default class Control extends React.PureComponent {
 
     withShow = (className) => {
         const { show, zoom } = this.props
-        return withShowingStatus(className, !zoom && show, style.show)
+        return withToggleStatus(className, !zoom && show, style.show)
+    }
+    withMobile = (className) => {
+        const { presetIsMobile } = this.context
+        return withToggleStatus(className, presetIsMobile, style.mobile)
     }
 
     render() {
@@ -148,7 +152,7 @@ export default class Control extends React.PureComponent {
                     Array.isArray(set) && set.length>1 && controller.pagination &&
                     <div
                         id="zmageControlPagination"
-                        className={this.withShow(style.pages)}
+                        className={this.withMobile(this.withShow(style.pages))}
                         style={{ backgroundColor: backdrop }}
                     >
                         {

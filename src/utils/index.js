@@ -54,11 +54,11 @@ export const unlockTouchInteraction = () => {
 /**
  * 根据传入的属性, 返回附带对应显示状态的类名
  * @param {string}  defClassName - 基准类名
- * @param {boolean} isShow - 是否显示
- * @param {string} [showName] - 显示时附加的类名
+ * @param {boolean} [flag] - 是否启用
+ * @param {string}  [attach] - 显示时附加的类名
  */
-export const withShowingStatus = (defClassName, isShow=false, showName="show") => {
-    return isShow ? `${defClassName} ${showName}` : defClassName
+export const withToggleStatus = (defClassName, flag=false, attach) => {
+    return flag && attach ? `${defClassName} ${attach}` : defClassName
 }
 
 /**
