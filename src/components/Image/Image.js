@@ -10,7 +10,6 @@ import React, { Fragment } from 'react'
 import style from './Image.less'
 // Components
 import Loading from './Loading'
-import Layer from './Layer'
 // Utils
 import { Context } from '../context'
 import { scrollWidth, checkImageLoadedComplete, appendParams, lockTouchInteraction, unlockTouchInteraction, withVendorPrefix, isInteger, getTargetPage, mirrorRange } from '@/utils'
@@ -248,7 +247,6 @@ export default class Image extends React.PureComponent {
         // 获取触摸配置
         let { touch, transition } = getTouchConfig(touchProfile, { enableSwiping:set.length>1, enableLiving:true })
         // 计算样式
-        // FIXME 縮放時其他圖片遮擋問題
         if (isSideImage) {
             // 仅对左右两张图做滑动跟踪
             const x = distance===1 ? currentStyle.x+touch.x+offset*step : currentStyle.x+offset*step

@@ -4,6 +4,7 @@
  **/
 
 // Libs
+import classnames from 'classnames'
 import React, { Fragment } from 'react'
 // Style
 import style from './Control.less'
@@ -11,18 +12,9 @@ import style from './Control.less'
 import { IconDownload, IconRotateLeft, IconRotateRight, IconZoom, IconArrowLeft, IconArrowRight, IconClose } from '@/asserts/icons'
 // Utils
 import { Context } from '../context'
-import { withToggleStatus, downloadFromLink } from '@/utils'
+import { downloadFromLink } from '@/utils'
 
 export default class Control extends React.PureComponent {
-
-    withShow = (className) => {
-        const { show, zoom } = this.props
-        return withToggleStatus(className, !zoom && show, style.show)
-    }
-    withMobile = (className) => {
-        const { presetIsMobile } = this.context
-        return withToggleStatus(className, presetIsMobile, style.mobile)
-    }
 
     render() {
 
@@ -38,7 +30,7 @@ export default class Control extends React.PureComponent {
             // Styles & interactive
             backdrop, loop,
             // Status
-            zoom, page,
+            show, zoom, page,
             // Action
             outBrowsing,
             toPage,
@@ -54,7 +46,7 @@ export default class Control extends React.PureComponent {
                 {/*控制按钮*/}
                 <div
                     id="zmageControl"
-                    className={this.withShow(style.controls)}
+                    className={classnames(style.controls, { [style.show]:!zoom&&show })}
                     style={{ backgroundColor: backdrop }}
                 >
 
@@ -63,7 +55,7 @@ export default class Control extends React.PureComponent {
                         controller.rotate &&
                         <div
                             id="zmageControlRotateLeft"
-                            className={this.withShow(style.rotateLeft)}
+                            className={classnames(style.rotateLeft, { [style.show]:!zoom&&show })}
                             onClick={toggleRotate("left")}
                         >
                             <IconRotateLeft/>
@@ -73,7 +65,7 @@ export default class Control extends React.PureComponent {
                         controller.rotate &&
                         <div
                             id="zmageControlRotateRight"
-                            className={this.withShow(style.rotateRight)}
+                            className={classnames(style.rotateRight, { [style.show]:!zoom&&show })}
                             onClick={toggleRotate("right")}
                         >
                             <IconRotateRight/>
@@ -85,7 +77,7 @@ export default class Control extends React.PureComponent {
                         controller.download &&
                         <div
                             id="zmageControlDownload"
-                            className={this.withShow(style.download)}
+                            className={classnames(style.download, { [style.show]:!zoom&&show })}
                             onClick={() => downloadFromLink(this.context.set[this.context.page].src)}
                         >
                             <IconDownload/>
@@ -97,7 +89,7 @@ export default class Control extends React.PureComponent {
                         controller.zoom &&
                         <div
                             id="zmageControlZoom"
-                            className={this.withShow(style.zoom)}
+                            className={classnames(style.zoom, { [style.show]:!zoom&&show })}
                             onClick={presetIsMobile ? ()=>window.open(set[page].src) : toggleZoom}
                         >
                             <IconZoom/>
@@ -109,7 +101,7 @@ export default class Control extends React.PureComponent {
                         controller.close &&
                         <div
                             id="zmageControlClose"
-                            className={this.withShow(style.close)}
+                            className={classnames(style.close, { [style.show]:!zoom&&show })}
                             onClick={zoom ? toggleZoom : outBrowsing}
                         >
                             <IconClose/>
@@ -126,7 +118,7 @@ export default class Control extends React.PureComponent {
                             (loop || page!==0) &&
                             <div
                                 id="zmageControlFlipLeft"
-                                className={this.withShow(style.flipLeft)}
+                                className={classnames(style.flipLeft, { [style.show]:!zoom&&show })}
                                 style={{ backgroundColor: backdrop }}
                                 onClick={toPrevPage}
                             >
@@ -137,7 +129,7 @@ export default class Control extends React.PureComponent {
                             (loop || page!==set.length-1) &&
                             <div
                                 id="zmageControlFlipRight"
-                                className={this.withShow(style.flipRight)}
+                                className={classnames(style.flipRight, { [style.show]:!zoom&&show })}
                                 style={{ backgroundColor: backdrop }}
                                 onClick={toNextPage}
                             >
@@ -152,7 +144,7 @@ export default class Control extends React.PureComponent {
                     Array.isArray(set) && set.length>1 && controller.pagination &&
                     <div
                         id="zmageControlPagination"
-                        className={this.withMobile(this.withShow(style.pages))}
+                        className={classnames(style.pages, { [style.show]:!zoom&&show, [style.mobile]:presetIsMobile })}
                         style={{ backgroundColor: backdrop }}
                     >
                         {

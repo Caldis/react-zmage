@@ -11,7 +11,6 @@ import {
     lockTouchInteraction, unlockTouchInteraction,
     withVendorPrefix,
 } from '@/utils'
-import memoize from "lodash.memoize";
 
 /* 获取当前图片样式 */
 export const getCurrentImageStyle = (props, context, imageRef) => {

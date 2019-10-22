@@ -3,8 +3,8 @@
  **/
 
 // Libs
-import React, { Fragment } from 'react'
 import classnames from 'classnames'
+import React, { Fragment } from 'react'
 // Styles
 import style from './Loading.less'
 // Icons
@@ -17,15 +17,11 @@ export default class Loading extends React.PureComponent {
 
         const { show, load, invalidate, onReload, backdrop } = this.props
 
-        const imageClassNames = classnames(style.loadingContainer, {
-            [style.show]: show
-        })
-
         return (
             <Fragment>
                 {
                     (load || invalidate) &&
-                    <div id="zmageLoading" className={imageClassNames}>
+                    <div id="zmageLoading" className={classnames(style.loadingContainer, { [style.show]:show })}>
                         {
                             load &&
                             <div className={style.loading}>

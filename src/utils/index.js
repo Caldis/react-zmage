@@ -16,7 +16,7 @@ export const calcFitScale = (naturalWidth, naturalHeight, edge=0) => {
     const figureHeight = naturalHeight + 2*edge
     const scaleX = figureWidth>clientWidth() ? clientWidth()/(naturalWidth+2*edge) : 1
     const scaleY = figureHeight>clientHeight() ? clientHeight()/(naturalHeight+2*edge) : 1
-    return Math.min(scaleX, scaleY) // + 0.002 // 防止在高dpi设备出现无法占满边距的问题
+    return Math.min(scaleX, scaleY) + 0.002 // 防止在高dpi设备出现无法占满边距的问题
 }
 
 /**
@@ -50,16 +50,6 @@ export const unlockTouchInteraction = () => {
     document.body.style.overflow = touchStyle.body.overflow
     document.body.style.position = touchStyle.body.position
 };
-
-/**
- * 根据传入的属性, 返回附带对应显示状态的类名
- * @param {string}  defClassName - 基准类名
- * @param {boolean} [flag] - 是否启用
- * @param {string}  [attach] - 显示时附加的类名
- */
-export const withToggleStatus = (defClassName, flag=false, attach) => {
-    return flag && attach ? `${defClassName} ${attach}` : defClassName
-}
 
 /**
  * 检查图片是否完全载入
