@@ -1,26 +1,20 @@
 /**
  * 图片层
- * 展示图片, 控制图片尺寸
+ * 控制图片尺寸
  **/
 
 // Libs
-import classnames from 'classnames';
+import classnames from 'classnames'
 import React, { Fragment } from 'react'
 // Styles
 import style from './Image.less'
 // Components
-import Loading from './Loading';
+import Loading from './Loading'
+import Layer from './Layer'
 // Utils
 import { Context } from '../context'
-import {
-    scrollWidth,
-    checkImageLoadedComplete, appendParams,
-    lockTouchInteraction, unlockTouchInteraction,
-    withVendorPrefix,
-    isInteger, getTargetPage,
-    mirrorRange,
-} from '@/utils'
-import { getCurrentImageStyle, getCoverStyle, getZoomingStyle, TOUCH_BEHAVIOR_TYPE, TOUCH_BEHAVIOR_PHASE, TOUCH_STYLE } from './Image.utils'
+import { scrollWidth, checkImageLoadedComplete, appendParams, lockTouchInteraction, unlockTouchInteraction, withVendorPrefix, isInteger, getTargetPage, mirrorRange } from '@/utils'
+import { getCurrentImageStyle, getCoverStyle, getZoomingStyle, getAnimateConfig, TOUCH_BEHAVIOR_TYPE, TOUCH_BEHAVIOR_PHASE, touchProfile, getTouchConfig } from './Image.utils'
 
 export default class Image extends React.PureComponent {
 
@@ -43,7 +37,10 @@ export default class Image extends React.PureComponent {
             invalidate: false,
             // Style
             currentStyle: getCoverStyle(props, context),
-            touchStyle: new TOUCH_STYLE(),
+            // Animate
+            animateConfig: getAnimateConfig(context.animate.flip),
+            // Touch
+            touchProfile: new touchProfile(),
             // Reload Flag
             timestamp: {},
         }
@@ -148,16 +145,16 @@ export default class Image extends React.PureComponent {
     // 触摸事件
     handleTouchStart = (e) => {
         const { clientX, clientY } = e.touches[0]
-        this.setTouchStyle(new TOUCH_STYLE({ origin:{ x:clientX, y:clientY } }))
+        this.setTouchProfile(new touchProfile({ origin:{ x:clientX, y:clientY } }))
     }
     handleTouchMove = (e) => {
-        const { touchStyle } = this.state
+        const { touchProfile } = this.state
         const { clientX, clientY } = e.touches[0]
-        this.setTouchStyle(touchStyle.update({ origin:{ x:clientX, y:clientY }}))
+        this.setTouchProfile(touchProfile.update({ origin:{ x:clientX, y:clientY }}))
     }
     handleTouchEnd = (e) => {
-        const { touchStyle } = this.state
-        this.setTouchStyle(touchStyle.end())
+        const { touchProfile } = this.state
+        this.setTouchProfile(touchProfile.end())
     }
     // 鼠标事件
     handleMouseMove = (e) => {
@@ -219,57 +216,50 @@ export default class Image extends React.PureComponent {
      * 样式应用
      **/
     setCurrentStyle = (nextStyle) => {
+        const { animate } = this.context
         this.setState({
-            currentStyle: nextStyle
+            currentStyle: nextStyle,
+            animateConfig: getAnimateConfig(animate.flip),
         })
     }
-    setTouchStyle = (nextStyle) => {
-        this.setState({
-            touchStyle: { ...nextStyle }
-        }, () => {
-            const { outBrowsing, toPrevPage, toNextPage } = this.context
-            const { touchStyle } = this.state
-             if (touchStyle.phase===TOUCH_BEHAVIOR_PHASE.END) {
-                 if (touchStyle.behavior===TOUCH_BEHAVIOR_TYPE.SWIPING) {
-                     touchStyle.current.offset.x<0 ? toNextPage() : toPrevPage()
-                 } else if (touchStyle.behavior===TOUCH_BEHAVIOR_TYPE.LIVING) {
-                     outBrowsing()
-                 }
-             }
-        })
+    setTouchProfile = (nextProfile) => {
+        if (nextProfile) {
+            this.setState({
+                touchProfile: {...nextProfile}
+            }, () => {
+                const { outBrowsing, toPrevPage, toNextPage } = this.context
+                const { touchProfile } = this.state
+                if (touchProfile.phase === TOUCH_BEHAVIOR_PHASE.END) {
+                    if (touchProfile.behavior === TOUCH_BEHAVIOR_TYPE.SWIPING) {
+                        touchProfile.current.offset.x < 0 ? toNextPage() : toPrevPage()
+                    } else if (touchProfile.behavior === TOUCH_BEHAVIOR_TYPE.LIVING) {
+                        outBrowsing()
+                    }
+                }
+            })
+        }
     }
     getStyle = (step, distance, isSideImage) => {
-        const { animate, set, zoom, page } = this.context
-        const { invalidate, currentStyle, touchStyle } = this.state
+        const { set, zoom, page } = this.context
+        const { invalidate, currentStyle, touchProfile, animateConfig } = this.state
+        let transform, clipPath, zIndex, pointerEvents
         // 获取动画配置
-        let offset=0, overflow=0, transform, clipPath, zIndex, opacity, pointerEvents, transition
-        const isFade = animate.flip==='fade'
-        const isCrossFade = animate.flip==='crossFade'
-        isCrossFade && (offset = 30)
-        const isSwipe = animate.flip==='swipe'
-        isSwipe && (offset = scrollWidth()*step)
-        const isZoom = animate.flip==='zoom'
-        isZoom && (overflow = 0.08)
+        let { offset, overflow, opacity } = animateConfig
         // 获取触摸配置
-        let touch = { x:0, y:0 }
-        if (touchStyle && touchStyle.phase===TOUCH_BEHAVIOR_PHASE.MOVING) {
-            if (touchStyle.behavior === TOUCH_BEHAVIOR_TYPE.SWIPING) {
-                touch.x = touchStyle.current.offset.x
-                transition = `none`
-            } else if (touchStyle.behavior === TOUCH_BEHAVIOR_TYPE.LIVING) {
-                touch.y = touchStyle.current.offset.y
-                transition = `none`
-            }
-        }
+        let { touch, transition } = getTouchConfig(touchProfile, { enableSwiping:set.length>1, enableLiving:true })
         // 计算样式
         // FIXME 縮放時其他圖片遮擋問題
         if (isSideImage) {
-            transform = `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x+touch.x+offset}px, ${currentStyle.y}px, 0px) scale3d(${currentStyle.scale+overflow}, ${currentStyle.scale+overflow}, 1) rotate3d(0, 0, 1, 0deg)`
+            // 仅对左右两张图做滑动跟踪
+            const x = distance===1 ? currentStyle.x+touch.x+offset*step : currentStyle.x+offset*step
+            const y = currentStyle.y
+            transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${currentStyle.scale+overflow}, ${currentStyle.scale+overflow}, 1) rotate3d(0, 0, 1, 0deg)`
             zIndex = 10*distance
-            opacity = (isFade || isCrossFade || isZoom) ? 0 : 1
             pointerEvents = 'none'
         } else {
-            transform = `translate3d(-50%, -50%, 0) translate3d(${currentStyle.x+touch.x}px, ${currentStyle.y+touch.y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
+            const x = currentStyle.x + touch.x
+            const y = currentStyle.y + touch.y
+            transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
             // clipPath = currentStyle.radius ? `inset(0% 0% 0% 0% round ${currentStyle.radius/currentStyle.scale}px)` : `inset(0% 0% 0% 0% round 0)`
             opacity = currentStyle.opacity
             zIndex = 10

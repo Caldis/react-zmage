@@ -22,10 +22,10 @@ export const calcFitScale = (naturalWidth, naturalHeight, edge=0) => {
 /**
  * 屏幕尺寸
  */
-export const windowWidth = () => window.innerWidth
+export const innerWidth = () => window.innerWidth
 export const scrollWidth = () => document.body.scrollWidth
 export const clientWidth = () => document.documentElement.clientWidth
-export const windowHeight = () => window.innerHeight
+export const innerHeight = () => window.innerHeight
 export const scrollHeight = () => document.body.scrollHeight
 export const clientHeight = () => document.documentElement.clientHeight
 
