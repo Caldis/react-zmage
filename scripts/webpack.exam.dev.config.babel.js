@@ -10,7 +10,7 @@ import { host, port } from './webpack.base.config.babel'
 // Plugins
 import OpenBrowserPlugin from 'open-browser-webpack-plugin'
 
-export default merge.smart(baseConfig, {
+export default merge.smart(baseConfig(), {
 
     entry: './docs/hmr.js',
 

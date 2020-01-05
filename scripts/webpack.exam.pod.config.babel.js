@@ -9,7 +9,7 @@ import webpack from 'webpack'
 import merge from 'webpack-merge'
 import baseConfig from './webpack.base.config.babel.js'
 
-const config =  merge.smart(baseConfig, {
+const config = merge.smart(baseConfig(), {
 
     entry: './docs/hmr.js',
 

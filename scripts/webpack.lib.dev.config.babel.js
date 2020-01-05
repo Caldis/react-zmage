@@ -6,9 +6,11 @@
 import webpack from 'webpack'
 // Merges
 import merge from 'webpack-merge'
-import baseConfig from './webpack.lib.base.config.babel.js'
+import libBaseConfig from './webpack.lib.base.config.babel.js'
+// Plugins
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 
-const config =  merge.smart(baseConfig, {
+const config = merge.smart(libBaseConfig(), {
 
     mode: "development",
 
@@ -21,7 +23,6 @@ const config =  merge.smart(baseConfig, {
     optimization: {
         usedExports: true,
     },
-
 })
 
 export default config

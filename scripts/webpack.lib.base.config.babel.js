@@ -6,7 +6,7 @@ import merge from 'webpack-merge'
 import baseConfig from './webpack.base.config.babel.js'
 import nodeExternals from 'webpack-node-externals'
 
-const config = merge.smart(baseConfig, {
+export default (options) => merge.smart(baseConfig(options), {
 
 	entry: './src/index.js',
 
@@ -23,5 +23,3 @@ const config = merge.smart(baseConfig, {
 
     externals: [nodeExternals()]
 })
-
-export default config
