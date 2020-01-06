@@ -3,9 +3,9 @@
  * https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
  */
 
-const IS_INITIALIZED = "__ZMAGE_INITIALIZED___"
-const IS_DESKTOP = "__ZMAGE_ENV_IS_DESKTOP___"
-const IS_MOBILE = "__ZMAGE_ENV_IS_MOBILE___"
+const IS_INITIALIZED = "__ZMAGE_INITIALIZED__"
+const IS_DESKTOP = "__ZMAGE_ENV_IS_DESKTOP__"
+const IS_MOBILE = "__ZMAGE_ENV_IS_MOBILE__"
 
 const isMobile = () => {
     const ua = navigator.userAgent || navigator.vendor || window.opera

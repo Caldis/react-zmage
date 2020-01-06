@@ -18,18 +18,17 @@ export const pageSet = (coverRef, defaultPage, set) => {
     }
 }
 
-
 /* 显示/隐藏封面 */
 export const showCover = (coverRef) => {
-    if(coverRef.current) {
-        coverRef && coverRef.current && (coverRef.current.style.visibility = 'visible')
+    if(coverRef && coverRef.current) {
+        coverRef.current.style.visibility = 'visible'
     }
 }
 export const hideCover = (coverRef) => {
     // 隐藏太快会闪
     setTimeout(() => {
-        if (coverRef.current) {
-            coverRef && coverRef.current && (coverRef.current.style.visibility = 'hidden')
+        if (coverRef && coverRef.current) {
+            coverRef.current.style.visibility = 'hidden'
         }
     }, 50)
 }
