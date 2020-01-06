@@ -20,7 +20,7 @@ const config = merge.smart(libBaseConfig(), {
 
     plugins: [
         // 输出包文件分析图
-        new BundleAnalyzerPlugin(),
+        // new BundleAnalyzerPlugin(),
     ],
 })
 

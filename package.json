@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.8.5-beta.6",
+  "version": "0.8.5-beta.10",
   "description": "A scalable image container",
   "keywords": [
     "react",
@@ -63,7 +63,7 @@
     "dist": "npm run dist:doc && npm run dist:lib-dev && npm run dist:lib-pod && npm run dist:lib-ssr",
     "dist:doc": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
     "dist:lib-dev": "webpack --config ./scripts/webpack.lib.dev.config.babel.js --progress --profile --colors",
-    "dist:lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors",
-    "dist:lib-ssr": "webpack --config ./scripts/webpack.lib.ssr.config.babel.js --progress --profile --colors"
+    "dist:lib-ssr": "webpack --config ./scripts/webpack.lib.ssr.config.babel.js --progress --profile --colors",
+    "dist:lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors"
   }
 }
