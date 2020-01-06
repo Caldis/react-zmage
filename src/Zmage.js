@@ -6,9 +6,10 @@
 import React, { Fragment } from 'react'
 // Components
 import callee from './Zmage.callee'
+import wrapper from './Zmage.wrapper'
 import Browser from './components/Browser'
 // Utils
-import { convertSet } from './Zmage.utils'
+import { normalizationSet } from './Zmage.utils'
 import { defType, defProp } from './config/default'
 
 // 基础组件
@@ -25,6 +26,7 @@ class ReactZmage extends React.PureComponent {
             browsing: false,
         }
 
+        // TODO:FEATURE 按钮颜色配置
         // TODO:FEATURE 移动端的拖拽翻页
         // TODO:ENHANCE 禁用移动端的滑动退出
         // TODO:BUG     移动端下左右按钮
@@ -100,7 +102,7 @@ class ReactZmage extends React.PureComponent {
                     outBrowsing={this.outBrowsing}
                     // Data
                     defaultPage={defaultPage}
-                    set={convertSet({ set, src, alt, txt })}
+                    set={normalizationSet({ set, src, alt, txt })}
                     // Preset
                     preset={preset}
                     // Control
@@ -135,5 +137,9 @@ ReactZmage.defaultProps = defProp
 const forwardedReactZmage = React.forwardRef((props, ref) => <ReactZmage {...props} forwardedRef={ref}/>)
 // 命令式调用组件
 forwardedReactZmage.browsing = callee
+forwardedReactZmage.Browsing = callee // Alias browsing
+// HTML转换容器
+forwardedReactZmage.wrapper = wrapper
+forwardedReactZmage.Wrapper = wrapper // Alias wrapper
 
 export default forwardedReactZmage

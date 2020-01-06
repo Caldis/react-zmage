@@ -8,7 +8,7 @@ import ReactDOM from "react-dom";
 // Components
 import Browser from './components/Browser'
 // Utils
-import { convertSet } from "@/Zmage.utils"
+import { normalizationSet } from "@/Zmage.utils"
 import { defProp, defType } from "@/config/default"
 import { animationDuration } from "@/config/anim"
 
@@ -49,7 +49,7 @@ class ReactZmageCallee extends React.PureComponent {
 
         const {
             // Internal
-            className, style, onClick,
+            className, style, onClick, coverRef,
             // Data
             src, alt, txt, set, defaultPage,
             // Presets
@@ -70,16 +70,20 @@ class ReactZmageCallee extends React.PureComponent {
             browsing:internalBrowsing
         } = this.state
 
+        const cover = coverRef
+            ? { coverRef }
+            : { coverPos: internalBrowsing ? MOUSE_POSITION_CURRENT : MOUSE_POSITION_CACHE }
+
         return (
             <Browser
                 // Controlled status
                 browsing={internalBrowsing}
                 // Internal
-                coverPos={internalBrowsing ? MOUSE_POSITION_CURRENT : MOUSE_POSITION_CACHE}
+                {...cover}
                 outBrowsing={this.outBrowsing}
                 // Data
                 defaultPage={defaultPage}
-                set={convertSet({ set, src, alt, txt })}
+                set={normalizationSet({ set, src, alt, txt })}
                 // Preset
                 preset={preset}
                 // Control
@@ -114,14 +118,14 @@ const RENDER = {
     PORTAL: null,
 }
 // 调用函数
-const callee = (props) => {
+const callee = ({ coverRef, ...props }) => {
     // Init env
     RENDER.PORTAL = document.createElement('div')
     RENDER.PORTAL.id = 'zmagePortal'
     RENDER.CONTAINER = document.body;
     RENDER.CONTAINER.appendChild(RENDER.PORTAL)
     // Mount target
-    ReactDOM.render(<ReactZmageCallee ref={RENDER.REF} destroyer={()=>RENDER.CONTAINER.removeChild(RENDER.PORTAL)} {...props}/>, RENDER.PORTAL)
+    ReactDOM.render(<ReactZmageCallee ref={RENDER.REF} coverRef={coverRef} destroyer={()=>RENDER.CONTAINER.removeChild(RENDER.PORTAL)} {...props}/>, RENDER.PORTAL)
     // Return destroyer
     return RENDER.REF.current.outBrowsing
 }
