@@ -168,6 +168,5 @@ export const getTargetPage = (current, length, step, options={loop:true}) => {
  * 生成鏡像數組
  * @param {number} distance - 距離0點的長度
  */
-export const mirrorRange = memoize((edge) => {
-    return [...([...Array(edge).keys()].map(k => -k - 1).reverse()), ...([...Array(edge + 1).keys()])]
-})
+const RANGE = { 0:[0], 1:[-1,0,1], 2:[-2,-1,0,1,2], 3:[-3,-2,-1,0,1,2,3] }
+export const mirrorRange = (edge) => RANGE[edge]

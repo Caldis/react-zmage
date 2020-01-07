@@ -277,48 +277,57 @@ export default class Image extends React.PureComponent {
      * 圖片構建
      **/
     buildImageSeries = (edge) => {
-        const rangeList = mirrorRange(edge)
-        return rangeList.map(i => this.buildImage(i))
+        const { loop, set, page } = this.context
+        if (set.length > 1) {
+            const rangeList = mirrorRange(edge)
+            return rangeList.reduce((acc, step) => {
+                // 計算索引
+                const imageIndex = getTargetPage(page, set.length, step, { loop })
+                if (isInteger(imageIndex)) {
+                    acc.push(this.buildImage({ step, imageIndex }))
+                }
+                return acc
+            }, [])
+        } else {
+            return this.buildImage({ step:0, imageIndex:page })
+        }
     }
-    buildImage = (step) => {
-        const { loop, set, show, zoom, page, pageWithStep } = this.context
+    buildImage = ({ step, imageIndex }={}) => {
+        const { set, show, zoom, page, pageWithStep } = this.context
         const { invalidate } = this.state
         // 是否邊圖
         const distance = Math.abs(step)
         const isSideImage = distance>0
-        // 計算索引
-        const imageIndexWithStep = pageWithStep+step
-        const imageIndex = getTargetPage(page, set.length, step, { loop })
-        if (isInteger(imageIndex)) {
-            // 計算樣式
-            const imageStyle = this.getStyle(step, distance, isSideImage)
-            const imageClass = classnames(style.imageLayer, set[imageIndex].className, {
-                [style.zooming]: zoom,
-                [style.invalidate]: invalidate,
-            })
-            // 組裝屬性
-            const commonProps = {
-                key: `${imageIndexWithStep}-${set[imageIndex].src}`,
-                style: imageStyle,
-                className: imageClass,
-                src: appendParams(set[imageIndex].src, { t: this.handleGetTimestamp(page) }),
-                alt: set[imageIndex].alt,
-            }
-            const centerProps = {
-                id: "zmageImage",
-                ref: this.imageRef,
-                onLoad: this.handleImageLoad,
-                onError: this.handleImageError,
-                onAbort: this.handleImageAbort,
-                onClick: this.handleClick,
-            }
-            // 構建内容
-            if (isSideImage) {
-                const sideImageShow = show && set.length>1 && !zoom
-                return sideImageShow && <img {...commonProps}/>
-            } else {
-                return <img {...commonProps} {...centerProps}/>
-            }
+        // 计算真实索引
+        const imageIndexWithStep = pageWithStep + step
+        // 計算樣式
+        const imageStyle = this.getStyle(step, distance, isSideImage)
+        const imageClass = classnames(style.imageLayer, set[imageIndex].className, {
+            [style.zooming]: zoom,
+            [style.invalidate]: invalidate,
+        })
+        // 組裝屬性
+        const commonProps = {
+            key: `${imageIndexWithStep}-${set[imageIndex].src}`,
+            style: imageStyle,
+            className: imageClass,
+            src: appendParams(set[imageIndex].src, { t: this.handleGetTimestamp(page) }),
+            alt: set[imageIndex].alt,
+        }
+        const centerProps = {
+            id: "zmageImage",
+            ref: this.imageRef,
+            onLoad: this.handleImageLoad,
+            onError: this.handleImageError,
+            onAbort: this.handleImageAbort,
+            onClick: this.handleClick,
+        }
+        // 構建内容
+        if (isSideImage) {
+            const sideImageShow = show && !zoom
+            return sideImageShow && <img {...commonProps}/>
+        } else {
+            return <img {...commonProps} {...centerProps}/>
         }
     }
 
