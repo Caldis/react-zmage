@@ -74,11 +74,11 @@ export default class Browser extends React.PureComponent {
      * 载入/卸载
      **/
     init = () => {
-        const { isBrowsingControlled, coverRef, set, onBrowsing, coverVisible } = this.props
+        const { isBrowsingControlled, coverRef, set, onBrowsing, hideOnScroll, coverVisible } = this.props
         const { show, page, pageIsCover } = this.state
         if (!show) {
             window.addEventListener('keydown', this.handleKeyDown)
-            window.addEventListener('scroll', this.handleScroll)
+            hideOnScroll && window.addEventListener('scroll', this.handleScroll)
             window.requestAnimationFrame(() => {
                 this.setState({ show:true, zoom:false, rotate:0, }, () => {
                     pageIsCover && !coverVisible && hideCover(coverRef, set, page)
@@ -88,11 +88,11 @@ export default class Browser extends React.PureComponent {
         }
     }
     unInit = ({ force }={}) => {
-        const { isBrowsingControlled, coverRef, set, onBrowsing, coverVisible } = this.props
+        const { isBrowsingControlled, coverRef, set, onBrowsing, hideOnScroll, coverVisible } = this.props
         const { show, page, pageIsCover } = this.state
         if (show || force) {
             window.removeEventListener('keydown', this.handleKeyDown)
-            window.removeEventListener('scroll', this.handleScroll)
+            hideOnScroll && window.removeEventListener('scroll', this.handleScroll)
             !pageIsCover && !coverVisible && showCover(coverRef, set, page)
             this.setState({ show:false, zoom:false, rotate:0 }, () => setTimeout(() => {
                 this.setState({ mount:false }, () => {
@@ -155,7 +155,7 @@ export default class Browser extends React.PureComponent {
         return () => {
             const { set } = this.props
             if (set.length>1) {
-                const {page, pageWithStep} = this.state
+                const { page, pageWithStep } = this.state
                 const targetPage = getTargetPage(page, set.length, step, {loop})
                 if (typeof targetPage === "number") {
                     this.setState({
@@ -219,7 +219,7 @@ export default class Browser extends React.PureComponent {
             // Control
             controller, hotKey, animate,
             // Styles & interactive
-            coverVisible, backdrop, zIndex, radius, edge, loop
+            hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop
         } = this.props
         const {
             // Internal

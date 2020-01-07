@@ -57,7 +57,7 @@ class ReactZmageCallee extends React.PureComponent {
             // Control
             controller, hotKey, animate,
             // Styles & interactive
-            zIndex, backdrop, radius, edge, loop,
+            hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop,
             // Life cycle functions
             onBrowsing, onZooming, onSwitching, onRotating,
             // Controlled props
@@ -83,7 +83,7 @@ class ReactZmageCallee extends React.PureComponent {
                 outBrowsing={this.outBrowsing}
                 // Data
                 defaultPage={defaultPage}
-                set={normalizationSet({ set, src, alt, txt })}
+                set={normalizationSet({ set, src, alt, txt, restProps })}
                 // Preset
                 preset={preset}
                 // Control
@@ -91,8 +91,10 @@ class ReactZmageCallee extends React.PureComponent {
                 hotKey={hotKey}
                 animate={animate}
                 // Styles & interactive
-                zIndex={zIndex}
+                hideOnScroll={hideOnScroll}
+                coverVisible={coverVisible}
                 backdrop={backdrop}
+                zIndex={zIndex}
                 radius={radius}
                 edge={edge}
                 loop={loop}

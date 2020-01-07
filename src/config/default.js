@@ -104,6 +104,8 @@ export const defType = {
     /**
      * 界面与交互
      **/
+    // 滚动时隐藏
+    hideOnScroll: PropTypes.bool,
     // 封面可见性
     coverVisible: PropTypes.bool,
     // 背景色
@@ -210,6 +212,8 @@ export const defProp = {
     /**
      * 界面与交互
      **/
+    // 滚动时隐藏
+    hideOnScroll: true,
     // 封面可见性
     coverVisible: false,
     // 背景色
