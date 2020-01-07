@@ -81,7 +81,7 @@ class ReactZmage extends React.PureComponent {
                 <img
                     className={className}
                     style={{ cursor:'zoom-in', ...style }}
-                    src={src} alt={alt} title={alt}
+                    src={src} alt={alt}
                     onClick={(e) => {
                         this.inBrowsing()
                         typeof onClick === "function" && onClick(e)
