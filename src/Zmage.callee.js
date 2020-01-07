@@ -49,7 +49,7 @@ class ReactZmageCallee extends React.PureComponent {
 
         const {
             // Internal
-            className, style, onClick, coverRef,
+            className, coverRef, destroyer,
             // Data
             src, alt, txt, set, defaultPage,
             // Presets
@@ -70,7 +70,7 @@ class ReactZmageCallee extends React.PureComponent {
             browsing:internalBrowsing
         } = this.state
 
-        const cover = coverRef
+        const coverTarget = coverRef
             ? { coverRef }
             : { coverPos: internalBrowsing ? MOUSE_POSITION_CURRENT : MOUSE_POSITION_CACHE }
 
@@ -79,7 +79,7 @@ class ReactZmageCallee extends React.PureComponent {
                 // Controlled status
                 browsing={internalBrowsing}
                 // Internal
-                {...cover}
+                {...coverTarget}
                 outBrowsing={this.outBrowsing}
                 // Data
                 defaultPage={defaultPage}
