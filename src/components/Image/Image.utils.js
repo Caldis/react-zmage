@@ -31,7 +31,6 @@ export const getCurrentImageStyle = (props, context, imageRef, touchProfile) => 
 export const getCoverStyle = (props, context, imageRef, touchProfile) => {
     const { coverRef, coverPos, rotate, pageIsCover } = context
     if (touchProfile && touchProfile.phase === TOUCH_BEHAVIOR_PHASE.END) {
-        console.log(touchProfile)
         return {
             _type: 'cover',
             _behavior: 'merge',
