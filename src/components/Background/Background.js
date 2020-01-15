@@ -26,7 +26,7 @@ export default class Background extends React.Component {
 					background: backdrop || "",
 					transitionDelay: presetIsDesktop
 						? show ? '.15s' : '0s'
-						: show ? '0s' : '.15s'
+						: show ? '0s' : '.35s'
 				}}
 			/>
 		)

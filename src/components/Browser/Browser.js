@@ -14,7 +14,7 @@ import Image from '../Image'
 import Background from '../Background'
 // Utils
 import { Context } from '../context'
-import { getTargetPage } from "@/utils"
+import { getTargetPage, unlockTouchInteraction } from "@/utils"
 import { defPropWithEnv } from "@/config/default"
 import { animationDuration } from "@/config/anim"
 import { pageSet, showCover, hideCover, pageIsCover } from './Browser.utils'
@@ -109,7 +109,7 @@ export default class Browser extends React.PureComponent {
         }
     }
     unInit = ({ force }={}) => {
-        const { isBrowsingControlled, coverRef, set, onBrowsing, hideOnScroll, coverVisible, presetIsDesktop } = this.getPropsWithEnv()
+        const { isBrowsingControlled, coverRef, set, onBrowsing, hideOnScroll, coverVisible, presetIsMobile, presetIsDesktop } = this.getPropsWithEnv()
         const { show, page, pageIsCover } = this.state
         if (show || force) {
             window.removeEventListener('keydown', this.handleKeyDown)
@@ -117,10 +117,11 @@ export default class Browser extends React.PureComponent {
             !pageIsCover && !coverVisible && showCover(coverRef, set, page)
             this.setState({ show:false, zoom:false, rotate:0 }, () => setTimeout(() => {
                 this.setState({ mounted:false }, () => {
+                    presetIsMobile && unlockTouchInteraction()
                     presetIsDesktop && pageIsCover && !coverVisible && showCover(coverRef, set, page)
                     !isBrowsingControlled && typeof onBrowsing === "function" && onBrowsing(false)
                 })
-            }, animationDuration))
+            }, presetIsDesktop ? animationDuration : animationDuration*2))
         }
     }
 

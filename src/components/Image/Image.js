@@ -76,7 +76,6 @@ export default class Image extends React.PureComponent {
             } else {
                 // 隐藏
                 this.updateCurrentImageStyle()
-                presetIsMobile && unlockTouchInteraction()
             }
             // 更新监听状态
             this.updateZoomEventListenerWithState()
@@ -232,7 +231,8 @@ export default class Image extends React.PureComponent {
                 const { touchProfile } = this.state
                 if (touchProfile.phase === TOUCH_BEHAVIOR_PHASE.END) {
                     if (touchProfile.behavior === TOUCH_BEHAVIOR_TYPE.SWIPING) {
-                        touchProfile.current.offset.x < 0 ? toNextPage() : toPrevPage()
+                        const offset = touchProfile.getCurrentOffset()
+                        offset.x < 0 ? toNextPage() : toPrevPage()
                     } else if (touchProfile.behavior === TOUCH_BEHAVIOR_TYPE.LIVING) {
                         outBrowsing()
                     }

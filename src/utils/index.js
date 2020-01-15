@@ -32,6 +32,7 @@ export const clientHeight = () => document.documentElement.clientHeight
 /**
  * 触摸交互锁定
  * 缩放, 滚动等
+ * FIXME: iOS Safari 如果进入全屏则无效
  */
 const touchStyle = { html:{}, body:{} }
 export const lockTouchInteraction = () => {

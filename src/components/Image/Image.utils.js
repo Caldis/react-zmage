@@ -11,6 +11,7 @@ import {
     lockTouchInteraction, unlockTouchInteraction,
     withVendorPrefix,
 } from '@/utils'
+import { animationTransition } from "@/config/anim"
 
 /* 获取当前图片样式 */
 export const getCurrentImageStyle = (props, context, imageRef, touchProfile) => {
@@ -31,10 +32,11 @@ export const getCurrentImageStyle = (props, context, imageRef, touchProfile) => 
 export const getCoverStyle = (props, context, imageRef, touchProfile) => {
     const { coverRef, coverPos, rotate, pageIsCover } = context
     if (touchProfile && touchProfile.phase === TOUCH_BEHAVIOR_PHASE.END) {
+        const offset = touchProfile.getCurrentOffset()
         return {
             _type: 'cover',
             _behavior: 'merge',
-            y: touchProfile.current.offset.y>0 ? innerHeight() : -innerHeight()
+            y: offset.y>0 ? innerHeight() : -innerHeight()
         }
     }
     if (coverRef.current) {
@@ -178,34 +180,44 @@ export const touchProfile = function ({ origin }={}) {
             origin: origin || { x:0, y:0 },
             offset: { x:0, y:0 },
         },
+        getCurrentOffset: function () {
+            return {
+                x: this.current.origin.x-this.begin.origin.x,
+                y: this.current.origin.y-this.begin.origin.y
+            }
+        },
+        getCurrentDistance: function () {
+            const offset = this.getCurrentOffset()
+            return {
+                x: Math.abs(offset.x),
+                y: Math.abs(offset.y),
+            }
+        },
         update: function({ origin }={}) {
-            // 更新计数
-            this.updateCounter++
-            // 根据周期决定是否更新
-            if (this.updateCounter%TOUCH_UPDATE_PERIOD===0) {
-                // 更新阶段属性
-                this.phase = TOUCH_BEHAVIOR_PHASE.MOVING
-                // 更新坐标属性
-                this.current = {
-                    origin: origin,
-                    offset: { x:origin.x-this.begin.origin.x, y:origin.y-this.begin.origin.y }
-                }
-                // 更新行为属性
-                if (!this.behavior) {
-                    const distanceX = Math.abs(this.current.offset.x)
-                    const distanceY = Math.abs(this.current.offset.y)
-                    if (distanceX > distanceY) {
-                        if (distanceX > TOUCH_BEHAVIOR_THRESHOLD) {
-                            this.behavior = TOUCH_BEHAVIOR_TYPE.SWIPING
-                        }
-                    } else {
-                        if (distanceY > TOUCH_BEHAVIOR_THRESHOLD) {
-                            this.behavior = TOUCH_BEHAVIOR_TYPE.LIVING
-                        }
+            // 会卡帧
+            // // 更新计数
+            // this.updateCounter++
+            // // 根据周期决定是否更新
+            // if (this.updateCounter%TOUCH_UPDATE_PERIOD===0) {
+            // 更新阶段属性
+            this.phase = TOUCH_BEHAVIOR_PHASE.MOVING
+            // 更新坐标属性
+            this.current.origin = origin
+            // 初次更新行为属性
+            if (!this.behavior) {
+                const distance = this.getCurrentDistance()
+                if (distance.x > distance.y) {
+                    if (distance.x > TOUCH_BEHAVIOR_THRESHOLD) {
+                        this.behavior = TOUCH_BEHAVIOR_TYPE.SWIPING
+                    }
+                } else {
+                    if (distance.y > TOUCH_BEHAVIOR_THRESHOLD) {
+                        this.behavior = TOUCH_BEHAVIOR_TYPE.LIVING
                     }
                 }
-                return this
             }
+            return this
+            // }
         },
         end: function () {
             // 更新阶段属性
@@ -213,10 +225,9 @@ export const touchProfile = function ({ origin }={}) {
             // 时间间隔
             const interval = new Date().getTime() - this.begin.time
             // 更新行为属性, 如果对应速度小于阈值, 则视为无操作
-            const distanceX = Math.abs(this.current.offset.x)
-            const distanceY = Math.abs(this.current.offset.y)
-            if ((this.behavior===TOUCH_BEHAVIOR_TYPE.SWIPING && (distanceX/interval<TOUCH_SPEED_THRESHOLD && distanceX<TOUCH_DISTANCE_THRESHOLD.x)) ||
-                (this.behavior===TOUCH_BEHAVIOR_TYPE.LIVING && (distanceY/interval<TOUCH_SPEED_THRESHOLD && distanceY<TOUCH_DISTANCE_THRESHOLD.y))
+            const distance = this.getCurrentDistance()
+            if ((this.behavior===TOUCH_BEHAVIOR_TYPE.SWIPING && (distance.x/interval<TOUCH_SPEED_THRESHOLD && distance.x<TOUCH_DISTANCE_THRESHOLD.x)) ||
+                (this.behavior===TOUCH_BEHAVIOR_TYPE.LIVING && (distance.y/interval<TOUCH_SPEED_THRESHOLD && distance.y<TOUCH_DISTANCE_THRESHOLD.y))
             ) {
                 this.behavior = undefined
             }
@@ -227,13 +238,17 @@ export const touchProfile = function ({ origin }={}) {
 export const getTouchConfig = (profile, { enableSwiping, enableLiving }={}) => {
     let touch={ x:0, y:0 }, transition
     if (profile && profile.phase===TOUCH_BEHAVIOR_PHASE.MOVING) {
+        const offset = profile.getCurrentOffset()
         if (profile.behavior===TOUCH_BEHAVIOR_TYPE.SWIPING && enableSwiping) {
-            touch.x = profile.current.offset.x
+            touch.x = offset.x
             transition = `none`
         } else if (profile.behavior===TOUCH_BEHAVIOR_TYPE.LIVING && enableLiving) {
-            touch.y = profile.current.offset.y
+            touch.y = offset.y
             transition = `none`
         }
+    }
+    if (profile && profile.phase===TOUCH_BEHAVIOR_PHASE.END) {
+        transition = animationTransition(2)
     }
     return { touch, transition }
 }

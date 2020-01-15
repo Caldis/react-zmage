@@ -29,7 +29,8 @@ class ReactZmage extends React.PureComponent {
         // TODO:FEATURE 按钮颜色配置
         // TODO:FEATURE 移动端的拖拽翻页
         // TODO:ENHANCE 禁用移动端的滑动退出
-        // TODO:BUG     移动端下左右按钮
+        // FIXME: Safari 全屏模式下无法锁定滚动
+
     }
 
     /* 切换查看状态 */
