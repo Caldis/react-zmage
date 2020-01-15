@@ -14,7 +14,7 @@ export default class Background extends React.Component {
 	render() {
 
 		const { show, zoom } = this.props
-		const { backdrop, outBrowsing, toggleZoom } = this.context
+		const { backdrop, outBrowsing, toggleZoom, presetIsDesktop } = this.context
 
 		return (
 			<div
@@ -24,7 +24,9 @@ export default class Background extends React.Component {
 				style={{
 					opacity: show ? 1 : 0,
 					background: backdrop || "",
-					transitionDelay: show ? '.3s' : '0s'
+					transitionDelay: presetIsDesktop
+						? show ? '.15s' : '0s'
+						: show ? '0s' : '.15s'
 				}}
 			/>
 		)

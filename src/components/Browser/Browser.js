@@ -24,11 +24,12 @@ export default class Browser extends React.PureComponent {
 
     constructor(props) {
         super(props)
+
         const { page, pageIsCover } = pageSet(props.coverRef, props.defaultPage, props.set)
 
         this.state = {
             // 载入
-            mount: false,
+            mounted: false,
             // 显示
             show: false,
             // 缩放
@@ -50,7 +51,7 @@ export default class Browser extends React.PureComponent {
     static getDerivedStateFromProps(nextProps, prevState) {
         if (nextProps.browsing) {
             return {
-                mount: true,
+                mounted: true,
                 // 仅在当前状态为未查看时重置页面状态
                 ...(!prevState.show ? pageSet(nextProps.coverRef, nextProps.defaultPage, nextProps.set) : {}),
             }
@@ -71,32 +72,52 @@ export default class Browser extends React.PureComponent {
     }
 
     /**
+     * Props Getter
+     * 如果需要读取 controller / hotKey / animate 需要由此读取
+     **/
+    getPropsWithEnv = () => {
+        const { preset, controller, hotKey, animate } = this.props
+        const defProp = defPropWithEnv(preset)
+        return {
+            // Merge Props
+            ...this.props,
+            // Preset
+            presetIsMobile: preset==='mobile' || (preset==='auto' && env.isMobile),
+            presetIsDesktop: preset==='desktop' || (preset==='auto' && env.isDesktop),
+            // Control
+            controller: { ...defProp.controller, ...controller },
+            hotKey: { ...defProp.hotKey, ...hotKey },
+            animate: { ...defProp.animate, ...animate },
+        }
+    }
+
+    /**
      * 载入/卸载
      **/
     init = () => {
-        const { isBrowsingControlled, coverRef, set, onBrowsing, hideOnScroll, coverVisible } = this.props
+        const { isBrowsingControlled, coverRef, set, onBrowsing, hideOnScroll, coverVisible, presetIsDesktop } = this.getPropsWithEnv()
         const { show, page, pageIsCover } = this.state
         if (!show) {
             window.addEventListener('keydown', this.handleKeyDown)
             hideOnScroll && window.addEventListener('scroll', this.handleScroll)
             window.requestAnimationFrame(() => {
                 this.setState({ show:true, zoom:false, rotate:0, }, () => {
-                    pageIsCover && !coverVisible && hideCover(coverRef, set, page)
+                    presetIsDesktop && pageIsCover && !coverVisible && hideCover(coverRef, set, page)
                     !isBrowsingControlled && typeof onBrowsing === "function" && onBrowsing(true)
                 })
             })
         }
     }
     unInit = ({ force }={}) => {
-        const { isBrowsingControlled, coverRef, set, onBrowsing, hideOnScroll, coverVisible } = this.props
+        const { isBrowsingControlled, coverRef, set, onBrowsing, hideOnScroll, coverVisible, presetIsDesktop } = this.getPropsWithEnv()
         const { show, page, pageIsCover } = this.state
         if (show || force) {
             window.removeEventListener('keydown', this.handleKeyDown)
             hideOnScroll && window.removeEventListener('scroll', this.handleScroll)
             !pageIsCover && !coverVisible && showCover(coverRef, set, page)
             this.setState({ show:false, zoom:false, rotate:0 }, () => setTimeout(() => {
-                this.setState({ mount:false }, () => {
-                    pageIsCover && !coverVisible && showCover(coverRef, set, page)
+                this.setState({ mounted:false }, () => {
+                    presetIsDesktop && pageIsCover && !coverVisible && showCover(coverRef, set, page)
                     !isBrowsingControlled && typeof onBrowsing === "function" && onBrowsing(false)
                 })
             }, animationDuration))
@@ -108,11 +129,8 @@ export default class Browser extends React.PureComponent {
      * 事件处理
      **/
     handleKeyDown = (e) => {
-        const { preset, set, hotKey:userHotKey, loop, outBrowsing } = this.props
+        const { set, hotKey, loop, outBrowsing } = this.getPropsWithEnv()
         const { zoom, page } = this.state
-        // 合并熱鍵設定
-        const { hotKey:defaultHotKey } = defPropWithEnv(preset)
-        const hotKey = { ...defaultHotKey, ...userHotKey }
         // 判斷按鍵編碼
         switch (e.keyCode) {
             case 27: // Escape
@@ -140,7 +158,11 @@ export default class Browser extends React.PureComponent {
         }
     }
     handleScroll = () => {
-        this.state.show && this.props.outBrowsing()
+        const { outBrowsing } = this.props
+        const { show } = this.state
+        if (show) {
+            outBrowsing()
+        }
     }
 
     /**
@@ -215,20 +237,19 @@ export default class Browser extends React.PureComponent {
             // Data
             set,
             // Preset
-            preset,
+            preset, presetIsMobile, presetIsDesktop,
             // Control
             controller, hotKey, animate,
             // Styles & interactive
             hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop
-        } = this.props
+        } = this.getPropsWithEnv()
         const {
             // Internal
-            mount,
+            mounted,
             // Status
             show, zoom, rotate, page, pageIsCover, pageWithStep,
         } = this.state
 
-        const defProp = defPropWithEnv(preset)
         const statusValue = { show, zoom, rotate, page, pageIsCover, pageWithStep }
 
         const contextValue = {
@@ -237,15 +258,11 @@ export default class Browser extends React.PureComponent {
             // Data
             set,
             // Preset
-            preset,
-            presetIsMobile: preset==='mobile' || (preset==='auto' && env.isMobile),
-            presetIsDesktop: preset==='desktop' || (preset==='auto' && env.isDesktop),
+            preset, presetIsMobile, presetIsDesktop,
             // Control
-            controller: { ...defProp.controller, ...controller },
-            hotKey: { ...defProp.hotKey, ...hotKey },
-            animate: { ...defProp.animate, ...animate },
+            controller, hotKey, animate,
             // Styles & interactive
-            backdrop, radius, edge, loop,
+            hideOnScroll, coverVisible, backdrop, radius, edge, loop,
             // Status
             ...statusValue,
             // Action
@@ -259,7 +276,7 @@ export default class Browser extends React.PureComponent {
         return (
             <Context.Provider value={contextValue}>
                 {
-                    mount &&
+                    mounted &&
                     <Portals id="zmage" zIndex={zIndex} className={style.wrapperLayer}>
 
                         {/*背景层*/}
@@ -281,7 +298,6 @@ export default class Browser extends React.PureComponent {
 Browser.contextType = Context
 
 Browser.defaultProps = {
-
     // Controlled status
     isBrowsingControlled: false,
     browsing: false,
@@ -291,5 +307,4 @@ Browser.defaultProps = {
     // Data
     defaultPage: 0,
     set: [],
-
 };

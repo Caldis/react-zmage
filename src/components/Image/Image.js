@@ -120,7 +120,8 @@ export default class Image extends React.PureComponent {
      * 信息更新
      **/
     updateCurrentImageStyle = () => {
-        const nextStyle = getCurrentImageStyle(this.props, this.context, this.imageRef)
+        const { touchProfile } = this.state
+        const nextStyle = getCurrentImageStyle(this.props, this.context, this.imageRef, touchProfile)
         this.setCurrentStyle(nextStyle)
     }
 
@@ -216,8 +217,9 @@ export default class Image extends React.PureComponent {
      **/
     setCurrentStyle = (nextStyle) => {
         const { animate } = this.context
+        const { currentStyle } = this.state
         this.setState({
-            currentStyle: nextStyle,
+            currentStyle: nextStyle._behavior === 'merge' ? { ...currentStyle, ...nextStyle } : nextStyle,
             animateConfig: getAnimateConfig(animate.flip),
         })
     }

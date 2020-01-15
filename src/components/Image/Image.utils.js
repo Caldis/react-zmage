@@ -13,7 +13,7 @@ import {
 } from '@/utils'
 
 /* 获取当前图片样式 */
-export const getCurrentImageStyle = (props, context, imageRef) => {
+export const getCurrentImageStyle = (props, context, imageRef, touchProfile) => {
     const { show } = props
     const { zoom } = context
     if (show) {
@@ -23,14 +23,23 @@ export const getCurrentImageStyle = (props, context, imageRef) => {
             return getBrowsingStyle(props, context, imageRef)
         }
     } else {
-        return getCoverStyle(props, context)
+        return getCoverStyle(props, context, imageRef, touchProfile)
     }
 }
 
 /* 获取封面样式 */
-export const getCoverStyle = (props, context) => {
+export const getCoverStyle = (props, context, imageRef, touchProfile) => {
     const { coverRef, coverPos, rotate, pageIsCover } = context
+    if (touchProfile && touchProfile.phase === TOUCH_BEHAVIOR_PHASE.END) {
+        console.log(touchProfile)
+        return {
+            _type: 'cover',
+            _behavior: 'merge',
+            y: touchProfile.current.offset.y>0 ? innerHeight() : -innerHeight()
+        }
+    }
     if (coverRef.current) {
+        // 从封面唤出
         const { naturalWidth } = coverRef.current
         const { top, left, width, height } = coverRef.current.getBoundingClientRect()
         const { opacity, borderRadius } = window.getComputedStyle(coverRef.current)
@@ -52,6 +61,7 @@ export const getCoverStyle = (props, context) => {
             radius: numberOfStyleUnits(borderRadius, { ref:width }),
         }
     } else if (coverPos) {
+        // 从 Callee 唤出
         // 获取以鼠标指针为起始点的封面样式
         return {
             _type: 'cover',
@@ -63,6 +73,7 @@ export const getCoverStyle = (props, context) => {
             radius: 0,
         }
     } else {
+        // Fallback
         // 获取以屏幕中心为起始点的封面样式
         return {
             _type: 'cover',
