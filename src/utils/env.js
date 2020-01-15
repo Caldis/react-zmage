@@ -20,12 +20,14 @@ const getEnv = (type) => {
             window[IS_MOBILE] = mobile
         }
         return window[type]
+    } else {
+        console.warn('ZMAGE: window is not ready')
     }
 }
 
 export const env = {
     get isDesktop() {
-        return getEnv(IS_DESKTOP) || true
+        return getEnv(IS_DESKTOP) || false
     },
     get isMobile() {
         return getEnv(IS_MOBILE) || false

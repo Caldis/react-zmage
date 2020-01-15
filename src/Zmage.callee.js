@@ -8,8 +8,7 @@ import ReactDOM from "react-dom";
 // Components
 import Browser from './components/Browser'
 // Utils
-import { normalizationSet } from "@/Zmage.utils"
-import { defProp, defType } from "@/config/default"
+import { defProp, defType, getConfigFromProps } from "@/config/default"
 import { animationDuration } from "@/config/anim"
 
 // 监听点击事件，函数调用模式下从鼠标位置打开图片
@@ -47,31 +46,12 @@ class ReactZmageCallee extends React.PureComponent {
 
     render() {
 
-        const {
-            // Internal
-            className, coverRef, destroyer,
-            // Data
-            src, alt, txt, set, defaultPage,
-            // Presets
-            preset,
-            // Control
-            controller, hotKey, animate,
-            // Styles & interactive
-            hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop,
-            // Life cycle functions
-            onBrowsing, onZooming, onSwitching, onRotating,
-            // Controlled props
-            browsing:controlledBrowsing,
-            // rest
-            ...restProps
-        } = this.props
-        const {
-            // Main state
-            browsing:internalBrowsing
-        } = this.state
+        const { calleeProps, configProps } = getConfigFromProps(this.props)
 
-        const coverTarget = coverRef
-            ? { coverRef }
+        const { browsing:internalBrowsing } = this.state
+
+        const coverTarget = calleeProps.coverRef
+            ? { coverRef: calleeProps.coverRef }
             : { coverPos: internalBrowsing ? MOUSE_POSITION_CURRENT : MOUSE_POSITION_CACHE }
 
         return (
@@ -81,28 +61,8 @@ class ReactZmageCallee extends React.PureComponent {
                 // Internal
                 {...coverTarget}
                 outBrowsing={this.outBrowsing}
-                // Data
-                defaultPage={defaultPage}
-                set={normalizationSet({ set, src, alt, txt, restProps })}
-                // Preset
-                preset={preset}
-                // Control
-                controller={controller}
-                hotKey={hotKey}
-                animate={animate}
-                // Styles & interactive
-                hideOnScroll={hideOnScroll}
-                coverVisible={coverVisible}
-                backdrop={backdrop}
-                zIndex={zIndex}
-                radius={radius}
-                edge={edge}
-                loop={loop}
-                // Life cycle functions
-                onBrowsing={onBrowsing}
-                onZooming={onZooming}
-                onSwitching={onSwitching}
-                onRotating={onRotating}
+                // Config
+                {...configProps}
             />
         )
     }

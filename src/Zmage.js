@@ -10,7 +10,7 @@ import wrapper from './Zmage.wrapper'
 import Browser from './components/Browser'
 // Utils
 import { normalizationSet } from './Zmage.utils'
-import { defType, defProp } from './config/default'
+import { defType, defProp, getConfigFromProps } from './config/default'
 
 // 基础组件
 class ReactZmage extends React.PureComponent {
@@ -50,44 +50,24 @@ class ReactZmage extends React.PureComponent {
 
     render() {
 
-        const {
-            // Internal
-            className, style, onClick, forwardedRef,
-            // Data
-            src, alt, txt, set, defaultPage,
-            // Presets
-            preset,
-            // Control
-            controller, hotKey, animate,
-            // Styles & interactive
-            hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop,
-            // Life cycle functions
-            onBrowsing, onZooming, onSwitching, onRotating,
-            // Controlled props
-            browsing:controlledBrowsing,
-            // rest
-            ...restProps
-        } = this.props
+        const { coverProps, stateProps, configProps, restProps } = getConfigFromProps(this.props)
 
-        const {
-            // Main state
-            browsing:internalBrowsing
-        } = this.state
+        const { browsing:internalBrowsing } = this.state
 
         return (
             <Fragment>
 
                 {/*封面图片*/}
                 <img
-                    className={className}
-                    style={{ cursor:'zoom-in', ...style }}
-                    src={src} alt={alt}
+                    className={coverProps.className}
+                    style={{ cursor:'zoom-in', ...coverProps.style }}
+                    src={coverProps.src} alt={coverProps.alt}
                     onClick={(e) => {
                         this.inBrowsing()
-                        typeof onClick === "function" && onClick(e)
+                        typeof coverProps.onClick === "function" && coverProps.onClick(e)
                     }}
                     ref={(ref) => {
-                        forwardedRef && (forwardedRef.current = ref);
+                        coverProps.forwardedRef && (coverProps.forwardedRef.current = ref);
                         this.coverRef && (this.coverRef.current = ref);
                     }}
                     {...restProps}
@@ -97,32 +77,12 @@ class ReactZmage extends React.PureComponent {
                 <Browser
                     // Controlled status
                     isBrowsingControlled={this.isBrowsingControlled}
-                    browsing={this.isBrowsingControlled ? controlledBrowsing : internalBrowsing}
+                    browsing={this.isBrowsingControlled ? stateProps.controlledBrowsing : internalBrowsing}
                     // Internal
                     coverRef={this.coverRef}
                     outBrowsing={this.outBrowsing}
-                    // Data
-                    defaultPage={defaultPage}
-                    set={normalizationSet({ set, src, alt, txt })}
-                    // Preset
-                    preset={preset}
-                    // Control
-                    controller={controller}
-                    hotKey={hotKey}
-                    animate={animate}
-                    // Styles & interactive
-                    hideOnScroll={hideOnScroll}
-                    coverVisible={coverVisible}
-                    backdrop={backdrop}
-                    zIndex={zIndex}
-                    radius={radius}
-                    edge={edge}
-                    loop={loop}
-                    // Life cycle functions
-                    onBrowsing={onBrowsing}
-                    onZooming={onZooming}
-                    onSwitching={onSwitching}
-                    onRotating={onRotating}
+                    // Config
+                    {...configProps}
                 />
 
             </Fragment>

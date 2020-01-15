@@ -4,7 +4,9 @@
 
 // Libs
 import PropTypes from 'prop-types'
+// Utils
 import { env } from "@/utils/env"
+import { normalizationSet } from "@/Zmage.utils";
 
 /**
  * 默认类型
@@ -66,6 +68,8 @@ export const defType = {
             rotate: PropTypes.bool,
             // 缩放按钮
             zoom: PropTypes.bool,
+            // 下载按钮
+            download: PropTypes.bool,
             // 关闭按钮
             close: PropTypes.bool,
             // 左右翻页
@@ -136,6 +140,68 @@ export const defType = {
 /**
  * 默认值
  **/
+export const defProp = {
+
+    /**
+     * 基础数据
+     **/
+    // 图片地址
+    src: "",
+    // 图片标题
+    alt: "",
+    // 图片描述
+    txt: "",
+    // 图片集合
+    set: [],
+    // 图片默认页
+    defaultPage: 0,
+
+    /**
+     * 预设
+     **/
+    preset: "auto",
+
+    /**
+     * 功能控制
+     **/
+    // 控制器 (从 preset 初始化)
+    controller: {},
+    // 快捷键 (从 preset 初始化)
+    hotKey: {},
+    // 动画  (从 preset 初始化)
+    animate: {},
+
+    /**
+     * 界面与交互
+     **/
+    // 滚动时隐藏 (仅桌面端可用)
+    hideOnScroll: true,
+    // 封面可见性 (仅桌面端可用)
+    coverVisible: false,
+    // 背景色
+    backdrop: "#FFFFFF",
+    // 高度
+    zIndex: 1000,
+    // 圆角
+    radius: 0,
+    // 边距
+    edge: 0,
+    // 是否循环查看
+    loop: true,
+
+    /**
+     * 生命周期
+     **/
+    onBrowsing: ()=>{},
+    onZooming: ()=>{},
+    onSwitching: ()=>{},
+    onRotating: ()=>{},
+
+}
+
+/**
+ * 默认预设
+ **/
 export const defPreset = {
     // 桌面
     desktop: {
@@ -178,64 +244,6 @@ export const defPreset = {
         },
     }
 }
-export const defProp = {
-
-    /**
-     * 基础数据
-     **/
-    // 图片地址
-    src: "",
-    // 图片标题
-    alt: "",
-    // 图片描述
-    txt: "",
-    // 图片集合
-    set: [],
-    // 图片默认页
-    defaultPage: 0,
-
-    /**
-     * 预设
-     **/
-    preset: "auto",
-
-    /**
-     * 功能控制
-     **/
-    // 控制器 (从 preset 初始化)
-    controller: {},
-    // 快捷键 (从 preset 初始化)
-    hotKey: {},
-    // 动画  (从 preset 初始化)
-    animate: {},
-
-    /**
-     * 界面与交互
-     **/
-    // 滚动时隐藏
-    hideOnScroll: true,
-    // 封面可见性
-    coverVisible: false,
-    // 背景色
-    backdrop: "#FFFFFF",
-    // 高度
-    zIndex: 1000,
-    // 圆角 (受制于 preset)
-    radius: 0,
-    // 边距 (受制于 preset)
-    edge: 0,
-    // 是否循环查看
-    loop: true,
-
-    /**
-     * 生命周期
-     **/
-    onBrowsing: ()=>{},
-    onZooming: ()=>{},
-    onSwitching: ()=>{},
-    onRotating: ()=>{},
-
-}
 
 /**
  * 默认值 (不同平台)
@@ -277,5 +285,62 @@ export const defPropWithEnv = (preset) => {
         return window[DEF_PROP][preset]
     } else {
         return {}
+    }
+}
+
+/**
+ * 获取配置属性
+ **/
+export const getConfigFromProps = (props) => {
+    const {
+        // Internal
+        className, style, onClick, forwardedRef,
+        // Callee
+        coverRef, destroyer,
+        // Data
+        src, alt, txt, set, defaultPage,
+        // Presets
+        preset,
+        // Control
+        controller, hotKey, animate,
+        // Styles & interactive
+        hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop,
+        // Life cycle functions
+        onBrowsing, onZooming, onSwitching, onRotating,
+        // Controlled props
+        browsing:controlledBrowsing,
+        // rest
+        ...restProps
+    } = props
+
+    return {
+        coverProps: {
+            // Internal
+            className, style, onClick, forwardedRef,
+            // Data
+            src, alt, txt,
+        },
+        calleeProps: {
+            // Callee
+            coverRef, destroyer,
+        },
+        stateProps: {
+            // Controlled props
+            controlledBrowsing,
+        },
+        configProps: {
+            // Data
+            defaultPage,
+            set: normalizationSet({ set, src, alt, txt }),
+            // Presets
+            preset,
+            // Control
+            controller, hotKey, animate,
+            // Styles & interactive
+            hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop,
+            // Life cycle functions
+            onBrowsing, onZooming, onSwitching, onRotating,
+        },
+        restProps,
     }
 }
