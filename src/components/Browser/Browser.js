@@ -15,10 +15,9 @@ import Background from '../Background'
 // Utils
 import { Context } from '../context'
 import { getTargetPage, unlockTouchInteraction } from "@/utils"
-import { defPropWithEnv } from "@/config/default"
+import { defPropsWithEnv } from "@/config/default"
 import { animationDuration } from "@/config/anim"
 import { pageSet, showCover, hideCover, pageIsCover } from './Browser.utils'
-import { env } from "@/utils/env";
 
 export default class Browser extends React.PureComponent {
 
@@ -77,13 +76,13 @@ export default class Browser extends React.PureComponent {
      **/
     getPropsWithEnv = () => {
         const { preset, controller, hotKey, animate } = this.props
-        const defProp = defPropWithEnv(preset)
+        const defProp = defPropsWithEnv(preset)
         return {
             // Merge Props
             ...this.props,
-            // Preset
-            presetIsMobile: preset==='mobile' || (preset==='auto' && env.isMobile),
-            presetIsDesktop: preset==='desktop' || (preset==='auto' && env.isDesktop),
+            // Preset flags
+            presetIsMobile: preset === 'mobile',
+            presetIsDesktop: preset !== 'mobile',
             // Control
             controller: { ...defProp.controller, ...controller },
             hotKey: { ...defProp.hotKey, ...hotKey },
@@ -121,7 +120,7 @@ export default class Browser extends React.PureComponent {
                     presetIsDesktop && pageIsCover && !coverVisible && showCover(coverRef, set, page)
                     !isBrowsingControlled && typeof onBrowsing === "function" && onBrowsing(false)
                 })
-            }, presetIsDesktop ? animationDuration : animationDuration*2))
+            }, presetIsDesktop ? animationDuration-10 : animationDuration*2-10))
         }
     }
 

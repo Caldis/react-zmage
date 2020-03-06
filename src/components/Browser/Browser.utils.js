@@ -30,5 +30,5 @@ export const hideCover = (coverRef) => {
         if (coverRef && coverRef.current) {
             coverRef.current.style.visibility = 'hidden'
         }
-    }, 50)
+    }, 100)
 }

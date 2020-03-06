@@ -5,8 +5,8 @@
 // Utils
 import {
     calcFitScale,
-    scrollWidth, innerWidth, clientWidth,
-    scrollHeight, innerHeight, clientHeight,
+    getScrollWidth, getInnerWidth, getClientWidth,
+    getScrollHeight, getInnerHeight, getClientHeight,
     checkImageLoadedComplete, appendParams, numberOfStyleUnits,
     lockTouchInteraction, unlockTouchInteraction,
     withVendorPrefix,
@@ -36,7 +36,7 @@ export const getCoverStyle = (props, context, imageRef, touchProfile) => {
         return {
             _type: 'cover',
             _behavior: 'merge',
-            y: offset.y>0 ? innerHeight() : -innerHeight()
+            y: offset.y>0 ? getInnerHeight() : -getInnerHeight()
         }
     }
     if (coverRef.current) {
@@ -46,8 +46,8 @@ export const getCoverStyle = (props, context, imageRef, touchProfile) => {
         const { opacity, borderRadius } = window.getComputedStyle(coverRef.current)
         return pageIsCover ? {
             _type: 'cover',
-            x: -scrollWidth()/2 + left + width/2,
-            y: -innerHeight()/2 + top + height/2,
+            x: -getScrollWidth()/2 + left + width/2,
+            y: -getInnerHeight()/2 + top + height/2,
             opacity: Number(opacity) || 1,
             scale: naturalWidth ? width/naturalWidth : 1,
             rotate: rotate-rotate%360,
@@ -55,7 +55,7 @@ export const getCoverStyle = (props, context, imageRef, touchProfile) => {
         } : {
             _type: 'cover',
             x: 0,
-            y: -innerHeight(),
+            y: -getInnerHeight(),
             opacity: 0,
             scale: naturalWidth ? width/naturalWidth : 1,
             rotate: rotate-rotate%360,
@@ -66,8 +66,8 @@ export const getCoverStyle = (props, context, imageRef, touchProfile) => {
         // 获取以鼠标指针为起始点的封面样式
         return {
             _type: 'cover',
-            x: coverPos.x ? coverPos.x-scrollWidth()/2 : 0,
-            y: coverPos.y ? coverPos.y-innerHeight()/2 : 0,
+            x: coverPos.x ? coverPos.x-getScrollWidth()/2 : 0,
+            y: coverPos.y ? coverPos.y-getInnerHeight()/2 : 0,
             opacity: 0,
             scale: 0,
             rotate: 0,
@@ -92,25 +92,27 @@ export const getCoverStyle = (props, context, imageRef, touchProfile) => {
 export const getBrowsingStyle = (props, context, imageRef) => {
     const { radius, edge, rotate } = context
     const { naturalWidth, naturalHeight } = imageRef.current
+    const scale = calcFitScale(naturalWidth, naturalHeight, edge)
+    console.log('getBrowsingStyle', scale)
     return {
         _type: 'browsing',
         x: 0,
         y: 0,
         opacity: 1,
-        scale: calcFitScale(naturalWidth, naturalHeight, edge),
+        scale,
         rotate,
         radius,
     }
 }
 
 /* 获取缩放样式 */
-export const getZoomingStyle = (props, context, imageRef, { clientX:mouseX=scrollWidth()/2, clientY:mouseY=innerHeight()/2 }={}) => {
+export const getZoomingStyle = (props, context, imageRef, { clientX:mouseX=getScrollWidth()/2, clientY:mouseY=getInnerHeight()/2 }={}) => {
     const { radius, edge, rotate } = context
     const { naturalWidth, naturalHeight } = imageRef.current
     // 随鼠标位移偏移量
     const saveEdge = edge || 50
-    const viewWidth = scrollWidth()
-    const viewHeight = innerHeight()
+    const viewWidth = getScrollWidth()
+    const viewHeight = getInnerHeight()
     const rangeX = naturalWidth - viewWidth + (2*saveEdge)
     const rangeY = naturalHeight - viewHeight + (2*saveEdge)
     const imgPosX = naturalWidth>viewWidth ? ((naturalWidth - viewWidth)/2 + saveEdge) - (rangeX*(mouseX/viewWidth)) : 0
@@ -142,7 +144,7 @@ export const getAnimateConfig = (type) => {
             opacity = 0
             break
         case 'swipe':
-            offset = scrollWidth() + SWIPE_GAP
+            offset = getScrollWidth() + SWIPE_GAP
             break
         case 'zoom':
             overflow = ZOOM_OVERFLOW

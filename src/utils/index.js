@@ -12,22 +12,24 @@ import memoize from 'lodash.memoize'
  * @param {number} [edge] - 需要预留的边距
  */
 export const calcFitScale = (naturalWidth, naturalHeight, edge=0) => {
+    const clientWidth = getClientWidth()
+    const clientHeight = getClientHeight()
     const figureWidth = naturalWidth + 2*edge
     const figureHeight = naturalHeight + 2*edge
-    const scaleX = figureWidth>clientWidth() ? clientWidth()/(naturalWidth+2*edge) : 1
-    const scaleY = figureHeight>clientHeight() ? clientHeight()/(naturalHeight+2*edge) : 1
+    const scaleX = figureWidth>clientWidth ? clientWidth/(naturalWidth+2*edge) : 1
+    const scaleY = figureHeight>clientHeight ? clientHeight/(naturalHeight+2*edge) : 1
     return Math.min(scaleX, scaleY) + 0.002 // 防止在高dpi设备出现无法占满边距的问题
 }
 
 /**
  * 屏幕尺寸
  */
-export const innerWidth = () => window.innerWidth
-export const scrollWidth = () => document.body.scrollWidth
-export const clientWidth = () => document.documentElement.clientWidth
-export const innerHeight = () => window.innerHeight
-export const scrollHeight = () => document.body.scrollHeight
-export const clientHeight = () => document.documentElement.clientHeight
+export const getInnerWidth = () => window.innerWidth
+export const getScrollWidth = () => document.body.scrollWidth
+export const getClientWidth = () => document.documentElement.clientWidth
+export const getInnerHeight = () => window.innerHeight
+export const getScrollHeight = () => document.body.scrollHeight
+export const getClientHeight = () => document.documentElement.clientHeight
 
 /**
  * 触摸交互锁定

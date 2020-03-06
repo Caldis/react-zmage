@@ -12,7 +12,7 @@ import style from './Image.less'
 import Loading from './Loading'
 // Utils
 import { Context } from '../context'
-import { scrollWidth, checkImageLoadedComplete, appendParams, lockTouchInteraction, unlockTouchInteraction, withVendorPrefix, isInteger, getTargetPage, mirrorRange } from '@/utils'
+import { getScrollWidth, checkImageLoadedComplete, appendParams, lockTouchInteraction, unlockTouchInteraction, withVendorPrefix, isInteger, getTargetPage, mirrorRange } from '@/utils'
 import { getCurrentImageStyle, getCoverStyle, getZoomingStyle, getAnimateConfig, TOUCH_BEHAVIOR_TYPE, TOUCH_BEHAVIOR_PHASE, touchProfile, getTouchConfig } from './Image.utils'
 
 export default class Image extends React.PureComponent {
@@ -49,16 +49,16 @@ export default class Image extends React.PureComponent {
         const { presetIsMobile, presetIsDesktop } = this.context
         window.addEventListener('resize', this.handleResize)
         if (presetIsMobile) {
-            setTimeout(() => {
+            window.requestAnimationFrame(() => {
                 window.addEventListener('touchstart', this.handleTouchStart)
                 window.addEventListener('touchmove', this.handleTouchMove)
                 window.addEventListener('touchend', this.handleTouchEnd)
-            }, 0)
+            })
         }
         if (presetIsDesktop) {
-            setTimeout(() => {
+            window.requestAnimationFrame(() => {
                 window.addEventListener('scroll', this.handleScroll)
-            }, 0)
+            })
         }
     }
     componentDidUpdate(prevProps) {
