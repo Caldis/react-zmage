@@ -13,13 +13,10 @@ import { normalizationSet } from "@/Zmage.utils";
 export const defType = {
 
     /**
-     * 基础数据
+     * 基础
      **/
     // 图片地址
-    src: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.func,
-    ]),
+    src: PropTypes.string,
     // 图片标题
     alt: PropTypes.string,
     // 图片描述
@@ -46,14 +43,14 @@ export const defType = {
      * 預設
      **/
     preset: PropTypes.oneOf([
-        // 桌面端
+        // 桌面
         "", "desktop",
-        // 移动端
+        // 移动
         "mobile",
     ]),
 
     /**
-     * 功能控制
+     * 功能
      **/
     // 控制器
     controller: PropTypes.oneOfType([
@@ -61,15 +58,15 @@ export const defType = {
         PropTypes.shape({
             // 分页
             pagination: PropTypes.bool,
-            // 旋转按钮
+            // 旋转
             rotate: PropTypes.bool,
-            // 缩放按钮
+            // 缩放
             zoom: PropTypes.bool,
-            // 下载按钮
+            // 下载
             download: PropTypes.bool,
-            // 关闭按钮
+            // 关闭
             close: PropTypes.bool,
-            // 左右翻页
+            // 左右
             flip: PropTypes.bool,
         }),
     ]),

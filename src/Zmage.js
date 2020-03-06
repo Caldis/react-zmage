@@ -9,7 +9,6 @@ import callee from './Zmage.callee'
 import wrapper from './Zmage.wrapper'
 import Browser from './components/Browser'
 // Utils
-import { normalizationSet } from './Zmage.utils'
 import { defType, defProp, getConfigFromProps } from './config/default'
 
 // 基础组件
