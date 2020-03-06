@@ -5,7 +5,6 @@
 // Libs
 import PropTypes from 'prop-types'
 // Utils
-import { env } from "@/utils/env"
 import { normalizationSet } from "@/Zmage.utils";
 
 /**
@@ -47,10 +46,8 @@ export const defType = {
      * 預設
      **/
     preset: PropTypes.oneOf([
-        // 自动
-        "auto",
         // 桌面端
-        "desktop",
+        "", "desktop",
         // 移动端
         "mobile",
     ]),
@@ -159,7 +156,7 @@ export const defProp = {
     /**
      * 预设
      **/
-    preset: "auto",
+    preset: "",
 
     /**
      * 功能控制
@@ -248,43 +245,30 @@ export const defPreset = {
 /**
  * 默认值 (不同平台)
  **/
-const DEF_PROP = "__ZMAGE_DEF_PROP__"
-export const defPropWithEnv = (preset) => {
-    if (typeof window !== "undefined") {
-        if (!window.hasOwnProperty(DEF_PROP)) {
-            window[DEF_PROP] = {}
-        }
-        if (!window[DEF_PROP].hasOwnProperty(preset)) {
-            switch (preset) {
-                case 'desktop':
-                    window[DEF_PROP][preset] = {
-                        ...defProp,
-                        ...defPreset.desktop,
-                    }
-                    break
-                case 'mobile':
-                    window[DEF_PROP][preset] = {
-                        ...defProp,
-                        ...defPreset.mobile,
-                    }
-                    break
-                case 'auto':
-                    window[DEF_PROP][preset] = {
-                        ...defProp,
-                        ...env.isDesktop && defPreset.desktop,
-                        ...env.isMobile && defPreset.mobile,
-                    }
-                    break
-                default:
-                    window[DEF_PROP][preset] = {
-                        ...defProp,
-                        ...defPreset.desktop,
-                    }
+let IS_PROP_PRESET_AUTO_DEPRECATED_WARNED = false
+const DEF_PROP_DESKTOP = {
+    ...defProp,
+    ...defPreset.desktop,
+}
+const DEF_PROP_MOBILE = {
+    ...defProp,
+    ...defPreset.mobile,
+}
+export const defPropsWithEnv = (preset) => {
+    switch (preset) {
+        case 'desktop':
+            return DEF_PROP_DESKTOP
+        case 'mobile':
+            return DEF_PROP_MOBILE
+        case 'auto':
+            // Deprecated
+            if (!IS_PROP_PRESET_AUTO_DEPRECATED_WARNED) {
+                console.warn("Zmage: The value 'auto' for the props 'preset' has been deprecated, replace with one of 'Desktop' or 'Mobile', the value 'auto' will be fallback to 'desktop'")
+                IS_PROP_PRESET_AUTO_DEPRECATED_WARNED = true
             }
-        }
-        return window[DEF_PROP][preset]
-    } else {
-        return {}
+            return DEF_PROP_DESKTOP
+        default:
+            return DEF_PROP_DESKTOP
     }
 }
 
