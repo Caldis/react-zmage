@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.8.5-beta.15",
+  "version": "0.8.5-beta.23",
   "description": "A scalable image container",
   "keywords": [
     "react",
@@ -34,6 +34,7 @@
     "@babel/runtime": "^7.1.5",
     "autoprefixer": "^9.3.1",
     "babel-loader": "^8.0.4",
+    "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^1.0.1",
     "file-loader": "^2.0.0",
     "html-webpack-plugin": "^3.2.0",
