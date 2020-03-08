@@ -1,8 +1,11 @@
 .idea
 .babelrc
 .eslintrc
-src
+
 docs
 scripts
-package-lock.json
+src
+typings
+
 yarn.lock
+package-lock.json
