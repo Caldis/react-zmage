@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.8.5-beta.25",
+  "version": "0.8.5-beta.30",
   "description": "A scalable image container",
   "keywords": [
     "react",
@@ -61,10 +61,12 @@
   },
   "scripts": {
     "dev": "webpack-dev-server --config ./scripts/webpack.exam.dev.config.babel.js --progress --profile --colors",
-    "dist": "npm run dist:doc && npm run dist:lib-dev && npm run dist:lib-pod && npm run dist:lib-ssr",
+    "dist": "npm run dist:doc && npm run dist:lib-dev && npm run dist:lib-pod && npm run dist:lib-ssr-dev && npm run dist:lib-ssr-pod",
     "dist:doc": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
     "dist:lib-dev": "webpack --config ./scripts/webpack.lib.dev.config.babel.js --progress --profile --colors",
-    "dist:lib-ssr": "webpack --config ./scripts/webpack.lib.ssr.config.babel.js --progress --profile --colors",
-    "dist:lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors"
+    "dist:lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors",
+    "dist:lib-ssr-dev": "webpack --config ./scripts/webpack.lib.ssr.dev.config.babel.js --progress --profile --colors",
+    "dist:lib-ssr-pod": "webpack --config ./scripts/webpack.lib.ssr.pod.config.babel.js --progress --profile --colors",
+    "prepublish": "npm run dist"
   }
 }
