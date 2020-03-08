@@ -20,7 +20,7 @@ const config = merge.smart(libBaseConfig({ ssr:true }), {
 
     output: {
         // 从 output.path (lib) 目录开始查找
-        filename: '../ssr/zmage.production.ssr.js',
+        filename: '../ssr/zmage.ssr.production.min.js',
     },
 
     plugins: [
@@ -31,7 +31,7 @@ const config = merge.smart(libBaseConfig({ ssr:true }), {
         // from 从项目根目录开始查找
         // to 从 from 目录开始查找
         new CopyPlugin([
-            { from: 'lib/index.d.ts', to: '../ssr/index.d.ts' }
+            { from: 'typings/index.d.ts', to: '../ssr/index.d.ts' }
         ]),
     ],
 

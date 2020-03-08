@@ -1,3 +1,7 @@
 'use strict';
 
-module.exports = require('./zmage.production.ssr.js');
+if (process.env.NODE_ENV === 'production') {
+    module.exports = require('./zmage.ssr.production.min.js');
+} else {
+    module.exports = require('./zmage.ssr.development.js');
+}
