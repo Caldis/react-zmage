@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "0.8.5-beta.30",
+  "version": "0.8.5-beta.31",
   "description": "A scalable image container",
   "keywords": [
     "react",
@@ -20,18 +20,13 @@
   "homepage": "http://zmage.caldis.me",
   "dependencies": {
     "classnames": "^2.2.6",
-    "lodash.memoize": "^4.1.2",
-    "prop-types": "^15.6.2",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3"
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.1.6",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/preset-env": "^7.1.6",
-    "@babel/preset-react": "^7.0.0",
-    "@babel/register": "^7.0.0",
-    "@babel/runtime": "^7.1.5",
+    "@types/classnames": "^2.2.10",
+    "@types/react": "^16.9.35",
+    "@types/react-dom": "^16.9.8",
     "autoprefixer": "^9.3.1",
     "babel-loader": "^8.0.4",
     "copy-webpack-plugin": "^5.1.1",
@@ -45,11 +40,15 @@
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "postcss-loader": "^3.0.0",
     "prismjs": "^1.15.0",
+    "prop-types": "^15.7.2",
     "react-prism": "^4.3.2",
+    "source-map-loader": "^1.0.0",
     "source-map-support": "^0.5.9",
     "style-loader": "^0.23.1",
     "terser-webpack-plugin": "^2.3.1",
     "transfer-webpack-plugin": "^0.1.4",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.3",
     "uglifyjs-webpack-plugin": "^2.0.1",
     "url-loader": "^1.1.2",
     "webpack": "^4.26.0",
@@ -60,12 +59,12 @@
     "webpack-node-externals": "^1.7.2"
   },
   "scripts": {
-    "dev": "webpack-dev-server --config ./scripts/webpack.exam.dev.config.babel.js --progress --profile --colors",
+    "dev": "webpack-dev-server --config ./scripts/webpack.exam.dev.config.js --progress --profile --colors",
     "dist": "npm run dist:doc && npm run dist:lib-dev && npm run dist:lib-pod && npm run dist:lib-ssr-dev && npm run dist:lib-ssr-pod",
-    "dist:doc": "webpack --config ./scripts/webpack.exam.pod.config.babel.js --progress --profile --colors",
-    "dist:lib-dev": "webpack --config ./scripts/webpack.lib.dev.config.babel.js --progress --profile --colors",
-    "dist:lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.babel.js --progress --profile --colors",
-    "dist:lib-ssr-dev": "webpack --config ./scripts/webpack.lib.ssr.dev.config.babel.js --progress --profile --colors",
-    "dist:lib-ssr-pod": "webpack --config ./scripts/webpack.lib.ssr.pod.config.babel.js --progress --profile --colors"
+    "dist:doc": "webpack --config ./scripts/webpack.exam.pod.config.js --progress --profile --colors",
+    "dist:lib-dev": "webpack --config ./scripts/webpack.lib.dev.config.js --progress --profile --colors",
+    "dist:lib-pod": "webpack --config ./scripts/webpack.lib.pod.config.js --progress --profile --colors",
+    "dist:lib-ssr-dev": "webpack --config ./scripts/webpack.lib.ssr.dev.config.js --progress --profile --colors",
+    "dist:lib-ssr-pod": "webpack --config ./scripts/webpack.lib.ssr.pod.config.js --progress --profile --colors"
   }
 }

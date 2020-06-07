@@ -9,7 +9,7 @@
   z-index: 999;
 }
 
-/* 与 anim.js 同步 */
+/* 与 anim.ts 同步 */
 .baseButton__1l-8C {
   z-index: 1000;
   box-sizing: border-box;
@@ -517,7 +517,7 @@
           transform: scale(1) !important;
 }
 
-/* 与 anim.js 同步 */
+/* 与 anim.ts 同步 */
 .imageLayer__33OvN {
   -webkit-user-select: none;
      -moz-user-select: none;
@@ -542,7 +542,7 @@
   pointer-events: none;
 }
 
-/* 与 anim.js 同步 */
+/* 与 anim.ts 同步 */
 .loadingContainer__nzXM4 {
   -webkit-user-select: none;
      -moz-user-select: none;
@@ -658,7 +658,7 @@
   }
 }
 
-/* 与 anim.js 同步 */
+/* 与 anim.ts 同步 */
 .backgroundLayer__3kiCJ {
   position: absolute;
   top: 0;

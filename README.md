@@ -115,9 +115,9 @@ public render(): JSX.Element {
 
 |配置项|类型|默认值|描述|示例|
 |:--:|:--:|:-----:|:---------------|:----------:|
-| **`controller`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L60) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L136)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L156) | 将特定项设为 `false` 来隐藏查看模式下的操作控件 | [示例](https://github.com/Caldis/react-zmage#controller) |
-| **`hotKey`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L76) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L144)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L164) | 将特定项设为 `false` 来禁用查看模式下的快捷键 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
-| **`animate`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L88) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L149)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L169) | 传入特定的参数指定翻页动画（browsing 动画暂不可配置） [可选值](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L62) | [示例](https://github.com/Caldis/react-zmage#animate) |
+| **`controller`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L60) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L136)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L156) | 将特定项设为 `false` 来隐藏查看模式下的操作控件 | [示例](https://github.com/Caldis/react-zmage#controller) |
+| **`hotKey`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L76) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L144)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L164) | 将特定项设为 `false` 来禁用查看模式下的快捷键 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
+| **`animate`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L88) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L149)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L169) | 传入特定的参数指定翻页动画（browsing 动画暂不可配置） [可选值](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L62) | [示例](https://github.com/Caldis/react-zmage#animate) |
 
 - 界面样式
 
@@ -125,8 +125,8 @@ public render(): JSX.Element {
 |:--:|:--:|:-----:|:----------|:----------:|
 | **`backdrop`** | String | "#FFFFFF" | 控制图片放大后的背景色 | [示例](https://github.com/Caldis/react-zmage#backdrop) |
 | **`zIndex`** | Number | 1000 | 控制外部容器的 `z-index`, 防止被其他元素遮挡 | [示例](https://github.com/Caldis/react-zmage#zIndex) |
-| **`radius`** | Number | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L160)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L178) | 控制图片在查看模式下的圆角 | [示例](https://github.com/Caldis/react-zmage#radius) |
-| **`edge`** | Number | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L161)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L179) | 控制图片在查看模式下距离屏幕边缘的距离 | [示例](https://github.com/Caldis/react-zmage#edge) |
+| **`radius`** | Number | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.ts#L160)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.ts#L178) | 控制图片在查看模式下的圆角 | [示例](https://github.com/Caldis/react-zmage#radius) |
+| **`edge`** | Number | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.ts#L161)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.ts#L179) | 控制图片在查看模式下距离屏幕边缘的距离 | [示例](https://github.com/Caldis/react-zmage#edge) |
 
 - 生命周期
 
