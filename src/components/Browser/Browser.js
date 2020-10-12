@@ -97,7 +97,7 @@ export default class Browser extends React.PureComponent {
         const { isBrowsingControlled, coverRef, set, onBrowsing, hideOnScroll, coverVisible, presetIsDesktop } = this.getPropsWithEnv()
         const { show, page, pageIsCover } = this.state
         if (!show) {
-            window.addEventListener('keydown', this.handleKeyDown)
+            window.addEventListener('keydown', this.handleKeyDown, true)
             hideOnScroll && window.addEventListener('scroll', this.handleScroll)
             window.requestAnimationFrame(() => {
                 this.setState({ show:true, zoom:false, rotate:0, }, () => {
@@ -111,7 +111,7 @@ export default class Browser extends React.PureComponent {
         const { isBrowsingControlled, coverRef, set, onBrowsing, hideOnScroll, coverVisible, presetIsMobile, presetIsDesktop } = this.getPropsWithEnv()
         const { show, page, pageIsCover } = this.state
         if (show || force) {
-            window.removeEventListener('keydown', this.handleKeyDown)
+            window.removeEventListener('keydown', this.handleKeyDown, true)
             hideOnScroll && window.removeEventListener('scroll', this.handleScroll)
             !pageIsCover && !coverVisible && showCover(coverRef, set, page)
             this.setState({ show:false, zoom:false, rotate:0 }, () => setTimeout(() => {
@@ -129,6 +129,7 @@ export default class Browser extends React.PureComponent {
      * 事件处理
      **/
     handleKeyDown = (e) => {
+        e.stopPropagation()
         const { set, hotKey, loop, outBrowsing } = this.getPropsWithEnv()
         const { zoom, page } = this.state
         // 判斷按鍵編碼
