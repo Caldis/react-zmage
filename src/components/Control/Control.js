@@ -9,7 +9,7 @@ import React, { Fragment } from 'react'
 // Style
 import style from './Control.less'
 // Asserts
-import { IconDownload, IconRotateLeft, IconRotateRight, IconZoom, IconArrowLeft, IconArrowRight, IconClose } from '@/asserts/icons'
+import { IconDownload, IconRotateLeft, IconRotateRight, IconZoom, IconArrowLeft, IconArrowRight, IconClose, IconCopy } from '@/asserts/icons'
 // Utils
 import { Context } from '../context'
 import { downloadFromLink } from '@/utils'
@@ -38,6 +38,7 @@ export default class Control extends React.PureComponent {
             toNextPage,
             toggleZoom,
             toggleRotate,
+            handleCopy,
         } = this.context
 
         return (
@@ -46,7 +47,7 @@ export default class Control extends React.PureComponent {
                 {/*控制按钮*/}
                 <div
                     id="zmageControl"
-                    className={classnames(style.controls, { [style.show]:!zoom&&show })}
+                    className={classnames(style.controls, { [style.show]: !zoom && show })}
                     style={{ backgroundColor: backdrop }}
                 >
 
@@ -55,20 +56,20 @@ export default class Control extends React.PureComponent {
                         controller.rotate &&
                         <div
                             id="zmageControlRotateLeft"
-                            className={classnames(style.rotateLeft, { [style.show]:!zoom&&show })}
+                            className={classnames(style.rotateLeft, { [style.show]: !zoom && show })}
                             onClick={toggleRotate("left")}
                         >
-                            <IconRotateLeft/>
+                            <IconRotateLeft />
                         </div>
                     }
                     {
                         controller.rotate &&
                         <div
                             id="zmageControlRotateRight"
-                            className={classnames(style.rotateRight, { [style.show]:!zoom&&show })}
+                            className={classnames(style.rotateRight, { [style.show]: !zoom && show })}
                             onClick={toggleRotate("right")}
                         >
-                            <IconRotateRight/>
+                            <IconRotateRight />
                         </div>
                     }
 
@@ -77,10 +78,21 @@ export default class Control extends React.PureComponent {
                         controller.download &&
                         <div
                             id="zmageControlDownload"
-                            className={classnames(style.download, { [style.show]:!zoom&&show })}
+                            className={classnames(style.download, { [style.show]: !zoom && show })}
                             onClick={() => downloadFromLink(this.context.set[this.context.page].src)}
                         >
-                            <IconDownload/>
+                            <IconDownload />
+                        </div>
+                    }
+                    {/*复制*/}
+                    {
+                        controller.copy &&
+                        <div
+                            id="zmageControlCopy"
+                            className={classnames(style.copy, { [style.show]: !zoom && show })}
+                            onClick={() => handleCopy(this.context.set[this.context.page].src)}
+                        >
+                            <IconCopy />
                         </div>
                     }
 
@@ -89,10 +101,10 @@ export default class Control extends React.PureComponent {
                         controller.zoom &&
                         <div
                             id="zmageControlZoom"
-                            className={classnames(style.zoom, { [style.show]:!zoom&&show })}
-                            onClick={presetIsMobile ? ()=>window.open(set[page].src) : toggleZoom}
+                            className={classnames(style.zoom, { [style.show]: !zoom && show })}
+                            onClick={presetIsMobile ? () => window.open(set[page].src) : toggleZoom}
                         >
-                            <IconZoom/>
+                            <IconZoom />
                         </div>
                     }
 
@@ -101,10 +113,10 @@ export default class Control extends React.PureComponent {
                         controller.close &&
                         <div
                             id="zmageControlClose"
-                            className={classnames(style.close, { [style.show]:!zoom&&show })}
+                            className={classnames(style.close, { [style.show]: !zoom && show })}
                             onClick={zoom ? toggleZoom : outBrowsing}
                         >
-                            <IconClose/>
+                            <IconClose />
                         </div>
                     }
 
@@ -112,28 +124,28 @@ export default class Control extends React.PureComponent {
 
                 {/*翻页控制*/}
                 {
-                    Array.isArray(set) && set.length>1 && controller.flip &&
+                    Array.isArray(set) && set.length > 1 && controller.flip &&
                     <Fragment>
                         {
-                            (loop || page!==0) &&
+                            (loop || page !== 0) &&
                             <div
                                 id="zmageControlFlipLeft"
-                                className={classnames(style.flipLeft, { [style.show]:!zoom&&show })}
+                                className={classnames(style.flipLeft, { [style.show]: !zoom && show })}
                                 style={{ backgroundColor: backdrop }}
                                 onClick={toPrevPage}
                             >
-                                <IconArrowLeft/>
+                                <IconArrowLeft />
                             </div>
                         }
                         {
-                            (loop || page!==set.length-1) &&
+                            (loop || page !== set.length - 1) &&
                             <div
                                 id="zmageControlFlipRight"
-                                className={classnames(style.flipRight, { [style.show]:!zoom&&show })}
+                                className={classnames(style.flipRight, { [style.show]: !zoom && show })}
                                 style={{ backgroundColor: backdrop }}
                                 onClick={toNextPage}
                             >
-                                <IconArrowRight/>
+                                <IconArrowRight />
                             </div>
                         }
                     </Fragment>
@@ -141,17 +153,17 @@ export default class Control extends React.PureComponent {
 
                 {/*页数指示*/}
                 {
-                    Array.isArray(set) && set.length>1 && controller.pagination &&
+                    Array.isArray(set) && set.length > 1 && controller.pagination &&
                     <div
                         id="zmageControlPagination"
-                        className={classnames(style.pages, { [style.show]:!zoom&&show, [style.mobile]:presetIsMobile })}
+                        className={classnames(style.pages, { [style.show]: !zoom && show, [style.mobile]: presetIsMobile })}
                         style={{ backgroundColor: backdrop }}
                     >
                         {
                             set.map((_, i) =>
                                 i === page ?
-                                    <span key={i} id="zmageControlPaginationActive" className={style.blackDot}/>:
-                                    <span key={i} className={style.whiteDot} onClick={()=>toPage(i)}/>
+                                    <span key={i} id="zmageControlPaginationActive" className={style.blackDot} /> :
+                                    <span key={i} className={style.whiteDot} onClick={() => toPage(i)} />
                             )
                         }
                     </div>
