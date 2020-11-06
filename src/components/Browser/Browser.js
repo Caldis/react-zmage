@@ -67,7 +67,7 @@ export default class Browser extends React.PureComponent {
         }
     }
     componentWillUnmount() {
-        this.unInit({ force:true })
+        this.unInit({ force: true })
     }
 
     /**
@@ -100,27 +100,27 @@ export default class Browser extends React.PureComponent {
             window.addEventListener('keydown', this.handleKeyDown)
             hideOnScroll && window.addEventListener('scroll', this.handleScroll)
             window.requestAnimationFrame(() => {
-                this.setState({ show:true, zoom:false, rotate:0, }, () => {
+                this.setState({ show: true, zoom: false, rotate: 0, }, () => {
                     presetIsDesktop && pageIsCover && !coverVisible && hideCover(coverRef, set, page)
                     !isBrowsingControlled && typeof onBrowsing === "function" && onBrowsing(true)
                 })
             })
         }
     }
-    unInit = ({ force }={}) => {
+    unInit = ({ force } = {}) => {
         const { isBrowsingControlled, coverRef, set, onBrowsing, hideOnScroll, coverVisible, presetIsMobile, presetIsDesktop } = this.getPropsWithEnv()
         const { show, page, pageIsCover } = this.state
         if (show || force) {
             window.removeEventListener('keydown', this.handleKeyDown)
             hideOnScroll && window.removeEventListener('scroll', this.handleScroll)
             !pageIsCover && !coverVisible && showCover(coverRef, set, page)
-            this.setState({ show:false, zoom:false, rotate:0 }, () => setTimeout(() => {
-                this.setState({ mounted:false }, () => {
+            this.setState({ show: false, zoom: false, rotate: 0 }, () => setTimeout(() => {
+                this.setState({ mounted: false }, () => {
                     presetIsMobile && unlockTouchInteraction()
                     presetIsDesktop && pageIsCover && !coverVisible && showCover(coverRef, set, page)
                     !isBrowsingControlled && typeof onBrowsing === "function" && onBrowsing(false)
                 })
-            }, presetIsDesktop ? animationDuration-10 : animationDuration*2-10))
+            }, presetIsDesktop ? animationDuration - 10 : animationDuration * 2 - 10))
         }
     }
 
@@ -146,12 +146,12 @@ export default class Browser extends React.PureComponent {
             case 37: // ArrowLeft
                 // 上一张
                 e.preventDefault()
-                !(!loop && page===0) && !zoom && hotKey.flip && this.handleToPrevPage()
+                !(!loop && page === 0) && !zoom && hotKey.flip && this.handleToPrevPage()
                 break
             case 39: // ArrowRight
                 // 下一张
                 e.preventDefault()
-                !(!loop && page===set.length-1) && !zoom && hotKey.flip && this.handleToNextPage()
+                !(!loop && page === set.length - 1) && !zoom && hotKey.flip && this.handleToNextPage()
                 break
             default:
                 return
@@ -176,9 +176,9 @@ export default class Browser extends React.PureComponent {
         const { coverRef, onSwitching, loop } = this.props
         return () => {
             const { set } = this.props
-            if (set.length>1) {
+            if (set.length > 1) {
                 const { page, pageWithStep } = this.state
-                const targetPage = getTargetPage(page, set.length, step, {loop})
+                const targetPage = getTargetPage(page, set.length, step, { loop })
                 if (typeof targetPage === "number") {
                     this.setState({
                         page: targetPage,
@@ -215,18 +215,25 @@ export default class Browser extends React.PureComponent {
         const { onRotating } = this.props
         switch (direction) {
             case "left":
-                return () => this.setState({ rotate:this.state.rotate-90 }, () => {
+                return () => this.setState({ rotate: this.state.rotate - 90 }, () => {
                     typeof onRotating === "function" && onRotating(this.state.rotate)
                 })
             case "right":
-                return () => this.setState({ rotate:this.state.rotate+90 }, () => {
+                return () => this.setState({ rotate: this.state.rotate + 90 }, () => {
                     typeof onRotating === "function" && onRotating(this.state.rotate)
                 })
             default:
-                return () => this.setState({ rotate:0 }, () => {
+                return () => this.setState({ rotate: 0 }, () => {
                     typeof onRotating === "function" && onRotating(0)
                 })
         }
+    }
+    /**
+     * 复制控制
+     */
+    handleCopy = (url) => {
+        const { onCopy } = this.props
+        onCopy && onCopy(url)
     }
 
     render() {
@@ -271,6 +278,7 @@ export default class Browser extends React.PureComponent {
             toNextPage: this.handleToNextPage,
             toggleZoom: this.handleToggleZoom,
             toggleRotate: this.handleToggleRotate,
+            handleCopy: this.handleCopy,
         }
 
         return (
@@ -280,13 +288,13 @@ export default class Browser extends React.PureComponent {
                     <Portals id="zmage" zIndex={zIndex} className={style.wrapperLayer}>
 
                         {/*背景层*/}
-                        <Background {...statusValue}/>
+                        <Background {...statusValue} />
 
                         {/*控制层*/}
-                        <Control {...statusValue}/>
+                        <Control {...statusValue} />
 
                         {/*图片层*/}
-                        <Image {...statusValue}/>
+                        <Image {...statusValue} />
 
                     </Portals>
                 }
@@ -303,7 +311,7 @@ Browser.defaultProps = {
     browsing: false,
     // Internal
     coverRef: React.createRef(),
-    outBrowsing: () => {},
+    outBrowsing: () => { },
     // Data
     defaultPage: 0,
     set: [],

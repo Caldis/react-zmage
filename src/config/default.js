@@ -64,6 +64,8 @@ export const defType = {
             zoom: PropTypes.bool,
             // 下载
             download: PropTypes.bool,
+            // 复制
+            copy: PropTypes.bool,
             // 关闭
             close: PropTypes.bool,
             // 左右
@@ -124,6 +126,7 @@ export const defType = {
     onZooming: PropTypes.func,
     onSwitching: PropTypes.func,
     onRotating: PropTypes.func,
+    onCopy: PropTypes.func,
 
     /**
      * 受控屬性
@@ -186,11 +189,11 @@ export const defProp = {
     /**
      * 生命周期
      **/
-    onBrowsing: ()=>{},
-    onZooming: ()=>{},
-    onSwitching: ()=>{},
-    onRotating: ()=>{},
-
+    onBrowsing: () => { },
+    onZooming: () => { },
+    onSwitching: () => { },
+    onRotating: () => { },
+    onCopy: () => { }
 }
 
 /**
@@ -204,6 +207,7 @@ export const defPreset = {
             rotate: true,
             zoom: true,
             download: false,
+            copy: false,
             close: true,
             flip: true,
         },
@@ -224,6 +228,7 @@ export const defPreset = {
             rotate: false,
             zoom: false,
             download: false,
+            copy: false,
             close: true,
             flip: false,
         },
@@ -287,9 +292,9 @@ export const getConfigFromProps = (props) => {
         // Styles & interactive
         hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop,
         // Life cycle functions
-        onBrowsing, onZooming, onSwitching, onRotating,
+        onBrowsing, onZooming, onSwitching, onRotating, onCopy,
         // Controlled props
-        browsing:controlledBrowsing,
+        browsing: controlledBrowsing,
         // rest
         ...restProps
     } = props
@@ -320,7 +325,7 @@ export const getConfigFromProps = (props) => {
             // Styles & interactive
             hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop,
             // Life cycle functions
-            onBrowsing, onZooming, onSwitching, onRotating,
+            onBrowsing, onZooming, onSwitching, onRotating, onCopy
         },
         restProps,
     }

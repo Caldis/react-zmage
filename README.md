@@ -136,6 +136,7 @@ public render(): JSX.Element {
 | **`onZooming`** | func | (zooming)=>{} | 生命周期方法, 在放大/缩小时调用, 会回传缩放状态 | [示例](https://github.com/Caldis/react-zmage#onZooming) |
 | **`onSwitching`** | func | (paging)=>{} | 生命周期方法, 在切换图片时调用, 会回传页码 | [示例](https://github.com/Caldis/react-zmage#onSwitching) |
 | **`onRotating`** | func | (deg)=>{} | 生命周期方法, 在旋转图片时调用, 会回传角度 | [示例](https://github.com/Caldis/react-zmage#onRotating) |
+| **`onCopy`** | func | (deg)=>{} | 生命周期方法, 在旋转图片时调用, 会回传角度 | [示例](https://github.com/Caldis/react-zmage#onCopy) |
 
 ### `src`
 ```js
@@ -197,6 +198,8 @@ controller={{
     zoom: true,
     // 下载按钮
     download: true,
+    // 复制
+    copy: true,
     // 旋转按钮
     rotate: true,
     // 翻页按钮
@@ -270,6 +273,13 @@ onSwitching={page => {
 ```js
 onRotating={deg => {
     console.info("Rotating State: ", deg, "deg")
+}}
+```
+
+### `onCopy`
+```js
+onCopy={url => {
+    console.info("url: ", url)
 }}
 ```
 
