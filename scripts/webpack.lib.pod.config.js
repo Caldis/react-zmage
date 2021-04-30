@@ -8,6 +8,7 @@ const libBaseConfig = require('./webpack.lib.base.config.js')
 // Plugins
 const CopyPlugin = require('copy-webpack-plugin')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin')
 
 module.exports = merge(libBaseConfig(), {
 
@@ -18,18 +19,15 @@ module.exports = merge(libBaseConfig(), {
   },
 
   plugins: [
-    // 输出包文件分析图
+    new ModuleConcatenationPlugin(),
     new BundleAnalyzerPlugin(),
-    // 复制类型文件
-    // from 从项目根目录开始查找
-    // to 从 from 目录开始查找
     new CopyPlugin({
-      patterns:[
+      patterns: [
         {
           from: 'typings/index.d.ts',
-          to: '../lib/index.d.ts'
+          to: '../lib/index.d.ts',
         },
-      ]
+      ],
     }),
   ],
 })

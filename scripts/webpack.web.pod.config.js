@@ -4,14 +4,15 @@
 
 // Libs
 const path = require('path')
-const webpack = require('webpack')
 // Merges
 const { merge } = require('webpack-merge')
 const baseConfig = require('./webpack.base.config.js')
+// Plugins
+const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin')
 
 module.exports = merge(baseConfig(), {
 
-  entry: './docs/hmr.js',
+  entry: './docs/hmr',
 
   mode: 'production',
 
@@ -21,8 +22,7 @@ module.exports = merge(baseConfig(), {
   },
 
   plugins: [
-    // 作用域提升
-    new webpack.optimize.ModuleConcatenationPlugin(),
+    new ModuleConcatenationPlugin(),
   ],
 
 })

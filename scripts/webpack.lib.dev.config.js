@@ -14,7 +14,7 @@ module.exports = merge(libBaseConfig(), {
     filename: 'zmage.development.js',
   },
 
-  // 修复 mode: "development" 带来的副作用
+  // Fix mode=development side-effect
   devtool: false,
   optimization: {
     usedExports: true,

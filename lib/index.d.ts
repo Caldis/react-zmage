@@ -56,10 +56,13 @@ export interface IReactZmageProps {
   /**
    * 生命周期
    **/
-  onBrowsing?(browsing: boolean): void
-  onZooming?(zooming: boolean): void
-  onSwitching?(paging: number): void
-  onRotating?(deg: number): void
+  onBrowsing? (browsing: boolean): void
+
+  onZooming? (zooming: boolean): void
+
+  onSwitching? (paging: number): void
+
+  onRotating? (deg: number): void
 }
 
 /**
@@ -98,14 +101,14 @@ export interface IStaticHotKeyParams {
  */
 export interface IStaticAnimateParams {
   flip:
-    // 渐变
-    "fade" |
+  // 渐变
+    'fade' |
     // 交叉渐变
-    "crossFade" |
+    'crossFade' |
     // 翻动
-    "swipe" |
+    'swipe' |
     // 缩放
-    "zoom"
+    'zoom'
 }
 
 /**
@@ -130,7 +133,7 @@ export interface IStaticControllerParams {
  * @see https://github.com/Caldis/react-zmage#高级配置
  */
 export type TStaticPresetParams =
-  // 桌面端
+// 桌面端
   'desktop' |
   // 移动端
   'mobile'
@@ -145,7 +148,8 @@ export class ReactZmageWrapper extends React.Component<IReactZmageProps> {}
  */
 export default class ReactZmage extends React.Component<IReactZmageProps> {
   // 命令式调用组件
-  static browsing(props: IReactZmageProps): void
+  static browsing (props: IReactZmageProps): void
+
   // HTML内容转换容器
   static wrapper: ReactZmageWrapper
 }

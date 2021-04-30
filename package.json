@@ -19,9 +19,11 @@
   "license": "MIT",
   "homepage": "https://zmage.caldis.me",
   "dependencies": {
-    "classnames": "^2.3.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "classnames": "^2.3.1"
+  },
+  "peerDependencies": {
+    "react": ">=16.6.0",
+    "react-dom": ">=16.6.0"
   },
   "devDependencies": {
     "@types/classnames": "^2.3.0",
@@ -40,6 +42,8 @@
     "less-loader": "^8.1.1",
     "mini-css-extract-plugin": "^1.5.1",
     "postcss-loader": "^5.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "source-map-loader": "^2.0.1",
     "source-map-support": "^0.5.19",
     "style-loader": "^2.0.0",
@@ -58,7 +62,7 @@
   "scripts": {
     "dev": "webpack serve --config ./scripts/webpack.web.dev.config.js --progress --profile",
     "dist": "npm run dist:web && npm run dist:lib",
-    "dist:lib": "webpack --config ./scripts/webpack.lib.pod.config.js --progress --profile && webpack --config ./scripts/webpack.lib.dev.config.js --progress --profile",
+    "dist:lib": "webpack --config ./scripts/webpack.lib.pod.config.js --progress --profile && webpack --config ./scripts/webpack.lib.dev.config.js --progress --profile --display-optimization-bailout",
     "dist:web": "webpack --config ./scripts/webpack.web.pod.config.js --progress --profile"
   }
 }
