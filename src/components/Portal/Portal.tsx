@@ -4,7 +4,7 @@
  **/
 
 // Libs
-import React, { ReactChildren, useState, useEffect } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 
 type Props = {
@@ -12,26 +12,30 @@ type Props = {
     target?: HTMLElement
     zIndex?: number
     className?: string
-    children: ReactChildren | ReactChildren[]
+    children: ReactNode
 }
 
 export default function Portal({ id, target, zIndex, className, children }: Props) {
 
-    // Wrapper
-    const [wrapper] = useState(target || document.body)
+  // Wrapper
+  const [wrapper] = useState(target || document.body)
 
-    // Append into Wrapper
-    const [container] = useState(() => {
-        const container = document.createElement('figure')
-        id && (container.id = id)
-        className && (container.className = className)
-        zIndex && (container.style.zIndex = String(zIndex))
-        wrapper?.appendChild(container)
-        return container
-    })
+  // Append into Wrapper
+  const [container] = useState(() => {
+    const container = document.createElement('figure')
+    id && (container.id = id)
+    className && (container.className = className)
+    zIndex && (container.style.zIndex = String(zIndex))
+    wrapper?.appendChild(container)
+    return container
+  })
 
-    // Remove from Wrapper
-    useEffect(() => () => wrapper?.removeChild(container), [])
+  // Remove from Wrapper
+  useEffect(() => {
+    return () => {
+      wrapper?.removeChild(container)
+    }
+  }, [])
 
-    return ReactDOM.createPortal(children, container)
+  return ReactDOM.createPortal(children, container)
 }

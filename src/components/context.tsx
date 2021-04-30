@@ -2,13 +2,8 @@
 
 // Libs
 import React, { createContext, RefObject } from 'react'
-import {
-    SetType,
-    PresetType,
-    FunctionalNormalizedParams,
-    InterfaceAndInteractionParams,
-} from "@/types/global";
-import { StateType as BrowsingParams } from './Browser/Browser'
+import { FunctionalNormalizedParams, InterfaceAndInteractionParams, PresetType, SetType, } from '@/types/global'
+import { State as BrowsingParams } from './Browser/Browser'
 
 export { BrowsingParams }
 

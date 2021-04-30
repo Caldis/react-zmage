@@ -1,5 +1,5 @@
-import { HTMLAttributes, RefObject } from "react";
-import { GlobalClickMonitor } from "@/utils";
+import { HTMLAttributes, RefObject } from 'react'
+import { GlobalClickMonitor } from '@/utils'
 
 /**
  * 全局
@@ -77,10 +77,10 @@ export interface HotKeyType {
  * @see https://github.com/Caldis/react-zmage#animate
  */
 export type AnimateFlipType =
-    | "fade"      // 渐变 (set小於3時强制使用)
-    | "crossFade" // 交叉渐变
-    | "swipe"     // 翻页
-    | "zoom"      // 缩放
+    | 'fade'      // 渐变 (set小於3時强制使用)
+    | 'crossFade' // 交叉渐变
+    | 'swipe'     // 翻页
+    | 'zoom'      // 缩放
 export interface AnimateType {
     // 缩放动画 (未实现)
     browsing?: boolean

@@ -2,337 +2,361 @@
 @breakpointWidth: 1080px;
 
 *, *:before, *:after {
-    box-sizing: border-box;
-    font-family: "Ubuntu", "Helvetica Neue", "Luxi Sans", "DejaVu Sans", Tahoma, "Hiragino Sans GB", "Microsoft Yahei", sans-serif !important;
+  box-sizing: border-box;
+  font-family: "Ubuntu", "Helvetica Neue", "Luxi Sans", "DejaVu Sans", Tahoma, "Hiragino Sans GB", "Microsoft Yahei", sans-serif !important;
 }
+
 body {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
+
 h1 {
-    line-height: 6rem;
-    font-size: 4.5rem;
-    font-weight: normal;
-    margin: -0.5em 0 0.4rem;
-    color: rgba(0, 0, 0, 0.9);
+  line-height: 6rem;
+  font-size: 4.5rem;
+  font-weight: normal;
+  margin: -0.5em 0 0.4rem;
+  color: rgba(0, 0, 0, 0.9);
 }
+
 h2 {
-    margin: 0 0 30px;
-    font-size: 2.2rem;
-    font-weight: normal;
-    color: rgba(0, 0, 0, 0.8);
+  margin: 0 0 30px;
+  font-size: 2.2rem;
+  font-weight: normal;
+  color: rgba(0, 0, 0, 0.8);
 }
+
 h3 {
-    font-size: 1rem;
-    font-weight: normal;
-    color: rgba(0, 0, 0, 0.6);
+  font-size: 1rem;
+  font-weight: normal;
+  color: rgba(0, 0, 0, 0.6);
 }
+
 a {
-    text-align: center;
-    font-size: 0.58rem;
-    color: #999;
-    display: inline-block;
-    margin: 14px 4px;
+  text-align: center;
+  font-size: 0.58rem;
+  color: #999;
+  display: inline-block;
+  margin: 14px 4px;
 }
+
 span {
-    font-size: 0.78rem;
+  font-size: 0.78rem;
 }
+
 p {
-    font-size: 1.05rem;
-    color: #666;
+  font-size: 1.05rem;
+  color: #666;
 }
-pre {
-    margin: 30px 0;
-    padding: 0.8rem 1rem;
-    border-left: 4px solid #808080;
-    color: #717682;
-    background-color: #f9f9f9 !important;
+
+code {
+  margin: 30px 0;
+  padding: 1rem;
+  border-left: 4px solid #808080;
+  color: #717682;
+  background-color: #f9f9f9 !important;
 }
 
 // Prism
 :global {
-    code, kbd, samp {
-        font-size: 0.8rem;
-    }
-    span.string {
-        color: #c083de !important;
-    }
+  code, kbd, samp {
+    font-size: 0.8rem;
+  }
+
+  span.string {
+    color: #c083de !important;
+  }
 }
 
 .image {
-    width: 100%;
-    //border-radius: 10px;
-    transition: transform .3s;
+  width: 100%;
+  //border-radius: 10px;
+  transition: transform .3s;
 }
+
 .tag {
-    cursor: pointer;
-    display: inline-block;
-    padding: 6px 10px;
-    color: white;
-    font-weight: bold;
-    border-radius: 4px;
-    line-height: 1;
-    margin: 4px;
-    vertical-align: baseline;
-    background-color: #1b1c1e;
-    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+  cursor: pointer;
+  display: inline-block;
+  padding: 6px 10px;
+  color: white;
+  font-weight: bold;
+  border-radius: 4px;
+  line-height: 1;
+  margin: 4px;
+  vertical-align: baseline;
+  background-color: #1b1c1e;
+  font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
 }
 
 .button {
-    user-select: none;
-    cursor: pointer;
-    display: inline-block;
-    border: 1px solid black;
-    border-radius: 6px;
-    font-size: 1.3rem;
-    padding: 12px 20px;
-    text-decoration: none;
-	margin: 25px 10px;
-    transition: all .1s;
+  user-select: none;
+  cursor: pointer;
+  display: inline-block;
+  border: 1px solid black;
+  border-radius: 6px;
+  font-size: 1.3rem;
+  padding: 12px 20px;
+  text-decoration: none;
+  margin: 25px 10px;
+  transition: all .1s;
 }
+
 .button:hover {
-    color: white;
-    background-color: black;
+  color: white;
+  background-color: black;
 }
+
 .button:active {
-    color: white;
-    background-color: black;
+  color: white;
+  background-color: black;
 }
 
 .github {
-    transition: all .1s;
+  transition: all .1s;
 
-    svg {
-        width: 24px;
-        height: 24px;
-        fill: #999;
-    }
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: #999;
+  }
 }
+
 .github:hover {
-    svg {
-        fill: #666;
-    }
-}
-.github:active {
-    svg {
-        fill: #333;
-    }
+  svg {
+    fill: #666;
+  }
 }
 
+.github:active {
+  svg {
+    fill: #333;
+  }
+}
 
 .pageContainer {
-    box-sizing: border-box;
+  box-sizing: border-box;
 
-    // 首屏
-    .page {
-        position: relative;
-        height: 100vh;
-        display: flex;
+  // 首屏
+  .page {
+    position: relative;
+    height: 100vh;
+    display: flex;
 
-        >div {
-            margin: auto;
-        }
-        h4 {
-            font-weight: lighter;
-        }
-
-        a > img {
-            width: 150px;
-            height: auto;
-            margin-bottom: 30px;
-        }
-
-        @media only screen and (max-width: @breakpointWidth) {
-            h1 {
-                font-size: 3rem;
-            }
-            h4 {
-                padding: 0 10%;
-                margin-top: -10px;
-                font-weight: lighter;
-            }
-        }
-
-        .github {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
+    > div {
+      margin: auto;
     }
 
-    // 左右分栏
-    .horizon {
-        border-top: 1px solid #eeefee;
-        margin: auto;
-        max-width: @breakpointWidth;
-        padding-top: 80px;
-        padding-bottom: 80px;
-        display: flex;
-        flex-wrap: wrap;
+    h4 {
+      font-weight: lighter;
+    }
+
+    a > img {
+      width: 150px;
+      height: auto;
+      margin-bottom: 30px;
+    }
+
+    @media only screen and (max-width: @breakpointWidth) {
+      h1 {
+        font-size: 3rem;
+      }
+
+      h4 {
+        padding: 0 10%;
+        margin-top: -10px;
+        font-weight: lighter;
+      }
+    }
+
+    .github {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+  }
+
+  // 左右分栏
+  .horizon {
+    border-top: 1px solid #eeefee;
+    margin: auto;
+    max-width: @breakpointWidth;
+    padding-top: 80px;
+    padding-bottom: 80px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    &:nth-child(odd) {
+      flex-direction: row-reverse;
+    }
+
+    > div {
+      max-width: 50%;
+      padding: 30px 40px;
+    }
+
+    @media only screen and (max-width: @breakpointWidth) {
+      &:nth-child(odd) {
         flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
+      }
 
-        &:nth-child(odd) {
-            flex-direction: row-reverse;
+      > div {
+        max-width: 100%;
+        padding: 20px;
+      }
+
+      > div:last-of-type {
+        width: 100%;
+        padding: 0;
+
+        img {
+          border-radius: 0;
         }
-
-        > div {
-          max-width: 50%;
-          padding: 30px 40px;
-        }
-        @media only screen and (max-width: @breakpointWidth) {
-            &:nth-child(odd) {
-                flex-direction: row;
-            }
-            > div {
-                max-width: 100%;
-                padding: 20px;
-            }
-            > div:last-of-type {
-                width: 100%;
-                padding: 0;
-
-                img {
-                    border-radius: 0;
-                }
-            }
-        }
-
-        .clickable {
-            position: relative;
-            cursor: pointer;
-
-            &:after {
-                content: "";
-                display: block;
-                position: absolute;
-                left: -4px;
-                bottom: -2px;
-                width: 0;
-                height: 0.5rem;
-                background-color: rgba(0, 136, 255, 0.51);
-                transition: all .3s;
-            }
-
-            &:hover {
-                &:after {
-                    width: 113%;
-                    height: 0.5rem;
-                }
-            }
-        }
-
-        .helpBox {
-            a {
-                font-size: 1.05rem;
-                text-decoration: underline;
-
-                .clickable;
-            }
-        }
-        .imageBox {
-            a {
-                text-align: center;
-                width: 100%;
-            }
-        }
+      }
     }
 
-    .project {
-        cursor: default;
-        user-select: none;
+    .clickable {
+      position: relative;
+      cursor: pointer;
+
+      &:after {
+        content: "";
+        display: block;
+        position: absolute;
+        left: -4px;
+        bottom: -2px;
+        width: 0;
+        height: 0.5rem;
+        background-color: rgba(0, 136, 255, 0.51);
+        transition: all .3s;
+      }
+
+      &:hover {
+        &:after {
+          width: 113%;
+          height: 0.5rem;
+        }
+      }
+    }
+
+    .helpBox {
+      a {
+        font-size: 1.05rem;
+        text-decoration: underline;
+
+        .clickable;
+      }
+    }
+
+    .imageBox {
+      a {
         text-align: center;
+        width: 100%;
+      }
+    }
+  }
 
-        .button {
-            margin-top: 20px;
-        }
+  .project {
+    cursor: default;
+    user-select: none;
+    text-align: center;
+
+    .button {
+      margin-top: 20px;
+    }
+  }
+
+  .scrollDownHint {
+    position: absolute;
+    left: 50vw;
+    bottom: 26px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    span {
+      color: #999;
     }
 
-	.scrollDownHint {
-		position: absolute;
-		left: 50vw;
-		bottom: 26px;
-		transform: translateX(-50%);
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		span {
-			color: #999;
-		}
-		img {
-			transform: scale(0.45);
-			margin: -10px 0 -28px;
-			animation-name: blink;
-			animation-duration: 1s;
-			animation-direction: alternate;
-			animation-iteration-count: infinite;
-		}
-		img:first-of-type {
-			animation-delay: 0.0s;
-			opacity: 0;
-		}
-		img:last-of-type {
-			animation-delay: 0.5s;
-			opacity: 0;
-		}
-	}
-
-    .bottomBanner {
-        display: flex;
-        background-color: #f2f3f5;
-
-        >div {
-            padding: 60px;
-            margin: auto;
-
-            h2 {
-                margin: 20px 0 10px;
-            }
-        }
+    img {
+      transform: scale(0.45);
+      margin: -10px 0 -28px;
+      animation-name: blink;
+      animation-duration: 1s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
     }
 
-    .footer {
-        padding: 40px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-
-        >div {
-            margin-top: 10px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: row;
-
-            a {
-                margin: 0 6px;
-                width: auto;
-            }
-        }
-        span {
-            color: #999999;
-        }
-
-        .hr {
-            margin-top: 0;
-            background-color: #eeefee;
-            width: 1px;
-            height: 50px;
-        }
+    img:first-of-type {
+      animation-delay: 0.0s;
+      opacity: 0;
     }
+
+    img:last-of-type {
+      animation-delay: 0.5s;
+      opacity: 0;
+    }
+  }
+
+  .bottomBanner {
+    display: flex;
+    background-color: #f2f3f5;
+
+    > div {
+      padding: 60px;
+      margin: auto;
+
+      h2 {
+        margin: 20px 0 10px;
+      }
+    }
+  }
+
+  .footer {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    > div {
+      margin-top: 10px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: row;
+
+      a {
+        margin: 0 6px;
+        width: auto;
+      }
+    }
+
+    span {
+      color: #999999;
+    }
+
+    .hr {
+      margin-top: 0;
+      background-color: #eeefee;
+      width: 1px;
+      height: 50px;
+    }
+  }
 }
 
 @keyframes blink {
-	0% {
-		opacity: 0;
-		transform: scale(0.45);
-	}
-	100% {
-		opacity: 1;
-		transform: scale(0.55);
-	}
+  0% {
+    opacity: 0;
+    transform: scale(0.45);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(0.55);
+  }
 }

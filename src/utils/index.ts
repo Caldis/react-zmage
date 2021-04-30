@@ -9,13 +9,13 @@
  * @param {number} [edge] - 需要预留的边距
  */
 export const calcFitScale = (naturalWidth: number, naturalHeight: number, edge = 0) => {
-    const clientWidth = getClientWidth()
-    const clientHeight = getClientHeight()
-    const figureWidth = naturalWidth + 2*edge
-    const figureHeight = naturalHeight + 2*edge
-    const scaleX = figureWidth>clientWidth ? clientWidth/(naturalWidth+2*edge) : 1
-    const scaleY = figureHeight>clientHeight ? clientHeight/(naturalHeight+2*edge) : 1
-    return Math.min(scaleX, scaleY) + 0.002 // 防止在高dpi设备出现无法占满边距的问题
+  const clientWidth = getClientWidth()
+  const clientHeight = getClientHeight()
+  const figureWidth = naturalWidth + 2 * edge
+  const figureHeight = naturalHeight + 2 * edge
+  const scaleX = figureWidth > clientWidth ? clientWidth / (naturalWidth + 2 * edge) : 1
+  const scaleY = figureHeight > clientHeight ? clientHeight / (naturalHeight + 2 * edge) : 1
+  return Math.min(scaleX, scaleY) + 0.002 // 防止在高dpi设备出现无法占满边距的问题
 }
 
 /**
@@ -35,21 +35,21 @@ export const getClientHeight = () => document.documentElement.clientHeight
  */
 const touchStyle = { documentOverflow: '', bodyOverflow: '', bodyPosition: '' }
 export const lockTouchInteraction = () => {
-    // Save
-    touchStyle.documentOverflow = document.documentElement.style.overflow
-    touchStyle.bodyOverflow = document.body.style.overflow
-    touchStyle.bodyPosition = document.body.style.position
-    // Apply
-    document.documentElement.style.overflow = 'hidden'
-    document.body.style.overflow = 'hidden'
-    document.body.style.position = 'relative'
-};
+  // Save
+  touchStyle.documentOverflow = document.documentElement.style.overflow
+  touchStyle.bodyOverflow = document.body.style.overflow
+  touchStyle.bodyPosition = document.body.style.position
+  // Apply
+  document.documentElement.style.overflow = 'hidden'
+  document.body.style.overflow = 'hidden'
+  document.body.style.position = 'relative'
+}
 export const unlockTouchInteraction = () => {
-    // Recover
-    document.documentElement.style.overflow = touchStyle.documentOverflow
-    document.body.style.overflow = touchStyle.bodyOverflow
-    document.body.style.position = touchStyle.bodyPosition
-};
+  // Recover
+  document.documentElement.style.overflow = touchStyle.documentOverflow
+  document.body.style.overflow = touchStyle.bodyOverflow
+  document.body.style.position = touchStyle.bodyPosition
+}
 
 /**
  * 检查图片是否完全载入
@@ -57,15 +57,15 @@ export const unlockTouchInteraction = () => {
  * @param {function} [callback] - 回调函数
  */
 export const checkImageLoadedComplete = (targetImageElement: HTMLImageElement, callback: () => unknown) => {
-    let timer: number
-    const checker = () => {
-        if (!targetImageElement || targetImageElement.complete) {
-            clearInterval(timer)
-            callback()
-        }
+  let timer: ReturnType<typeof setInterval>
+  const checker = () => {
+    if (!targetImageElement || targetImageElement.complete) {
+      clearInterval(timer)
+      callback()
     }
-    timer = setInterval(checker, 500)
-    return timer
+  }
+  timer = setInterval(checker, 500)
+  return timer
 }
 
 /**
@@ -73,9 +73,9 @@ export const checkImageLoadedComplete = (targetImageElement: HTMLImageElement, c
  * @param  url - 目标地址
  * @param [params] - 要附加的参数列表
  */
-export const appendParams = (url:string, params: { [param: string]: string | number } = {}) => {
-    const paramString = Object.keys(params).reduce((acc, cur) => params[cur] ? acc.concat(`${cur}=${params[cur]}`) : acc, []).join("&")
-    return paramString ? `${url}${url.includes('?') ? '&' : '?'}${paramString}` : url
+export const appendParams = (url: string, params: { [param: string]: string | number } = {}) => {
+  const paramString = Object.keys(params).reduce((acc, cur) => params[cur] ? acc.concat(`${cur}=${params[cur]}`) : acc, []).join('&')
+  return paramString ? `${url}${url.includes('?') ? '&' : '?'}${paramString}` : url
 }
 
 /**
@@ -84,11 +84,11 @@ export const appendParams = (url:string, params: { [param: string]: string | num
  * @param [options] - 当 unit 为百分比时的基准参考数值
  */
 export const numberOfStyleUnits = (unit: string, options = { ref: 100 }) => {
-    return unit
-        ? unit.includes('%')
-            ? options.ref * Number(unit.substring(0, unit.length - 1)) / 100
-            : Number(unit.substring(0, unit.length - 2))
-        : Number(unit)
+  return unit
+    ? unit.includes('%')
+      ? options.ref * Number(unit.substring(0, unit.length - 1)) / 100
+      : Number(unit.substring(0, unit.length - 2))
+    : Number(unit)
 }
 
 /**
@@ -97,12 +97,12 @@ export const numberOfStyleUnits = (unit: string, options = { ref: 100 }) => {
  * @param [name] - 下载文件名称
  */
 export const downloadFromLink = (href: string, name?: string) => {
-    const downloadLink = document.createElement('a');
-    downloadLink.href = href;
-    downloadLink.download = name || href.split("/")[href.split("/").length-1];
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+  const downloadLink = document.createElement('a')
+  downloadLink.href = href
+  downloadLink.download = name || href.split('/')[href.split('/').length - 1]
+  document.body.appendChild(downloadLink)
+  downloadLink.click()
+  document.body.removeChild(downloadLink)
 }
 
 /**
@@ -110,7 +110,7 @@ export const downloadFromLink = (href: string, name?: string) => {
  * @param string - 目标文本
  */
 export const uppercaseFirstLetter = (string: string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1)
+  return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
 /**
@@ -118,24 +118,23 @@ export const uppercaseFirstLetter = (string: string) => {
  * @param style - 目标样式
  */
 export const withVendorPrefix = (style: { [styleName: string]: string }) => {
-    const vendorPrefixList = ['Webkit', 'Moz', 'Ms', 'O']
-    return Object.keys(style).reduce((styleAcc, styleCur) => {
-        const stylesWithPrefix = vendorPrefixList.reduce((prefixAcc, prefixCur) => {
-            return {
-                ...prefixAcc,
-                [`${prefixCur}${uppercaseFirstLetter(styleCur)}`]: style[styleCur]
-            }
-        }, {})
-        return { ...styleAcc, ...stylesWithPrefix }
-    }, style)
+  const vendorPrefixList = ['Webkit', 'Moz', 'Ms', 'O']
+  return Object.keys(style).reduce((styleAcc, styleCur) => {
+    const stylesWithPrefix = vendorPrefixList.reduce((prefixAcc, prefixCur) => {
+      return {
+        ...prefixAcc,
+        [`${prefixCur}${uppercaseFirstLetter(styleCur)}`]: style[styleCur]
+      }
+    }, {})
+    return { ...styleAcc, ...stylesWithPrefix }
+  }, style)
 }
 
 /**
  * 是否数字
  * @param num - 数字
  */
-export const isInteger = (num: number) => (num^0) === num
-
+export const isInteger = (num: number) => (num ^ 0) === num
 
 /**
  * 获取目标页码
@@ -148,41 +147,41 @@ export const isInteger = (num: number) => (num^0) === num
  * @param options.loop - 是否循环
  */
 export const getTargetPage = (current: number, length: number, step: number, options = { loop: true }) => {
-    // Guards
-    if (length === 0) {
-        return 0
-    }
-    if (step===0) {
-        return current
-    }
-    if (current<0 || current>length-1) {
-        return undefined
-    }
-    // Processing
-    return options.loop
-        ? Math.abs((length+step)+current)%length
-        : (current+step<0 || current+step>length-1) ? undefined : current+step
+  // Guards
+  if (length === 0) {
+    return 0
+  }
+  if (step === 0) {
+    return current
+  }
+  if (current < 0 || current > length - 1) {
+    return undefined
+  }
+  // Processing
+  return options.loop
+    ? Math.abs((length + step) + current) % length
+    : (current + step < 0 || current + step > length - 1) ? undefined : current + step
 }
 
 /**
  * 生成鏡像數組
  * @param edge - 距離0點的長度
  */
-const RANGE = { 0:[0], 1:[-1,0,1], 2:[-2,-1,0,1,2], 3:[-3,-2,-1,0,1,2,3] }
+const RANGE = { 0: [0], 1: [-1, 0, 1], 2: [-2, -1, 0, 1, 2], 3: [-3, -2, -1, 0, 1, 2, 3] }
 export const mirrorRange = (edge: 0 | 1 | 2 | 3) => RANGE[edge]
 
 /**
  * 防抖
  */
 export const debounce = (func: () => unknown, delay: number) => {
-    let timer: number;
-    return (...args: any[]) => {
-        let context = this;
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            func.apply(context, args);
-        }, delay)
-    }
+  let timer: ReturnType<typeof setTimeout>
+  return (...args: any[]) => {
+    let context = this
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      func.apply(context, args)
+    }, delay)
+  }
 }
 
 /**
@@ -190,36 +189,51 @@ export const debounce = (func: () => unknown, delay: number) => {
  */
 export class GlobalClickMonitor {
 
-    initialPosition: CoordinateType
-    currentPosition: CoordinateType
-    debounceResetPosition: () => void
+  private static readonly CENTER_POSITION: CoordinateType = { x: 0, y: 0 }
 
-    static CENTER_POSITION: CoordinateType = { x: 0, y: 0 }
+  public currentPosition = GlobalClickMonitor.CENTER_POSITION
+  private readonly debounceInterval = 200
+  private readonly debounceResetPosition = debounce(() => this.currentPosition = GlobalClickMonitor.CENTER_POSITION, this.debounceInterval)
 
-    constructor({ position, resetInterval }: { position: CoordinateType, resetInterval: number } = { position: GlobalClickMonitor.CENTER_POSITION, resetInterval: 200 }) {
-        // 如果已经存在则直接返回现存
-        if (window.__ZMAGE_GLOBAL_CLICK_MONITOR__) return window.__ZMAGE_GLOBAL_CLICK_MONITOR__
-        // 记录初始坐标
-        this.initialPosition = position
-        this.currentPosition = position
-        this.debounceResetPosition = debounce(() => this.currentPosition = GlobalClickMonitor.CENTER_POSITION, resetInterval)
-        // 监听点击事件
-        if (window) {
-            window.addEventListener('click', this.update)
-            window.__ZMAGE_GLOBAL_CLICK_MONITOR__ = this
-        }
+  constructor ({ position }: { position: CoordinateType } = { position: GlobalClickMonitor.CENTER_POSITION }) {
+    // 返回已有
+    if (window.__ZMAGE_GLOBAL_CLICK_MONITOR__) {
+      return window.__ZMAGE_GLOBAL_CLICK_MONITOR__
     }
-
-    // 更新数据
-    update = (e: MouseEvent) => {
-        // 更新点击坐标
-        this.currentPosition = { x: e.clientX, y: e.clientY }
-        // 如果 200ms 内发生没有发生过点击事件，则重置点击位置，以兼容非点击方式调用
-        this.debounceResetPosition()
+    // 创建
+    try {
+      // 记录现有
+      this.currentPosition = position
+      // 监听点击事件
+      if (window) {
+        window.addEventListener('click', this.update)
+        window.__ZMAGE_GLOBAL_CLICK_MONITOR__ = this
+      }
+    } catch (e) {
+      // Create fake Monitor if window object not exist
+      return {
+        currentPosition: GlobalClickMonitor.CENTER_POSITION,
+        destructor: () => {},
+      } as GlobalClickMonitor
     }
+  }
 
-    destructor() {
-        window?.document?.documentElement?.removeEventListener('click', this.update)
-        window.__ZMAGE_GLOBAL_CLICK_MONITOR__ = undefined
+  // 更新数据
+  private update = (e: MouseEvent) => {
+    console.log('e')
+    // 更新点击坐标
+    this.currentPosition = { x: e.clientX, y: e.clientY }
+    console.log(this.currentPosition)
+    // 如果 200ms 内发生没有发生过点击事件，则重置点击位置，以兼容非点击方式调用
+    this.debounceResetPosition()
+  }
+
+  public destructor () {
+    try {
+      window.removeEventListener('click', this.update)
+      window.__ZMAGE_GLOBAL_CLICK_MONITOR__ = undefined
+    } catch (e) {
+      // No need to remove
     }
+  }
 }
