@@ -8,29 +8,29 @@ import React, { useContext } from 'react'
 // Style
 import style from './Background.less'
 // Utils
-import { Context } from "../context"
+import { Context } from '../context'
 
 type Props = {
-	show: boolean
-	zoom: boolean
+  show: boolean
+  zoom: boolean
 }
 
-export default function Background({ show, zoom }: Props) {
+export default function Background ({ show, zoom }: Props) {
 
-	const { backdrop, outBrowsing, toggleZoom, presetIsDesktop } = useContext(Context)
+  const { backdrop, outBrowsing, toggleZoom, presetIsDesktop } = useContext(Context)
 
-	return (
-		<div
-			id="zmageBackground"
-			className={style.backgroundLayer}
-			onClick={zoom ? toggleZoom : outBrowsing}
-			style={{
-				opacity: show ? 1 : 0,
-				background: backdrop || "",
-				transitionDelay: presetIsDesktop
-					? show ? '.15s' : '0s'
-					: show ? '0s' : '.35s'
-			}}
-		/>
-	)
+  return (
+    <div
+      id="zmageBackground"
+      className={style.backgroundLayer}
+      onClick={zoom ? toggleZoom : outBrowsing}
+      style={{
+        opacity: show ? 1 : 0,
+        background: backdrop || '',
+        transitionDelay: presetIsDesktop
+          ? show ? '.15s' : '0s'
+          : show ? '0s' : '.35s'
+      }}
+    />
+  )
 }

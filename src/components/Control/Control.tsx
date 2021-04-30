@@ -23,7 +23,7 @@ import { Context } from '../context'
 import { downloadFromLink } from '@/utils'
 import { ControllerType } from '@/types/global'
 
-export default function Control() {
+export default function Control () {
 
   const {
     // Data
@@ -53,7 +53,7 @@ export default function Control() {
       {/*控制按钮*/}
       <div
         id="zmageControl"
-        className={classnames(style.controls, { [style.show]:!zoom&&show })}
+        className={classnames(style.controls, { [style.show]: !zoom && show })}
         style={{ backgroundColor: backdrop }}
       >
 
@@ -62,7 +62,7 @@ export default function Control() {
           controllerParams.rotate &&
           <div
             id="zmageControlRotateLeft"
-            className={classnames(style.rotateLeft, { [style.show]:!zoom&&show })}
+            className={classnames(style.rotateLeft, { [style.show]: !zoom && show })}
             onClick={toggleRotate('left')}
           >
             <IconRotateLeft/>
@@ -72,7 +72,7 @@ export default function Control() {
           controllerParams.rotate &&
           <div
             id="zmageControlRotateRight"
-            className={classnames(style.rotateRight, { [style.show]:!zoom&&show })}
+            className={classnames(style.rotateRight, { [style.show]: !zoom && show })}
             onClick={toggleRotate('right')}
           >
             <IconRotateRight/>
@@ -84,7 +84,7 @@ export default function Control() {
           controllerParams.download &&
           <div
             id="zmageControlDownload"
-            className={classnames(style.download, { [style.show]:!zoom&&show })}
+            className={classnames(style.download, { [style.show]: !zoom && show })}
             onClick={() => downloadFromLink(set[page].src)}
           >
             <IconDownload/>
@@ -96,8 +96,8 @@ export default function Control() {
           controllerParams.zoom &&
           <div
             id="zmageControlZoom"
-            className={classnames(style.zoom, { [style.show]:!zoom&&show })}
-            onClick={presetIsMobile ? ()=>window.open(set[page].src) : toggleZoom}
+            className={classnames(style.zoom, { [style.show]: !zoom && show })}
+            onClick={presetIsMobile ? () => window.open(set[page].src) : toggleZoom}
           >
             <IconZoom/>
           </div>
@@ -108,7 +108,7 @@ export default function Control() {
           controllerParams.close &&
           <div
             id="zmageControlClose"
-            className={classnames(style.close, { [style.show]:!zoom&&show })}
+            className={classnames(style.close, { [style.show]: !zoom && show })}
             onClick={zoom ? toggleZoom : outBrowsing}
           >
             <IconClose/>
@@ -119,46 +119,46 @@ export default function Control() {
 
       {/*翻页控制*/}
       {
-        Array.isArray(set) && set.length>1 && controllerParams.flip &&
+        Array.isArray(set) && set.length > 1 && controllerParams.flip &&
         <Fragment>
           {
-            (loop || page!==0) &&
-                <div
-                  id="zmageControlFlipLeft"
-                  className={classnames(style.flipLeft, { [style.show]:!zoom&&show })}
-                  style={{ backgroundColor: backdrop }}
-                  onClick={toPrevPage}
-                >
-                  <IconArrowLeft/>
-                </div>
+            (loop || page !== 0) &&
+            <div
+              id="zmageControlFlipLeft"
+              className={classnames(style.flipLeft, { [style.show]: !zoom && show })}
+              style={{ backgroundColor: backdrop }}
+              onClick={toPrevPage}
+            >
+              <IconArrowLeft/>
+            </div>
           }
           {
-            (loop || page!==set.length-1) &&
-                <div
-                  id="zmageControlFlipRight"
-                  className={classnames(style.flipRight, { [style.show]:!zoom&&show })}
-                  style={{ backgroundColor: backdrop }}
-                  onClick={toNextPage}
-                >
-                  <IconArrowRight/>
-                </div>
+            (loop || page !== set.length - 1) &&
+            <div
+              id="zmageControlFlipRight"
+              className={classnames(style.flipRight, { [style.show]: !zoom && show })}
+              style={{ backgroundColor: backdrop }}
+              onClick={toNextPage}
+            >
+              <IconArrowRight/>
+            </div>
           }
         </Fragment>
       }
 
       {/*页数指示*/}
       {
-        Array.isArray(set) && set.length>1 && controllerParams.pagination &&
+        Array.isArray(set) && set.length > 1 && controllerParams.pagination &&
         <div
           id="zmageControlPagination"
-          className={classnames(style.pages, { [style.show]:!zoom&&show, [style.mobile]:presetIsMobile })}
+          className={classnames(style.pages, { [style.show]: !zoom && show, [style.mobile]: presetIsMobile })}
           style={{ backgroundColor: backdrop }}
         >
           {
             set.map((_, i) =>
               i === page ?
-                <span key={i} id="zmageControlPaginationActive" className={style.blackDot}/>:
-                <span key={i} className={style.whiteDot} onClick={()=>toPage(i)}/>
+                <span key={i} id="zmageControlPaginationActive" className={style.blackDot}/> :
+                <span key={i} className={style.whiteDot} onClick={() => toPage(i)}/>
             )
           }
         </div>

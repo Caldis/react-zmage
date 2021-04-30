@@ -17,7 +17,7 @@ import { BaseType } from '@/types/global'
 // TODO:ENHANCE 禁用移动端的滑动退出
 // FIXME: Safari 全屏模式下无法锁定滚动
 
-interface PropsType extends BaseType {}
+type PropsType = BaseType
 
 interface StateType {
   browsing: boolean
@@ -115,7 +115,7 @@ const forwardedReactZmage = React.forwardRef<HTMLImageElement, BaseType>(
   (props, ref) =>
     <ReactZmage {...props} forwardedRef={ref}/>
 ) as ForwardedComponent
- 
+
 // 命令式调用组件
 forwardedReactZmage.browsing = callee
 forwardedReactZmage.Browsing = callee // Alias browsing

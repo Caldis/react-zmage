@@ -7,4 +7,5 @@ export const animationDuration = 350
 export const animationFunctionOnZooming = 'cubic-bezier(0, 0.1, 0.1, 1)'
 export const animationDurationOnZooming = 0
 
-export const animationTransition = (multiple=1) => `transform ${animationDuration*multiple}ms ${animationFunction}, opacity ${animationDuration*multiple}ms ${animationFunction}, clip-path ${animationDuration*multiple}ms ${animationFunction}`;
+export const animationTransition = (multiple = 1) => `transform ${animationDuration * multiple}ms ${animationFunction}, opacity ${animationDuration * multiple}ms ${animationFunction}, clip-path ${animationDuration * multiple}ms ${animationFunction}`
+

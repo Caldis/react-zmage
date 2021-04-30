@@ -8,14 +8,14 @@ import React, { ReactNode, useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 
 type Props = {
-    id?: string
-    target?: HTMLElement
-    zIndex?: number
-    className?: string
-    children: ReactNode
+  id?: string
+  target?: HTMLElement
+  zIndex?: number
+  className?: string
+  children: ReactNode
 }
 
-export default function Portal({ id, target, zIndex, className, children }: Props) {
+export default function Portal ({ id, target, zIndex, className, children }: Props) {
 
   // Wrapper
   const [wrapper] = useState(target || document.body)

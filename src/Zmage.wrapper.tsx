@@ -3,53 +3,54 @@
  **/
 
 // Libs
-import React from "react";
+import React from 'react'
 // Components
 import callee from './Zmage.callee'
 // Utils
-import { defProp } from "@/types/default"
-import { BaseType } from "@/types/global";
+import { defProp } from '@/types/default'
+import { BaseType } from '@/types/global'
 
-interface PropsType extends BaseType {}
+type Props = BaseType
 
-export default class ReactZmageWrapper extends React.Component<PropsType> {
+export default class ReactZmageWrapper extends React.Component<Props> {
 
-    // Default
-    static defaultProps = defProp
+  // Default
+  static defaultProps = defProp
 
-    // Refs
-    wrapperRef = React.createRef<HTMLDivElement>()
+  // Refs
+  wrapperRef = React.createRef<HTMLDivElement>()
 
-    componentDidMount() {
-        this.tryAttachBrowserToImage()
-    }
-    componentDidUpdate() {
-        this.tryAttachBrowserToImage()
-    }
+  componentDidMount () {
+    this.tryAttachBrowserToImage()
+  }
 
-    tryAttachBrowserToImage = () => {
-        const { children, ...restProps } = this.props
-        if (this.wrapperRef.current) {
-            this.wrapperRef.current.querySelectorAll('img').forEach(item => {
-                if (!item.getAttribute('zmage') && item.getAttribute('src')) {
-                    // Add processed flag
-                    item.setAttribute('zmage', String(Date.now()))
-                    // Add browser
-                    item.style.cursor = 'zoom-in'
-                    item.addEventListener('click', () => callee({ coverRef: { current:item }, ...restProps }))
-                }
-            })
+  componentDidUpdate () {
+    this.tryAttachBrowserToImage()
+  }
+
+  tryAttachBrowserToImage = () => {
+    const { children, ...restProps } = this.props
+    if (this.wrapperRef.current) {
+      this.wrapperRef.current.querySelectorAll('img').forEach(item => {
+        if (!item.getAttribute('zmage') && item.getAttribute('src')) {
+          // Add processed flag
+          item.setAttribute('zmage', String(Date.now()))
+          // Add browser
+          item.style.cursor = 'zoom-in'
+          item.addEventListener('click', () => callee({ coverRef: { current: item }, ...restProps }))
         }
+      })
     }
+  }
 
-    render() {
+  render () {
 
-        const { children } = this.props
+    const { children } = this.props
 
-        return (
-            <div ref={this.wrapperRef}>
-                { children }
-            </div>
-        )
-    }
+    return (
+      <div ref={this.wrapperRef}>
+        {children}
+      </div>
+    )
+  }
 }
