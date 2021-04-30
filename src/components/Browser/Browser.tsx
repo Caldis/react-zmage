@@ -18,7 +18,7 @@ import { getTargetPage, unlockTouchInteraction } from '@/utils'
 import { defPropsWithEnv } from '@/types/default'
 import { animationDuration } from '@/config/anim'
 import { hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
-import { FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, SetType } from '@/types/global'
+import { FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '@/types/global'
 
 export interface Props extends PresetParams, FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams {
   // Controlled status
@@ -26,10 +26,10 @@ export interface Props extends PresetParams, FunctionalParams, InterfaceAndInter
   browsing: boolean
   // Internal
   coverRef: RefObject<HTMLImageElement>
-  coverPos?: CoordinateType
+  coverPos?: Coordinate
   outBrowsing: () => void
   // Set Normalized BaseParams
-  set: SetType[]
+  set: Set[]
   defaultPage: number
 }
 
@@ -62,7 +62,7 @@ export default class Browser extends React.Component<Props, State> {
     outBrowsing: () => {},
     // Data
     defaultPage: 0,
-    set: [] as SetType[],
+    set: [] as Set[],
   }
 
   // State

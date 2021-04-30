@@ -1,4 +1,4 @@
-import { HTMLAttributes, RefObject } from 'react'
+import { HTMLAttributes, ReactNode, RefObject } from 'react'
 import { GlobalClickMonitor } from '@/utils'
 
 /**
@@ -12,7 +12,7 @@ declare global {
   }
 
   // 坐标
-  interface CoordinateType {
+  interface Coordinate {
     x: number
     y: number
   }
@@ -25,7 +25,7 @@ declare global {
 /**
  * @see https://github.com/Caldis/react-zmage#set
  */
-export interface SetType {
+export interface Set {
   // 基础属性
   src: string,
   alt?: string,
@@ -38,33 +38,42 @@ export interface SetType {
 /**
  * @see https://github.com/Caldis/react-zmage#preset
  */
-export type PresetType =
+export type Preset =
   | 'desktop' // 桌面模式
   | 'mobile'  // 移动端模式
   | 'auto'    // 自动识别 (废弃)
 
 /**
- * @see https://github.com/Caldis/react-zmage#controller
+ * @see https://github.com/Caldis/react-zmage#controllerItem
  */
-export interface ControllerType {
+export type ControllerItem = boolean | string | ReactNode
+
+/**
+ * @see https://github.com/Caldis/react-zmage#controllerSet
+ */
+export interface ControllerSet {
   // 分页
-  pagination?: boolean
+  pagination?: Omit<ControllerItem, string>
   // 旋转
-  rotate?: boolean
+  rotate?: ControllerItem
+  rotateLeft?: ControllerItem
+  rotateRight?: ControllerItem
   // 缩放
-  zoom?: boolean
+  zoom?: ControllerItem
   // 下载
-  download?: boolean
+  download?: ControllerItem
   // 关闭
-  close?: boolean
+  close?: ControllerItem
   // 左右
-  flip?: boolean
+  flip?: ControllerItem
+  flipLeft?: ControllerItem
+  flipRight?: ControllerItem
 }
 
 /**
  * @see https://github.com/Caldis/react-zmage#hotkey
  */
-export interface HotKeyType {
+export interface HotKey {
   // 关闭（ESC）
   close?: boolean
   // 缩放（空格）
@@ -76,16 +85,16 @@ export interface HotKeyType {
 /**
  * @see https://github.com/Caldis/react-zmage#animate
  */
-export type AnimateFlipType =
+export type AnimateFlip =
   | 'fade'      // 渐变 (set小於3時强制使用)
   | 'crossFade' // 交叉渐变
   | 'swipe'     // 翻页
   | 'zoom'      // 缩放
-export interface AnimateType {
+export interface Animate {
   // 缩放动画 (未实现)
   browsing?: boolean
   // 翻页动画
-  flip?: AnimateFlipType
+  flip?: AnimateFlip
 }
 
 /**
@@ -99,7 +108,7 @@ export interface BaseParams {
   // 图片描述
   txt?: string
   // 图片集合
-  set?: SetType[]
+  set?: Set[]
   // 图片默认页
   defaultPage?: number
 }
@@ -124,7 +133,7 @@ export interface CalleeParams {
  */
 export interface PresetParams {
   // 预设类型
-  preset?: PresetType
+  preset?: Preset
 }
 
 /**
@@ -132,20 +141,20 @@ export interface PresetParams {
  */
 export interface FunctionalParams {
   // 控制器
-  controller?: boolean | ControllerType
+  controller?: boolean | ControllerSet
   // 快捷键
-  hotKey?: boolean | HotKeyType
+  hotKey?: boolean | HotKey
   // 动画
-  animate?: boolean | AnimateType
+  animate?: boolean | Animate
 }
 
 export interface FunctionalNormalizedParams {
   // 控制器
-  controller?: ControllerType
+  controller?: ControllerSet
   // 快捷键
-  hotKey?: HotKeyType
+  hotKey?: HotKey
   // 动画
-  animate?: AnimateType
+  animate?: Animate
 }
 
 /**

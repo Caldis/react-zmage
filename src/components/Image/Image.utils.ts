@@ -8,7 +8,7 @@ import { RefObject } from 'react'
 import { calcFitScale, getInnerHeight, getScrollWidth, numberOfStyleUnits } from '@/utils'
 import { animationTransition } from '@/config/anim'
 import { ContextType } from '@/components/context'
-import { AnimateFlipType } from '@/types/global'
+import { AnimateFlip } from '@/types/global'
 
 export interface ImageStyleType {
   _type: 'cover' | 'browsing' | 'zooming'
@@ -149,7 +149,7 @@ export interface ImageAnimateType {
   opacity: number
 }
 
-export const getAnimateConfig = (type: AnimateFlipType): ImageAnimateType => {
+export const getAnimateConfig = (type: AnimateFlip): ImageAnimateType => {
   let offset = 0, overflow = 0, opacity = 1
   switch (type) {
   case 'fade':
@@ -191,7 +191,7 @@ export enum TOUCH_BEHAVIOR_TYPE {
 }
 
 export interface TouchProfileProps {
-  origin?: CoordinateType
+  origin?: Coordinate
 }
 
 export class TouchProfile {
@@ -199,12 +199,12 @@ export class TouchProfile {
   protected updateCounter: number
   protected begin: {
     time: number
-    origin: CoordinateType
-    offset: CoordinateType
+    origin: Coordinate
+    offset: Coordinate
   }
   protected current: {
-    origin: CoordinateType
-    offset: CoordinateType
+    origin: Coordinate
+    offset: Coordinate
   }
 
   public phase: TOUCH_BEHAVIOR_PHASE

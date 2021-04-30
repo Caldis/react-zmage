@@ -11,7 +11,7 @@ import style from './Image.less'
 // Components
 import Loading from './loading'
 // Utils
-import { AnimateType } from '@/types/global'
+import { Animate } from '@/types/global'
 import { BrowsingParams, Context, ContextType } from '../context'
 import {
   appendParams,
@@ -72,7 +72,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     // 样式
     currentStyle: getCoverStyle(this.context),
     // 动画
-    animateConfig: getAnimateConfig(((this.context.animate || {}) as AnimateType).flip),
+    animateConfig: getAnimateConfig(((this.context.animate || {}) as Animate).flip),
     // 触控
     touchProfile: new TouchProfile(),
     // 时间戳 Flag
@@ -256,7 +256,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { currentStyle } = this.state
     this.setState({
       currentStyle: nextStyle._behavior === 'merge' ? { ...currentStyle, ...nextStyle } : nextStyle,
-      animateConfig: getAnimateConfig(((animate || {}) as AnimateType).flip),
+      animateConfig: getAnimateConfig(((animate || {}) as Animate).flip),
     })
   }
   setTouchProfile = (nextProfile: TouchProfile) => {

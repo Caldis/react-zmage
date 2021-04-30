@@ -190,9 +190,9 @@ export class GlobalClickMonitor {
 
   public currentPosition = GlobalClickMonitor.CENTER_POSITION
   private readonly debounceInterval = 200
-  private static readonly CENTER_POSITION: CoordinateType = { x: 0, y: 0 }
+  private static readonly CENTER_POSITION: Coordinate = { x: 0, y: 0 }
 
-  constructor ({ position }: { position: CoordinateType } = { position: GlobalClickMonitor.CENTER_POSITION }) {
+  constructor ({ position }: { position: Coordinate } = { position: GlobalClickMonitor.CENTER_POSITION }) {
     // 返回已有
     if (window.__ZMAGE_GLOBAL_CLICK_MONITOR__) {
       return window.__ZMAGE_GLOBAL_CLICK_MONITOR__

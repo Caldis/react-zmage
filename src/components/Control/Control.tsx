@@ -20,8 +20,21 @@ import {
 } from '@/asserts/icons'
 // Utils
 import { Context } from '../context'
+import { ControllerItem, ControllerSet } from '@/types/global'
 import { downloadFromLink } from '@/utils'
-import { ControllerType } from '@/types/global'
+
+function getControllerItem (item: ControllerItem, Icon: any, id: string, className: string, onClick: any, show: boolean, zoom: boolean, child?: any) {
+  if (typeof item === 'boolean' || typeof item === 'string') {
+    // Flag or Color
+    return !!item && (
+      <div id={id} className={className} onClick={onClick}>
+        {child || <Icon color={typeof item === 'string' ? item : ''}/>}
+      </div>
+    )
+  } else if (React.isValidElement(item)) {
+    return React.cloneElement(item, { show, zoom, onClick })
+  }
+}
 
 export default function Control () {
 
@@ -45,7 +58,7 @@ export default function Control () {
     toggleRotate,
   } = useContext(Context)
 
-  const controllerParams = (controller || {}) as ControllerType
+  const controllerParams = (controller || {}) as ControllerSet
 
   return (
     <Fragment>
@@ -59,111 +72,121 @@ export default function Control () {
 
         {/*旋转*/}
         {
-          controllerParams.rotate &&
-          <div
-            id="zmageControlRotateLeft"
-            className={classnames(style.rotateLeft, { [style.show]: !zoom && show })}
-            onClick={toggleRotate('left')}
-          >
-            <IconRotateLeft/>
-          </div>
+          getControllerItem(
+            (controllerParams.rotateLeft || controllerParams.rotate),
+            IconRotateLeft,
+            'zmageControlRotateLeft',
+            classnames(style.rotateLeft, { [style.show]: !zoom && show }),
+            toggleRotate('left'),
+            show,
+            zoom
+          )
         }
         {
-          controllerParams.rotate &&
-          <div
-            id="zmageControlRotateRight"
-            className={classnames(style.rotateRight, { [style.show]: !zoom && show })}
-            onClick={toggleRotate('right')}
-          >
-            <IconRotateRight/>
-          </div>
+          getControllerItem(
+            (controllerParams.rotateRight || controllerParams.rotate),
+            IconRotateRight,
+            'zmageControlRotateRight',
+            classnames(style.rotateRight, { [style.show]: !zoom && show }),
+            toggleRotate('right'),
+            show,
+            zoom
+          )
         }
 
         {/*下载*/}
         {
-          controllerParams.download &&
-          <div
-            id="zmageControlDownload"
-            className={classnames(style.download, { [style.show]: !zoom && show })}
-            onClick={() => downloadFromLink(set[page].src)}
-          >
-            <IconDownload/>
-          </div>
+          getControllerItem(
+            controllerParams.download,
+            IconDownload,
+            'zmageControlDownload',
+            classnames(style.download, { [style.show]: !zoom && show }),
+            () => downloadFromLink(set[page].src),
+            show,
+            zoom
+          )
         }
 
         {/*放大*/}
         {
-          controllerParams.zoom &&
-          <div
-            id="zmageControlZoom"
-            className={classnames(style.zoom, { [style.show]: !zoom && show })}
-            onClick={presetIsMobile ? () => window.open(set[page].src) : toggleZoom}
-          >
-            <IconZoom/>
-          </div>
+          getControllerItem(
+            controllerParams.zoom,
+            IconZoom,
+            'zmageControlZoom',
+            classnames(style.zoom, { [style.show]: !zoom && show }),
+            presetIsMobile ? () => window.open(set[page].src) : toggleZoom,
+            show,
+            zoom
+          )
         }
 
         {/*关闭*/}
         {
-          controllerParams.close &&
-          <div
-            id="zmageControlClose"
-            className={classnames(style.close, { [style.show]: !zoom && show })}
-            onClick={zoom ? toggleZoom : outBrowsing}
-          >
-            <IconClose/>
-          </div>
+          getControllerItem(
+            controllerParams.close,
+            IconClose,
+            'zmageControlClose',
+            classnames(style.close, { [style.show]: !zoom && show }),
+            zoom ? toggleZoom : outBrowsing,
+            show,
+            zoom
+          )
         }
 
       </div>
 
       {/*翻页控制*/}
       {
-        Array.isArray(set) && set.length > 1 && controllerParams.flip &&
+        Array.isArray(set) && set.length > 1 &&
         <Fragment>
           {
             (loop || page !== 0) &&
-            <div
-              id="zmageControlFlipLeft"
-              className={classnames(style.flipLeft, { [style.show]: !zoom && show })}
-              style={{ backgroundColor: backdrop }}
-              onClick={toPrevPage}
-            >
-              <IconArrowLeft/>
-            </div>
+            getControllerItem(
+              (controllerParams.flipLeft || controllerParams.flip),
+              IconArrowLeft,
+              'zmageControlFlipLeft',
+              classnames(style.flipLeft, { [style.show]: !zoom && show }),
+              toPrevPage,
+              show,
+              zoom
+            )
           }
           {
             (loop || page !== set.length - 1) &&
-            <div
-              id="zmageControlFlipRight"
-              className={classnames(style.flipRight, { [style.show]: !zoom && show })}
-              style={{ backgroundColor: backdrop }}
-              onClick={toNextPage}
-            >
-              <IconArrowRight/>
-            </div>
+            getControllerItem(
+              (controllerParams.flipRight || controllerParams.flip),
+              IconArrowRight,
+              'zmageControlFlipRight',
+              classnames(style.flipRight, { [style.show]: !zoom && show }),
+              toNextPage,
+              show,
+              zoom
+            )
           }
         </Fragment>
       }
 
       {/*页数指示*/}
       {
-        Array.isArray(set) && set.length > 1 && controllerParams.pagination &&
-        <div
-          id="zmageControlPagination"
-          className={classnames(style.pages, { [style.show]: !zoom && show, [style.mobile]: presetIsMobile })}
-          style={{ backgroundColor: backdrop }}
-        >
-          {
-            set.map((_, i) =>
-              i === page ?
-                <span key={i} id="zmageControlPaginationActive" className={style.blackDot}/> :
-                <span key={i} className={style.whiteDot} onClick={() => toPage(i)}/>
-            )
-          }
-        </div>
+        (Array.isArray(set) && set.length > 1) &&
+        (React.isValidElement(controllerParams.pagination)
+          ? React.cloneElement<any>(controllerParams.pagination, { show, zoom, onClick: toPage })
+          : !!controllerParams.pagination && (
+            <div
+              id="zmageControlPagination"
+              className={classnames(style.pages, { [style.show]: !zoom && show, [style.mobile]: presetIsMobile })}
+              style={{ backgroundColor: backdrop }}
+            >
+              {
+                set.map((_, i) =>
+                  i === page ?
+                    <span key={i} id="zmageControlPaginationActive" className={style.blackDot}/> :
+                    <span key={i} className={style.whiteDot} onClick={() => toPage(i)}/>
+                )
+              }
+            </div>
+          ))
       }
-
     </Fragment>
   )
 }

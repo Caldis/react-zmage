@@ -2,11 +2,12 @@
 // Project: https://github.com/caldis/react-zmage
 
 import * as React from 'react'
+import { ReactNode } from 'react'
 
 /**
  * @see https://github.com/Caldis/react-zmage#基础配置
  */
-export interface IReactZmageProps {
+export interface ReactZmageProps {
 
   /**
    * 基础
@@ -16,24 +17,24 @@ export interface IReactZmageProps {
   // 图片标题
   alt?: string
   // 图片集合
-  set?: IStaticSetParams[]
+  set?: Set[]
   // 图片默认页
   defaultPage?: number
 
   /**
    * 預設
    **/
-  preset?: TStaticPresetParams
+  preset?: Preset
 
   /**
    * 功能
    **/
   // 控制器
-  controller?: IStaticControllerParams
+  controller?: Controller
   // 快捷键
-  hotKey?: IStaticHotKeyParams
+  hotKey?: HotKey
   // 动画
-  animate?: IStaticAnimateParams
+  animate?: Animate
 
   /**
    * 界面与交互
@@ -68,11 +69,11 @@ export interface IReactZmageProps {
 /**
  * @see https://github.com/Caldis/react-zmage#set
  */
-export interface IStaticSetParams {
-  // 图片地址
-  src: string
-  // 图片标题
-  alt: string
+export interface Set {
+  // 基础属性
+  src: string,
+  alt?: string,
+  text?: string,
   // 类及样式
   className?: string
   style?: CSSStyleDeclaration
@@ -81,74 +82,68 @@ export interface IStaticSetParams {
 /**
  * @see https://github.com/Caldis/react-zmage#hotkey
  */
-export interface IStaticHotKeyParams {
-  // 分页
-  pagination?: boolean
-  // 旋转
-  rotate?: boolean
-  // 缩放
-  zoom?: boolean
-  // 下载
-  download?: boolean
-  // 关闭
+export interface HotKey {
+  // 关闭（ESC）
   close?: boolean
-  // 左右
+  // 缩放（空格）
+  zoom?: boolean
+  // 翻页（左右键）
   flip?: boolean
 }
 
 /**
  * @see https://github.com/Caldis/react-zmage#animate
  */
-export interface IStaticAnimateParams {
+export interface Animate {
   flip:
-  // 渐变
-    'fade' |
-    // 交叉渐变
-    'crossFade' |
-    // 翻动
-    'swipe' |
-    // 缩放
-    'zoom'
+    | 'fade'      // 渐变 (set小於3時强制使用)
+    | 'crossFade' // 交叉渐变
+    | 'swipe'     // 翻页
+    | 'zoom'      // 缩放
 }
+
+export type ControllerItem = boolean | string | ReactNode
 
 /**
  * @see https://github.com/Caldis/react-zmage#controller
  */
-export interface IStaticControllerParams {
-  // 关闭
-  close?: boolean
-  // 缩放
-  zoom?: boolean
-  // 下载
-  download?: boolean
-  // 旋转
-  rotate?: boolean
-  // 翻页
-  flip?: boolean
+export interface Controller {
   // 分页
-  pagination?: boolean
+  pagination?: Omit<ControllerItem, string>
+  // 旋转
+  rotate?: ControllerItem
+  rotateLeft?: ControllerItem
+  rotateRight?: ControllerItem
+  // 缩放
+  zoom?: ControllerItem
+  // 下载
+  download?: ControllerItem
+  // 关闭
+  close?: ControllerItem
+  // 左右
+  flip?: ControllerItem
+  flipLeft?: ControllerItem
+  flipRight?: ControllerItem
 }
 
 /**
  * @see https://github.com/Caldis/react-zmage#高级配置
  */
-export type TStaticPresetParams =
-// 桌面端
-  'desktop' |
-  // 移动端
-  'mobile'
+export type Preset =
+  | 'desktop' // 桌面端
+  | 'mobile' // 移动端
 
 /**
  * WRAPPER
  */
-export class ReactZmageWrapper extends React.Component<IReactZmageProps> {}
+export class ReactZmageWrapper extends React.Component<ReactZmageProps> {}
 
 /**
  * DEFAULT
  */
-export default class ReactZmage extends React.Component<IReactZmageProps> {
+export default class ReactZmage extends React.Component<ReactZmageProps> {
   // 命令式调用组件
-  static browsing (props: IReactZmageProps): void
+  static browsing (props: ReactZmageProps): void
 
   // HTML内容转换容器
   static wrapper: ReactZmageWrapper

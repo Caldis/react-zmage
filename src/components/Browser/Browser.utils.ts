@@ -2,18 +2,18 @@
 import { RefObject } from 'react'
 // Utils
 import { isInteger } from '@/utils'
-import { SetType } from '@/types/global'
+import { Set } from '@/types/global'
 
 /* 计算默认页面 */
-export const pageDefault = (defaultPage: number, set: SetType[]) => {
+export const pageDefault = (defaultPage: number, set: Set[]) => {
   return isInteger(defaultPage) && defaultPage < set.length - 1 ? defaultPage : set.length - 1
 }
 /* 检测当前页面是否为封面 */
-export const pageIsCover = (coverRef: RefObject<HTMLImageElement>, set: SetType[], page: number) => {
+export const pageIsCover = (coverRef: RefObject<HTMLImageElement>, set: Set[], page: number) => {
   return page === 0 || coverRef?.current?.getAttribute('src') === set[page].src
 }
 /* 获取页面数据 */
-export const pageSet = (coverRef: RefObject<HTMLImageElement>, defaultPage: number, set: SetType[]) => {
+export const pageSet = (coverRef: RefObject<HTMLImageElement>, defaultPage: number, set: Set[]) => {
   const page = pageDefault(defaultPage, set)
   return {
     page,

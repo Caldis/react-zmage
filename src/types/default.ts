@@ -3,7 +3,7 @@
  **/
 
 // Libs
-import { AnimateFlipType, BaseType, PresetType, SetType } from '@/types/global'
+import { AnimateFlip, BaseType, Preset, Set } from '@/types/global'
 
 /**
  * 默认值
@@ -20,7 +20,7 @@ export const defProp = {
   // 图片描述
   txt: '',
   // 图片集合
-  set: [] as SetType[],
+  set: [] as Set[],
   // 图片默认页
   defaultPage: 0,
 
@@ -88,7 +88,7 @@ export const defPreset = {
     },
     animate: {
       browsing: true,
-      flip: 'fade' as AnimateFlipType,
+      flip: 'fade' as AnimateFlip,
     },
   },
   // 移动端
@@ -108,7 +108,7 @@ export const defPreset = {
     },
     animate: {
       browsing: true,
-      flip: 'swipe' as AnimateFlipType,
+      flip: 'swipe' as AnimateFlip,
     },
   }
 }
@@ -125,7 +125,7 @@ const DEF_PROP_MOBILE = {
   ...defProp,
   ...defPreset.mobile,
 }
-export const defPropsWithEnv = (preset: PresetType) => {
+export const defPropsWithEnv = (preset: Preset) => {
   switch (preset) {
   case 'desktop':
     return DEF_PROP_DESKTOP

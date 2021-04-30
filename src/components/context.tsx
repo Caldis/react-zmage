@@ -2,7 +2,7 @@
 
 // Libs
 import React, { createContext, RefObject } from 'react'
-import { FunctionalNormalizedParams, InterfaceAndInteractionParams, PresetType, SetType, } from '@/types/global'
+import { FunctionalNormalizedParams, InterfaceAndInteractionParams, Preset, Set, } from '@/types/global'
 import { State as BrowsingParams } from './Browser/Browser'
 
 export { BrowsingParams }
@@ -10,12 +10,12 @@ export { BrowsingParams }
 export interface ContextType extends BrowsingParams, FunctionalNormalizedParams, InterfaceAndInteractionParams {
   // Internal
   coverRef: RefObject<HTMLImageElement>
-  coverPos: CoordinateType
+  coverPos: Coordinate
   outBrowsing: () => void
   // Data
-  set: SetType[]
+  set: Set[]
   // Preset
-  preset: PresetType
+  preset: Preset
   presetIsMobile: boolean
   presetIsDesktop: boolean
   // Action
