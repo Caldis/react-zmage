@@ -57,14 +57,12 @@ export const unlockTouchInteraction = () => {
  * @param {function} [callback] - 回调函数
  */
 export const checkImageLoadedComplete = (targetImageElement: HTMLImageElement, callback: () => unknown) => {
-  let timer: ReturnType<typeof setInterval>
-  const checker = () => {
+  const timer = setInterval(() => {
     if (!targetImageElement || targetImageElement.complete) {
       clearInterval(timer)
       callback()
     }
-  }
-  timer = setInterval(checker, 500)
+  }, 500)
   return timer
 }
 
@@ -176,7 +174,8 @@ export const mirrorRange = (edge: 0 | 1 | 2 | 3) => RANGE[edge]
 export const debounce = (func: () => unknown, delay: number) => {
   let timer: ReturnType<typeof setTimeout>
   return (...args: any[]) => {
-    let context = this
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const context = this
     clearTimeout(timer)
     timer = setTimeout(() => {
       func.apply(context, args)
@@ -189,11 +188,9 @@ export const debounce = (func: () => unknown, delay: number) => {
  */
 export class GlobalClickMonitor {
 
-  private static readonly CENTER_POSITION: CoordinateType = { x: 0, y: 0 }
-
   public currentPosition = GlobalClickMonitor.CENTER_POSITION
   private readonly debounceInterval = 200
-  private readonly debounceResetPosition = debounce(() => this.currentPosition = GlobalClickMonitor.CENTER_POSITION, this.debounceInterval)
+  private static readonly CENTER_POSITION: CoordinateType = { x: 0, y: 0 }
 
   constructor ({ position }: { position: CoordinateType } = { position: GlobalClickMonitor.CENTER_POSITION }) {
     // 返回已有
@@ -218,13 +215,15 @@ export class GlobalClickMonitor {
     }
   }
 
+  // 重置
+  private debounceResetPosition = debounce(() => {
+    this.currentPosition = GlobalClickMonitor.CENTER_POSITION
+  }, this.debounceInterval)
   // 更新数据
   private update = (e: MouseEvent) => {
-    console.log('e')
     // 更新点击坐标
     this.currentPosition = { x: e.clientX, y: e.clientY }
-    console.log(this.currentPosition)
-    // 如果 200ms 内发生没有发生过点击事件，则重置点击位置，以兼容非点击方式调用
+    // 如果 Interval 内发生没有发生过点击事件，则重置点击位置，以兼容非点击方式调用
     this.debounceResetPosition()
   }
 

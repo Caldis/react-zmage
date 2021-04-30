@@ -28,13 +28,27 @@ class ReactZmageCallee extends React.Component<Props, State> {
   showPosition = CLICK_MONITOR.currentPosition
   // State
   readonly state = {
-    browsing: true,
+    browsing: false,
   }
 
+  componentDidMount () {
+    this.inBrowsing()
+  }
+
+  inBrowsing = () => {
+    requestAnimationFrame(() => {
+      this.setState({
+        browsing: true
+      })
+    })
+  }
   outBrowsing = () => {
     const { destructor } = this.props
-    this.setState({ browsing: false })
-    destructor && setTimeout(destructor, animationDuration)
+    this.setState({
+      browsing: false
+    }, () => {
+      setTimeout(destructor, animationDuration)
+    })
   }
 
   render () {
@@ -42,15 +56,15 @@ class ReactZmageCallee extends React.Component<Props, State> {
 
     const { browsing } = this.state
 
-    const coverTarget = calleeProps.coverRef
-      ? { coverRef: calleeProps.coverRef } // 如果有封面引用, 则取其坐标
-      : {
-        coverPos: browsing
-          ? CLICK_MONITOR.currentPosition
-          : this.showPosition,
-      } // 否则根据鼠标点击坐标记录
+    if (browsing) {
+      this.showPosition = CLICK_MONITOR.currentPosition
+    }
 
-    console.log('coverTarget', CLICK_MONITOR, CLICK_MONITOR.currentPosition)
+    const coverTarget = calleeProps.coverRef
+      // 如果有封面引用, 则取其坐标
+      ? { coverRef: calleeProps.coverRef }
+      // 否则根据鼠标点击坐标记录
+      : { coverPos: this.showPosition }
 
     return (
       <Browser
@@ -74,18 +88,19 @@ const RENDER = {
 }
 // 调用函数
 const callee = ({ coverRef, ...props }: BaseType) => {
-  console.log('coverRef', coverRef)
   // Init env
   RENDER.PORTAL = document.createElement('div')
   RENDER.PORTAL.id = 'zmagePortal'
   RENDER.CONTAINER = document.body
   RENDER.CONTAINER.appendChild(RENDER.PORTAL)
+  // Destructor
+  const destructor = () => RENDER.CONTAINER.removeChild(RENDER.PORTAL)
   // Mount target
   ReactDOM.render(
     <ReactZmageCallee
       ref={RENDER.REF}
       coverRef={coverRef}
-      destructor={() => RENDER.CONTAINER.removeChild(RENDER.PORTAL)}
+      destructor={destructor}
       {...props}
     />,
     RENDER.PORTAL
