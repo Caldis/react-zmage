@@ -23,7 +23,7 @@ import { Context } from '../context'
 import { ControllerItem, ControllerSet } from '@/types/global'
 import { downloadFromLink } from '@/utils'
 
-function getControllerItem (item: ControllerItem, Icon: any, id: string, className: string, onClick: any, show: boolean, zoom: boolean, child?: any) {
+function getControllerItem (item: ControllerItem, Icon: any, id: string, className: string, onClick: any, show: boolean, zoom: boolean, child?: JSX.Element) {
   if (typeof item === 'boolean' || typeof item === 'string') {
     // Flag or Color
     return !!item && (
@@ -34,6 +34,7 @@ function getControllerItem (item: ControllerItem, Icon: any, id: string, classNa
   } else if (React.isValidElement(item)) {
     return React.cloneElement(item, { show, zoom, onClick })
   }
+  return null
 }
 
 export default function Control () {

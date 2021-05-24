@@ -56,7 +56,7 @@ export const unlockTouchInteraction = () => {
  * @param {HTMLImageElement} targetImageElement - 目标图片元素
  * @param {function} [callback] - 回调函数
  */
-export const checkImageLoadedComplete = (targetImageElement: HTMLImageElement, callback: () => unknown) => {
+export const checkImageLoadedComplete = (targetImageElement: HTMLImageElement | null, callback: () => unknown) => {
   const timer = setInterval(() => {
     if (!targetImageElement || targetImageElement.complete) {
       clearInterval(timer)
@@ -72,7 +72,7 @@ export const checkImageLoadedComplete = (targetImageElement: HTMLImageElement, c
  * @param [params] - 要附加的参数列表
  */
 export const appendParams = (url: string, params: { [param: string]: string | number } = {}) => {
-  const paramString = Object.keys(params).reduce((acc, cur) => params[cur] ? acc.concat(`${cur}=${params[cur]}`) : acc, []).join('&')
+  const paramString = Object.keys(params).reduce((acc, cur = '') => params[cur] ? acc.concat(`${cur}=${params[cur]}`) : acc, [] as string[]).join('&')
   return paramString ? `${url}${url.includes('?') ? '&' : '?'}${paramString}` : url
 }
 
@@ -132,7 +132,7 @@ export const withVendorPrefix = (style: { [styleName: string]: string }) => {
  * 是否数字
  * @param num - 数字
  */
-export const isInteger = (num: number) => (num ^ 0) === num
+export const isInteger = (num: number | undefined | null) => (typeof num === 'number') && (num ^ 0) === num
 
 /**
  * 获取目标页码
@@ -173,7 +173,7 @@ export const mirrorRange = (edge: 0 | 1 | 2 | 3) => RANGE[edge]
  */
 export const debounce = (func: () => unknown, delay: number) => {
   let timer: ReturnType<typeof setTimeout>
-  return (...args: any[]) => {
+  return (...args: never[]) => {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const context = this
     clearTimeout(timer)

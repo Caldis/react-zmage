@@ -36,9 +36,9 @@ class ReactZmage extends React.Component<PropsType, StateType> {
   public static Wrapper = wrapper // Alias wrapper
 
   // Refs
-  coverRef: { current: HTMLImageElement } = { current: undefined }
+  coverRef: { current: HTMLImageElement | null } = { current: null }
   // Flags
-  isBrowsingControlled = this.props.hasOwnProperty('browsing')
+  isBrowsingControlled = ('browsing' in this.props)
   // State
   readonly state = {
     // 浏览
@@ -48,14 +48,14 @@ class ReactZmage extends React.Component<PropsType, StateType> {
   /* 切换查看状态 */
   inBrowsing = () => {
     if (this.isBrowsingControlled) {
-      this.props.onBrowsing(true)
+      this.props.onBrowsing?.(true)
     } else {
       this.setState({ browsing: true })
     }
   }
   outBrowsing = () => {
     if (this.isBrowsingControlled) {
-      this.props.onBrowsing(false)
+      this.props.onBrowsing?.(false)
     } else {
       this.setState({ browsing: false })
     }
@@ -80,8 +80,14 @@ class ReactZmage extends React.Component<PropsType, StateType> {
             typeof coverProps.onClick === 'function' && coverProps.onClick(e)
           }}
           ref={(ref) => {
-            coverProps.forwardedRef && (coverProps.forwardedRef.current = ref)
-            this.coverRef && (this.coverRef.current = ref)
+            if (typeof coverProps.forwardedRef === 'function') {
+              coverProps.forwardedRef(ref)
+            } else if (coverProps.forwardedRef && typeof coverProps.forwardedRef === 'object') {
+              coverProps.forwardedRef.current = ref
+            }
+            if (this.coverRef) {
+              this.coverRef.current = ref
+            }
           }}
           {...restProps}
         />
@@ -111,7 +117,7 @@ export interface ForwardedComponent extends React.ForwardRefExoticComponent<Base
   Wrapper: typeof wrapper
 }
 
-const forwardedReactZmage = React.forwardRef<HTMLImageElement, BaseType>(
+const forwardedReactZmage = React.forwardRef<HTMLImageElement | null, BaseType>(
   (props, ref) =>
     <ReactZmage {...props} forwardedRef={ref}/>
 ) as ForwardedComponent

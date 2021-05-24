@@ -72,7 +72,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     // 样式
     currentStyle: getCoverStyle(this.context),
     // 动画
-    animateConfig: getAnimateConfig(((this.context.animate || {}) as Animate).flip),
+    animateConfig: getAnimateConfig(this.context.animate?.flip),
     // 触控
     touchProfile: new TouchProfile(),
     // 时间戳 Flag
@@ -282,23 +282,24 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { invalidate, currentStyle, touchProfile, animateConfig } = this.state
     let transform, zIndex, pointerEvents
     // 获取动画配置
+    // eslint-disable-next-line prefer-const
     let { offset, overflow, opacity } = animateConfig
     // 获取触摸配置
     const { touch, transition } = touchProfile.getTouchConfig({ enableSwiping: set.length > 1, enableLiving: true })
     // 计算样式
     if (isSideImage) {
       // 仅对左右两张图做滑动跟踪
-      const x = distance === 1 ? currentStyle.x + touch.x + offset * step : currentStyle.x + offset * step
+      const x = distance === 1 ? (currentStyle.x || 0) + touch.x + offset * step : (currentStyle.x || 0) + offset * step
       const y = currentStyle.y
-      transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${currentStyle.scale + overflow}, ${currentStyle.scale + overflow}, 1) rotate3d(0, 0, 1, 0deg)`
+      transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${(currentStyle.scale || 0) + overflow}, ${(currentStyle.scale || 0) + overflow}, 1) rotate3d(0, 0, 1, 0deg)`
       zIndex = 10 * distance
       pointerEvents = 'none'
     } else {
-      const x = currentStyle.x + touch.x
+      const x = (currentStyle.x || 0) + touch.x
       const y = currentStyle.y + touch.y
       transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
       zIndex = 10
-      opacity = currentStyle.opacity
+      opacity = currentStyle.opacity || 1
       // clipPath = currentStyle.radius ? `inset(0% 0% 0% 0% round ${currentStyle.radius/currentStyle.scale}px)` : `inset(0% 0% 0% 0% round 0)`
     }
     return {
@@ -316,22 +317,23 @@ export default class Image extends React.Component<PropsType, StateType> {
    * 圖片構建
    **/
   buildImageSeries = (edge: 0 | 1 | 2 | 3) => {
-    const { loop, set, page } = this.context
+    const { loop = false, set, page } = this.context
     if (set.length > 1) {
       const rangeList = mirrorRange(edge)
       return rangeList.reduce((acc, step) => {
         // 計算索引
         const imageIndex = getTargetPage(page, set.length, step, { loop })
         if (isInteger(imageIndex)) {
-          acc.push(this.buildImage({ step, imageIndex }))
+          const ele = this.buildImage({ step, imageIndex })
+          ele && acc.push(ele)
         }
         return acc
-      }, [])
+      }, [] as JSX.Element[])
     } else {
       return this.buildImage({ step: 0, imageIndex: page })
     }
   }
-  buildImage = ({ step, imageIndex } = { step: 0, imageIndex: 0 }) => {
+  buildImage = ({ step = 0, imageIndex = 0 }: { step?: number, imageIndex?: number } = {}) => {
     const { set, show, zoom, page, pageWithStep } = this.context
     const { invalidate } = this.state
     // 是否邊圖

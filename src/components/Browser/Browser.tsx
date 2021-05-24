@@ -233,7 +233,7 @@ export default class Browser extends React.Component<Props, State> {
     this.handleSwitchPages(targetPage - page)()
   }
   handleSwitchPages = (step: number) => {
-    const { coverRef, onSwitching, loop } = this.props
+    const { coverRef, onSwitching, loop = false } = this.props
     return () => {
       const { set } = this.props
       if (set.length > 1) {

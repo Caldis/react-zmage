@@ -6,6 +6,10 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 // 基础配置集
 module.exports = ({ extractStyle = false } = {}) => ({
 
+  plugins: [new MiniCssExtractPlugin({
+    filename: 'zmage.css',
+  })],
+
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
     alias: {
@@ -89,7 +93,7 @@ module.exports = ({ extractStyle = false } = {}) => ({
 function styleProcessor (type = 'css', { extractStyle = false } = {}) {
   // 各类型 Style 的 Loader 配置项
   let styleLoader = {
-    loader: 'style-loader'
+    loader: 'style-loader',
   }
   if (extractStyle) {
     styleLoader = MiniCssExtractPlugin.loader
@@ -109,7 +113,7 @@ function styleProcessor (type = 'css', { extractStyle = false } = {}) {
     loader: 'postcss-loader',
     options: {
       postcssOptions: {
-        plugins: ["autoprefixer"],
+        plugins: ['autoprefixer'],
       },
     },
   }

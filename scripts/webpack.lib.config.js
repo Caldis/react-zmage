@@ -5,11 +5,14 @@ const { merge } = require('webpack-merge')
 // Configs
 const baseConfig = require('./webpack.base.config.js')
 
-module.exports = (options) => merge(baseConfig(options), {
+module.exports = () => merge(baseConfig({ extractStyle: true }), {
 
   entry: './src/index',
 
+  mode: 'production',
+
   output: {
+    filename: 'zmage.js',
     path: path.resolve(__dirname, '../lib'),
     library: 'react-zmage',
     libraryTarget: 'umd',
@@ -17,7 +20,7 @@ module.exports = (options) => merge(baseConfig(options), {
   },
 
   externals: {
-    react: {
+    'react': {
       commonjs: 'react',
       commonjs2: 'react',
       amd: 'React',

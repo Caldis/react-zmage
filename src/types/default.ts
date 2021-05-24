@@ -125,7 +125,7 @@ const DEF_PROP_MOBILE = {
   ...defProp,
   ...defPreset.mobile,
 }
-export const defPropsWithEnv = (preset: Preset) => {
+export const defPropsWithEnv = (preset?: Preset) => {
   switch (preset) {
   case 'desktop':
     return DEF_PROP_DESKTOP

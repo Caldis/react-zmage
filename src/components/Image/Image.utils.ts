@@ -36,7 +36,7 @@ export const getCurrentImageStyle = (context: ContextType, imageRef: RefObject<H
 }
 
 /* 获取封面样式 */
-export const getCoverStyle = (context: ContextType, imageRef?: RefObject<HTMLImageElement>, touchProfile?: TouchProfile): ImageStyleType => {
+export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLImageElement>, touchProfile?: TouchProfile): ImageStyleType => {
   const { coverRef, coverPos, rotate, pageIsCover } = context
   if (touchProfile && touchProfile.phase === TOUCH_BEHAVIOR_PHASE.END) {
     const offset = touchProfile.getCurrentOffset()
@@ -98,7 +98,7 @@ export const getCoverStyle = (context: ContextType, imageRef?: RefObject<HTMLIma
 /* 获取浏览样式 */
 export const getBrowsingStyle = (context: ContextType, imageRef: RefObject<HTMLImageElement>): ImageStyleType => {
   const { radius, edge, rotate } = context
-  const { naturalWidth, naturalHeight } = imageRef.current
+  const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
   const scale = calcFitScale(naturalWidth, naturalHeight, edge)
   return {
     _type: 'browsing',
@@ -117,7 +117,7 @@ export const getZoomingStyle = (context: ContextType, imageRef: RefObject<HTMLIm
   clientY: mouseY = getInnerHeight() / 2
 } = {}): ImageStyleType => {
   const { radius, edge, rotate } = context
-  const { naturalWidth, naturalHeight } = imageRef.current
+  const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
   // 随鼠标位移偏移量
   const saveEdge = edge || 50
   const viewWidth = getScrollWidth()
@@ -149,7 +149,7 @@ export interface ImageAnimateType {
   opacity: number
 }
 
-export const getAnimateConfig = (type: AnimateFlip): ImageAnimateType => {
+export const getAnimateConfig = (type?: AnimateFlip): ImageAnimateType => {
   let offset = 0, overflow = 0, opacity = 1
   switch (type) {
   case 'fade':
@@ -266,7 +266,7 @@ export class TouchProfile {
     // 更新阶段属性
     this.phase = TOUCH_BEHAVIOR_PHASE.MOVING
     // 更新坐标属性
-    this.current.origin = props.origin
+    this.current.origin = props.origin || { x: 0, y: 0 }
     // 初次更新行为属性
     if (this.behavior !== TOUCH_BEHAVIOR_TYPE.IDLE) {
       const distance = this.getCurrentDistance()

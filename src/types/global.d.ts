@@ -1,4 +1,4 @@
-import { HTMLAttributes, ReactNode, RefObject } from 'react'
+import { ForwardedRef, HTMLAttributes, ReactNode, RefObject } from 'react'
 import { GlobalClickMonitor } from '@/utils'
 
 /**
@@ -8,7 +8,7 @@ declare global {
 
   // 特殊全局属性
   interface Window {
-    __ZMAGE_GLOBAL_CLICK_MONITOR__: GlobalClickMonitor
+    __ZMAGE_GLOBAL_CLICK_MONITOR__?: GlobalClickMonitor
   }
 
   // 坐标
@@ -117,7 +117,7 @@ export interface BaseParams {
  * Internal
  */
 export interface InternalParams {
-  forwardedRef?: MutableRefObject<HTMLImageElement>
+  forwardedRef?: ForwardedRef<HTMLImageElement | null>
 }
 
 /**
@@ -125,7 +125,7 @@ export interface InternalParams {
  */
 export interface CalleeParams {
   coverRef?: RefObject<HTMLImageElement>
-  destructor?: () => unknown
+  destructor?: TimerHandler
 }
 
 /**
