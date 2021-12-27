@@ -33,10 +33,14 @@ module.exports = merge(baseConfig(), {
 
   devServer: {
     open: true,
-    host: host,
-    port: port,
-    stats: 'errors-only',
-    contentBase: './docs',
+    host,
+    port,
+    devMiddleware: {
+      stats: 'errors-only',
+    },
+    static: {
+      directory: './docs',
+    },
     historyApiFallback: true,
   },
 })

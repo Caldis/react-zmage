@@ -21,8 +21,8 @@
 ```bash
 git clone https://github.com/Caldis/react-zmage
 cd react-zmage
-npm i
-npm run dev
+yarn
+yarn run dev
 ```
 
 
