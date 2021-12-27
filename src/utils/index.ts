@@ -236,3 +236,53 @@ export class GlobalClickMonitor {
     }
   }
 }
+
+
+/*
+ * Block Scrolling
+ * @see https://stackoverflow.com/questions/4770025/how-to-disable-scrolling-temporarily
+ */
+const SCROLL_RELATED_KEYS = {
+  38: true, // UP
+  40: true, // DOWN
+  33: true, // PAGE_UP
+  34: true, // PAGE_DOWN
+  35: true, // END
+  36: true, // HOME
+}
+function preventDefault(e: Event) {
+  e.preventDefault()
+}
+function preventDefaultForScrollKeys(e: KeyboardEvent) {
+  if (e.keyCode in SCROLL_RELATED_KEYS) {
+    preventDefault(e)
+    return false
+  }
+}
+// modern Chrome requires { passive: false } when adding event
+let supportsPassive = false
+try {
+  window.addEventListener('test', null, Object.defineProperty({}, 'passive', {
+    get: function () {
+      supportsPassive = true
+    }
+  }))
+} catch(e) {
+  // do nothing
+}
+const wheelOpt = supportsPassive ? { passive: false } : false
+const wheelEvent = 'onwheel' in document.createElement('div') ? 'wheel' : 'mousewheel'
+// call this to Disable
+export function disableScroll() {
+  window.addEventListener('DOMMouseScroll', preventDefault, false) // older FF
+  window.addEventListener(wheelEvent, preventDefault, wheelOpt) // modern desktop
+  window.addEventListener('touchmove', preventDefault, wheelOpt) // mobile
+  window.addEventListener('keydown', preventDefaultForScrollKeys, false)
+}
+// call this to Enable
+export function enableScroll() {
+  window.removeEventListener('DOMMouseScroll', preventDefault, false)
+  window.removeEventListener(wheelEvent, preventDefault)
+  window.removeEventListener('touchmove', preventDefault)
+  window.removeEventListener('keydown', preventDefaultForScrollKeys, false)
+}

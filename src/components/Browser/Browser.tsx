@@ -14,7 +14,7 @@ import Image from '../Image'
 import Background from '../Background'
 // Utils
 import { Context, ContextType } from '../context'
-import { getTargetPage, unlockTouchInteraction } from '@/utils'
+import { disableScroll, enableScroll, getTargetPage, unlockTouchInteraction } from '@/utils'
 import { defPropsWithEnv } from '@/types/default'
 import { animationDuration } from '@/config/anim'
 import { hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
@@ -149,9 +149,21 @@ export default class Browser extends React.Component<Props, State> {
       presetIsDesktop
     } = this.getPropsWithEnv()
     const { show, pageIsCover } = this.state
+    // Perform init only in un-show state
     if (!show) {
-      window.addEventListener('keydown', this.handleKeyDown)
-      hideOnScroll && window.addEventListener('scroll', this.handleScroll)
+      // Only desktop should handle the keydown & scroll events
+      if (presetIsDesktop) {
+        window.addEventListener('keydown', this.handleKeyDown)
+        // Handle scroll from hide to prevent
+        if (hideOnScroll) {
+          // Listen to scroll to hide the browser
+          window.addEventListener('scroll', this.handleScroll)
+        } else {
+          // Prevent page scroll
+          disableScroll()
+        }
+      }
+      // Delay showing the browser
       window.requestAnimationFrame(() => {
         this.setState({ show: true, zoom: false, rotate: 0, }, () => {
           presetIsDesktop && pageIsCover && !coverVisible && hideCover(coverRef)
@@ -172,8 +184,17 @@ export default class Browser extends React.Component<Props, State> {
     } = this.getPropsWithEnv()
     const { show, pageIsCover } = this.state
     if (show || force) {
-      window.removeEventListener('keydown', this.handleKeyDown)
-      hideOnScroll && window.removeEventListener('scroll', this.handleScroll)
+      // Remove keydown & scroll events only in desktop
+      if (presetIsDesktop) {
+        window.removeEventListener('keydown', this.handleKeyDown)
+        if (hideOnScroll) {
+          // Remove scroll listener
+          window.removeEventListener('scroll', this.handleScroll)
+        } else {
+          // Re-enable page scroll
+          enableScroll()
+        }
+      }
       !pageIsCover && !coverVisible && showCover(coverRef)
       this.setState({ show: false, zoom: false, rotate: 0 }, () => setTimeout(() => {
         this.setState({ mounted: false }, () => {

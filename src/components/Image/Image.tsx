@@ -80,7 +80,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   } as StateType
 
   componentDidMount () {
-    const { presetIsMobile, presetIsDesktop } = this.context
+    const { presetIsMobile, presetIsDesktop, hideOnScroll } = this.context
     window.addEventListener('resize', this.handleResize)
     if (presetIsMobile) {
       window.requestAnimationFrame(() => {
@@ -89,7 +89,7 @@ export default class Image extends React.Component<PropsType, StateType> {
         window.addEventListener('touchend', this.handleTouchEnd)
       })
     }
-    if (presetIsDesktop) {
+    if (presetIsDesktop && hideOnScroll) {
       window.requestAnimationFrame(() => {
         window.addEventListener('scroll', this.handleScroll)
       })
@@ -348,8 +348,8 @@ export default class Image extends React.Component<PropsType, StateType> {
       [style.invalidate]: invalidate,
     })
     // 組裝屬性
+    const key = `${imageIndexWithStep}-${set[imageIndex].src}`
     const commonProps = {
-      key: `${imageIndexWithStep}-${set[imageIndex].src}`,
       style: imageStyle,
       className: imageClass,
       src: appendParams(set[imageIndex].src, { t: this.handleGetTimestamp(page) }),
@@ -368,7 +368,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       const sideImageShow = show && !zoom
       return sideImageShow && <img {...commonProps}/>
     } else {
-      return <img {...commonProps} {...centerProps}/>
+      return <img key={key} {...commonProps} {...centerProps}/>
     }
   }
 
