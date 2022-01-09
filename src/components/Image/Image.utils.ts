@@ -5,10 +5,10 @@
 // Libs
 import { RefObject } from 'react'
 // Utils
-import { calcFitScale, getInnerHeight, getScrollWidth, numberOfStyleUnits } from '@/utils'
-import { animationTransition } from '@/config/anim'
-import { ContextType } from '@/components/context'
-import { AnimateFlip } from '@/types/global'
+import { calcFitScale, getInnerHeight, getScrollWidth, numberOfStyleUnits } from '../../utils'
+import { animationTransition } from '../../config/anim'
+import { ContextType } from '../context'
+import { AnimateFlip } from '../../types/global'
 
 export interface ImageStyleType {
   _type: 'cover' | 'browsing' | 'zooming'

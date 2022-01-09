@@ -10,8 +10,11 @@
     "zoomable",
     "slidershow"
   ],
-  "main": "lib/index.js",
-  "types": "typings/index.d.ts",
+  "files": [
+    "lib/"
+  ],
+  "main": "lib/zmage.js",
+  "types": "index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/Caldis/react-zmage.git"
@@ -19,8 +22,16 @@
   "author": "caldis",
   "license": "MIT",
   "homepage": "https://zmage.caldis.me",
+  "scripts": {
+    "dev": "webpack serve --config ./scripts/webpack.web.dev.config.js --progress --profile --stats-error-details",
+    "build": "npm run build:lib && npm run build:ssr && npm run build:web",
+    "build:lib": "webpack --config ./scripts/webpack.lib.config.js --progress --profile --stats-error-details",
+    "build:ssr": "BUILD_MODE=SSR webpack --config ./scripts/webpack.lib.config.js --progress --profile --stats-error-details",
+    "build:web": "webpack --config ./scripts/webpack.web.pod.config.js --progress --profile --stats-error-details"
+  },
   "dependencies": {
-    "classnames": "^2.3.1"
+    "classnames": "^2.3.1",
+    "react-use": "^17.3.2"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
@@ -59,11 +70,5 @@
     "webpack-cli": "^4.6.0",
     "webpack-dev-server": "^4.7.1",
     "webpack-merge": "^5.7.3"
-  },
-  "scripts": {
-    "dev": "webpack serve --config ./scripts/webpack.web.dev.config.js --progress --profile",
-    "dist": "npm run dist:web && npm run dist:lib",
-    "dist:lib": "webpack --config ./scripts/webpack.lib.config.js --progress --profile",
-    "dist:web": "webpack --config ./scripts/webpack.web.pod.config.js --progress --profile"
   }
 }

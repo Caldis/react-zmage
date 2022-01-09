@@ -8,7 +8,7 @@ import React, { Fragment, MouseEventHandler } from 'react'
 // Styles
 import style from './Loading.less'
 // Icons
-import { IconLoading, IconRefresh } from '@/asserts/icons'
+import { IconLoading, IconRefresh } from '../../asserts/icons'
 
 type Props = {
   show: boolean

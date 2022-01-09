@@ -7,8 +7,8 @@ import React from 'react'
 // Components
 import callee from './Zmage.callee'
 // Utils
-import { defProp } from '@/types/default'
-import { BaseType } from '@/types/global'
+import { defProp } from './types/default'
+import { BaseType } from './types/global'
 
 type Props = BaseType
 

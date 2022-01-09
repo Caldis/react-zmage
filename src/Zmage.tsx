@@ -10,7 +10,7 @@ import wrapper from './Zmage.wrapper'
 import Browser from './components/Browser'
 // Utils
 import { defProp, getConfigFromProps } from './types/default'
-import { BaseType } from '@/types/global'
+import { BaseType } from './types/global'
 
 // TODO:FEATURE 按钮颜色配置
 // TODO:FEATURE 移动端的拖拽翻页

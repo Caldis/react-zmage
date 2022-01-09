@@ -11,7 +11,7 @@ import style from './Image.less'
 // Components
 import Loading from './loading'
 // Utils
-import { Animate } from '@/types/global'
+import { Animate } from '../../types/global'
 import { BrowsingParams, Context, ContextType } from '../context'
 import {
   appendParams,
@@ -22,7 +22,7 @@ import {
   lockTouchInteraction,
   mirrorRange,
   withVendorPrefix,
-} from '@/utils'
+} from '../../utils'
 import {
   getAnimateConfig,
   getCoverStyle,

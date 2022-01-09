@@ -14,11 +14,11 @@ import Image from '../Image'
 import Background from '../Background'
 // Utils
 import { Context, ContextType } from '../context'
-import { disableScroll, enableScroll, getTargetPage, unlockTouchInteraction } from '@/utils'
-import { defPropsWithEnv } from '@/types/default'
-import { animationDuration } from '@/config/anim'
+import { disableScroll, enableScroll, getTargetPage, unlockTouchInteraction } from '../../utils'
+import { defPropsWithEnv } from '../../types/default'
+import { animationDuration } from '../../config/anim'
 import { hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
-import { FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '@/types/global'
+import { FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
 
 export interface Props extends PresetParams, FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams {
   // Controlled status
@@ -82,7 +82,7 @@ export default class Browser extends React.Component<Props, State> {
       page,
       pageIsCover,
       pageWithStep: page,
-    } as State
+    }
   })()
 
   componentDidMount () {

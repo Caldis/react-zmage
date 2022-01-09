@@ -8,10 +8,10 @@ import ReactDOM from 'react-dom'
 // Components
 import Browser from './components/Browser'
 // Utils
-import { defProp, getConfigFromProps } from '@/types/default'
-import { animationDuration } from '@/config/anim'
-import { BaseType } from '@/types/global'
-import { GlobalClickMonitor } from '@/utils'
+import { defProp, getConfigFromProps } from './types/default'
+import { animationDuration } from './config/anim'
+import { BaseType } from './types/global'
+import { GlobalClickMonitor } from './utils'
 
 const CLICK_MONITOR = new GlobalClickMonitor()
 

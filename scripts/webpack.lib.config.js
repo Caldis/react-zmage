@@ -5,32 +5,50 @@ const { merge } = require('webpack-merge')
 // Configs
 const baseConfig = require('./webpack.base.config.js')
 
-module.exports = () => merge(baseConfig({ extractStyle: true }), {
+// FLAGS
+const BUILD_MODE = process.env.BUILD_MODE || '' // SSR
+const isBuildModeSSR = BUILD_MODE.toLowerCase() === 'ssr'
+const base = isBuildModeSSR
+  ? baseConfig()
+  : baseConfig({ extractStyle: isBuildModeSSR })
+const output = isBuildModeSSR ? {
+  filename: 'index.js',
+  path: path.resolve(__dirname, '../ssr'),
+  library: {
+    name: 'react-zmage',
+    type: 'umd',
+    umdNamedDefine: true,
+  },
+} : {
+  filename: 'index.js',
+  path: path.resolve(__dirname, '../lib'),
+  library: {
+    name: 'react-zmage',
+    type: 'umd',
+    umdNamedDefine: true,
+  },
+}
+
+module.exports = () => merge(base, {
 
   entry: './src/index',
 
   mode: 'production',
 
-  output: {
-    filename: 'zmage.js',
-    path: path.resolve(__dirname, '../lib'),
-    library: 'react-zmage',
-    libraryTarget: 'umd',
-    umdNamedDefine: true,
-  },
+  output,
 
   externals: {
     'react': {
+      root: 'React',
       commonjs: 'react',
       commonjs2: 'react',
       amd: 'React',
-      root: 'React',
     },
     'react-dom': {
+      root: 'ReactDOM',
       commonjs: 'react-dom',
       commonjs2: 'react-dom',
       amd: 'ReactDOM',
-      root: 'ReactDOM',
     },
   },
 })

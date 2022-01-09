@@ -1,8 +1,8 @@
 // Libs
 import { RefObject } from 'react'
 // Utils
-import { isInteger } from '@/utils'
-import { Set } from '@/types/global'
+import { isInteger } from '../../utils'
+import { Set } from '../../types/global'
 
 /* 计算默认页面 */
 export const pageDefault = (defaultPage: number, set: Set[]) => {

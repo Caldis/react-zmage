@@ -7,7 +7,7 @@ import React from 'react'
 // Style
 import style from './index.less'
 // App Entry
-import Zmage from '@/index'
+import Zmage from '../src/index'
 
 function HighlightJavaScript ({ children }: { children: React.ReactNode }) {
   return <pre><code className="javascript">{children}</code></pre>
@@ -137,6 +137,9 @@ export default class App extends React.Component {
               }, {
                 src: 'imgSet/childsDream/4.jpg',
                 alt: '童夢 · FOUR',
+              }, {
+                src: 'iPhone.jpg',
+                alt: 'iPhone',
               }]}
             />
             <a href="https://www.behance.net/gallery/56119387/_">via. sslololss Guihuahuzi on behance</a>

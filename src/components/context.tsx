@@ -2,7 +2,7 @@
 
 // Libs
 import { createContext, RefObject } from 'react'
-import { FunctionalNormalizedParams, InterfaceAndInteractionParams, Preset, Set, } from '@/types/global'
+import { FunctionalNormalizedParams, InterfaceAndInteractionParams, Preset, Set, } from '../types/global'
 import { State as BrowsingParams } from './Browser/Browser'
 
 export { BrowsingParams }

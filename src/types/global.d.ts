@@ -1,5 +1,5 @@
 import { ForwardedRef, HTMLAttributes, ReactNode, RefObject } from 'react'
-import { GlobalClickMonitor } from '@/utils'
+import { GlobalClickMonitor } from './utils'
 
 /**
  * 全局

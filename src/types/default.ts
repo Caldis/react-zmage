@@ -3,7 +3,7 @@
  **/
 
 // Libs
-import { AnimateFlip, BaseType, Preset, Set } from '@/types/global'
+import { AnimateFlip, BaseType, Preset, Set } from './global'
 
 /**
  * 默认值

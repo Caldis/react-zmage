@@ -17,11 +17,11 @@ import {
   IconRotateLeft,
   IconRotateRight,
   IconZoom
-} from '@/asserts/icons'
+} from '../../asserts/icons'
 // Utils
 import { Context } from '../context'
-import { ControllerItem, ControllerSet } from '@/types/global'
-import { downloadFromLink } from '@/utils'
+import { ControllerItem, ControllerSet } from '../../types/global'
+import { downloadFromLink } from '../../utils'
 
 function getControllerItem (item: ControllerItem, Icon: any, id: string, className: string, onClick: any, show: boolean, zoom: boolean, child?: JSX.Element) {
   if (typeof item === 'boolean' || typeof item === 'string') {
