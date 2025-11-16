@@ -29,8 +29,13 @@ yarn run dev
 <h2 align="center">安装</h2>
 
 ```bash
+# 推荐使用 pnpm / npm 均可
+pnpm add react-zmage
+# or
 npm i react-zmage --save
 ```
+
+> 样式表包含在包内，记得在应用入口引入一次：`import 'react-zmage/style.css'`
 
 
 <h2 align="center">使用</h2>
@@ -39,47 +44,56 @@ npm i react-zmage --save
 #### 1.引入组件
 ```js
 import Zmage from 'react-zmage'
+import 'react-zmage/style.css'
 ```
 
 #### 2.将页面中的 img 标签替换为 Zmage 组件
-```js
-<img src="图片源连接"/>
-👆 to 👇
-<Zmage src="图片源连接"/>
+```jsx
+<img src="图片源链接" alt="示例" />
+// 👆 to 👇
+<Zmage src="图片源链接" alt="示例" />
 ```
 <h6>现在这些图片都可以放大查看了 ！</h6>
 
 #### 也可以通过函数调用来唤出图片
-```js
-// Zmage.browsing 函数接受的参数与 <Zmage/> 组件完全一致
-<a onClick={() => Zmage.browsing({ src:imagePath })}>任意元素</a>
+```jsx
+// Zmage.browsing 接受的 props 与 <Zmage/> 完全一致
+<button onClick={() => Zmage.browsing({ src: imagePath })}>
+  打开查看器
+</button>
 ```
 
 #### 在`typescript`中使用
 
 ```typescript
-import ReactZmage from 'react-zmage';
+import ReactZmage from 'react-zmage'
+import 'react-zmage/style.css'
 
 // 在生命周期等方法中使用
 public componentDidMount() {
     const zmage = new ReactZmage({
         // ...options
-    });
+    })
 }
 
 // 也支持组件方式使用
 public render(): JSX.Element {
-    const defaultConfig = {
-        src: 'http://zmage.caldis.me/imgSet/childsDream/demo.jpg',
-        alt: '示例图片',
-    };
+  const defaultConfig = {
+    src: 'http://zmage.caldis.me/imgSet/childsDream/demo.jpg',
+    alt: '示例图片',
+  };
 
-    return (
-        <ReactZmage
-            {...defaultConfig}
-        />
-    );
+  return <ReactZmage {...defaultConfig} />
 }
+```
+
+#### SSR / RSC 环境
+
+如果在 Next.js App Router、Remix 等 SSR / Server Components 中使用，请引用 server 友好入口：
+
+```ts
+import Zmage from 'react-zmage/ssr'
+import 'react-zmage/style.css'
 ```
 
 <h2 align="center">基础配置</h2>
