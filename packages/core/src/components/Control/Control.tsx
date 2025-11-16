@@ -5,7 +5,7 @@
 
 // Libs
 import classnames from 'classnames'
-import React, { Fragment, useContext } from 'react'
+import React, { ComponentType, Fragment, useContext } from 'react'
 // Style
 import style from './Control.module.less'
 // Asserts
@@ -23,7 +23,18 @@ import { Context } from '../context'
 import { ControllerItem, ControllerSet } from '../../types/global'
 import { downloadFromLink } from '../../utils'
 
-function getControllerItem (item: ControllerItem, Icon: any, id: string, className: string, onClick: any, show: boolean, zoom: boolean, child?: JSX.Element) {
+type IconComponent = ComponentType<{ color?: string }>
+
+function getControllerItem (
+  item: ControllerItem,
+  Icon: IconComponent,
+  id: string,
+  className: string,
+  onClick: () => void,
+  show: boolean,
+  zoom: boolean,
+  child?: JSX.Element,
+) {
   if (typeof item === 'boolean' || typeof item === 'string') {
     // Flag or Color
     return !!item && (
@@ -171,7 +182,7 @@ export default function Control () {
       {
         (Array.isArray(set) && set.length > 1) &&
         (React.isValidElement(controllerParams.pagination)
-          ? React.cloneElement<any>(controllerParams.pagination, { show, zoom, onClick: toPage })
+          ? React.cloneElement(controllerParams.pagination as React.ReactElement<{ show: boolean; zoom: boolean; onClick: (target: number) => void }>, { show, zoom, onClick: toPage })
           : !!controllerParams.pagination && (
             <div
               id="zmageControlPagination"

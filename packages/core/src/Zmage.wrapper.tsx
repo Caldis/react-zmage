@@ -29,7 +29,8 @@ export default class ReactZmageWrapper extends React.Component<Props> {
   }
 
   tryAttachBrowserToImage = () => {
-    const { children, ...restProps } = this.props
+    const { children: _children, ...restProps } = this.props
+    void _children
     if (this.wrapperRef.current) {
       this.wrapperRef.current.querySelectorAll('img').forEach(item => {
         if (!item.getAttribute('zmage') && item.getAttribute('src')) {

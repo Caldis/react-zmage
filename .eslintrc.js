@@ -2,6 +2,10 @@
 module.exports = {
   'ignorePatterns': [
     'lib/*',
+    'dist',
+    'dist-artifacts',
+    'docs',
+    'packages/**/dist',
   ],
   'env': {
     'browser': true,
@@ -24,6 +28,11 @@ module.exports = {
     'react',
     '@typescript-eslint',
   ],
+  'settings': {
+    'react': {
+      'version': 'detect',
+    },
+  },
   'rules': {
     'indent': [
       'error',

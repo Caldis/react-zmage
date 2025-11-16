@@ -11,8 +11,12 @@
     "dev": {
       "cache": false
     },
-    "lint": {},
-    "test": {},
+    "lint": {
+      "outputs": []
+    },
+    "test": {
+      "outputs": []
+    },
     "clean": {}
   }
 }
