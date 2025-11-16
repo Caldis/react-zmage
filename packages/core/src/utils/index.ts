@@ -2,6 +2,11 @@
  * 工具函数
  **/
 
+const hasWindow = typeof window !== 'undefined'
+const hasDocument = typeof document !== 'undefined'
+const getDocumentElement = () => hasDocument ? document.documentElement : undefined
+const getBodyElement = () => hasDocument ? document.body : undefined
+
 /**
  * 通过屏幕尺寸以及图片尺寸，计算出图片在屏幕中完整显示的缩放比例
  * @param {number} naturalWidth - 图片原始宽
@@ -21,12 +26,24 @@ export const calcFitScale = (naturalWidth: number, naturalHeight: number, edge =
 /**
  * 屏幕尺寸
  */
-export const getInnerWidth = () => window.innerWidth
-export const getScrollWidth = () => document.body.scrollWidth
-export const getClientWidth = () => document.documentElement.clientWidth
-export const getInnerHeight = () => window.innerHeight
-export const getScrollHeight = () => document.body.scrollHeight
-export const getClientHeight = () => document.documentElement.clientHeight
+export const getInnerWidth = () => hasWindow ? window.innerWidth : 0
+export const getScrollWidth = () => {
+  const body = getBodyElement()
+  return body ? body.scrollWidth : 0
+}
+export const getClientWidth = () => {
+  const documentElement = getDocumentElement()
+  return documentElement ? documentElement.clientWidth : 0
+}
+export const getInnerHeight = () => hasWindow ? window.innerHeight : 0
+export const getScrollHeight = () => {
+  const body = getBodyElement()
+  return body ? body.scrollHeight : 0
+}
+export const getClientHeight = () => {
+  const documentElement = getDocumentElement()
+  return documentElement ? documentElement.clientHeight : 0
+}
 
 /**
  * 触摸交互锁定
@@ -35,20 +52,30 @@ export const getClientHeight = () => document.documentElement.clientHeight
  */
 const touchStyle = { documentOverflow: '', bodyOverflow: '', bodyPosition: '' }
 export const lockTouchInteraction = () => {
+  const documentElement = getDocumentElement()
+  const body = getBodyElement()
+  if (!documentElement || !body) {
+    return
+  }
   // Save
-  touchStyle.documentOverflow = document.documentElement.style.overflow
-  touchStyle.bodyOverflow = document.body.style.overflow
-  touchStyle.bodyPosition = document.body.style.position
+  touchStyle.documentOverflow = documentElement.style.overflow
+  touchStyle.bodyOverflow = body.style.overflow
+  touchStyle.bodyPosition = body.style.position
   // Apply
-  document.documentElement.style.overflow = 'hidden'
-  document.body.style.overflow = 'hidden'
-  document.body.style.position = 'relative'
+  documentElement.style.overflow = 'hidden'
+  body.style.overflow = 'hidden'
+  body.style.position = 'relative'
 }
 export const unlockTouchInteraction = () => {
+  const documentElement = getDocumentElement()
+  const body = getBodyElement()
+  if (!documentElement || !body) {
+    return
+  }
   // Recover
-  document.documentElement.style.overflow = touchStyle.documentOverflow
-  document.body.style.overflow = touchStyle.bodyOverflow
-  document.body.style.position = touchStyle.bodyPosition
+  documentElement.style.overflow = touchStyle.documentOverflow
+  body.style.overflow = touchStyle.bodyOverflow
+  body.style.position = touchStyle.bodyPosition
 }
 
 /**
@@ -95,12 +122,16 @@ export const numberOfStyleUnits = (unit: string, options = { ref: 100 }) => {
  * @param [name] - 下载文件名称
  */
 export const downloadFromLink = (href: string, name?: string) => {
+  const body = getBodyElement()
+  if (!hasDocument || !body) {
+    return
+  }
   const downloadLink = document.createElement('a')
   downloadLink.href = href
   downloadLink.download = name || href.split('/')[href.split('/').length - 1]
-  document.body.appendChild(downloadLink)
+  body.appendChild(downloadLink)
   downloadLink.click()
-  document.body.removeChild(downloadLink)
+  body.removeChild(downloadLink)
 }
 
 /**
@@ -191,8 +222,17 @@ export class GlobalClickMonitor {
   private static readonly CENTER_POSITION: Coordinate = { x: 0, y: 0 }
   public currentPosition = GlobalClickMonitor.CENTER_POSITION
   private readonly debounceInterval = 200
+  private static createFallback (): GlobalClickMonitor {
+    return {
+      currentPosition: GlobalClickMonitor.CENTER_POSITION,
+      destructor: () => {},
+    } as GlobalClickMonitor
+  }
 
   constructor ({ position }: { position: Coordinate } = { position: GlobalClickMonitor.CENTER_POSITION }) {
+    if (!hasWindow) {
+      return GlobalClickMonitor.createFallback()
+    }
     // 返回已有
     if (window.__ZMAGE_GLOBAL_CLICK_MONITOR__) {
       return window.__ZMAGE_GLOBAL_CLICK_MONITOR__
@@ -202,16 +242,11 @@ export class GlobalClickMonitor {
       // 记录现有
       this.currentPosition = position
       // 监听点击事件
-      if (window) {
-        window.addEventListener('click', this.update)
-        window.__ZMAGE_GLOBAL_CLICK_MONITOR__ = this
-      }
+      window.addEventListener('click', this.update)
+      window.__ZMAGE_GLOBAL_CLICK_MONITOR__ = this
     } catch (e) {
       // Create fake Monitor if window object not exist
-      return {
-        currentPosition: GlobalClickMonitor.CENTER_POSITION,
-        destructor: () => {},
-      } as GlobalClickMonitor
+      return GlobalClickMonitor.createFallback()
     }
   }
 
@@ -228,6 +263,9 @@ export class GlobalClickMonitor {
   }
 
   public destructor () {
+    if (!hasWindow) {
+      return
+    }
     try {
       window.removeEventListener('click', this.update)
       window.__ZMAGE_GLOBAL_CLICK_MONITOR__ = undefined
@@ -261,19 +299,24 @@ function preventDefaultForScrollKeys(e: KeyboardEvent) {
 }
 // modern Chrome requires { passive: false } when adding event
 let supportsPassive = false
-try {
-  window.addEventListener('test', null, Object.defineProperty({}, 'passive', {
-    get: function () {
-      supportsPassive = true
-    }
-  }))
-} catch(e) {
-  // do nothing
+if (hasWindow) {
+  try {
+    window.addEventListener('test', null as unknown as EventListener, Object.defineProperty({}, 'passive', {
+      get: function () {
+        supportsPassive = true
+      }
+    }))
+  } catch(e) {
+    // do nothing
+  }
 }
 const wheelOpt = supportsPassive ? { passive: false } : false
-const wheelEvent = 'onwheel' in document.createElement('div') ? 'wheel' : 'mousewheel'
+const wheelEvent = hasDocument ? ('onwheel' in document.createElement('div') ? 'wheel' : 'mousewheel') : 'wheel'
 // call this to Disable
 export function disableScroll() {
+  if (!hasWindow) {
+    return
+  }
   window.addEventListener('DOMMouseScroll', preventDefault, false) // older FF
   window.addEventListener(wheelEvent, preventDefault, wheelOpt) // modern desktop
   window.addEventListener('touchmove', preventDefault, wheelOpt) // mobile
@@ -281,6 +324,9 @@ export function disableScroll() {
 }
 // call this to Enable
 export function enableScroll() {
+  if (!hasWindow) {
+    return
+  }
   window.removeEventListener('DOMMouseScroll', preventDefault, false)
   window.removeEventListener(wheelEvent, preventDefault)
   window.removeEventListener('touchmove', preventDefault)

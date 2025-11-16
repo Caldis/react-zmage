@@ -4,6 +4,7 @@
 
 // Libs
 import React, { Fragment } from 'react'
+import type { ReactNode, Ref, RefAttributes } from 'react'
 // Components
 import callee from './Zmage.callee'
 import wrapper from './Zmage.wrapper'
@@ -110,17 +111,20 @@ class ReactZmage extends React.Component<PropsType, StateType> {
 }
 
 // 转发 Ref 到 Cover 图片
-export interface ForwardedComponent extends React.ForwardRefExoticComponent<BaseType & React.RefAttributes<HTMLImageElement>> {
+export type ReactZmageComponent = {
+  (props: BaseType & { ref?: Ref<HTMLImageElement> }): ReactNode
   browsing: typeof callee
   Browsing: typeof callee
   wrapper: typeof wrapper
   Wrapper: typeof wrapper
-}
+} & React.ForwardRefExoticComponent<BaseType & RefAttributes<HTMLImageElement>>
+
+export type ForwardedComponent = ReactZmageComponent
 
 const forwardedReactZmage = React.forwardRef<HTMLImageElement | null, BaseType>(
   (props, ref) =>
     <ReactZmage {...props} forwardedRef={ref}/>
-) as ForwardedComponent
+) as ReactZmageComponent
 
 // 命令式调用组件
 forwardedReactZmage.browsing = callee

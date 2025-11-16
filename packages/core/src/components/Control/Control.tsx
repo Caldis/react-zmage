@@ -43,7 +43,7 @@ function getControllerItem (
       </div>
     )
   } else if (React.isValidElement(item)) {
-    return React.cloneElement(item, { show, zoom, onClick })
+    return React.cloneElement(item as React.ReactElement<{ show?: boolean; zoom?: boolean; onClick?: () => void }>, { show, zoom, onClick })
   }
   return null
 }
@@ -71,6 +71,17 @@ export default function Control () {
   } = useContext(Context)
 
   const controllerParams = (controller || {}) as ControllerSet
+  const handleMobileZoom = () => {
+    const current = Array.isArray(set) ? set[page] : undefined
+    if (!current) {
+      return
+    }
+    if (typeof window !== 'undefined' && typeof window.open === 'function') {
+      window.open(current.src)
+    } else {
+      toggleZoom()
+    }
+  }
 
   return (
     <Fragment>
@@ -126,7 +137,7 @@ export default function Control () {
             IconZoom,
             'zmageControlZoom',
             classnames(style.zoom, { [style.show]: !zoom && show }),
-            presetIsMobile ? () => window.open(set[page].src) : toggleZoom,
+            presetIsMobile ? handleMobileZoom : toggleZoom,
             show,
             zoom
           )

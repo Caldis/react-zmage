@@ -101,7 +101,7 @@ export default defineConfig(() => ([
     ...baseConfig,
     format: ['esm', 'cjs', 'iife'],
     outDir: 'dist',
-    dts: true,
+    dts: false,
     clean: true,
     platform: 'browser',
     css: true,

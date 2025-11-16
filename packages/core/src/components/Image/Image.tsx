@@ -59,7 +59,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   // Refs
   imageRef = React.createRef<HTMLImageElement>()
   // 初始页面高度
-  initialPageOffset = window.pageYOffset
+  initialPageOffset = typeof window !== 'undefined' ? window.pageYOffset : 0
   // 监听状态
   listeningMouseMove: boolean
   // 图片加载

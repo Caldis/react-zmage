@@ -8,7 +8,8 @@
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "publish:core": "cd packages/core && npm publish"
   },
   "devDependencies": {
     "turbo": "^2.1.3"
