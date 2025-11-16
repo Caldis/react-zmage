@@ -4,7 +4,7 @@
  **/
 
 // Libs
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useLayoutEffect, useMemo } from 'react'
 import ReactDOM from 'react-dom'
 
 type Props = {
@@ -16,26 +16,38 @@ type Props = {
 }
 
 export default function Portal ({ id, target, zIndex, className, children }: Props) {
+  if (typeof document === 'undefined') {
+    return null
+  }
 
-  // Wrapper
-  const [wrapper] = useState(target || document.body)
+  const parent = target || document.body
+  const container = useMemo(() => document.createElement('figure'), [])
 
-  // Append into Wrapper
-  const [container] = useState(() => {
-    const container = document.createElement('figure')
-    id && (container.id = id)
-    className && (container.className = className)
-    zIndex && (container.style.zIndex = String(zIndex))
-    wrapper?.appendChild(container)
-    return container
-  })
-
-  // Remove from Wrapper
-  useEffect(() => {
-    return () => {
-      wrapper?.removeChild(container)
+  // Sync attributes when props change
+  useLayoutEffect(() => {
+    if (id) {
+      container.id = id
+    } else {
+      container.removeAttribute('id')
     }
-  }, [])
+    if (typeof className === 'string') {
+      container.className = className
+    } else {
+      container.removeAttribute('class')
+    }
+    if (typeof zIndex === 'number') {
+      container.style.zIndex = String(zIndex)
+    } else {
+      container.style.removeProperty('z-index')
+    }
+  }, [id, className, zIndex, container])
+
+  useLayoutEffect(() => {
+    parent.appendChild(container)
+    return () => {
+      parent.removeChild(container)
+    }
+  }, [parent, container])
 
   return ReactDOM.createPortal(children, container)
 }
