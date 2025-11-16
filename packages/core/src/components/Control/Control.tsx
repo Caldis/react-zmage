@@ -7,7 +7,7 @@
 import classnames from 'classnames'
 import React, { Fragment, useContext } from 'react'
 // Style
-import style from './Control.less'
+import style from './Control.module.less'
 // Asserts
 import {
   IconArrowLeft,

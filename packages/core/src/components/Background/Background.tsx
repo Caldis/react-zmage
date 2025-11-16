@@ -6,7 +6,7 @@
 // Libs
 import React, { useContext } from 'react'
 // Style
-import style from './Background.less'
+import style from './Background.module.less'
 // Utils
 import { Context } from '../context'
 

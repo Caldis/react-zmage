@@ -6,7 +6,7 @@
 // Libs
 import React, { RefObject } from 'react'
 // Style
-import style from './Browser.less'
+import style from './Browser.module.less'
 // Components
 import Portals from '../Portal'
 import Control from '../Control'

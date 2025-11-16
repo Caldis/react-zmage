@@ -10,13 +10,41 @@ import { defineConfig, type Options } from 'tsup'
 
 const lessModulePlugin = (): Plugin => {
   const cssContents = new Map<string, string>()
+  const compileLess = async (filePath: string, { modules }: { modules: boolean }) => {
+    const source = await readFile(filePath, 'utf8')
+    const rendered = await less.render(source, {
+      filename: filePath,
+      javascriptEnabled: true,
+    })
+    const plugins = [postcssPresetEnv({ stage: 3 }), autoprefixer()]
+    let tokens: Record<string, string> = {}
+    if (modules) {
+      plugins.push(postcssModules({
+        generateScopedName: '[local]__[hash:base64:5]',
+        getJSON: (_filename, json) => {
+          tokens = json as Record<string, string>
+        },
+      }))
+    }
+    const processed = await postcss(plugins).process(rendered.css, { from: filePath })
+    return { css: processed.css, tokens }
+  }
+
   return {
     name: 'less-module-plugin',
     setup (build) {
-      build.onResolve({ filter: /\.less$/ }, args => ({
+      build.onResolve({ filter: /\.module\.less$/ }, args => ({
         path: path.resolve(args.resolveDir, args.path),
         namespace: 'less-module',
       }))
+
+      build.onResolve({ filter: /\.less$/ }, args => {
+        if (args.path.endsWith('.module.less')) return undefined
+        return {
+          path: path.resolve(args.resolveDir, args.path),
+          namespace: 'less-global',
+        }
+      })
 
       build.onResolve({ filter: /\.less\?css$/ }, args => ({
         path: args.path.replace('?css', ''),
@@ -29,26 +57,18 @@ const lessModulePlugin = (): Plugin => {
         resolveDir: path.dirname(args.path),
       }))
 
+      build.onLoad({ filter: /.*/, namespace: 'less-global' }, async (args) => {
+        const { css } = await compileLess(args.path, { modules: false })
+        return {
+          contents: css,
+          loader: 'css',
+          resolveDir: path.dirname(args.path),
+        }
+      })
+
       build.onLoad({ filter: /.*/, namespace: 'less-module' }, async (args) => {
-        const source = await readFile(args.path, 'utf8')
-        const rendered = await less.render(source, {
-          filename: args.path,
-          javascriptEnabled: true,
-        })
-        let tokens: Record<string, string> = {}
-        const processed = await postcss([
-          postcssPresetEnv({ stage: 3 }),
-          autoprefixer(),
-          postcssModules({
-            generateScopedName: '[local]__[hash:base64:5]',
-            getJSON: (_filename, json) => {
-              tokens = json as Record<string, string>
-            },
-          }),
-        ]).process(rendered.css, { from: args.path })
-
-        cssContents.set(args.path, processed.css)
-
+        const { css, tokens } = await compileLess(args.path, { modules: true })
+        cssContents.set(args.path, css)
         return {
           contents: `import ${JSON.stringify(args.path + '?css')};\nexport default ${JSON.stringify(tokens)};`,
           loader: 'js',

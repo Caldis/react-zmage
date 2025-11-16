@@ -6,7 +6,7 @@
 import classnames from 'classnames'
 import React, { Fragment, MouseEventHandler } from 'react'
 // Styles
-import style from './Loading.less'
+import style from './loading.module.less'
 // Icons
 import { IconLoading, IconRefresh } from '../../asserts/icons'
 

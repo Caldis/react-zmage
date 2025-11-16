@@ -7,7 +7,7 @@
 import classnames from 'classnames'
 import React, { CSSProperties, Fragment } from 'react'
 // Styles
-import style from './Image.less'
+import style from './Image.module.less'
 // Components
 import Loading from './loading'
 // Utils
