@@ -4,3 +4,6 @@ npm-debug.log
 package-lock.json
 package-lock.json.3963151807
 .DS_Store
+dist/
+**/dist
+.turbo

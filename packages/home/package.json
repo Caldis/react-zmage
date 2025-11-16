@@ -1,0 +1,25 @@
+{
+  "name": "react-zmage-home",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter react-zmage run build && vite dev",
+    "build": "pnpm --filter react-zmage run build && rimraf ../../docs && vite build",
+    "preview": "vite preview --outDir ../../docs",
+    "clean": "rimraf ../../docs"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-zmage": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.4",
+    "@types/react-dom": "^17.0.3",
+    "@vitejs/plugin-react": "^4.3.2",
+    "less": "^4.1.1",
+    "rimraf": "^5.0.5",
+    "typescript": "^4.2.4",
+    "vite": "^5.4.10"
+  }
+}
