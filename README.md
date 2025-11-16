@@ -35,9 +35,6 @@ pnpm add react-zmage
 npm i react-zmage --save
 ```
 
-> 样式表包含在包内，记得在应用入口引入一次：`import 'react-zmage/style.css'`
-
-
 <h2 align="center">使用</h2>
 
 
