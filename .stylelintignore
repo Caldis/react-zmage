@@ -1,0 +1,6 @@
+dist
+packages/**/dist
+packages/**/dist/**
+docs
+node_modules
+dist-artifacts

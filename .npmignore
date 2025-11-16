@@ -1,11 +1,14 @@
 .idea
-.babelrc
+.vscode
 .eslintrc
+.babelrc
+.eslintignore
+.eslintrc.js
+.gitignore
+.stylelintrc
 
+tsconfig.json
+
+src
 docs
 scripts
-src
-typings
-
-yarn.lock
-package-lock.json

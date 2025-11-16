@@ -1,0 +1,86 @@
+@import "../../config/anim";
+
+.loadingContainer {
+  user-select: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  opacity: 0;
+  transition: opacity @animationFunction @animationDurationHalf;
+
+  &.show {
+    opacity: 1;
+  }
+
+  .reload {
+    border: 2px solid;
+    border-radius: 5px;
+    font-size: 1rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    outline: none;
+    transform: translate(-50%, -50%);
+
+    &:hover {
+      opacity: 0.8;
+
+      svg {
+        transform: rotate(30deg);
+      }
+    }
+
+    &:active {
+      opacity: 1;
+    }
+
+    svg {
+      display: block;
+      transition: transform @animationDuration @animationFunction;
+    }
+  }
+
+  .loading {
+    width: 24px;
+    height: 24px;
+    transform: translate(-50%, -50%);
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
