@@ -77,7 +77,7 @@ export function ParamPanel ({ values, onChange }: Props) {
                           {t(def.i18n.descKey)}
                         </TooltipContent>
                       </Tooltip>
-                      {def.required && <Badge variant="destructive" className="h-4 px-1 text-[9px]">*</Badge>}
+                      {def.required && <span aria-label="required" className="text-destructive font-bold text-sm leading-none">*</span>}
                       {def.desktopOnly && <Badge variant="secondary" className="h-4 px-1 text-[9px]">D</Badge>}
                     </div>
                     <div>{renderControl(def, values[def.name], (v) => onChange(def.name, v))}</div>

@@ -58,7 +58,7 @@ export function ScalarControl ({ def, value, onChange }: Props) {
   }
   if (c.kind === 'segmented') {
     return (
-      <Tabs value={String(value ?? '')} onValueChange={onChange}>
+      <Tabs value={String(value ?? '')} onValueChange={onChange} className="inline-flex">
         <TabsList className="h-8">
           {c.options.map(o => <TabsTrigger key={o.value} value={o.value} className="h-7 text-xs">{t(o.labelKey)}</TabsTrigger>)}
         </TabsList>

@@ -21,10 +21,10 @@ export function ControllerControl ({ value, onChange }: { value: ControllerSet |
   const { t } = useT()
   const obj: ControllerSet = (typeof value === 'object' && value) ? value : {}
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+    <div className="grid grid-cols-2 gap-x-3 gap-y-2">
       {KEYS.map(({ key, labelKey }) => (
-        <label key={String(key)} className="flex items-center justify-between gap-2 text-xs">
-          <span>{t(labelKey)}</span>
+        <label key={String(key)} className="flex items-center justify-between gap-2 text-[11px]">
+          <span className="truncate" title={t(labelKey)}>{t(labelKey)}</span>
           <Switch
             checked={!!obj[key]}
             onCheckedChange={(checked) => onChange({ ...obj, [key]: checked })}
