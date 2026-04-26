@@ -49,21 +49,36 @@ p {
   color: #666;
 }
 
-code {
+// pre + code 必须用等宽字体, 否则代码块对齐错乱.
+// 上面 `*, *:before, *:after { font-family: ...sans-serif !important }` 用了 !important 覆盖一切,
+// 这里用同样优先级 + 等价或更强的选择器把 monospace 抢回来.
+pre, pre *, code, code * {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace !important;
+}
+
+pre {
   margin: 30px 0;
+}
+
+code {
   padding: 1rem;
   border-left: 4px solid #808080;
   color: #717682;
   background-color: #f9f9f9 !important;
+  display: block;
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.55;
 }
 
-// Prism
+// highlight.js 全局 token 颜色微调
 :global {
   code, kbd, samp {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 
-  span.string {
+  // 修订: 旧规则 `span.string` 选错了 (highlight.js 用 .hljs-string)
+  .hljs-string {
     color: #c083de !important;
   }
 }

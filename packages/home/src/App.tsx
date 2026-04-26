@@ -9,8 +9,31 @@ import style from './index.module.less'
 // App Entry
 import Zmage from 'react-zmage'
 
+// highlight.js 通过 public/highlight/highlight.pack.js 挂在 window 上, 此处声明类型
+declare global {
+  interface Window {
+    hljs?: {
+      highlightElement: (el: HTMLElement) => void
+      highlightAll: () => void
+    }
+  }
+}
+
 function HighlightJavaScript ({ children }: { children: React.ReactNode }) {
-  return <pre><code className="javascript">{children}</code></pre>
+  // 单层 <pre><code>; 之前在外层多包了一层 <pre> (App.tsx 三处), 形成 <pre><pre><code> 嵌套,
+  // 配合 *!important 强制 sans-serif 后, 行高/缩进/字符宽度全部错乱. 这里只保留正确的单层结构.
+  const ref = React.useRef<HTMLElement>(null)
+  React.useEffect(() => {
+    // hljs.highlightAll() 在 index.html <head> 里早于 React mount 跑过一次, 此时 DOM 还没 code 块,
+    // 所以那一次完全空跑. 这里 mount 后对当前 code 元素再 highlight 一次.
+    // StrictMode 双 mount 下用 dataset 标记防止重复处理 (hljs 会改 innerHTML, 重复调会出警告/异常).
+    const el = ref.current
+    if (el && window.hljs && !el.dataset.highlighted) {
+      window.hljs.highlightElement(el)
+      el.dataset.highlighted = 'yes'
+    }
+  }, [])
+  return <pre><code ref={ref} className="language-javascript">{children}</code></pre>
 }
 
 export default class App extends React.Component {
@@ -60,14 +83,12 @@ export default class App extends React.Component {
             <h2>轻松使用</h2>
             <p>一如原生的 {'<img/>'} 标签, 只需要直接替换 img 为 Zmage 即可, 您依旧可以使用 style, className 等原生属性</p>
             <p>现在, 点击图片, 您即可进入<b>查看模式</b></p>
-            <pre>
-              <HighlightJavaScript>
-                {`<Zmage
+            <HighlightJavaScript>
+              {`<Zmage
     src="https://your.image.link.jpg"
     alt="最简单的使用方式"
 />`}
-              </HighlightJavaScript>
-            </pre>
+            </HighlightJavaScript>
           </div>
           <div className={style.imageBox}>
             <Zmage
@@ -86,14 +107,12 @@ export default class App extends React.Component {
             <p>滑动鼠标则可以浏览超出屏幕的部分, 对浏览大尺寸图片时尤为方便</p>
             <p>在<b>放大模式</b>中, 图片会设置为 100%放大, 确保不会有任何失真</p>
             <p>再次点击屏幕即可退出<b>放大模式</b></p>
-            <pre>
-              <HighlightJavaScript>
-                {`<Zmage
+            <HighlightJavaScript>
+              {`<Zmage
     src="https://your.image.link.jpg"
     alt="放大图片并并滑动预览"
 />`}
-              </HighlightJavaScript>
-            </pre>
+            </HighlightJavaScript>
           </div>
           <div className={style.imageBox}>
             <Zmage
@@ -110,9 +129,8 @@ export default class App extends React.Component {
             <h2>展示序列图片</h2>
             <p>您可以传入一系列图片来显示一系列幻灯片, 使用 <b>set</b> 来包裹它们</p>
             <p>点击放大后使用键盘的 <b>←</b> 或 <b>→</b> 即可切换图片</p>
-            <pre>
-              <HighlightJavaScript>
-                {`<Zmage
+            <HighlightJavaScript>
+              {`<Zmage
     src="your.cover.image.link.jpg"
     alt="展示序列图片"
     set={[{
@@ -123,8 +141,7 @@ export default class App extends React.Component {
         alt: "Second image description"
     }]}
 />`}
-              </HighlightJavaScript>
-            </pre>
+            </HighlightJavaScript>
           </div>
           <div className={style.imageBox}>
             <Zmage
