@@ -1,0 +1,27 @@
+# react-zmage
+
+> A React component that turns any `<img>` into a fullscreen-zoomable, multi-image, keyboard-navigable image viewer. Drop-in replacement for `<img>`. Supports React 16.8 through 19.
+
+The package is published to npm as `react-zmage`. Default export is a `forwardRef` component; static methods on it provide imperative (`Zmage.browsing`) and HTML-wrapper (`Zmage.wrapper`) usage modes. Styles are exported separately at `react-zmage/style.css`. SSR/RSC consumers use the `react-zmage/ssr` subpath.
+
+## Docs
+
+- [README.md](./README.md): full human-facing documentation, install, all props, examples
+- [AGENTS.md](./AGENTS.md): condensed agent-oriented reference, public API contract, common pitfalls, architectural invariants
+
+## Source of truth
+
+- [packages/core/src/types/global.ts](./packages/core/src/types/global.ts): canonical TypeScript definitions for all props (`BaseType`, `Set`, `Preset`, `ControllerSet`, `HotKey`, `Animate`, lifecycle params)
+- [packages/core/src/types/default.ts](./packages/core/src/types/default.ts): canonical defaults (`defProp`, `defPreset` for desktop/mobile)
+- [packages/core/src/index.ts](./packages/core/src/index.ts): runtime exports
+- [packages/core/package.json](./packages/core/package.json): publish contract (`exports` field, peer deps)
+
+## Examples
+
+- [packages/home/src/App.tsx](./packages/home/src/App.tsx): live demo site source
+- [packages/sandbox-r17/src/consumer.tsx](./packages/sandbox-r17/src/consumer.tsx): minimal R17 consumer (also r18, r19)
+
+## Optional
+
+- [Online demo](https://zmage.caldis.me)
+- [GitHub repo](https://github.com/Caldis/react-zmage)

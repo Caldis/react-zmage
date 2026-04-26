@@ -1,298 +1,433 @@
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md#pull-requests)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md#pull-requests) [![React](https://img.shields.io/badge/react-16.8%20--%2019-61dafb.svg)](#react-版本兼容)
 
 <div align="center">
   <a href="https://github.com/Caldis/react-zmage">
-    <img width="150" height="150" src="docs/logo.png">
+    <img width="150" height="150" src="docs/logo.png" alt="react-zmage logo">
   </a>
+
   <h1>react-zmage</h1>
+
+  <p>基于 React 的图片缩放查看器 — 替换 <code>&lt;img&gt;</code> 即可获得放大查看、多图浏览、缩放、旋转、键盘快捷键等能力</p>
+
+  <p>
+    <a href="https://zmage.caldis.me">在线 Demo</a> ·
+    <a href="#api">API</a> ·
+    <a href="./AGENTS.md">AI Agent 速查</a>
+  </p>
 </div>
 
-> react-zmage 是一个基于 React 的的图片缩放控件, 使用 Zmage 标签包裹后的图片可以获得缩放效果, 您可以用这个控件替代原生的 img 标签, 令其附带图片缩放功能
+---
 
-**需 react 版本大于 v16.6.0**
-<h2 align="center">演示</h2>
+## Quick Contract
 
-**在线**
+```ts
+// 主入口 (浏览器 / 现代 bundler)
+import Zmage from 'react-zmage'
+import 'react-zmage/style.css'
 
-[https://zmage.caldis.me](https://zmage.caldis.me)
+// SSR / RSC 入口 (Next.js App Router / Remix Server Components)
+import Zmage from 'react-zmage/ssr'
 
+// 三种使用方式
+<Zmage src="..." />                                // 1. 替换 <img>
+Zmage.browsing({ src: '...' })                     // 2. 命令式调用; 返回 destructor
+<Zmage.wrapper>{htmlWithImgTags}</Zmage.wrapper>   // 3. 自动包裹 children 中的 <img>
+```
 
-**本地**
+| | |
+|---|---|
+| **默认导出** | `Zmage` — `forwardRef` 组件，ref 转发到内部 `<img>` |
+| **静态方法** | `Zmage.browsing(props)` ｜ `Zmage.wrapper` |
+| **主类型** | `BaseType` (从 `react-zmage` 导出，含全部 props 联合) |
+| **样式入口** | `react-zmage/style.css` (必须显式 import) |
+| **SSR 入口** | `react-zmage/ssr` |
+| **Peer Deps** | `react: >=16.8.0 <20`, `react-dom: >=16.8.0 <20` |
+
+---
+
+## 目录
+
+- [Demo](#demo)
+- [安装](#安装)
+- [React 版本兼容](#react-版本兼容)
+- [使用](#使用)
+  - [1. 作为组件](#1-作为组件)
+  - [2. 命令式调用](#2-命令式调用)
+  - [3. 自动包裹 HTML](#3-自动包裹-html)
+  - [4. TypeScript 用法](#4-typescript-用法)
+  - [5. SSR / RSC](#5-ssr--rsc)
+- [API](#api)
+  - [基础 Props](#基础-props)
+  - [预设 Props](#预设-props)
+  - [受控 Props](#受控-props)
+  - [功能控制 Props](#功能控制-props)
+  - [界面交互 Props](#界面交互-props)
+  - [生命周期回调](#生命周期回调)
+  - [完整类型定义](#完整类型定义)
+- [Props 示例](#props-示例)
+- [贡献](#贡献)
+- [证书](#证书)
+
+---
+
+## Demo
+
+**在线**: <https://zmage.caldis.me>
+
+**本地**:
 ```bash
 git clone https://github.com/Caldis/react-zmage
 cd react-zmage
-yarn
-yarn run dev
+pnpm install
+pnpm dev
 ```
 
+---
 
-<h2 align="center">安装</h2>
+## 安装
 
 ```bash
-# 推荐使用 pnpm / npm 均可
 pnpm add react-zmage
-# or
-npm i react-zmage --save
+# 或
+npm i react-zmage
+# 或
+yarn add react-zmage
 ```
 
-<h2 align="center">使用</h2>
+需要预先安装 `react` / `react-dom`（peer dependency）：
 
+```bash
+pnpm add react react-dom
+```
 
-#### 1.引入组件
-```js
+---
+
+## React 版本兼容
+
+| React | 状态 | 实现 |
+|---|---|---|
+| 16.8 ~ 17.x | ✅ 完全支持 | 走 `ReactDOM.render` |
+| 18.x | ✅ 完全支持 | 自动检测并使用 `createRoot` |
+| 19.x | ✅ 完全支持 | 必须使用 `createRoot`（已自动适配） |
+
+库内部用运行时 feature detection 选择 mount API，无需消费方做任何配置。具体见 [`Zmage.callee.tsx`](./packages/core/src/Zmage.callee.tsx) 的 `resolveMountAdapter`。
+
+---
+
+## 使用
+
+### 1. 作为组件
+
+```tsx
 import Zmage from 'react-zmage'
 import 'react-zmage/style.css'
+
+export default function Gallery() {
+  return <Zmage src="/photo.jpg" alt="风景" />
+}
 ```
 
-#### 2.将页面中的 img 标签替换为 Zmage 组件
-```jsx
-<img src="图片源链接" alt="示例" />
-// 👆 to 👇
-<Zmage src="图片源链接" alt="示例" />
+> 把 `<img>` 替换成 `<Zmage>` 即可。点击图片进入查看器。
+
+### 2. 命令式调用
+
+不依赖封面图，直接弹出查看器：
+
+```tsx
+import Zmage from 'react-zmage'
+
+function Trigger() {
+  return (
+    <button onClick={() => Zmage.browsing({ src: '/photo.jpg' })}>
+      打开查看器
+    </button>
+  )
+}
 ```
-<h6>现在这些图片都可以放大查看了 ！</h6>
 
-#### 也可以通过函数调用来唤出图片
-```jsx
-// Zmage.browsing 接受的 props 与 <Zmage/> 完全一致
-<button onClick={() => Zmage.browsing({ src: imagePath })}>
-  打开查看器
-</button>
+`Zmage.browsing` 接受与 `<Zmage>` 完全相同的 props，并返回一个 `() => void` 的 destructor 函数（手动关闭用）。
+
+### 3. 自动包裹 HTML
+
+适合渲染 markdown / 富文本输出，自动给所有 `<img>` 加查看功能：
+
+```tsx
+<Zmage.wrapper>
+  <article dangerouslySetInnerHTML={{ __html: htmlContent }} />
+</Zmage.wrapper>
 ```
 
-#### 在`typescript`中使用
+### 4. TypeScript 用法
 
-```typescript
-import ReactZmage from 'react-zmage'
+完整类型支持，支持泛型 ref 转发：
+
+```tsx
+import Zmage from 'react-zmage'
+import type { BaseType } from 'react-zmage'
 import 'react-zmage/style.css'
+import { useRef } from 'react'
 
-// 在生命周期等方法中使用
-public componentDidMount() {
-    const zmage = new ReactZmage({
-        // ...options
-    })
-}
+export function App() {
+  const imgRef = useRef<HTMLImageElement>(null)
 
-// 也支持组件方式使用
-public render(): JSX.Element {
-  const defaultConfig = {
-    src: 'http://zmage.caldis.me/imgSet/childsDream/demo.jpg',
-    alt: '示例图片',
-  };
+  const config: BaseType = {
+    src: '/photo.jpg',
+    alt: '示例',
+    onBrowsing: (state) => console.log('browsing:', state),
+  }
 
-  return <ReactZmage {...defaultConfig} />
+  return <Zmage {...config} ref={imgRef} />
 }
 ```
 
-#### SSR / RSC 环境
+### 5. SSR / RSC
 
-如果在 Next.js App Router、Remix 等 SSR / Server Components 中使用，请引用 server 友好入口：
+Next.js App Router / Remix 等 Server Components 环境，使用 SSR 友好入口：
 
-```ts
+```tsx
 import Zmage from 'react-zmage/ssr'
 import 'react-zmage/style.css'
 ```
 
-<h2 align="center">基础配置</h2>
-<h6 align="center">立即上手, 你仅仅需要了解下面的几个参数就足够了</h6>
+API 完全一致，仅产物为 platform-neutral，避免 SSR 阶段引用浏览器 API。
 
-#### 在线示例, 请参见 [https://zmage.caldis.me](https://zmage.caldis.me)
+---
 
-- 基础调用属性
+## API
 
-|配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:----------|:----------:|
-| **`src`** | String | "" | 图片 Url，与 `img` 标签的 `src` 属性相同 | [示例](https://github.com/Caldis/react-zmage#src) |
-| **`alt`** | String | "" | 图片占位文字，与 `img` 标签的 `alt` 属性相同 | [示例](https://github.com/Caldis/react-zmage#alt) |
-| **`set`** | Object[] | [] | 序列图片, 可以在 `set` 中传入多个图片对象用于在查看模式下呈现多张图片，也可用于呈现放大后的高清图片 | [示例](https://github.com/Caldis/react-zmage#set) |
-| **`defaultPage`** | Number | 0 | 如果传入了`set`来展示多张图片, 可以用于指定打开后的默认页 | [示例](https://github.com/Caldis/react-zmage#defaultPage) |
+> **类型签名约定**：表中的 `类型` 列均为 TypeScript 字面量。`?` 表示可选。
 
-<h2 align="center">高级配置</h2>
-<h6 align="center">不需要了解这些参数也可以很好的使用, 但如果你需要更详细的定制, 可以进一步查阅下面的内容</h2>
+### 基础 Props
 
-- 预设配置 (beta)
+最少了解这 5 个就能用：
 
-|配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:----------|:----------:|
-| **`preset`** | String | "auto" | 轻松配置界面的功能及样式, 可设置为 `auto` `desktop` `mobile` | [示例](https://github.com/Caldis/react-zmage#preset) [受影响的配置项](https://github.com/Caldis/react-zmage/blob/master/src/config/default.js#L144) |
+| 配置项 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `src` | `string` | `""` | 图片 URL，等同于 `<img>` 的 `src` |
+| `alt` | `string` | `""` | 图片占位文字，等同于 `<img>` 的 `alt` |
+| `txt` | `string` | `""` | 图片描述文本（除标题外的二级文案，可选） |
+| `set` | `Set[]` | `[]` | 多图集合，传入后启用浏览模式（左右翻页） |
+| `defaultPage` | `number` | `0` | 多图模式下的初始页码 |
 
-- 受控属性
+### 预设 Props
 
-|配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:---------------|:----------:|
-| **`browsing`** | Boolean | empty | 控制是否进入查看模式 | [示例](https://github.com/Caldis/react-zmage#browsing) |
+| 配置项 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `preset` | `'desktop' \| 'mobile'` | `'desktop'` | 端预设。决定 `controller` / `hotKey` / `animate` 的默认值集合（[详见预设表](./packages/core/src/types/default.ts)） |
 
-- 功能控制
+> ⚠️ 旧值 `'auto'` 已废弃，会 fallback 到 `'desktop'` 并打 warning。
 
-|配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:---------------|:----------:|
-| **`controller`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L60) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L136)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L156) | 将特定项设为 `false` 来隐藏查看模式下的操作控件 | [示例](https://github.com/Caldis/react-zmage#controller) |
-| **`hotKey`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L76) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L144)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L164) | 将特定项设为 `false` 来禁用查看模式下的快捷键 | [示例](https://github.com/Caldis/react-zmage#hotKey) |
-| **`animate`** | [查看](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L88) | [桌面](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L149)\|[移动](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.ts#L169) | 传入特定的参数指定翻页动画（browsing 动画暂不可配置） [可选值](https://github.com/Caldis/react-zmage/blob/9e13e09fe77b7944251af8b8d1b453c21d7e0445/src/config/default.js#L62) | [示例](https://github.com/Caldis/react-zmage#animate) |
+### 受控 Props
 
-- 界面样式
+| 配置项 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `browsing` | `boolean` | _(uncontrolled)_ | 显式控制查看器开关。设置后由父组件全权管理状态，需配合 `onBrowsing` 接收变更。不传则组件自治。 |
 
-|配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:----------|:----------:|
-| **`backdrop`** | String | "#FFFFFF" | 控制图片放大后的背景色 | [示例](https://github.com/Caldis/react-zmage#backdrop) |
-| **`zIndex`** | Number | 1000 | 控制外部容器的 `z-index`, 防止被其他元素遮挡 | [示例](https://github.com/Caldis/react-zmage#zIndex) |
-| **`radius`** | Number | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.ts#L160)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.ts#L178) | 控制图片在查看模式下的圆角 | [示例](https://github.com/Caldis/react-zmage#radius) |
-| **`edge`** | Number | [桌面](https://github.com/Caldis/react-zmage/blob/master/src/config/default.ts#L161)\|[移动](https://github.com/Caldis/react-zmage/blob/master/src/config/default.ts#L179) | 控制图片在查看模式下距离屏幕边缘的距离 | [示例](https://github.com/Caldis/react-zmage#edge) |
+### 功能控制 Props
 
-- 生命周期
+| 配置项 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `controller` | `boolean \| ControllerSet` | preset 决定 | 顶部工具栏按钮显隐 |
+| `hotKey` | `boolean \| HotKey` | preset 决定 | 键盘快捷键开关 |
+| `animate` | `boolean \| Animate` | preset 决定 | 动画行为 |
 
-|配置项|类型|默认值|描述|示例|
-|:--:|:--:|:-----:|:----------|:----------:|
-| **`onBrowsing`** | func | (browsing)=>{} | 生命周期方法, 在显示/隐藏时调用, 会回传显示状态 | [示例](https://github.com/Caldis/react-zmage#onBrowsing) |
-| **`onZooming`** | func | (zooming)=>{} | 生命周期方法, 在放大/缩小时调用, 会回传缩放状态 | [示例](https://github.com/Caldis/react-zmage#onZooming) |
-| **`onSwitching`** | func | (paging)=>{} | 生命周期方法, 在切换图片时调用, 会回传页码 | [示例](https://github.com/Caldis/react-zmage#onSwitching) |
-| **`onRotating`** | func | (deg)=>{} | 生命周期方法, 在旋转图片时调用, 会回传角度 | [示例](https://github.com/Caldis/react-zmage#onRotating) |
+#### `ControllerSet` 全字段
 
-### `src`
-```js
-"http://zmage.caldis.me/imgSet/childsDream/demo.jpg"
+```ts
+interface ControllerSet {
+  pagination?: boolean | ReactNode  // 多页指示器
+  zoom?: boolean | string | ReactNode  // 缩放按钮
+  download?: boolean | string | ReactNode  // 下载按钮
+  close?: boolean | string | ReactNode  // 关闭按钮
+  rotate?: boolean | string | ReactNode  // 旋转 (左+右组合按钮)
+  rotateLeft?: boolean | string | ReactNode  // 仅左旋
+  rotateRight?: boolean | string | ReactNode  // 仅右旋
+  flip?: boolean | string | ReactNode  // 翻页 (左+右)
+  flipLeft?: boolean | string | ReactNode  // 仅上一页
+  flipRight?: boolean | string | ReactNode  // 仅下一页
+}
 ```
 
-### `alt`
-```js
-"图片的占位文字，作为图片的标题, 请尽量保持简短"
+#### 预设的默认 `ControllerSet`
+
+| 字段 | desktop | mobile |
+|---|---|---|
+| `pagination` | `true` | `true` |
+| `rotate` | `true` | `false` |
+| `zoom` | `true` | `false` |
+| `download` | `false` | `false` |
+| `close` | `true` | `true` |
+| `flip` | `true` | `false` |
+
+#### `HotKey` 字段
+
+```ts
+interface HotKey {
+  close?: boolean  // ESC 关闭
+  zoom?: boolean   // 空格缩放
+  flip?: boolean   // 左右键翻页
+}
 ```
+
+桌面端默认全开；移动端默认全关。
+
+#### `Animate` 字段
+
+```ts
+interface Animate {
+  browsing?: boolean              // 进入/退出动画 (暂不可配, 仅占位)
+  flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom'  // 翻页动画
+}
+```
+
+> ⚠️ 当 `set.length < 3` 时，`flip` 强制为 `'fade'`（避免单/双图边图为空时的视觉破绽）。
+>
+> 默认值：desktop = `'fade'`，mobile = `'swipe'`。
+
+### 界面交互 Props
+
+| 配置项 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `hideOnScroll` | `boolean` | `true` | 桌面端：滚动时是否自动关闭查看器（移动端无效） |
+| `coverVisible` | `boolean` | `false` | 桌面端：放大期间是否保留封面图占位（默认会隐藏避免动画穿帮） |
+| `backdrop` | `string` | `"#FFFFFF"` | 查看器背景色（接受任何合法 CSS color / gradient） |
+| `zIndex` | `number` | `1000` | Portal 容器的 `z-index` |
+| `radius` | `number` | desktop:`0` / mobile:`0` | 查看模式下图片圆角 (px) |
+| `edge` | `number` | desktop:`0` / mobile:`0` | 图片距屏幕边缘的留白 (px) |
+| `loop` | `boolean` | `true` | 多图模式：尾页是否循环回首页 |
+
+### 生命周期回调
+
+| 配置项 | 签名 | 触发时机 |
+|---|---|---|
+| `onBrowsing` | `(isBrowsing: boolean) => void` | 进入/退出查看模式 |
+| `onZooming` | `(isZooming: boolean) => void` | 放大/缩小切换 |
+| `onSwitching` | `(page: number) => void` | 翻页时回传新页码 |
+| `onRotating` | `(deg: number) => void` | 旋转时回传当前角度 |
+
+### 完整类型定义
+
+所有 props 通过单一交叉类型 `BaseType` 暴露：
+
+```ts
+export type BaseType =
+  & BaseParams                    // src / alt / txt / set / defaultPage
+  & PresetParams                  // preset
+  & FunctionalParams              // controller / hotKey / animate
+  & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop
+  & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating
+  & ControlledParams              // browsing
+  & HTMLAttributes<HTMLImageElement>  // 透传给底层 <img> 的全部原生属性 (className, style, onClick, ...)
+```
+
+子类型完整定义见 [`packages/core/src/types/global.ts`](./packages/core/src/types/global.ts)。
+
+---
+
+## Props 示例
 
 ### `set`
-```js
-// 如果设置了 Set, 则进入查看模式后第一张图片将会是 set 的首图, 而不是 src
-// 如果你需要在查看模式中呈现高精度图片, 可以将其设置为 set 的首图, 或使用 defaultPage 指定
-set={[
-    {
-        // 图片 Url
-        src: "http://zmage.caldis.me/imgSet/childsDream/1.jpg",
-        // 图片占位文字
-        alt: "图片的占位文字，作为图片的标题, 请尽量保持简短",
-        // 图片样式
-        style: { borderRadius: 30 },
-        // 图片类名
-        className: 'testClassName'
-    },
-    {
-        // 另一个图片 Url
-        src: "http://zmage.caldis.me/imgSet/childsDream/2.jpg",
-        // 另一段图片占位文字
-        alt: "图片的占位文字，作为图片的标题, 请尽量保持简短",
-    }
-]}
+
+```tsx
+<Zmage
+  src="/cover.jpg"
+  set={[
+    { src: '/01.jpg', alt: '页 1', style: { borderRadius: 30 }, className: 'custom' },
+    { src: '/02.jpg', alt: '页 2' },
+  ]}
+/>
 ```
 
-### `defaultPage`
-```js
-set: [
-    {
-        // 图片 Url
-        src: "http://zmage.caldis.me/imgSet/childsDream/1.jpg",
-        // 图片占位文字
-        alt: "图片的占位文字，尽量保持简短，描述图片作用",
-    }
-]
-```
-
-### `browsing`
-```js
-browsing={this.state.contrlledZmageState}
-```
+> 设置 `set` 后，进入查看模式的首图来自 `set[defaultPage]`，不再是 `src`。如果需要让封面与查看模式共享一张图，把它放进 `set[0]` 并保留 `src`。
 
 ### `controller`
-```js
-controller={{
-    // 关闭按钮
-    close: true,
-    // 缩放按钮
-    zoom: true,
-    // 下载按钮
-    download: true,
-    // 旋转按钮
-    rotate: true,
-    // 翻页按钮
-    flip: true,
-    // 多页指示
-    pagination: true,
-}}
+
+按需关闭部分按钮：
+
+```tsx
+<Zmage
+  src="/x.jpg"
+  controller={{
+    download: true,    // 启用下载
+    rotate: false,     // 关闭旋转
+  }}
+/>
 ```
 
 ### `hotKey`
-```js
-hotKey={{
-    // 关闭（ESC）
-    close: true,
-    // 缩放（空格）
-    zoom: true,
-    // 翻页（左右）
-    flip: true,
-}}
+
+```tsx
+<Zmage src="/x.jpg" hotKey={{ flip: false }} />  // 禁用左右键翻页
 ```
 
 ### `animate`
-```js
-animate={{
-    flip: 'fade',
-}}
+
+```tsx
+<Zmage src="/x.jpg" set={[...]} animate={{ flip: 'crossFade' }} />
 ```
 
 ### `backdrop`
-```js
-backdrop="linear-gradient(90deg, rgba(0,212,255,1) 0%, rgba(26,94,215,1) 100%)"
+
+```tsx
+<Zmage src="/x.jpg" backdrop="linear-gradient(90deg, #00d4ff 0%, #1a5ed7 100%)" />
 ```
 
-### `zIndex`
-```js
-zIndex={19260817}
+### `browsing` (受控)
+
+```tsx
+const [open, setOpen] = useState(false)
+
+return (
+  <>
+    <button onClick={() => setOpen(true)}>查看</button>
+    <Zmage
+      src="/x.jpg"
+      browsing={open}
+      onBrowsing={setOpen}
+    />
+  </>
+)
 ```
 
-### `radius`
-```js
-radius={5}
+### 生命周期
+
+```tsx
+<Zmage
+  src="/x.jpg"
+  onBrowsing={(state) => console.info('Browsing:', state)}
+  onZooming={(state) => console.info('Zooming:', state)}
+  onSwitching={(page) => console.info('Switching to page:', page)}
+  onRotating={(deg) => console.info('Rotating:', deg, 'deg')}
+/>
 ```
 
-### `edge`
-```js
-edge={20}
+---
+
+## 贡献
+
+欢迎发起 [PR](https://github.com/Caldis/react-zmage/pulls) 改进代码，或通过 [Issues](https://github.com/Caldis/react-zmage/issues) 反馈问题。
+
+仓库布局是 pnpm + turbo 单仓多包：
+- `packages/core` — 发布到 npm 的 `react-zmage` 库
+- `packages/home` — 演示站源码（构建产物在 `docs/`）
+- `packages/sandbox-r{17,18,19}` — 真实 npm 消费者集成测试沙箱
+
+常用命令：
+```bash
+pnpm install     # 安装所有 workspace 依赖
+pnpm build       # 构建 core 与 home
+pnpm test        # 跑单元测试
+pnpm -w run check  # 跑跨 React 版本兼容性测试 (build → pack → reinstall → 三 sandbox tsc)
 ```
 
-### `onBrowsing`
-```js
-onBrowsing={state => {
-    console.info("Browsing State: ", state)
-}}
-```
+---
 
-### `onZooming`
-```js
-onZooming={state => {
-    console.info("Zooming State: ", state)
-}}
-```
+## 引用
 
-### `onSwitching`
-```js
-onSwitching={page => {
-    console.info("Switching page: ", page)
-}}
-```
+- 图标来源：[Material Icons](https://material.io/tools/icons/)
 
-### `onRotating`
-```js
-onRotating={deg => {
-    console.info("Rotating State: ", deg, "deg")
-}}
-```
+---
 
+## 证书
 
-<h2 align="center">贡献</h2>
-
-我们随时欢迎发起一个 [PR](https://github.com/Caldis/react-zmage/pulls) 来帮助我们改进代码
-如果发现任何问题, 也欢迎 [发起一个ISSUE](https://github.com/Caldis/react-zmage/issues) 来反馈你的意见
-
-<h2 align="center">引用</h2>
-- [Material Icons](https://material.io/tools/icons/)
-
-<h2 align="center">证书</h2>
-
-react-zmage 基于 [MIT licensed](./LICENSE) 发布
+[MIT](./LICENSE)
