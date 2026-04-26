@@ -25,3 +25,28 @@ jobs:
         run: pnpm test
       - name: Build
         run: pnpm build
+
+  sandbox-matrix:
+    # 验证 dist 产物在 React 17/18/19 下都能被真实消费 (npm pack -> 安装 -> tsc)
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        react: [17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run check pipeline (build + pack + reinstall)
+        run: pnpm -w run check
+      - name: Run only matching React sandbox
+        # check 已经跑过全部 sandbox; 这里再独立跑一遍, CI 输出按 React 版本分列, 方便定位回归
+        run: pnpm --filter react-zmage-sandbox-r${{ matrix.react }} run check

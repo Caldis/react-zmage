@@ -55,8 +55,8 @@
     "react-use": "^17.3.2"
   },
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
+    "react": ">=16.8.0 <20",
+    "react-dom": ">=16.8.0 <20"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.17.0",
