@@ -83,6 +83,7 @@ export const en: I18nDict = {
   'docs.sidebar.ssr': 'SSR',
   'docs.sidebar.concepts': 'Concepts',
   'docs.sidebar.modes': 'Modes',
+  'docs.sidebar.theming': 'Theming',
   'docs.sidebar.props': 'Props',
   'docs.sidebar.recipes': 'Recipes',
   'docs.sidebar.examples': 'Examples',
