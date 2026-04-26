@@ -21,7 +21,7 @@ export default {
         'slide-up': 'slide-up 280ms cubic-bezier(0.2, 0.7, 0.3, 1)',
       },
       backgroundImage: {
-        'grid': 'linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgb(255 255 255 / 0.04) 1px, transparent 1px)',
+        'grid': 'linear-gradient(to right, hsl(var(--foreground) / 0.06) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--foreground) / 0.06) 1px, transparent 1px)',
       },
     },
   },

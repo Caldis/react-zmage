@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Copy, Check, ImageIcon, GalleryHorizontal, Wand2, Code2 } from 'lucide-react'
+import { ArrowRight, Copy, Check, ImageIcon, GalleryHorizontal, Wand2, Code2, Plus } from 'lucide-react'
 import Zmage from 'react-zmage'
 import zmagePkg from 'react-zmage/package.json'
 import { Badge } from '@/components/ui/badge'
@@ -35,13 +35,20 @@ function NpmChip () {
 function Hero () {
   const { t } = useT()
   return (
-    <section className="relative isolate overflow-hidden">
+    <section className="relative isolate overflow-hidden h-screen flex flex-col">
       {/* grid background */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-grid [background-size:40px_40px]" aria-hidden />
-      {/* radial glow */}
-      <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,hsl(var(--foreground)/0.08),transparent)]" aria-hidden />
+      {/* radial glow — anchored behind the lower-third logo */}
+      <div className="pointer-events-none absolute left-1/2 bottom-[20%] -z-10 h-[700px] w-[1000px] -translate-x-1/2 translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,hsl(var(--foreground)/0.08),transparent)]" aria-hidden />
+      {/* corner crosshair markers */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <Plus className="absolute top-2 left-2 h-3.5 w-3.5 text-foreground/40" />
+        <Plus className="absolute top-2 right-2 h-3.5 w-3.5 text-foreground/40" />
+        <Plus className="absolute bottom-2 left-2 h-3.5 w-3.5 text-foreground/40" />
+        <Plus className="absolute bottom-2 right-2 h-3.5 w-3.5 text-foreground/40" />
+      </div>
 
-      <div className="mx-auto flex min-h-[80vh] max-w-5xl flex-col items-center px-4 py-32 text-center sm:px-6">
+      <div className="relative mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-4 text-center sm:px-6">
         <Badge variant="secondary" className="mb-8 font-mono">
           v{zmagePkg.version} · {t('hero.pill')}
         </Badge>
@@ -70,6 +77,14 @@ function Hero () {
           </Button>
           <NpmChip />
         </div>
+      </div>
+      {/* logo anchored in the lower portion, sitting in the radial glow */}
+      <div className="relative flex justify-center pb-16">
+        <img
+          src="/logo.png"
+          alt="react-zmage"
+          className="h-24 w-24 opacity-90 drop-shadow-[0_0_40px_hsl(var(--foreground)/0.2)]"
+        />
       </div>
     </section>
   )
