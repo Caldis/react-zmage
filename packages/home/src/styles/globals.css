@@ -1,6 +1,4 @@
 @import "tailwindcss";
-@import "geist/font/sans";
-@import "geist/font/mono";
 
 @layer base {
   :root {
