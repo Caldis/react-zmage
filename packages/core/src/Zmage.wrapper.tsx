@@ -38,7 +38,17 @@ export default class ReactZmageWrapper extends React.Component<Props> {
           item.setAttribute('zmage', String(Date.now()))
           // Add browser
           item.style.cursor = 'zoom-in'
-          item.addEventListener('click', () => callee({ coverRef: { current: item }, ...restProps }))
+          // 关键: 用被点击 <img> 自身的 src/alt 覆盖从 props 合并 (defaultProps) 进来的空字符串.
+          // 否则 wrapperProps.src='' 会盖掉 coverRef 里 item 的实际 src, callee 落到 set=[{src:''}]
+          // 路径, 模态层渲染 src="" 触发浏览器 "empty src" 警告 + 模态空白.
+          const itemSrc = item.getAttribute('src') || ''
+          const itemAlt = item.getAttribute('alt') || undefined
+          item.addEventListener('click', () => callee({
+            ...restProps,
+            coverRef: { current: item },
+            src: itemSrc,
+            alt: itemAlt,
+          }))
         }
       })
     }
