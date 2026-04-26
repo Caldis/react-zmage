@@ -1,9 +1,12 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Copy, Check } from 'lucide-react'
+import { ArrowRight, Copy, Check, ImageIcon, GalleryHorizontal, Wand2, Code2 } from 'lucide-react'
+import Zmage from 'react-zmage'
 import zmagePkg from 'react-zmage/package.json'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { CodeBlock } from '@/components/CodeBlock'
 import { Footer } from '@/components/Footer'
 import { useT } from '@/i18n/useT'
 import { cn } from '@/lib/utils'
@@ -72,11 +75,63 @@ function Hero () {
   )
 }
 
+function LiveDemo () {
+  const { t } = useT()
+  return (
+    <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+      <div className="overflow-hidden rounded-2xl border border-border bg-muted/20 shadow-2xl shadow-black/40">
+        <div className="aspect-[16/9] w-full">
+          <Zmage
+            className="h-full w-full object-cover"
+            src="/imgSet/childsDream/1.jpg"
+            alt="Live demo"
+            set={[
+              { src: '/imgSet/childsDream/1.jpg', alt: '童夢 · ONE' },
+              { src: '/imgSet/childsDream/2.jpg', alt: '童夢 · TWO' },
+              { src: '/imgSet/childsDream/3.jpg', alt: '童夢 · THREE' },
+              { src: '/imgSet/childsDream/4.jpg', alt: '童夢 · FOUR' },
+            ]}
+          />
+        </div>
+      </div>
+      <p className="mt-6 text-center text-sm text-muted-foreground">{t('demo.caption')}</p>
+    </section>
+  )
+}
+
+const FEATURES = [
+  { icon: ImageIcon, titleKey: 'feature.dropin.title' as const, hintKey: 'feature.dropin.hint' as const, code: '<Zmage src="..." />' },
+  { icon: GalleryHorizontal, titleKey: 'feature.set.title' as const, hintKey: 'feature.set.hint' as const, code: '<Zmage src="..." set={[...]} />' },
+  { icon: Code2, titleKey: 'feature.imperative.title' as const, hintKey: 'feature.imperative.hint' as const, code: 'Zmage.browsing({ src })' },
+  { icon: Wand2, titleKey: 'feature.wrapper.title' as const, hintKey: 'feature.wrapper.hint' as const, code: '<Zmage.Wrapper>{children}</Zmage.Wrapper>' },
+]
+
+function FeatureGrid () {
+  const { t } = useT()
+  return (
+    <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+      <div className="grid gap-4 md:grid-cols-2">
+        {FEATURES.map(({ icon: I, titleKey, hintKey, code }) => (
+          <Card key={titleKey} className="group relative overflow-hidden border-border/60 bg-card/40 p-6 transition-colors hover:bg-card/70">
+            <I className="h-5 w-5 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-medium">{t(titleKey)}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">{t(hintKey)}</p>
+            <div className="mt-5">
+              <CodeBlock code={code} language={'tsx' as any} showCopy={false} />
+            </div>
+          </Card>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function Home () {
   return (
     <>
       <Hero />
-      {/* TODO sections wired in Tasks 14-15 */}
+      <LiveDemo />
+      <FeatureGrid />
       <Footer />
     </>
   )
