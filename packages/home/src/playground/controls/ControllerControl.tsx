@@ -21,10 +21,11 @@ export function ControllerControl ({ value, onChange }: { value: ControllerSet |
   const { t } = useT()
   const obj: ControllerSet = (typeof value === 'object' && value) ? value : {}
   return (
-    <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+    // 单列 + 小字号: 任意语言下都能完整展示 label, 不依赖截断或 wrap
+    <div className="grid gap-1.5">
       {KEYS.map(({ key, labelKey }) => (
-        <label key={String(key)} className="flex items-center justify-between gap-2 text-[11px]">
-          <span className="truncate" title={t(labelKey)}>{t(labelKey)}</span>
+        <label key={String(key)} className="flex items-center justify-between gap-3 text-[11px] leading-tight">
+          <span className="text-muted-foreground">{t(labelKey)}</span>
           <Switch
             checked={!!obj[key]}
             onCheckedChange={(checked) => onChange({ ...obj, [key]: checked })}

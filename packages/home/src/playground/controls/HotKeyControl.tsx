@@ -13,10 +13,10 @@ export function HotKeyControl ({ value, onChange }: { value: HotKey | boolean | 
     { key: 'flip', labelKey: 'hotkey.flip' },
   ]
   return (
-    <div className="grid gap-2">
+    <div className="grid gap-1.5">
       {rows.map(({ key, labelKey }) => (
-        <label key={String(key)} className="flex items-center justify-between gap-2 text-xs">
-          <span>{t(labelKey)}</span>
+        <label key={String(key)} className="flex items-center justify-between gap-3 text-[11px] leading-tight">
+          <span className="text-muted-foreground">{t(labelKey)}</span>
           <Switch checked={!!obj[key]} onCheckedChange={c => onChange({ ...obj, [key]: c })} />
         </label>
       ))}
