@@ -22,7 +22,7 @@ function NpmChip () {
         setCopied(true)
         setTimeout(() => setCopied(false), 1500)
       }}
-      className="group inline-flex items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted"
+      className="group inline-flex cursor-pointer items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       <span>$ {cmd}</span>
       {copied

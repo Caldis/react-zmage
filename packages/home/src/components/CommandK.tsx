@@ -9,6 +9,9 @@ import { useT } from '@/i18n/useT'
 import { Button } from '@/components/ui/button'
 import type { I18nKey } from '@/i18n/dict'
 
+const IS_MAC = typeof navigator !== 'undefined' && /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent || '')
+const SHORTCUT_LABEL = IS_MAC ? '⌘K' : 'Ctrl+K'
+
 type Item = { id: string; label: string; href: string; group: string }
 
 function buildIndex (t: (k: I18nKey) => string): Item[] {
@@ -65,7 +68,7 @@ export function CommandK () {
         <Button variant="outline" size="sm" className="hidden gap-2 text-muted-foreground sm:inline-flex">
           <Search className="h-3.5 w-3.5" />
           <span>{t('docs.search.placeholder')}</span>
-          <span className="ml-auto rounded border border-border bg-background px-1.5 font-mono text-[10px]">⌘K</span>
+          <span className="ml-auto rounded border border-border bg-background px-1.5 font-mono text-[10px]">{SHORTCUT_LABEL}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-xl p-0">
@@ -78,7 +81,7 @@ export function CommandK () {
           ) : results.map(r => (
             <li key={r.id}>
               <button
-                className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-accent"
+                className="flex w-full cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
                 onClick={() => { setOpen(false); navigate(r.href) }}
               >
                 <span>{r.label}</span>
