@@ -92,7 +92,7 @@ const baseConfig: Options = {
     'process.env.NODE_ENV': JSON.stringify('production'),
   },
   minify: false,
-  external: ['react', 'react-dom'],
+  external: ['react', 'react-dom', 'react-dom/client'],
   esbuildPlugins: [lessModulePlugin()],
 }
 
