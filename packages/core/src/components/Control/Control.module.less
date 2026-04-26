@@ -8,6 +8,9 @@
   z-index: 1000;
   box-sizing: border-box;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   > svg {
     display: block;
@@ -22,6 +25,7 @@
   position: absolute;
   top: 0.6rem;
   right: 0.6rem;
+  padding: 0 0.4rem;
   opacity: 0;
   display: flex;
   z-index: 1000;
@@ -42,6 +46,11 @@
     height: 2rem;
     transition: transform @animationDurationHalf @animationFunction, opacity @animationDuration @animationFunction;
 
+    > svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
     &:hover {
       opacity: 0.8 !important;
       transform: scale(1.1) !important;
@@ -51,14 +60,6 @@
       opacity: 1 !important;
       transform: scale(1) !important;
     }
-
-    &:first-of-type {
-      margin-left: 0.4rem;
-    }
-
-    &:last-of-type {
-      margin-right: 0.4rem;
-    }
   }
 
   // 旋转
@@ -66,7 +67,6 @@
     .pinButton;
 
     svg {
-      width: 1.75rem;
       transition: transform @animationDuration @animationFunction;
     }
   }
@@ -97,7 +97,6 @@
 
     svg {
       margin-top: -0.06rem;
-      width: 1.75rem;
     }
   }
 

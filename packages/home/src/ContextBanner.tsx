@@ -20,7 +20,7 @@ const styles: { [k: string]: React.CSSProperties } = {
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 99999,
+    zIndex: 100,
     background: 'rgba(15, 23, 42, 0.92)',
     color: '#e2e8f0',
     fontFamily: 'ui-monospace, "SF Mono", Menlo, Consolas, monospace',

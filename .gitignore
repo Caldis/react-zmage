@@ -14,3 +14,6 @@ dist-artifacts
 # Next.js build output
 .next/
 next-env.d.ts
+
+# Playwright MCP test artifacts (screenshots / console logs / DOM snapshots)
+.playwright-mcp/
