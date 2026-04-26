@@ -33,7 +33,7 @@ function getControllerItem (
   onClick: () => void,
   show: boolean,
   zoom: boolean,
-  child?: JSX.Element,
+  child?: React.JSX.Element,
 ) {
   if (typeof item === 'boolean' || typeof item === 'string') {
     // Flag or Color

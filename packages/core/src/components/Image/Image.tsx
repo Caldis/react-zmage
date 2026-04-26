@@ -335,7 +335,7 @@ export default class Image extends React.Component<PropsType, StateType> {
           ele && acc.push(ele)
         }
         return acc
-      }, [] as JSX.Element[])
+      }, [] as React.JSX.Element[])
     } else {
       return this.buildImage({ step: 0, imageIndex: page })
     }

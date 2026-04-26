@@ -123,7 +123,7 @@ class ReactZmage extends React.Component<PropsType, StateType> {
 // - 也修复了原 ForwardRefExoticComponent 与显式 call signature 交叉时
 //   导致严格模式下 callback prop 参数无法上下文推断 (state/page/deg implicit any) 的问题
 export type ReactZmageComponent =
-  & ((props: BaseType & RefAttributes<HTMLImageElement>) => JSX.Element | null)
+  & ((props: BaseType & RefAttributes<HTMLImageElement>) => React.JSX.Element | null)
   & {
     displayName?: string
     browsing: typeof callee

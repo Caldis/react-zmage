@@ -57,17 +57,26 @@ const resolveMountAdapter = (): MountAdapter => {
   }
 
   // Fallback: legacy ReactDOM.render (R16/17)
-  // 在 R19 + ESM 且无 require 的环境下这里也会被走到, 此时 ReactDOM.render 已被删除, 会立即抛错提示用户
-  if (typeof (ReactDOM as { render?: unknown }).render !== 'function') {
+  // R19 在 type 层 (@types/react-dom@19) 已经删除了 .render / .unmountComponentAtNode 的类型;
+  // 但运行时下的 react-dom@16/17 仍然提供这些方法. 这里通过 unknown 双断言保留运行时兼容,
+  // 同时把构建期类型对齐到当前安装版本 (R19), 避免 tsc 在 ssr 模式下 (主-types/react-dom 解析到 R19) 报错.
+  // 在 R19 + ESM 且无 require 的环境下这里也会被走到, 此时 ReactDOM.render 已被删除, 会立即抛错提示用户.
+  type LegacyReactDOM = {
+    render: (element: ReactElement, container: HTMLElement) => void
+    unmountComponentAtNode: (container: HTMLElement) => void
+    version?: string
+  }
+  const legacy = ReactDOM as unknown as LegacyReactDOM
+  if (typeof legacy.render !== 'function') {
     throw new Error(
-      `react-zmage: no compatible mount API found (react-dom version ${(ReactDOM as { version?: string }).version ?? 'unknown'}). ` +
+      `react-zmage: no compatible mount API found (react-dom version ${legacy.version ?? 'unknown'}). ` +
       'In React 19+ ESM environments, ensure react-dom/client is resolvable at runtime.'
     )
   }
   cachedAdapter = {
     mount: (element, container) => {
-      ReactDOM.render(element, container)
-      return () => { ReactDOM.unmountComponentAtNode(container) }
+      legacy.render(element, container)
+      return () => { legacy.unmountComponentAtNode(container) }
     },
   }
   return cachedAdapter
@@ -194,8 +203,17 @@ const callee = ({ coverRef, ...props }: BaseType) => {
     />,
     RENDER.PORTAL
   )
-  // Return destructor
-  return RENDER.REF.current?.outBrowsing
+  // Return destructor — 必须返回一个稳定函数, 不能直接返回 RENDER.REF.current?.outBrowsing.
+  // R17 的 ReactDOM.render 同步 commit, ref 在 mount 时立刻可读;
+  // R18+ 的 createRoot.render 异步 commit, callee() 返回时 ref 还是 null,
+  // 直接读 .current 会让 R18/19 用户拿到 undefined (历史遗留 bug, 在多版本测试矩阵
+  // 统一到 R19 之前未被覆盖到).
+  //
+  // 返回闭包延迟解引用 ref. 语义上"destructor"应当是 force-kill, 因此始终走
+  // synchronous unmount + removeChild 路径; 不依赖 setState→setTimeout 的退出动画
+  // (那条路径在 R18+ concurrent 渲染下时序不稳定, 且对一个被显式调用的 destroy()
+  // 来说"立即生效"比"动画退出"语义上更合适, 也避免和调用方自己的 cleanup 编排打架).
+  return destructor
 }
 
 export default callee
