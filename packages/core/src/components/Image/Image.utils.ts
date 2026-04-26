@@ -5,7 +5,7 @@
 // Libs
 import { RefObject } from 'react'
 // Utils
-import { calcFitScale, getInnerHeight, getScrollWidth, numberOfStyleUnits } from '../../utils'
+import { calcFitScale, getInnerHeight, getInnerWidth, numberOfStyleUnits } from '../../utils'
 import { animationTransition } from '../../config/anim'
 import { ContextType } from '../context'
 import { AnimateFlip } from '../../types/global'
@@ -53,7 +53,11 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
     const { opacity, borderRadius } = window.getComputedStyle(coverRef.current)
     return pageIsCover ? {
       _type: 'cover',
-      x: -getScrollWidth() / 2 + left + width / 2,
+      // 用 innerWidth (视口宽) 而非 scrollWidth (body 内容宽). Modal 的 Portal 是
+      // viewport-fixed 的, 缩放动画的 X 偏移参考系是视口中心. 当页面有横向滚动时
+      // (full-bleed 下大图把 body 撑宽) scrollWidth >> innerWidth, 用 scrollWidth
+      // 会让封面动画从左侧飘出而不是从原位长出.
+      x: -getInnerWidth() / 2 + left + width / 2,
       y: -getInnerHeight() / 2 + top + height / 2,
       opacity: Number(opacity) || 1,
       scale: naturalWidth ? width / naturalWidth : 1,
@@ -73,7 +77,7 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
     // 获取以鼠标指针为起始点的封面样式
     return {
       _type: 'cover',
-      x: coverPos.x ? coverPos.x - getScrollWidth() / 2 : 0,
+      x: coverPos.x ? coverPos.x - getInnerWidth() / 2 : 0,
       y: coverPos.y ? coverPos.y - getInnerHeight() / 2 : 0,
       opacity: 0,
       scale: 0,
@@ -113,14 +117,15 @@ export const getBrowsingStyle = (context: ContextType, imageRef: RefObject<HTMLI
 
 /* 获取缩放样式 */
 export const getZoomingStyle = (context: ContextType, imageRef: RefObject<HTMLImageElement>, {
-  clientX: mouseX = getScrollWidth() / 2,
+  clientX: mouseX = getInnerWidth() / 2,
   clientY: mouseY = getInnerHeight() / 2
 } = {}): ImageStyleType => {
   const { radius, edge, rotate } = context
   const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
   // 随鼠标位移偏移量
   const saveEdge = edge || 50
-  const viewWidth = getScrollWidth()
+  // mouseX/mouseY 是 event.clientX/Y, 视口相对; viewWidth 应当与之同一参考系 (innerWidth, 非 scrollWidth)
+  const viewWidth = getInnerWidth()
   const viewHeight = getInnerHeight()
   const rangeX = naturalWidth - viewWidth + (2 * saveEdge)
   const rangeY = naturalHeight - viewHeight + (2 * saveEdge)
@@ -160,7 +165,8 @@ export const getAnimateConfig = (type?: AnimateFlip): ImageAnimateType => {
     opacity = 0
     break
   case 'swipe':
-    offset = getScrollWidth() + SWIPE_GAP
+    // Modal 是 viewport-fixed, swipe 一屏的距离应当等于视口宽
+    offset = getInnerWidth() + SWIPE_GAP
     break
   case 'zoom':
     overflow = ZOOM_OVERFLOW
