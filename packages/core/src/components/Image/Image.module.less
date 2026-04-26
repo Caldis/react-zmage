@@ -7,6 +7,16 @@
   left: 50%;
   top: 50%;
   will-change: transform, top, opacity, clip-path;
+  // 抵抗消费方全局 img reset (Tailwind preflight / normalize.css / Bootstrap 等):
+  // zmage 的 cover-state 几何依赖模态 img 渲染在自然尺寸 (naturalWidth/Height),
+  // 然后用 transform: scale(width/naturalWidth) 缩到封面视觉尺寸。若上层把
+  // `img { max-width: 100%; height: auto }` 应用到模态 img, 它会先被父 portal
+  // 容器宽度截断, 再叠加 transform: scale 第二次缩放, 表现为 "起始动画状态比
+  // 封面更小". 显式松绑 width/height 约束以保护这套几何不受 reset 污染。
+  max-width: none;
+  max-height: none;
+  width: auto;
+  height: auto;
 
   &.zooming {
     transition-timing-function: @animationFunctionOnZooming;

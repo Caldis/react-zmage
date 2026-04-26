@@ -53,20 +53,3 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
-
-/*
- * react-zmage portal renders into <div id="zmage">. Tailwind preflight
- * applies `img { max-width: 100%; height: auto; display: block }` to every
- * <img>, which clamps zmage's modal image to its parent container width
- * before zmage's transform: scale() is applied — making the cover-state
- * scale calculation (width / naturalWidth) shrink an already-shrunk image.
- *
- * Undo the preflight clamps inside the zmage portal so zmage's geometry
- * sees the natural image dimensions.
- */
-#zmage img {
-  max-width: none;
-  max-height: none;
-  height: auto;
-  width: auto;
-}
