@@ -58,11 +58,14 @@ export function ScalarControl ({ def, value, onChange }: Props) {
   }
   if (c.kind === 'segmented') {
     return (
-      <Tabs value={String(value ?? '')} onValueChange={onChange} className="inline-flex">
-        <TabsList className="h-8">
-          {c.options.map(o => <TabsTrigger key={o.value} value={o.value} className="h-7 text-xs">{t(o.labelKey)}</TabsTrigger>)}
-        </TabsList>
-      </Tabs>
+      // 显式块级 flex 容器固定左对齐, 不依赖 inline-flex + 默认 justify 推断
+      <div className="flex">
+        <Tabs value={String(value ?? '')} onValueChange={onChange}>
+          <TabsList className="h-8">
+            {c.options.map(o => <TabsTrigger key={o.value} value={o.value} className="h-7 text-xs">{t(o.labelKey)}</TabsTrigger>)}
+          </TabsList>
+        </Tabs>
+      </div>
     )
   }
   if (c.kind === 'color') {
