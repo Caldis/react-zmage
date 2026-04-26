@@ -64,6 +64,8 @@ export default class Image extends React.Component<PropsType, StateType> {
   listeningMouseMove: boolean
   // 图片加载
   imageLoadingTimer: ReturnType<typeof setInterval>
+  // 延迟监听器注册的 RAF 句柄 — 卸载时必须 cancel, 否则 StrictMode 双 mount 会泄漏监听
+  pendingRafHandles: number[] = []
   // State
   readonly state = {
     // 加载状态
@@ -83,16 +85,16 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { presetIsMobile, presetIsDesktop, hideOnScroll } = this.context
     window.addEventListener('resize', this.handleResize)
     if (presetIsMobile) {
-      window.requestAnimationFrame(() => {
+      this.pendingRafHandles.push(window.requestAnimationFrame(() => {
         window.addEventListener('touchstart', this.handleTouchStart)
         window.addEventListener('touchmove', this.handleTouchMove)
         window.addEventListener('touchend', this.handleTouchEnd)
-      })
+      }))
     }
     if (presetIsDesktop && hideOnScroll) {
-      window.requestAnimationFrame(() => {
+      this.pendingRafHandles.push(window.requestAnimationFrame(() => {
         window.addEventListener('scroll', this.handleScroll)
-      })
+      }))
     }
   }
 
@@ -124,6 +126,11 @@ export default class Image extends React.Component<PropsType, StateType> {
 
   componentWillUnmount () {
     const { presetIsMobile, presetIsDesktop } = this.context
+    // 取消所有还未触发的 RAF, 防止 unmount 后再注册监听 (StrictMode 双 mount 泄漏的根因)
+    this.pendingRafHandles.forEach(handle => window.cancelAnimationFrame(handle))
+    this.pendingRafHandles = []
+    // 取消挂起的 debounce, 避免在已卸载组件上 setState
+    this.debounceUpdateCurrentImageStyle.cancel()
     if (presetIsMobile) {
       window.removeEventListener('touchstart', this.handleTouchStart)
       window.removeEventListener('touchmove', this.handleTouchMove)

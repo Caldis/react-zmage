@@ -200,18 +200,31 @@ const RANGE = { 0: [0], 1: [-1, 0, 1], 2: [-2, -1, 0, 1, 2], 3: [-3, -2, -1, 0, 
 export const mirrorRange = (edge: 0 | 1 | 2 | 3) => RANGE[edge]
 
 /**
- * 防抖
+ * 防抖 — 返回值带 .cancel() 方法, 用于在组件卸载时取消挂起调用
  */
-export const debounce = (func: () => unknown, delay: number) => {
-  let timer: ReturnType<typeof setTimeout>
-  return (...args: never[]) => {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const context = this
-    clearTimeout(timer)
+export interface Debounced<Args extends unknown[]> {
+  (...args: Args): void
+  cancel: () => void
+}
+export const debounce = <Args extends unknown[]>(
+  func: (...args: Args) => unknown,
+  delay: number
+): Debounced<Args> => {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const debounced = ((...args: Args) => {
+    if (timer !== undefined) clearTimeout(timer)
     timer = setTimeout(() => {
-      func.apply(context, args)
+      timer = undefined
+      func(...args)
     }, delay)
+  }) as Debounced<Args>
+  debounced.cancel = () => {
+    if (timer !== undefined) {
+      clearTimeout(timer)
+      timer = undefined
+    }
   }
+  return debounced
 }
 
 /**

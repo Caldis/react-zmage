@@ -30,13 +30,28 @@ class ReactZmageCallee extends React.Component<Props, State> {
   readonly state = {
     browsing: false,
   }
+  // 异步动作句柄
+  inBrowsingRaf?: number
+  outBrowsingTimer?: ReturnType<typeof setTimeout>
 
   componentDidMount () {
     this.inBrowsing()
   }
 
+  componentWillUnmount () {
+    if (this.inBrowsingRaf !== undefined) {
+      cancelAnimationFrame(this.inBrowsingRaf)
+      this.inBrowsingRaf = undefined
+    }
+    if (this.outBrowsingTimer !== undefined) {
+      clearTimeout(this.outBrowsingTimer)
+      this.outBrowsingTimer = undefined
+    }
+  }
+
   inBrowsing = () => {
-    requestAnimationFrame(() => {
+    this.inBrowsingRaf = requestAnimationFrame(() => {
+      this.inBrowsingRaf = undefined
       this.setState({
         browsing: true
       })
@@ -47,7 +62,12 @@ class ReactZmageCallee extends React.Component<Props, State> {
     this.setState({
       browsing: false
     }, () => {
-      destructor && setTimeout(destructor, animationDuration)
+      if (destructor) {
+        this.outBrowsingTimer = setTimeout(() => {
+          this.outBrowsingTimer = undefined
+          destructor()
+        }, animationDuration)
+      }
     })
   }
 

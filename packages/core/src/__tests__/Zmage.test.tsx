@@ -60,8 +60,7 @@ describe('Zmage StrictMode 双 mount/unmount 不应泄漏副作用', () => {
 
   const countListeners = (type: string) => listeners.get(type)?.size ?? 0
 
-  // TODO(PR-2): 取消 skip — Browser.unInit 的 setTimeout 链路在卸载时不可靠，会留下 scroll 监听器
-  it.skip('StrictMode 包裹的 Zmage 卸载后, keydown/scroll/mousemove 监听器全部清理', async () => {
+  it('StrictMode 包裹的 Zmage 卸载后, keydown/scroll/mousemove 监听器全部清理', async () => {
     const { unmount } = render(
       <StrictMode>
         <Zmage src={SRC} alt="t" preset="desktop"/>

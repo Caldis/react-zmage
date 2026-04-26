@@ -125,7 +125,7 @@ export interface InternalParams {
  */
 export interface CalleeParams {
   coverRef?: RefObject<HTMLImageElement>
-  destructor?: TimerHandler
+  destructor?: () => void
 }
 
 /**

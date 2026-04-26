@@ -65,6 +65,10 @@ export default class Browser extends React.Component<Props, State> {
     set: [] as Set[],
   }
 
+  // 异步动作句柄 — 卸载时必须取消, 否则 StrictMode/快速卸载下会在已卸载组件上 setState 并跳过副作用清理
+  initRaf?: number
+  unInitTimer?: ReturnType<typeof setTimeout>
+
   // State
   readonly state = (() => {
     const { coverRef, defaultPage, set } = this.props
@@ -113,6 +117,15 @@ export default class Browser extends React.Component<Props, State> {
   }
 
   componentWillUnmount () {
+    // 卸载前取消所有挂起异步, 避免在已卸载组件上 setState
+    if (this.initRaf !== undefined) {
+      cancelAnimationFrame(this.initRaf)
+      this.initRaf = undefined
+    }
+    if (this.unInitTimer !== undefined) {
+      clearTimeout(this.unInitTimer)
+      this.unInitTimer = undefined
+    }
     this.unInit({ force: true })
   }
 
@@ -164,7 +177,8 @@ export default class Browser extends React.Component<Props, State> {
         }
       }
       // Delay showing the browser
-      window.requestAnimationFrame(() => {
+      this.initRaf = window.requestAnimationFrame(() => {
+        this.initRaf = undefined
         this.setState({ show: true, zoom: false, rotate: 0, }, () => {
           presetIsDesktop && pageIsCover && !coverVisible && hideCover(coverRef)
           !isBrowsingControlled && typeof onBrowsing === 'function' && onBrowsing(true)
@@ -184,11 +198,11 @@ export default class Browser extends React.Component<Props, State> {
     } = this.getPropsWithEnv()
     const { show, pageIsCover } = this.state
     if (show || force) {
-      // Remove keydown & scroll events only in desktop
+      // === 同步清理: 不依赖动画时间, 不依赖 setState 回调 ===
+      // 这部分必须立即执行, 否则卸载或快速重渲染时会留下监听器/滚动锁
       if (presetIsDesktop) {
         window.removeEventListener('keydown', this.handleKeyDown)
         if (hideOnScroll) {
-          // Remove scroll listener
           window.removeEventListener('scroll', this.handleScroll)
         } else {
           // Re-enable page scroll
@@ -196,13 +210,28 @@ export default class Browser extends React.Component<Props, State> {
         }
       }
       !pageIsCover && !coverVisible && showCover(coverRef)
-      this.setState({ show: false, zoom: false, rotate: 0 }, () => setTimeout(() => {
-        this.setState({ mounted: false }, () => {
-          presetIsMobile && unlockTouchInteraction()
-          presetIsDesktop && pageIsCover && !coverVisible && showCover(coverRef)
-          !isBrowsingControlled && typeof onBrowsing === 'function' && onBrowsing(false)
+
+      // === 副作用回调 ===
+      // 强制卸载路径下同步执行, 因为 setState 在卸载组件上会被丢弃
+      // 正常关闭路径下放在动画结束后, 保证 UI 一致性
+      const finalize = () => {
+        presetIsMobile && unlockTouchInteraction()
+        presetIsDesktop && pageIsCover && !coverVisible && showCover(coverRef)
+        !isBrowsingControlled && typeof onBrowsing === 'function' && onBrowsing(false)
+      }
+
+      if (force) {
+        // 卸载/强制路径: 不再 setState (组件正在/已经被销毁), 直接执行 finalize
+        finalize()
+      } else {
+        // 正常关闭路径: 走动画时间, 用句柄管理 timeout
+        this.setState({ show: false, zoom: false, rotate: 0 }, () => {
+          this.unInitTimer = setTimeout(() => {
+            this.unInitTimer = undefined
+            this.setState({ mounted: false }, finalize)
+          }, presetIsDesktop ? animationDuration - 10 : animationDuration * 2 - 10)
         })
-      }, presetIsDesktop ? animationDuration - 10 : animationDuration * 2 - 10))
+      }
     }
   }
 
