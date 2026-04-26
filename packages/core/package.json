@@ -41,7 +41,7 @@
   "license": "MIT",
   "homepage": "https://zmage.caldis.me",
   "scripts": {
-    "build": "tsup --config tsup.config.ts",
+    "build": "tsup --config tsup.config.ts && tsc -p tsconfig.declarations.json",
     "build:watch": "tsup --config tsup.config.ts --watch",
     "pack": "pnpm pack --pack-destination ../../.pack",
     "lint": "pnpm lint:eslint && pnpm lint:style",

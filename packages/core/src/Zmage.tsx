@@ -4,7 +4,7 @@
 
 // Libs
 import React, { Fragment } from 'react'
-import type { ReactNode, Ref, RefAttributes } from 'react'
+import type { RefAttributes } from 'react'
 // Components
 import callee from './Zmage.callee'
 import wrapper from './Zmage.wrapper'
@@ -111,20 +111,32 @@ class ReactZmage extends React.Component<PropsType, StateType> {
 }
 
 // 转发 Ref 到 Cover 图片
-export type ReactZmageComponent = {
-  (props: BaseType & { ref?: Ref<HTMLImageElement> }): ReactNode
-  browsing: typeof callee
-  Browsing: typeof callee
-  wrapper: typeof wrapper
-  Wrapper: typeof wrapper
-} & React.ForwardRefExoticComponent<BaseType & RefAttributes<HTMLImageElement>>
+//
+// 类型说明:
+// - 显式声明为 (props) => JSX.Element | null 的 callable + 静态方法的交叉类型
+// - 不直接用 ForwardRefExoticComponent，避开 @types/react@18+ 中
+//   ReactPortal extends ReactElement & { children: required } 引起的
+//   "ReactElement | null is not assignable to ReactNode" 已知问题
+//   (相同代码原本在 R17 可用，R18+ 会报 TS2786)
+// - JSX.Element 由各 React 版本的 JSX namespace 自行定义，跨版本均为合法返回
+// - 也修复了原 ForwardRefExoticComponent 与显式 call signature 交叉时
+//   导致严格模式下 callback prop 参数无法上下文推断 (state/page/deg implicit any) 的问题
+export type ReactZmageComponent =
+  & ((props: BaseType & RefAttributes<HTMLImageElement>) => JSX.Element | null)
+  & {
+    displayName?: string
+    browsing: typeof callee
+    Browsing: typeof callee
+    wrapper: typeof wrapper
+    Wrapper: typeof wrapper
+  }
 
 export type ForwardedComponent = ReactZmageComponent
 
 const forwardedReactZmage = React.forwardRef<HTMLImageElement | null, BaseType>(
   (props, ref) =>
     <ReactZmage {...props} forwardedRef={ref}/>
-) as ReactZmageComponent
+) as unknown as ReactZmageComponent
 
 // 命令式调用组件
 forwardedReactZmage.browsing = callee
