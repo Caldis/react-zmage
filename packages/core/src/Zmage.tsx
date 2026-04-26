@@ -13,10 +13,11 @@ import Browser from './components/Browser'
 import { defProp, getConfigFromProps } from './types/default'
 import { BaseType } from './types/global'
 
-// TODO:FEATURE 按钮颜色配置
-// TODO:FEATURE 移动端的拖拽翻页
-// TODO:ENHANCE 禁用移动端的滑动退出
-// FIXME: Safari 全屏模式下无法锁定滚动
+// 已知规划项 (详见 ROADMAP.md):
+// - 按钮颜色 / 主题配置
+// - 移动端拖拽翻页
+// - 禁用移动端的滑动退出
+// - Safari 全屏模式下无法锁定滚动 (FIXME)
 
 type PropsType = BaseType
 
