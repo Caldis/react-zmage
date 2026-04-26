@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
 import { ThemeToggle } from './ThemeToggle'
 import { LanguageToggle } from './LanguageToggle'
+import { CommandK } from './CommandK'
 import { useT } from '@/i18n/useT'
 import { cn } from '@/lib/utils'
 
@@ -41,6 +42,7 @@ export function TopNav () {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-1">
+          <CommandK />
           <LanguageToggle />
           <ThemeToggle />
           <Button variant="ghost" size="icon" asChild aria-label={t('nav.github')}>
