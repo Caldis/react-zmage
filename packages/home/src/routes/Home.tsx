@@ -36,8 +36,8 @@ function NpmChip () {
 function Hero () {
   const { t } = useT()
   return (
-    // pb-56 (224px) + justify-center 让内容相对默认居中位置上移 112px (2 个 nav header 高度)
-    <section className="relative isolate flex h-screen flex-col items-center justify-center overflow-hidden pb-56">
+    // pb-28 (112px) + justify-center 让内容相对默认居中位置上移 56px (1 个 nav header 高度)
+    <section className="relative isolate flex h-screen flex-col items-center justify-center overflow-hidden pb-28">
       {/* Grid background — use arbitrary-value bg directly to avoid v4 utility lookup issues */}
       <div
         aria-hidden
