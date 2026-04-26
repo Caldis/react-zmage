@@ -22,7 +22,7 @@ export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true
   }
   const theme = resolved === 'dark' ? themes.vsDark : themes.vsLight
   return (
-    <div className={cn('relative rounded-lg border border-border bg-muted/30 overflow-hidden', className)}>
+    <div className={cn('relative rounded-lg border border-border bg-muted/40 overflow-hidden', className)}>
       {showCopy && (
         <Button
           size="icon"
@@ -36,7 +36,10 @@ export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true
       )}
       <Highlight code={code.trim()} language={language} theme={theme}>
         {({ className: cls, style, tokens, getLineProps, getTokenProps }) => (
-          <pre className={cn(cls, 'overflow-x-auto p-4 text-sm font-mono leading-6')} style={style}>
+          <pre
+            className={cn(cls, 'overflow-x-auto p-4 text-sm font-mono leading-6')}
+            style={{ ...style, backgroundColor: 'transparent', background: 'transparent' }}
+          >
             {tokens.map((line, i) => (
               <div key={i} {...getLineProps({ line })}>
                 {line.map((token, k) => <span key={k} {...getTokenProps({ token })} />)}

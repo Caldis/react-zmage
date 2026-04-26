@@ -1,5 +1,5 @@
 import { Sidebar } from '@/docs/Sidebar'
-import { Toc, useScrollSpy } from '@/docs/Toc'
+import { useScrollSpy } from '@/docs/Toc'
 import { Footer } from '@/components/Footer'
 import { useT } from '@/i18n/useT'
 import { Installation } from '@/docs/sections/Installation'
@@ -14,13 +14,13 @@ export default function Docs () {
   const { t } = useT()
   return (
     <>
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[220px_1fr_220px]">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[240px_1fr]">
         <aside className="hidden lg:block">
           <div className="sticky top-20">
             <Sidebar activeId={activeId} />
           </div>
         </aside>
-        <main className="max-w-none space-y-2">
+        <main className="max-w-none space-y-2 min-w-0">
           <h1 className="text-3xl font-semibold tracking-tight">{t('docs.title')}</h1>
           <Installation />
           <ThreeModes />
@@ -29,11 +29,6 @@ export default function Docs () {
           <TypeScript />
           <Migration />
         </main>
-        <aside className="hidden xl:block">
-          <div className="sticky top-20">
-            <Toc activeId={activeId} />
-          </div>
-        </aside>
       </div>
       <Footer />
     </>
