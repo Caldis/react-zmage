@@ -2,6 +2,9 @@ import { Sidebar } from '@/docs/Sidebar'
 import { Toc, useScrollSpy } from '@/docs/Toc'
 import { Footer } from '@/components/Footer'
 import { useT } from '@/i18n/useT'
+import { Installation } from '@/docs/sections/Installation'
+import { ThreeModes } from '@/docs/sections/ThreeModes'
+import { Props } from '@/docs/sections/Props'
 
 export default function Docs () {
   const activeId = useScrollSpy('main h2[id], main h3[id]')
@@ -14,10 +17,11 @@ export default function Docs () {
             <Sidebar activeId={activeId} />
           </div>
         </aside>
-        <main className="max-w-none">
+        <main className="max-w-none space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight">{t('docs.title')}</h1>
-          {/* sections wired in Tasks 24-25 */}
-          <p className="text-muted-foreground">Sections coming next.</p>
+          <Installation />
+          <ThreeModes />
+          <Props />
         </main>
         <aside className="hidden xl:block">
           <div className="sticky top-20">
