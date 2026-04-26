@@ -22,13 +22,18 @@ if (!root) {
   throw new Error('Missing #app root element')
 }
 
+// ContextBanner 是开发态调试工具, 仅 dev 渲染.
+// import.meta.env.DEV 是 vite 编译期常量, 在 production build (vite build) 里会被替换为 false,
+// 然后 esbuild 折叠 if (false) 分支并 tree-shake 掉 ContextBanner 模块, 不会进入 docs/ 产物.
 const tree = (
   <React.StrictMode>
-    <ContextBanner
-      mode="CSR"
-      reactVersionRequest={REACT_VERSION_REQUEST}
-      zmageVersion={zmagePkg.version}
-    />
+    {import.meta.env.DEV && (
+      <ContextBanner
+        mode="CSR"
+        reactVersionRequest={REACT_VERSION_REQUEST}
+        zmageVersion={zmagePkg.version}
+      />
+    )}
     <App />
   </React.StrictMode>
 )
