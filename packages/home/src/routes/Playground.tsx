@@ -1,11 +1,12 @@
 import * as React from 'react'
-import { NavLink, Route, Routes, useNavigate } from 'react-router-dom'
+import { NavLink, Route, Routes } from 'react-router-dom'
 import { RotateCcw, Share2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useT } from '@/i18n/useT'
 import { cn } from '@/lib/utils'
 import { ParamPanel } from '@/playground/ParamPanel'
 import { PARAM_SCHEMA } from '@/schema/param-schema'
+import { encodeStateToHash, decodeStateFromHash } from '@/playground/shareState'
 import ComponentMode from './playground/ComponentMode'
 import ImperativeMode from './playground/ImperativeMode'
 import WrapperMode from './playground/WrapperMode'
@@ -24,9 +25,15 @@ const TABS = [
 
 export default function Playground () {
   const { t } = useT()
-  const [values, setValues] = React.useState<Record<string, any>>(defaultValues)
+  const [values, setValues] = React.useState<Record<string, any>>(() => {
+    const base = defaultValues()
+    if (typeof window !== 'undefined') {
+      const hydrated = decodeStateFromHash(window.location.hash)
+      Object.assign(base, hydrated)
+    }
+    return base
+  })
   const [shared, setShared] = React.useState(false)
-  const navigate = useNavigate()
 
   const onChange = React.useCallback((name: string, value: any) => {
     setValues(v => ({ ...v, [name]: value }))
@@ -35,11 +42,12 @@ export default function Playground () {
   const onReset = React.useCallback(() => setValues(defaultValues()), [])
 
   const onShare = React.useCallback(async () => {
-    // wired up properly in Task 22
-    await navigator.clipboard.writeText(window.location.href)
+    const url = window.location.origin + window.location.pathname + encodeStateToHash(values)
+    window.history.replaceState(null, '', url)
+    await navigator.clipboard.writeText(url)
     setShared(true)
     setTimeout(() => setShared(false), 1500)
-  }, [])
+  }, [values])
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
