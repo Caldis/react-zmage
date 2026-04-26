@@ -5,6 +5,7 @@
 // Libs
 import React, { ReactElement, RefObject } from 'react'
 import ReactDOM from 'react-dom'
+import * as ReactDOMClient from 'react-dom/client'
 // Components
 import Browser from './components/Browser'
 // Utils
@@ -21,9 +22,14 @@ const CLICK_MONITOR = new GlobalClickMonitor()
  * - React 18+: 用 react-dom/client 的 createRoot (R19 已彻底删除 ReactDOM.render, 必走此路径)
  * - React 16/17: fallback 到 ReactDOM.render
  *
- * 用 require + try-catch 做运行时探测, 而不是静态 import:
- * - 静态 `import 'react-dom/client'` 会让 R16/17 用户在 install 时 bundler 报 "Module not found"
- * - 动态 require 让 R16/17 环境抛错并被 catch, 平滑降级到 legacy 路径
+ * 用静态 import 而非 runtime require:
+ * - 之前用 `require('react-dom/client')` 在 ESM bundler (Vite/Next.js client) 里没有全局 `require`,
+ *   会被 try/catch 静默吞掉, 落到 R19 已删除的 ReactDOM.render, 第一次调用就抛 "no compatible mount API found".
+ * - tsup 已把 'react-dom/client' 标记为 external (见 tsup.config.ts), 因此:
+ *   - ESM dist 输出 `import { createRoot } from 'react-dom/client'` — 浏览器 bundler 可解析
+ *   - CJS dist 输出 `var { createRoot } = require('react-dom/client')` — Node 可解析
+ *   - R16/17 用户的 bundler 会在 build 期就报 "Module not found", 这是比之前"点击时崩溃"更早更响的信号.
+ *     R16/17 在 ESM 消费方原本就跑不了 zmage (历史 latent bug), 这里不算回归.
  */
 type MountAdapter = {
   mount: (element: ReactElement, container: HTMLElement) => () => void
@@ -34,21 +40,13 @@ let cachedAdapter: MountAdapter | undefined
 const resolveMountAdapter = (): MountAdapter => {
   if (cachedAdapter) return cachedAdapter
 
-  // 探测 createRoot (R18+ via react-dom/client)
-  let createRoot: ((container: HTMLElement) => { render: (el: ReactElement) => void; unmount: () => void }) | undefined
-  try {
-    // 用 require 而非 import, 让构建产物在 R16/17 消费方不会因找不到子路径而 build error
-    // tsup external 配置已经把 'react-dom/client' 标记为外部, 不会被 bundle
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    createRoot = require('react-dom/client').createRoot
-  } catch {
-    // R16/17 环境无 react-dom/client 子路径; ESM 无 require 全局 — 都走 fallback
-  }
+  // R18+: 静态 import 的 createRoot (tsup external 保留, 由消费方 bundler 解析)
+  const createRoot = (ReactDOMClient as { createRoot?: (container: HTMLElement) => { render: (el: ReactElement) => void; unmount: () => void } }).createRoot
 
   if (typeof createRoot === 'function') {
     cachedAdapter = {
       mount: (element, container) => {
-        const root = createRoot!(container)
+        const root = createRoot(container)
         root.render(element)
         return () => root.unmount()
       },
@@ -58,9 +56,7 @@ const resolveMountAdapter = (): MountAdapter => {
 
   // Fallback: legacy ReactDOM.render (R16/17)
   // R19 在 type 层 (@types/react-dom@19) 已经删除了 .render / .unmountComponentAtNode 的类型;
-  // 但运行时下的 react-dom@16/17 仍然提供这些方法. 这里通过 unknown 双断言保留运行时兼容,
-  // 同时把构建期类型对齐到当前安装版本 (R19), 避免 tsc 在 ssr 模式下 (主-types/react-dom 解析到 R19) 报错.
-  // 在 R19 + ESM 且无 require 的环境下这里也会被走到, 此时 ReactDOM.render 已被删除, 会立即抛错提示用户.
+  // 但运行时下的 react-dom@16/17 仍然提供这些方法. 这里通过 unknown 双断言保留运行时兼容.
   type LegacyReactDOM = {
     render: (element: ReactElement, container: HTMLElement) => void
     unmountComponentAtNode: (container: HTMLElement) => void
@@ -70,7 +66,7 @@ const resolveMountAdapter = (): MountAdapter => {
   if (typeof legacy.render !== 'function') {
     throw new Error(
       `react-zmage: no compatible mount API found (react-dom version ${legacy.version ?? 'unknown'}). ` +
-      'In React 19+ ESM environments, ensure react-dom/client is resolvable at runtime.'
+      'Ensure react-dom@16.8+ is installed.'
     )
   }
   cachedAdapter = {
