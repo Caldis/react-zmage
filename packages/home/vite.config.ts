@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
@@ -24,12 +24,40 @@ if (!picked) {
   throw new Error(`Unsupported REACT_VERSION=${REACT_VERSION}; expected 17 | 18 | 19`)
 }
 
-export default defineConfig(() => ({
-  plugins: [react()],
-  define: {
-    // 注入运行时常量供 main.tsx / ContextBanner 读取, 显式而非靠 React.version 推断
-    __REACT_VERSION_REQUEST__: JSON.stringify(REACT_VERSION),
+/**
+ * Virtual module 注入构建期常量到客户端代码.
+ * 用 virtual: 前缀避免与真实文件冲突, vite 插件接管解析.
+ *
+ * 比 define 更可靠: vite define 在 @vitejs/plugin-react (Babel) 链路下不一定真正替换 / 注入全局,
+ * virtual module 一定走 vite 自己的插件解析, 兼容所有 transform.
+ */
+const VIRTUAL_ID = 'virtual:zmage-context'
+const RESOLVED_VIRTUAL_ID = '\0' + VIRTUAL_ID
+const contextPlugin: Plugin = {
+  name: 'inject-zmage-context',
+  resolveId (id) {
+    if (id === VIRTUAL_ID) return RESOLVED_VIRTUAL_ID
   },
+  load (id) {
+    if (id !== RESOLVED_VIRTUAL_ID) return undefined
+    const useCreateRoot = REACT_VERSION !== '17'
+    // 关键: importReactDomClient 必须按版本生成不同代码体, 不能共用一份代码用 if 分支.
+    // rollup/vite 在 module-graph-build 阶段必然尝试 resolve dynamic import 的 specifier,
+    // 即使被 DCE 包裹也不豁免. R17 build 下若代码体里有 import('react-dom/client'),
+    // alias 会把它指向不存在的 react-dom17/client, 触发 ENOENT.
+    const importBody = useCreateRoot
+      ? `() => import('react-dom/client')`
+      : `() => Promise.reject(new Error('react-dom/client not available in React 17 build'))`
+    return [
+      `export const REACT_VERSION_REQUEST = ${JSON.stringify(REACT_VERSION)}`,
+      `export const USE_CREATE_ROOT = ${JSON.stringify(useCreateRoot)}`,
+      `export const importReactDomClient = ${importBody}`,
+    ].join('\n')
+  },
+}
+
+export default defineConfig(() => ({
+  plugins: [react(), contextPlugin],
   server: {
     host: process.env.HOST || '127.0.0.1',
     port: Number(process.env.PORT || 8080),
@@ -57,10 +85,10 @@ export default defineConfig(() => ({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
-      'react': picked.react,
-      'react-dom': picked.reactDom,
-      // 'react-dom/client' 仅在 R18+ 有 — vite 会沿着 react-dom 的 alias 解析子路径
-      'react-dom/client': `${picked.reactDom}/client`,
+      // 用绝对路径指向 home 的 node_modules, 避免从 packages/core/dist/ 解析时找不到 react17 等别名包
+      'react': path.resolve(__dirname, 'node_modules', picked.react),
+      'react-dom': path.resolve(__dirname, 'node_modules', picked.reactDom),
+      'react-dom/client': path.resolve(__dirname, 'node_modules', picked.reactDom, 'client'),
     },
     dedupe: ['react', 'react-dom'],
   },
