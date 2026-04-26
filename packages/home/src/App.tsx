@@ -1,10 +1,12 @@
 import { Route, Routes } from 'react-router-dom'
 import { TopNav } from '@/components/TopNav'
+import { useAnalyticsPageviews } from '@/lib/analytics'
 import Home from './routes/Home'
 import Playground from './routes/Playground'
 import Docs from './routes/Docs'
 
 export default function App () {
+  useAnalyticsPageviews()
   return (
     <>
       <TopNav />

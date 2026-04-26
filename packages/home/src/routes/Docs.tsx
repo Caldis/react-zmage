@@ -11,6 +11,7 @@ import { Props } from '@/docs/sections/Props'
 import { Examples } from '@/docs/sections/Examples'
 import { TypeScript } from '@/docs/sections/TypeScript'
 import { Migration } from '@/docs/sections/Migration'
+import { FAQ } from '@/docs/sections/FAQ'
 
 export default function Docs () {
   const activeId = useScrollSpy('main h2[id], main h3[id]')
@@ -52,6 +53,7 @@ export default function Docs () {
           <Examples />
           <TypeScript />
           <Migration />
+          <FAQ />
         </main>
       </div>
       <Footer />

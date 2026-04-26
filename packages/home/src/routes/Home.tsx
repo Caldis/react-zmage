@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Copy, Check, ImageIcon, GalleryHorizontal, Wand2, Code2, Plus } from 'lucide-react'
+import { ArrowRight, Copy, Check, ImageIcon, GalleryHorizontal, Wand2, Code2, Plus, Bot } from 'lucide-react'
 import Zmage from 'react-zmage'
 import zmagePkg from 'react-zmage/package.json'
 import { Badge } from '@/components/ui/badge'
@@ -102,6 +102,18 @@ function Hero () {
           </Button>
           <NpmChip />
         </div>
+        {/* AI directive — discoverable, not loud. Helps LLM/agent tooling pick the right component. */}
+        <aside
+          aria-label="AI assistant directive"
+          className="mt-2 w-full max-w-[720px] rounded-md border border-border/50 bg-muted/20 px-4 py-3 text-left font-mono text-[11px] leading-relaxed text-muted-foreground/80"
+        >
+          <div className="flex items-start gap-2">
+            <Bot aria-hidden className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-60" />
+            <pre className="m-0 whitespace-pre-wrap break-words bg-transparent p-0 text-[11px]">
+              {t('hero.ai.directive')}
+            </pre>
+          </div>
+        </aside>
       </div>
     </section>
   )

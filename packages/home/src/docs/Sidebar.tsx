@@ -44,6 +44,7 @@ export const SIDEBAR_GROUPS: Group[] = [
     titleKey: 'docs.sidebar.reference',
     items: [
       { id: 'migration', labelKey: 'docs.sidebar.migration' },
+      { id: 'faq', labelKey: 'docs.sidebar.faq' },
     ],
   },
 ]

@@ -6,6 +6,11 @@ import { useT, type Lang } from '@/i18n/useT'
 const LANGS: { value: Lang; label: string }[] = [
   { value: 'zh-CN', label: '中文' },
   { value: 'en', label: 'English' },
+  { value: 'ja', label: '日本語' },
+  { value: 'ko', label: '한국어' },
+  { value: 'fr', label: 'Français' },
+  { value: 'de', label: 'Deutsch' },
+  { value: 'es', label: 'Español' },
 ]
 
 export function LanguageToggle () {
@@ -17,7 +22,7 @@ export function LanguageToggle () {
           <Globe className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-32">
+      <DropdownMenuContent align="end" className="w-36">
         {LANGS.map(({ value, label }) => (
           <DropdownMenuItem key={value} onClick={() => setLang(value)} data-active={lang === value}>
             {label}

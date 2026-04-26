@@ -31,6 +31,7 @@ const SIDEBAR_DESC: Record<string, I18nKey> = {
   examples: 'docs.search.desc.examples',
   typescript: 'docs.search.desc.typescript',
   migration: 'docs.search.desc.migration',
+  faq: 'docs.search.desc.faq',
 }
 
 function buildIndex (t: (k: I18nKey) => string): Item[] {

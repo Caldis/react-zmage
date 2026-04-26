@@ -1,16 +1,30 @@
 import * as React from 'react'
-import { zhCN, en, type I18nDict, type I18nKey } from './dict'
+import { zhCN, en, ja, ko, fr, de, es, type I18nDict, type I18nKey } from './dict'
 
-export type Lang = 'zh-CN' | 'en'
+export type Lang = 'zh-CN' | 'en' | 'ja' | 'ko' | 'fr' | 'de' | 'es'
 const STORAGE_KEY = 'zmage.lang'
-const DICTS: Record<Lang, I18nDict> = { 'zh-CN': zhCN, 'en': en }
+const DICTS: Record<Lang, I18nDict> = {
+  'zh-CN': zhCN,
+  'en': en,
+  'ja': ja,
+  'ko': ko,
+  'fr': fr,
+  'de': de,
+  'es': es,
+}
 
 function detect (): Lang {
-  if (typeof window === 'undefined') return 'zh-CN'
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored === 'zh-CN' || stored === 'en') return stored
-  const nav = navigator.language || 'zh-CN'
-  return nav.toLowerCase().startsWith('zh') ? 'zh-CN' : 'en'
+  if (typeof window === 'undefined') return 'en'
+  const stored = localStorage.getItem(STORAGE_KEY) as Lang | null
+  if (stored && stored in DICTS) return stored
+  const nav = (navigator.language || 'en').toLowerCase()
+  if (nav.startsWith('zh')) return 'zh-CN'
+  if (nav.startsWith('ja')) return 'ja'
+  if (nav.startsWith('ko')) return 'ko'
+  if (nav.startsWith('fr')) return 'fr'
+  if (nav.startsWith('de')) return 'de'
+  if (nav.startsWith('es')) return 'es'
+  return 'en'
 }
 
 type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (k: I18nKey) => string }

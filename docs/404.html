@@ -1,14 +1,68 @@
 <!DOCTYPE html>
 <html lang="zh-CN" class="dark">
   <head>
-    <title>react-zmage — Drop-in image zoom for React</title>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A React component that turns any <img> into a fullscreen, keyboard-navigable image viewer." />
+
+    <title>react-zmage — Drop-in image zoom for React</title>
+    <meta name="description" content="A drop-in React component that turns any <img> into a fullscreen, keyboard-navigable image viewer. Zero config, supports gallery, imperative API and auto-wrap." />
+    <meta name="keywords" content="react image zoom, react lightbox, react gallery, image viewer component, zoomable image, react-zmage, react fullscreen image, image preview react" />
+    <meta name="author" content="Caldis" />
+    <meta name="robots" content="index,follow" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="canonical" href="https://zmage.caldis.me/" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="react-zmage — Drop-in image zoom for React" />
+    <meta property="og:description" content="A drop-in React component that turns any <img> into a fullscreen, keyboard-navigable image viewer." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://zmage.caldis.me" />
+    <meta property="og:image" content="https://zmage.caldis.me/logo.png" />
+    <meta property="og:site_name" content="react-zmage" />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="react-zmage — Drop-in image zoom for React" />
+    <meta name="twitter:description" content="A drop-in React component that turns any <img> into a fullscreen, keyboard-navigable image viewer." />
+    <meta name="twitter:image" content="https://zmage.caldis.me/logo.png" />
+
+    <!-- hreflang (SPA with client-side i18n; same URL for all locales) -->
+    <link rel="alternate" hreflang="zh-CN" href="https://zmage.caldis.me/" />
+    <link rel="alternate" hreflang="en" href="https://zmage.caldis.me/" />
+    <link rel="alternate" hreflang="x-default" href="https://zmage.caldis.me/" />
+
+    <!-- Search-engine verifications -->
     <meta name="baidu-site-verification" content="9qj6NCtojt" />
+
+    <!-- Icons -->
     <link rel="apple-touch-icon" href="/logo.png" />
     <link rel="icon" href="/favicon.ico" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareSourceCode",
+        "name": "react-zmage",
+        "description": "A drop-in React component that turns any <img> into a fullscreen, keyboard-navigable image viewer.",
+        "codeRepository": "https://github.com/Caldis/react-zmage",
+        "programmingLanguage": "TypeScript",
+        "runtimePlatform": "React 16.8+",
+        "license": "https://opensource.org/licenses/MIT",
+        "author": { "@type": "Person", "name": "Caldis" }
+      }
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QGD2YZLLGK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-QGD2YZLLGK', { send_page_view: false });
+    </script>
+
     <script>
       // Avoid flash-of-light-theme: resolve theme before paint.
       try {
@@ -18,8 +72,8 @@
         document.documentElement.classList.toggle('dark', theme === 'dark')
       } catch {}
     </script>
-    <script type="module" crossorigin src="/assets/index-D6N0tynO.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DF15RXhS.css">
+    <script type="module" crossorigin src="/assets/index-DY2PGj3P.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DkKZnaMV.css">
   </head>
   <body>
     <div id="app"></div>
