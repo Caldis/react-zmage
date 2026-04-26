@@ -13,7 +13,8 @@
     "test": "turbo run test",
     "check": "pnpm --filter react-zmage run build && pnpm --filter react-zmage exec pnpm pack --pack-destination ../../.pack && node scripts/refresh-sandbox-tgz.mjs && pnpm install && pnpm --filter \"./packages/sandbox-*\" run check && pnpm --filter \"./packages/sandbox-*\" run smoke:ssr",
     "clean": "turbo run clean",
-    "publish:core": "cd packages/core && npm publish"
+    "publish:core": "cd packages/core && npm publish",
+    "prepublishOnly": "node scripts/guard-root-publish.mjs"
   },
   "devDependencies": {
     "turbo": "^2.9.6"
