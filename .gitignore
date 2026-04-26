@@ -8,3 +8,5 @@ dist/
 **/dist
 .turbo
 dist-artifacts
+.pack/
+*.tgz

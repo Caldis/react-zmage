@@ -43,6 +43,7 @@
   "scripts": {
     "build": "tsup --config tsup.config.ts",
     "build:watch": "tsup --config tsup.config.ts --watch",
+    "pack": "pnpm pack --pack-destination ../../.pack",
     "lint": "pnpm lint:eslint && pnpm lint:style",
     "lint:eslint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:style": "stylelint \"src/**/*.{css,less}\"",
@@ -58,6 +59,8 @@
     "react-dom": ">=16.8.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^12.1.5",
     "@types/classnames": "^2.3.0",
     "@types/react": "^17.0.4",
     "@types/react-dom": "^17.0.3",

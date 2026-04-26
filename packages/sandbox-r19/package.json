@@ -1,0 +1,18 @@
+{
+  "name": "react-zmage-sandbox-r19",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-zmage": "file:..\\..\\.pack\\react-zmage-1.0.2.tgz"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}

@@ -8,10 +8,11 @@
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "check": "pnpm --filter react-zmage run build && pnpm --filter react-zmage exec pnpm pack --pack-destination ../../.pack && pnpm install --force && pnpm --filter \"./packages/sandbox-*\" run check",
     "clean": "turbo run clean",
     "publish:core": "cd packages/core && npm publish"
   },
   "devDependencies": {
-    "turbo": "^2.1.3"
+    "turbo": "^2.9.6"
   }
 }
