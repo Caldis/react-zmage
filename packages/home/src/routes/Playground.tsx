@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { ParamPanel } from '@/playground/ParamPanel'
 import { PARAM_SCHEMA } from '@/schema/param-schema'
 import { encodeStateToHash, decodeStateFromHash } from '@/playground/shareState'
+import { PLAYGROUND_SEED } from '@/playground/seed'
 import ComponentMode from './playground/ComponentMode'
 import ImperativeMode from './playground/ImperativeMode'
 import WrapperMode from './playground/WrapperMode'
@@ -14,6 +15,8 @@ import WrapperMode from './playground/WrapperMode'
 function defaultValues () {
   const v: Record<string, any> = {}
   for (const def of PARAM_SCHEMA) v[def.name] = def.default
+  // WYSIWYG: 用 demo 种子替换 src/alt/set 的 lib 默认空值, 让 panel 一开始就反映真实预览
+  Object.assign(v, PLAYGROUND_SEED)
   return v
 }
 

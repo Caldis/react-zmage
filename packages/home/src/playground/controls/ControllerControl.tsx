@@ -1,31 +1,40 @@
 import { Switch } from '@/components/ui/switch'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
 
 type ControllerSet = Record<string, boolean | string | undefined>
 
-const KEYS: { key: keyof ControllerSet; labelKey: I18nKey }[] = [
-  { key: 'pagination', labelKey: 'controller.pagination' },
-  { key: 'rotate', labelKey: 'controller.rotate' },
-  { key: 'rotateLeft', labelKey: 'controller.rotateLeft' },
-  { key: 'rotateRight', labelKey: 'controller.rotateRight' },
-  { key: 'zoom', labelKey: 'controller.zoom' },
-  { key: 'download', labelKey: 'controller.download' },
-  { key: 'close', labelKey: 'controller.close' },
-  { key: 'flip', labelKey: 'controller.flip' },
-  { key: 'flipLeft', labelKey: 'controller.flipLeft' },
-  { key: 'flipRight', labelKey: 'controller.flipRight' },
+const KEYS: { key: keyof ControllerSet; labelKey: I18nKey; descKey: I18nKey }[] = [
+  { key: 'pagination', labelKey: 'controller.pagination', descKey: 'controller.pagination.desc' },
+  { key: 'rotate', labelKey: 'controller.rotate', descKey: 'controller.rotate.desc' },
+  { key: 'rotateLeft', labelKey: 'controller.rotateLeft', descKey: 'controller.rotateLeft.desc' },
+  { key: 'rotateRight', labelKey: 'controller.rotateRight', descKey: 'controller.rotateRight.desc' },
+  { key: 'zoom', labelKey: 'controller.zoom', descKey: 'controller.zoom.desc' },
+  { key: 'download', labelKey: 'controller.download', descKey: 'controller.download.desc' },
+  { key: 'close', labelKey: 'controller.close', descKey: 'controller.close.desc' },
+  { key: 'flip', labelKey: 'controller.flip', descKey: 'controller.flip.desc' },
+  { key: 'flipLeft', labelKey: 'controller.flipLeft', descKey: 'controller.flipLeft.desc' },
+  { key: 'flipRight', labelKey: 'controller.flipRight', descKey: 'controller.flipRight.desc' },
 ]
 
 export function ControllerControl ({ value, onChange }: { value: ControllerSet | boolean | undefined; onChange: (v: any) => void }) {
   const { t } = useT()
   const obj: ControllerSet = (typeof value === 'object' && value) ? value : {}
   return (
-    // 单列 + 小字号: 任意语言下都能完整展示 label, 不依赖截断或 wrap
     <div className="grid gap-1.5">
-      {KEYS.map(({ key, labelKey }) => (
+      {KEYS.map(({ key, labelKey, descKey }) => (
         <label key={String(key)} className="flex items-center justify-between gap-3 text-[11px] leading-tight">
-          <span className="text-muted-foreground">{t(labelKey)}</span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="cursor-help text-muted-foreground decoration-dotted underline-offset-4 hover:underline">
+                {t(labelKey)}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="max-w-[260px] text-xs">
+              {t(descKey)}
+            </TooltipContent>
+          </Tooltip>
           <Switch
             checked={!!obj[key]}
             onCheckedChange={(checked) => onChange({ ...obj, [key]: checked })}

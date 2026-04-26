@@ -121,11 +121,28 @@ export const zhCN = {
   'controller.flip': '翻页',
   'controller.flipLeft': '上一张',
   'controller.flipRight': '下一张',
+  'controller.pagination.desc': '顶部页码指示器,展示当前位置 / 总页数',
+  'controller.rotate.desc': '旋转控制组(包含左旋与右旋按钮)',
+  'controller.rotateLeft.desc': '逆时针旋转 90°',
+  'controller.rotateRight.desc': '顺时针旋转 90°',
+  'controller.zoom.desc': '进入 / 退出 1:1 放大模式',
+  'controller.download.desc': '下载当前图片',
+  'controller.close.desc': '关闭查看器',
+  'controller.flip.desc': '翻页控制组(包含上 / 下一张按钮)',
+  'controller.flipLeft.desc': '切换到上一张图片',
+  'controller.flipRight.desc': '切换到下一张图片',
 
   // HotKey keys
   'hotkey.close': '关闭(ESC)',
   'hotkey.zoom': '缩放(空格)',
   'hotkey.flip': '翻页(←/→)',
+  'hotkey.close.desc': '按 ESC 关闭查看器',
+  'hotkey.zoom.desc': '按空格切换 1:1 放大模式',
+  'hotkey.flip.desc': '按 ← / → 在 set 中翻页',
+
+  // Animate keys
+  'animate.browsing.desc': '查看器开 / 关时的过渡动画',
+  'animate.flip.desc': '在 set 中翻页时的过渡方式',
 
   // Param labels & descs
   'param.src.label': 'src',

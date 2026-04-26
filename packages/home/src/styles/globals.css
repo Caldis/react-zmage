@@ -27,6 +27,12 @@
   --radius-sm: calc(var(--radius) - 4px);
 }
 
+/* 永久预留滚动条空间, modal 锁滚动时内容不抖.
+   现代浏览器原生支持 (Chrome 94+ / FF 97+ / Safari 17+); 不支持的旧浏览器忽略, 退回旧行为, 不破坏渲染. */
+html {
+  scrollbar-gutter: stable;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

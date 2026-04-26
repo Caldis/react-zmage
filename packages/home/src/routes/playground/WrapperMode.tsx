@@ -1,30 +1,22 @@
 import Zmage from 'react-zmage'
-import { CodeSnippet, buildPropsObject } from '@/playground/CodeSnippet'
+import { CodeSnippet } from '@/playground/CodeSnippet'
 import { EventLog } from '@/playground/EventLog'
 import { useThemedBackdrop } from '@/lib/themedBackdrop'
 
-const FALLBACK_IMGS = [
-  { src: '/imgSet/childsDream/1.jpg', alt: '童夢 · ONE' },
-  { src: '/imgSet/childsDream/2.jpg', alt: '童夢 · TWO' },
-  { src: '/imgSet/childsDream/3.jpg', alt: '童夢 · THREE' },
-]
-
 export default function WrapperMode ({ values }: { values: Record<string, any> }) {
   const themedBackdrop = useThemedBackdrop()
-  const allProps = buildPropsObject(values)
-  // Wrapper 从被点击的 <img> 自身读 src/alt, 不要把面板里的 src/set 透传给 Wrapper 实例
-  // (defaultProps 会把空 src 灌回去, 触发 empty-src 警告). 这里剥掉单图相关字段,
-  // 但保留 backdrop/zIndex/animate 等真正影响 wrapper 行为的 props.
-  const { src: _src, set: _set, alt: _alt, txt: _txt, defaultPage: _defaultPage, ...stripped } = allProps
+  // Wrapper 从被点击的 <img> 读 src/alt, 这里只把 backdrop/zIndex/animate 等真正影响 wrapper
+  // 行为的字段透下去, 单图相关的 src/set/alt 不传 (避免 defaultProps 把 '' 灌进去).
+  const { src: _src, set: _set, alt: _alt, txt: _txt, defaultPage: _defaultPage, ...stripped } = values
   const wrapperProps = { backdrop: themedBackdrop, ...stripped }
-  // WYSIWYG: 渲染哪些 <img> 进 wrapper 取决于面板里有没有 src / set
-  const userHasSet = Array.isArray(allProps.set) && allProps.set.length > 0
-  const userHasSrc = !!allProps.src
+  // WYSIWYG: 渲染哪些 <img> 进 wrapper 完全跟随面板的 src / set
+  const userHasSet = Array.isArray(values.set) && values.set.length > 0
+  const userHasSrc = !!values.src
   const imgs: { src: string; alt?: string }[] = userHasSet
-    ? (allProps.set as { src: string; alt?: string }[])
+    ? values.set
     : userHasSrc
-      ? [{ src: allProps.src, alt: allProps.alt }]
-      : FALLBACK_IMGS
+      ? [{ src: values.src, alt: values.alt }]
+      : []
   const Wrapper = (Zmage as any).Wrapper
   return (
     <div className="space-y-6">

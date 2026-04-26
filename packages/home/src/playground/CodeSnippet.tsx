@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { CodeBlock } from '@/components/CodeBlock'
 import { PARAM_SCHEMA } from '@/schema/param-schema'
+import { PLAYGROUND_SEED } from '@/playground/seed'
 
 type Mode = 'component' | 'imperative' | 'wrapper'
 
@@ -9,6 +10,10 @@ function isCallback (v: any) {
 }
 
 function isDefault (name: string, value: any) {
+  // 当前值与 playground 种子一致 → 视为默认 (不写进代码片段, 不写进分享 URL)
+  if (name in PLAYGROUND_SEED) {
+    try { return JSON.stringify(value) === JSON.stringify((PLAYGROUND_SEED as any)[name]) } catch { /* fallthrough */ }
+  }
   const def = PARAM_SCHEMA.find(d => d.name === name)
   if (!def) return true
   if (value === undefined) return true

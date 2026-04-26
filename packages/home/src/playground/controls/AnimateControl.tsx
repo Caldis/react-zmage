@@ -1,5 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
 
@@ -12,17 +13,33 @@ const FLIP_OPTIONS: { value: NonNullable<Animate['flip']>; labelKey: I18nKey }[]
   { value: 'zoom', labelKey: 'animate.flip.zoom' },
 ]
 
+function TipLabel ({ children, descKey }: { children: React.ReactNode; descKey: I18nKey }) {
+  const { t } = useT()
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="cursor-help text-muted-foreground decoration-dotted underline-offset-4 hover:underline">
+          {children}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent side="left" className="max-w-[260px] text-xs">
+        {t(descKey)}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
 export function AnimateControl ({ value, onChange }: { value: Animate | boolean | undefined; onChange: (v: any) => void }) {
   const { t } = useT()
   const obj: Animate = (typeof value === 'object' && value) ? value : {}
   return (
     <div className="grid gap-1.5 text-[11px] leading-tight">
       <label className="flex items-center justify-between gap-3">
-        <span className="text-muted-foreground">browsing</span>
+        <TipLabel descKey="animate.browsing.desc">browsing</TipLabel>
         <Switch checked={!!obj.browsing} onCheckedChange={c => onChange({ ...obj, browsing: c })} />
       </label>
       <label className="flex items-center justify-between gap-3">
-        <span className="text-muted-foreground">flip</span>
+        <TipLabel descKey="animate.flip.desc">flip</TipLabel>
         <Select value={obj.flip ?? 'fade'} onValueChange={(v) => onChange({ ...obj, flip: v })}>
           <SelectTrigger className="h-7 w-32 text-[11px]"><SelectValue /></SelectTrigger>
           <SelectContent>
