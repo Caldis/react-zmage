@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search } from 'lucide-react'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { SIDEBAR_GROUPS } from '@/docs/Sidebar'
 import { PARAM_SCHEMA } from '@/schema/param-schema'
@@ -71,7 +71,9 @@ export function CommandK () {
           <span className="ml-auto rounded border border-border bg-background px-1.5 font-mono text-[10px]">{SHORTCUT_LABEL}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-xl p-0">
+      <DialogContent className="max-w-xl gap-0 p-0">
+        <DialogTitle className="sr-only">{t('docs.search.placeholder')}</DialogTitle>
+        <DialogDescription className="sr-only">{t('docs.search.placeholder')}</DialogDescription>
         <div className="flex h-12 items-center gap-2 border-b border-border px-4 pr-12">
           <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
           <Input
