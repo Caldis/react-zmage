@@ -5,6 +5,9 @@ import { useT } from '@/i18n/useT'
 import { Installation } from '@/docs/sections/Installation'
 import { ThreeModes } from '@/docs/sections/ThreeModes'
 import { Props } from '@/docs/sections/Props'
+import { Examples } from '@/docs/sections/Examples'
+import { TypeScript } from '@/docs/sections/TypeScript'
+import { Migration } from '@/docs/sections/Migration'
 
 export default function Docs () {
   const activeId = useScrollSpy('main h2[id], main h3[id]')
@@ -22,6 +25,9 @@ export default function Docs () {
           <Installation />
           <ThreeModes />
           <Props />
+          <Examples />
+          <TypeScript />
+          <Migration />
         </main>
         <aside className="hidden xl:block">
           <div className="sticky top-20">
