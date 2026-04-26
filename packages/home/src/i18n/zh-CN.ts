@@ -1,0 +1,104 @@
+export const zhCN = {
+  // Nav
+  'nav.playground': '调试',
+  'nav.docs': '文档',
+  'nav.github': 'GitHub',
+
+  // Hero
+  'hero.pill': 'React 19 ready',
+  'hero.title.line1': '为每张 <img> 加上缩放',
+  'hero.title.line2': '即插即用,零配置',
+  'hero.subtitle': '一个轻量 React 组件,把任何图片变成全屏、可键盘导航的查看器。无需 portal,无需状态管线,只需一个 <Zmage>。',
+  'hero.cta.start': '快速开始',
+  'hero.cta.playground': '打开调试台',
+  'hero.cta.npm.copied': '已复制',
+
+  // Live demo strip
+  'demo.caption': '这是一个真实的 <Zmage>。点击图片、滚动、按 Space 试试。',
+
+  // Feature grid
+  'feature.dropin.title': '替换 <img>',
+  'feature.dropin.hint': '原生属性全部透传,style/className/onClick 一切照旧。',
+  'feature.set.title': '多图序列',
+  'feature.set.hint': '传入 set 即可获得画廊,左右键切换。',
+  'feature.imperative.title': '命令式调用',
+  'feature.imperative.hint': '从任意事件回调启动查看器。',
+  'feature.wrapper.title': '自动包裹',
+  'feature.wrapper.hint': '为子节点中的所有 <img> 自动绑定查看器。',
+
+  // Three modes
+  'modes.title': '三种使用方式',
+  'modes.component.label': '组件',
+  'modes.component.desc': '最常见,把 <img> 直接换成 <Zmage>。',
+  'modes.imperative.label': '命令式',
+  'modes.imperative.desc': '在事件处理器里弹出查看器,适合超出 JSX 范围的场景。',
+  'modes.wrapper.label': '包裹器',
+  'modes.wrapper.desc': '不改动子组件,自动给所有 <img> 加上查看器。',
+  'modes.try': '试一下 →',
+
+  // Footer
+  'footer.project': '项目',
+  'footer.repo': '代码仓库',
+  'footer.issues': '反馈与建议',
+  'footer.changelog': '更新日志',
+  'footer.madeby': '作者',
+  'footer.illustrator': '插图作者',
+  'footer.tech': '技术栈',
+  'footer.license': 'MIT 许可证',
+
+  // Playground shell
+  'pg.title': '参数调试台',
+  'pg.subtitle': '调整任意 prop,实时查看 <Zmage> 的反馈。',
+  'pg.reset': '重置',
+  'pg.share': '分享链接',
+  'pg.shared': '已复制链接',
+  'pg.tab.component': '组件',
+  'pg.tab.imperative': '命令式',
+  'pg.tab.wrapper': '包裹器',
+  'pg.preview.tip': '提示:Space 缩放 · ←/→ 翻页 · ESC 关闭',
+  'pg.preview.trigger': '触发查看器',
+  'pg.events.title': '事件',
+  'pg.events.empty': '启用任意 lifecycle 回调以查看事件流。',
+  'pg.code.title': '代码',
+  'pg.copy': '复制',
+  'pg.copied': '已复制',
+
+  // Group labels
+  'group.data': '数据',
+  'group.preset': '预设',
+  'group.interface': '界面与交互',
+  'group.controller': '控制器',
+  'group.hotkey': '快捷键',
+  'group.animate': '动画',
+  'group.lifecycle': '生命周期',
+  'group.controlled': '受控',
+
+  // Common
+  'common.desktopOnly': '仅桌面端',
+  'common.required': '必填',
+  'common.default': '默认',
+  'common.add': '新增',
+  'common.remove': '删除',
+  'common.enable': '启用',
+  'common.disable': '禁用',
+
+  // Docs shell
+  'docs.title': 'API 文档',
+  'docs.search.placeholder': '搜索文档...',
+  'docs.search.empty': '没有匹配项',
+  'docs.toc.title': '本页目录',
+  'docs.sidebar.gettingStarted': '开始使用',
+  'docs.sidebar.quickstart': '快速开始',
+  'docs.sidebar.ssr': 'SSR',
+  'docs.sidebar.concepts': '概念',
+  'docs.sidebar.modes': '三种模式',
+  'docs.sidebar.props': 'API 参数',
+  'docs.sidebar.recipes': '场景示例',
+  'docs.sidebar.examples': '示例',
+  'docs.sidebar.typescript': 'TypeScript',
+  'docs.sidebar.reference': '参考',
+  'docs.sidebar.migration': '迁移指南',
+}
+
+export type I18nDict = typeof zhCN
+export type I18nKey = keyof I18nDict
