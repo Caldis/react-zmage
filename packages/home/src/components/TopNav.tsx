@@ -2,6 +2,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { Github, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Separator } from '@/components/ui/separator'
 import { ThemeToggle } from './ThemeToggle'
 import { LanguageToggle } from './LanguageToggle'
 import { CommandK } from './CommandK'
@@ -17,11 +18,13 @@ export function TopNav () {
   const { t } = useT()
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-14 border-b border-border/60 bg-background/70 backdrop-blur-md">
-      <div className="mx-auto flex h-full max-w-7xl items-center gap-6 px-4 sm:px-6">
+      <div className="mx-auto flex h-full max-w-7xl items-center gap-4 px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5">
           <img src="/logo.png" alt="" className="h-7 w-7" />
-          <span className="font-mono text-sm font-medium">react-zmage</span>
+          {/* Wordmark: bold geometric sans aligned with the rz logo's blocky letterforms */}
+          <span className="text-lg font-bold tracking-tight font-sans">react-zmage</span>
         </Link>
+        <Separator orientation="vertical" className="hidden h-5 md:block" />
         <nav className="hidden flex-1 items-center gap-1 md:flex">
           {links.map(({ to, key }) => (
             <NavLink
