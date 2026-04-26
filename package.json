@@ -6,9 +6,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
-    "dev:csr-r17": "pnpm --filter react-zmage-home run dev:r17",
-    "dev:csr-r18": "pnpm --filter react-zmage-home run dev:r18",
-    "dev:csr-r19": "pnpm --filter react-zmage-home run dev:r19",
+    "dev:csr": "pnpm --filter react-zmage-home run dev",
     "dev:ssr-r19": "pnpm --filter react-zmage-demo-ssr run dev:r19",
     "dev:nextjs": "pnpm --filter react-zmage-demo-nextjs run dev",
     "lint": "turbo run lint",
