@@ -4,6 +4,7 @@ import { Footer } from '@/components/Footer'
 import { useT } from '@/i18n/useT'
 import { Installation } from '@/docs/sections/Installation'
 import { ThreeModes } from '@/docs/sections/ThreeModes'
+import { Theming } from '@/docs/sections/Theming'
 import { Props } from '@/docs/sections/Props'
 import { Examples } from '@/docs/sections/Examples'
 import { TypeScript } from '@/docs/sections/TypeScript'
@@ -24,6 +25,7 @@ export default function Docs () {
           <h1 className="text-3xl font-semibold tracking-tight">{t('docs.title')}</h1>
           <Installation />
           <ThreeModes />
+          <Theming />
           <Props />
           <Examples />
           <TypeScript />

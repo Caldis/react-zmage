@@ -17,6 +17,7 @@ export const SIDEBAR_GROUPS: Group[] = [
     titleKey: 'docs.sidebar.concepts',
     items: [
       { id: 'modes', labelKey: 'docs.sidebar.modes' },
+      { id: 'theming', labelKey: 'docs.sidebar.theming' },
     ],
   },
   {
