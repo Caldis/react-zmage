@@ -126,12 +126,49 @@ function FeatureGrid () {
   )
 }
 
+const MODE_CODE = {
+  component: `<Zmage src="hero.jpg" set={[...]} />`,
+  imperative: `import Zmage from 'react-zmage'
+
+button.onclick = () => Zmage.browsing({
+  src: 'hero.jpg', set: [...]
+})`,
+  wrapper: `<Zmage.Wrapper>
+  <article dangerouslySetInnerHTML={{ __html: html }} />
+</Zmage.Wrapper>`,
+}
+
+function ThreeModes () {
+  const { t } = useT()
+  const cards = [
+    { code: MODE_CODE.component, labelKey: 'modes.component.label' as const, descKey: 'modes.component.desc' as const, link: '/playground' },
+    { code: MODE_CODE.imperative, labelKey: 'modes.imperative.label' as const, descKey: 'modes.imperative.desc' as const, link: '/playground/imperative' },
+    { code: MODE_CODE.wrapper, labelKey: 'modes.wrapper.label' as const, descKey: 'modes.wrapper.desc' as const, link: '/playground/wrapper' },
+  ]
+  return (
+    <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+      <h2 className="text-3xl font-semibold tracking-tight">{t('modes.title')}</h2>
+      <div className="mt-10 grid gap-6 md:grid-cols-3">
+        {cards.map(c => (
+          <div key={c.labelKey} className="flex flex-col">
+            <span className="text-xs font-mono text-muted-foreground">{t(c.labelKey)}</span>
+            <CodeBlock code={c.code} className="mt-2 flex-1" />
+            <p className="mt-4 text-sm text-muted-foreground">{t(c.descKey)}</p>
+            <Link to={c.link} className="mt-3 text-sm text-foreground hover:opacity-70">{t('modes.try')}</Link>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function Home () {
   return (
     <>
       <Hero />
       <LiveDemo />
       <FeatureGrid />
+      <ThreeModes />
       <Footer />
     </>
   )
