@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { Github } from 'lucide-react'
 import zmagePkg from 'react-zmage/package.json'
 import { useT } from '@/i18n/useT'
@@ -28,15 +29,16 @@ export function Footer () {
         <div>
           <h4 className="text-sm font-medium">{t('footer.tech')}</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li>React 19</li>
+            <li>React {React.version}</li>
             <li>Vite</li>
             <li>shadcn/ui · Tailwind v4</li>
           </ul>
         </div>
       </div>
       <div className="border-t border-border/60">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 text-xs text-muted-foreground sm:px-6">
-          <span>{t('footer.license')} · v{zmagePkg.version}</span>
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 text-xs text-muted-foreground sm:px-6">
+          <span>{t('footer.license')}</span>
+          <span className="font-mono">react-zmage v{zmagePkg.version} · React {React.version}</span>
           <a href="https://github.com/Caldis/react-zmage" aria-label="GitHub" className="hover:text-foreground">
             <Github className="h-4 w-4" />
           </a>

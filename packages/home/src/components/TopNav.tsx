@@ -1,9 +1,7 @@
 import { Link, NavLink } from 'react-router-dom'
 import { Github, Menu } from 'lucide-react'
-import zmagePkg from 'react-zmage/package.json'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Badge } from '@/components/ui/badge'
 import { ThemeToggle } from './ThemeToggle'
 import { LanguageToggle } from './LanguageToggle'
 import { CommandK } from './CommandK'
@@ -23,7 +21,6 @@ export function TopNav () {
         <Link to="/" className="flex items-center gap-2.5">
           <img src="/logo.png" alt="" className="h-7 w-7" />
           <span className="font-mono text-sm font-medium">react-zmage</span>
-          <Badge variant="secondary" className="font-mono text-[10px]">v{zmagePkg.version}</Badge>
         </Link>
         <nav className="hidden flex-1 items-center gap-1 md:flex">
           {links.map(({ to, key }) => (
