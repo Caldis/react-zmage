@@ -42,6 +42,38 @@ export function buildPropsObject (values: Record<string, any>) {
   return out
 }
 
+/**
+ * Runtime-side props builder.
+ * Strips ONLY schema defaults — seed values for src/alt/set pass through so
+ * the rendered <Zmage> actually has data. CodeSnippet's `isDefault` (which
+ * also treats seed as default) is only suitable for display/share URL.
+ *
+ * Why this matters: spreading raw `values` directly into <Zmage> would push
+ * schema defaults like controller={} / hotKey={} / animate={} through, which
+ * override the lib's defPreset.desktop.* causing the modal to render with
+ * no controls / no shortcuts / no animations (= "click does nothing" feel).
+ */
+function isSchemaDefault (name: string, value: any) {
+  const def = PARAM_SCHEMA.find(d => d.name === name)
+  if (!def) return true
+  if (value === undefined) return true
+  if (typeof value === 'object') {
+    try { return JSON.stringify(value) === JSON.stringify(def.default) } catch { return false }
+  }
+  return value === def.default
+}
+
+export function buildRuntimeProps (values: Record<string, any>) {
+  const out: Record<string, any> = {}
+  for (const def of PARAM_SCHEMA) {
+    const v = values[def.name]
+    if (def.required) { out[def.name] = v ?? ''; continue }
+    if (isSchemaDefault(def.name, v)) continue
+    out[def.name] = v
+  }
+  return out
+}
+
 function renderJsx (values: Record<string, any>) {
   const props = buildPropsObject(values)
   const lines: string[] = ['<Zmage']

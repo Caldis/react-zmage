@@ -1,5 +1,5 @@
 import Zmage from 'react-zmage'
-import { CodeSnippet } from '@/playground/CodeSnippet'
+import { CodeSnippet, buildRuntimeProps } from '@/playground/CodeSnippet'
 import { useT } from '@/i18n/useT'
 import { EventLog } from '@/playground/EventLog'
 import { useThemedBackdrop } from '@/lib/themedBackdrop'
@@ -7,14 +7,15 @@ import { useThemedBackdrop } from '@/lib/themedBackdrop'
 export default function ComponentMode ({ values }: { values: Record<string, any> }) {
   const { t } = useT()
   const themedBackdrop = useThemedBackdrop()
-  // WYSIWYG: panel 完全是 source of truth; 种子值在 Playground.tsx 初始化时已经写入面板.
-  // 这里只负责把 values 透给 Zmage, 必要时补 cover src (用户给了 set 但没给 src).
-  const userHasSrc = !!values.src
-  const userHasSet = Array.isArray(values.set) && values.set.length > 0
-  const cover = userHasSrc ? values.src : (userHasSet ? values.set[0]?.src : '')
+  // WYSIWYG: panel = source of truth. buildRuntimeProps 只剥 schema 默认空值
+  // (避免 controller={}/hotKey={}/animate={} 覆盖 lib defPreset), 但保留种子的 src/alt/set.
+  const props = buildRuntimeProps(values)
+  const userHasSrc = !!props.src
+  const userHasSet = Array.isArray(props.set) && props.set.length > 0
+  const cover = userHasSrc ? props.src : (userHasSet ? props.set[0]?.src : '')
   const safeProps: Record<string, any> = {
     backdrop: themedBackdrop,
-    ...values,
+    ...props,
     src: cover,
   }
   return (

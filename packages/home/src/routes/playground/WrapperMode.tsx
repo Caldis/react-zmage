@@ -1,15 +1,15 @@
 import Zmage from 'react-zmage'
-import { CodeSnippet } from '@/playground/CodeSnippet'
+import { CodeSnippet, buildRuntimeProps } from '@/playground/CodeSnippet'
 import { EventLog } from '@/playground/EventLog'
 import { useThemedBackdrop } from '@/lib/themedBackdrop'
 
 export default function WrapperMode ({ values }: { values: Record<string, any> }) {
   const themedBackdrop = useThemedBackdrop()
-  // Wrapper 从被点击的 <img> 读 src/alt, 这里只把 backdrop/zIndex/animate 等真正影响 wrapper
-  // 行为的字段透下去, 单图相关的 src/set/alt 不传 (避免 defaultProps 把 '' 灌进去).
-  const { src: _src, set: _set, alt: _alt, txt: _txt, defaultPage: _defaultPage, ...stripped } = values
-  const wrapperProps = { backdrop: themedBackdrop, ...stripped }
-  // WYSIWYG: 渲染哪些 <img> 进 wrapper 完全跟随面板的 src / set
+  // 用 buildRuntimeProps 剥 schema 默认空值后再剥单图字段 (wrapper 从被点击的 <img> 自取 src/alt)
+  const runtimeProps = buildRuntimeProps(values)
+  const { src: _src, set: _set, alt: _alt, txt: _txt, defaultPage: _defaultPage, ...stripped } = runtimeProps
+  const wrapperProps: Record<string, any> = { backdrop: themedBackdrop, ...stripped }
+  // WYSIWYG: 渲染哪些 <img> 跟随面板的 src / set
   const userHasSet = Array.isArray(values.set) && values.set.length > 0
   const userHasSrc = !!values.src
   const imgs: { src: string; alt?: string }[] = userHasSet
