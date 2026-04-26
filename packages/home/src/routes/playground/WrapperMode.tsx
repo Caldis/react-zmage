@@ -3,13 +3,17 @@ import { CodeSnippet, buildPropsObject } from '@/playground/CodeSnippet'
 import { EventLog } from '@/playground/EventLog'
 
 export default function WrapperMode ({ values }: { values: Record<string, any> }) {
-  const props = buildPropsObject(values)
+  // Wrapper 从被点击的 <img> 自身读 src/alt/set, 我们的 props 不能盖掉它们.
+  // buildPropsObject 对 required 字段会原样返回(包括默认空字符串), 直接展开会让
+  // wrapper 拿到 src='' / set=[] 然后传给 Zmage.browsing, 触发"empty src"警告 + 模态空白.
+  // 这里显式剔除 src / set / alt / txt / defaultPage, 让 wrapper 走自动检测路径.
+  const { src: _src, set: _set, alt: _alt, txt: _txt, defaultPage: _defaultPage, ...wrapperProps } = buildPropsObject(values)
   const Wrapper = (Zmage as any).Wrapper
   return (
     <div className="space-y-6">
       <CodeSnippet values={values} mode="wrapper" />
       <div className="rounded-lg border border-border bg-card/30 p-6">
-        <Wrapper {...props}>
+        <Wrapper {...wrapperProps}>
           <article className="mx-auto max-w-2xl space-y-4 text-sm">
             <p>Wrapper auto-attaches the viewer to every <code className="rounded bg-muted px-1 font-mono text-xs">&lt;img&gt;</code> below:</p>
             <p><img src="/imgSet/childsDream/1.jpg" alt="童夢 · ONE" className="rounded-md" /></p>

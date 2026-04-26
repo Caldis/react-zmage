@@ -44,6 +44,9 @@ function Hero () {
           backgroundImage:
             'linear-gradient(to right, hsl(var(--foreground) / 0.06) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--foreground) / 0.06) 1px, transparent 1px)',
           backgroundSize: '48px 48px',
+          // 底部渐隐, 让 hero 与下方 LiveDemo 平滑过渡
+          maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
         }}
       />
       {/* Radial glow centered */}

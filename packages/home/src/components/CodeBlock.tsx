@@ -22,13 +22,13 @@ export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true
   }
   const theme = resolved === 'dark' ? themes.vsDark : themes.vsLight
   return (
-    <div className={cn('relative rounded-lg border border-border bg-muted/40 overflow-hidden', className)}>
+    <div className={cn('relative rounded-lg border border-border bg-muted/40 overflow-hidden flex flex-col', className)}>
       {showCopy && (
         <Button
           size="icon"
           variant="ghost"
           onClick={onCopy}
-          className="absolute right-2 top-2 h-7 w-7 opacity-70 hover:opacity-100"
+          className="absolute right-2 top-2 z-10 h-7 w-7 opacity-70 hover:opacity-100"
           aria-label="Copy code"
         >
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -37,7 +37,7 @@ export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true
       <Highlight code={code.trim()} language={language} theme={theme}>
         {({ className: cls, style, tokens, getLineProps, getTokenProps }) => (
           <pre
-            className={cn(cls, 'overflow-x-auto p-4 text-sm font-mono leading-6')}
+            className={cn(cls, 'code-block-scroll flex-1 overflow-x-auto p-4 text-sm font-mono leading-6 m-0')}
             style={{ ...style, backgroundColor: 'transparent', background: 'transparent' }}
           >
             {tokens.map((line, i) => (
