@@ -1,0 +1,23 @@
+{
+  "name": "react-zmage-demo-nextjs",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 8095",
+    "dev:r19": "next dev --port 8095",
+    "build": "next build",
+    "start": "next start --port 8095"
+  },
+  "dependencies": {
+    "next": "^15.0.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-zmage": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.4.5"
+  }
+}

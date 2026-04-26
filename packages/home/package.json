@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter react-zmage run build && vite dev",
+    "dev:r17": "cross-env REACT_VERSION=17 pnpm --filter react-zmage run build && cross-env REACT_VERSION=17 vite dev",
+    "dev:r18": "cross-env REACT_VERSION=18 pnpm --filter react-zmage run build && cross-env REACT_VERSION=18 vite dev",
+    "dev:r19": "cross-env REACT_VERSION=19 pnpm --filter react-zmage run build && cross-env REACT_VERSION=19 vite dev",
     "build": "pnpm --filter react-zmage run build && rimraf ../../docs && vite build",
     "preview": "vite preview --outDir ../../docs",
     "clean": "rimraf ../../docs",
@@ -13,11 +16,18 @@
   "dependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react17": "npm:react@17.0.2",
+    "react-dom17": "npm:react-dom@17.0.2",
+    "react18": "npm:react@18.3.1",
+    "react-dom18": "npm:react-dom@18.3.1",
+    "react19": "npm:react@19.2.5",
+    "react-dom19": "npm:react-dom@19.2.5",
     "react-zmage": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^17.0.91",
     "@types/react-dom": "^17.0.26",
+    "cross-env": "^7.0.3",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^4.7.0",

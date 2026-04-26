@@ -6,6 +6,11 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
+    "dev:csr-r17": "pnpm --filter react-zmage-home run dev:r17",
+    "dev:csr-r18": "pnpm --filter react-zmage-home run dev:r18",
+    "dev:csr-r19": "pnpm --filter react-zmage-home run dev:r19",
+    "dev:ssr-r19": "pnpm --filter react-zmage-demo-ssr run dev:r19",
+    "dev:nextjs": "pnpm --filter react-zmage-demo-nextjs run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "check": "pnpm --filter react-zmage run build && pnpm --filter react-zmage exec pnpm pack --pack-destination ../../.pack && node scripts/refresh-sandbox-tgz.mjs && pnpm install && pnpm --filter \"./packages/sandbox-*\" run check && pnpm --filter \"./packages/sandbox-*\" run smoke:ssr",
