@@ -8,7 +8,7 @@
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "check": "pnpm --filter react-zmage run build && pnpm --filter react-zmage exec pnpm pack --pack-destination ../../.pack && pnpm install --force && pnpm --filter \"./packages/sandbox-*\" run check",
+    "check": "pnpm --filter react-zmage run build && pnpm --filter react-zmage exec pnpm pack --pack-destination ../../.pack && node scripts/refresh-sandbox-tgz.mjs && pnpm install && pnpm --filter \"./packages/sandbox-*\" run check && pnpm --filter \"./packages/sandbox-*\" run smoke:ssr",
     "clean": "turbo run clean",
     "publish:core": "cd packages/core && npm publish"
   },

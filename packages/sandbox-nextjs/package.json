@@ -1,17 +1,19 @@
 {
-  "name": "react-zmage-sandbox-r19",
+  "name": "react-zmage-sandbox-nextjs",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "check": "tsc --noEmit",
-    "smoke:ssr": "node src/ssr-smoke.cjs"
+    "check": "next build",
+    "smoke:ssr": "echo 'next build covers SSR pipeline; no separate smoke needed'"
   },
   "dependencies": {
+    "next": "^15.5.15",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-zmage": "file:..\\..\\.pack\\react-zmage-1.0.2.tgz"
   },
   "devDependencies": {
+    "@types/node": "^20.19.39",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "typescript": "^5.9.3"

@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "smoke:ssr": "node src/ssr-smoke.cjs"
   },
   "dependencies": {
     "react": "^18.3.1",

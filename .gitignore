@@ -10,3 +10,7 @@ dist/
 dist-artifacts
 .pack/
 *.tgz
+
+# Next.js build output
+.next/
+next-env.d.ts
