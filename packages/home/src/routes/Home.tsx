@@ -10,6 +10,7 @@ import { CodeBlock } from '@/components/CodeBlock'
 import { Footer } from '@/components/Footer'
 import { useT } from '@/i18n/useT'
 import { cn } from '@/lib/utils'
+import { useThemedBackdrop } from '@/lib/themedBackdrop'
 
 function NpmChip () {
   const cmd = 'pnpm add react-zmage'
@@ -101,6 +102,7 @@ function Hero () {
 
 function LiveDemo () {
   const { t } = useT()
+  const backdrop = useThemedBackdrop()
   return (
     <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
       <div className="overflow-hidden rounded-2xl border border-border bg-muted/20 shadow-2xl shadow-black/40">
@@ -109,6 +111,7 @@ function LiveDemo () {
             className="h-full w-full object-cover"
             src="/imgSet/childsDream/1.jpg"
             alt="Live demo"
+            backdrop={backdrop}
             set={[
               { src: '/imgSet/childsDream/1.jpg', alt: '童夢 · ONE' },
               { src: '/imgSet/childsDream/2.jpg', alt: '童夢 · TWO' },

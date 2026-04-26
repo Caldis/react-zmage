@@ -1,13 +1,17 @@
 import Zmage from 'react-zmage'
 import { CodeSnippet, buildPropsObject } from '@/playground/CodeSnippet'
 import { EventLog } from '@/playground/EventLog'
+import { useThemedBackdrop } from '@/lib/themedBackdrop'
 
 export default function WrapperMode ({ values }: { values: Record<string, any> }) {
+  const themedBackdrop = useThemedBackdrop()
   // Wrapper 从被点击的 <img> 自身读 src/alt/set, 我们的 props 不能盖掉它们.
   // buildPropsObject 对 required 字段会原样返回(包括默认空字符串), 直接展开会让
   // wrapper 拿到 src='' / set=[] 然后传给 Zmage.browsing, 触发"empty src"警告 + 模态空白.
   // 这里显式剔除 src / set / alt / txt / defaultPage, 让 wrapper 走自动检测路径.
-  const { src: _src, set: _set, alt: _alt, txt: _txt, defaultPage: _defaultPage, ...wrapperProps } = buildPropsObject(values)
+  const { src: _src, set: _set, alt: _alt, txt: _txt, defaultPage: _defaultPage, ...stripped } = buildPropsObject(values)
+  // Backdrop: user override wins; otherwise follow site theme.
+  const wrapperProps = { backdrop: themedBackdrop, ...stripped }
   const Wrapper = (Zmage as any).Wrapper
   return (
     <div className="space-y-6">

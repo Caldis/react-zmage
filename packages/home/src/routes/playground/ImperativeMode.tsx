@@ -5,9 +5,11 @@ import { Play } from 'lucide-react'
 import { CodeSnippet, buildPropsObject } from '@/playground/CodeSnippet'
 import { EventLog } from '@/playground/EventLog'
 import { useT } from '@/i18n/useT'
+import { useThemedBackdrop } from '@/lib/themedBackdrop'
 
 export default function ImperativeMode ({ values }: { values: Record<string, any> }) {
   const { t } = useT()
+  const themedBackdrop = useThemedBackdrop()
   const destructorRef = React.useRef<(() => void) | null>(null)
   const onTrigger = () => {
     destructorRef.current?.()
@@ -15,6 +17,8 @@ export default function ImperativeMode ({ values }: { values: Record<string, any
     if (!props.src && (!props.set || props.set.length === 0)) {
       props.src = '/imgSet/childsDream/1.jpg'
     }
+    // user-provided backdrop wins; otherwise fall back to current site theme
+    if (!props.backdrop) props.backdrop = themedBackdrop
     destructorRef.current = (Zmage as any).browsing(props)
   }
   React.useEffect(() => () => { destructorRef.current?.() }, [])
