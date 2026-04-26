@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-undef
 module.exports = {
   'ignorePatterns': [
-    'lib/*',
     'dist',
     'dist-artifacts',
     'docs',
