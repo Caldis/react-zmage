@@ -156,4 +156,37 @@ export const en: I18nDict = {
   'param.onRotating.desc': 'Fired on rotation (degrees).',
   'param.browsing.label': 'browsing',
   'param.browsing.desc': 'Controlled browsing state. Providing this switches to controlled mode; pair with onBrowsing.',
+
+  'docs.section.installation.title': 'Installation',
+  'docs.section.installation.intro': 'Install via your package manager:',
+  'docs.section.installation.then': 'Then import the component and its stylesheet:',
+  'docs.section.installation.ssrTitle': 'SSR',
+  'docs.section.installation.ssrBody': 'For server-rendered apps, use the /ssr entry to avoid touching document at import time:',
+
+  'docs.section.modes.title': 'Three modes',
+  'docs.section.modes.intro': 'react-zmage exposes the same configuration surface through three call shapes:',
+  'docs.section.modes.componentTitle': 'Component',
+  'docs.section.modes.imperativeTitle': 'Imperative',
+  'docs.section.modes.wrapperTitle': 'Wrapper',
+  'docs.section.modes.wrapperNote': "Wrapper queries img children during componentDidMount / componentDidUpdate. Imgs injected after the wrapper renders won't get bound until the wrapper re-renders.",
+
+  'docs.section.props.title': 'Props',
+  'docs.section.props.intro': 'Every prop on BaseType can be passed in any of the three modes.',
+  'docs.section.props.interface': 'Interface & interaction',
+  'docs.section.props.controller.keyHeader': 'Key',
+  'docs.section.props.controller.descHeader': 'Description',
+
+  'docs.section.examples.title': 'Examples',
+  'docs.section.examples.singleTitle': 'Single image',
+  'docs.section.examples.galleryTitle': 'Multi-image gallery',
+
+  'docs.section.typescript.title': 'TypeScript',
+  'docs.section.typescript.intro': 'Types are co-located with the runtime export. The full prop union is BaseType:',
+  'docs.section.typescript.refIntro': 'The component accepts a ref, which forwards to the cover img:',
+
+  'docs.section.migration.title': 'Migration',
+  'docs.section.migration.fromV2': 'From v2:',
+  'docs.section.migration.bullet1': "preset: 'auto' is deprecated — use 'desktop' or 'mobile'.",
+  'docs.section.migration.bullet2': 'Component is a forwardRef exotic; do not new Zmage().',
+  'docs.section.migration.bullet3': 'If you import the SSR entry, switch to react-zmage/ssr.',
 }

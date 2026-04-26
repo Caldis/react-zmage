@@ -169,6 +169,40 @@ export const zhCN = {
   'param.onRotating.desc': '旋转时回调,参数为角度。',
   'param.browsing.label': 'browsing',
   'param.browsing.desc': '受控的浏览状态;给值即转为受控模式,需要配套 onBrowsing。',
+
+  // Docs sections
+  'docs.section.installation.title': '安装',
+  'docs.section.installation.intro': '通过包管理器安装:',
+  'docs.section.installation.then': '然后导入组件和样式表:',
+  'docs.section.installation.ssrTitle': 'SSR',
+  'docs.section.installation.ssrBody': '对于服务端渲染应用,使用 /ssr 入口可避免在 import 阶段触碰 document:',
+
+  'docs.section.modes.title': '三种调用方式',
+  'docs.section.modes.intro': 'react-zmage 通过三种调用方式暴露相同的配置接口:',
+  'docs.section.modes.componentTitle': '组件',
+  'docs.section.modes.imperativeTitle': '命令式',
+  'docs.section.modes.wrapperTitle': '包裹器',
+  'docs.section.modes.wrapperNote': '包裹器会在 componentDidMount / componentDidUpdate 期间查找子节点中的 img。包裹器渲染之后再注入的图片,需等到包裹器重新渲染时才会被绑定。',
+
+  'docs.section.props.title': 'API 参数',
+  'docs.section.props.intro': 'BaseType 上的所有属性,在三种调用方式中均可使用。',
+  'docs.section.props.interface': '界面与交互',
+  'docs.section.props.controller.keyHeader': '名称',
+  'docs.section.props.controller.descHeader': '说明',
+
+  'docs.section.examples.title': '示例',
+  'docs.section.examples.singleTitle': '单图',
+  'docs.section.examples.galleryTitle': '多图画廊',
+
+  'docs.section.typescript.title': 'TypeScript',
+  'docs.section.typescript.intro': '类型与运行时导出位于同一处,完整的属性联合类型为 BaseType:',
+  'docs.section.typescript.refIntro': '组件接受 ref,会转发到封面 img:',
+
+  'docs.section.migration.title': '迁移指南',
+  'docs.section.migration.fromV2': '从 v2 升级:',
+  'docs.section.migration.bullet1': "preset: 'auto' 已废弃 — 请改用 'desktop' 或 'mobile'。",
+  'docs.section.migration.bullet2': '组件是 forwardRef exotic;请勿使用 new Zmage()。',
+  'docs.section.migration.bullet3': '如果你引用的是 SSR 入口,请改为 react-zmage/ssr。',
 }
 
 export type I18nDict = typeof zhCN

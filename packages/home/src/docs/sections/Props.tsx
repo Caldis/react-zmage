@@ -23,8 +23,8 @@ function ControllerDetail () {
       <table className="w-full text-sm">
         <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
           <tr>
-            <th className="px-4 py-2.5 font-medium">Key</th>
-            <th className="px-4 py-2.5 font-medium">Description</th>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.keyHeader')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.descHeader')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
@@ -41,26 +41,27 @@ function ControllerDetail () {
 }
 
 export function Props () {
+  const { t } = useT()
   return (
     <section className="mt-12 space-y-4">
-      <Heading id="props">Props</Heading>
-      <p>Every prop on <code className="rounded bg-muted px-1 font-mono text-xs">BaseType</code> can be passed in any of the three modes.</p>
-      <Heading id="props-data" level={3}>Data</Heading>
+      <Heading id="props">{t('docs.section.props.title')}</Heading>
+      <p>{t('docs.section.props.intro')}</p>
+      <Heading id="props-data" level={3}>{t('group.data')}</Heading>
       <ParamTable group="data" />
-      <Heading id="props-preset" level={3}>Preset</Heading>
+      <Heading id="props-preset" level={3}>{t('group.preset')}</Heading>
       <ParamTable group="preset" />
-      <Heading id="props-interface" level={3}>Interface &amp; interaction</Heading>
+      <Heading id="props-interface" level={3}>{t('docs.section.props.interface')}</Heading>
       <ParamTable group="interface" />
-      <Heading id="props-controller" level={3}>Controller</Heading>
+      <Heading id="props-controller" level={3}>{t('group.controller')}</Heading>
       <ParamTable group="controller" />
       <ControllerDetail />
-      <Heading id="props-hotkey" level={3}>HotKey</Heading>
+      <Heading id="props-hotkey" level={3}>{t('group.hotkey')}</Heading>
       <ParamTable group="hotkey" />
-      <Heading id="props-animate" level={3}>Animate</Heading>
+      <Heading id="props-animate" level={3}>{t('group.animate')}</Heading>
       <ParamTable group="animate" />
-      <Heading id="props-lifecycle" level={3}>Lifecycle</Heading>
+      <Heading id="props-lifecycle" level={3}>{t('group.lifecycle')}</Heading>
       <ParamTable group="lifecycle" />
-      <Heading id="props-controlled" level={3}>Controlled</Heading>
+      <Heading id="props-controlled" level={3}>{t('group.controlled')}</Heading>
       <ParamTable group="controlled" />
     </section>
   )
