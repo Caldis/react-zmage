@@ -1,4 +1,5 @@
 import type { BaseType } from 'react-zmage'
+import type { I18nKey } from '@/i18n/dict'
 
 // ─────────────────────────────────────────────────────────────
 // Default values mirrored from packages/core/src/types/default.ts
@@ -44,8 +45,8 @@ export type ControlKind =
   | { kind: 'number' }
   | { kind: 'text' }
   | { kind: 'color' }
-  | { kind: 'select'; options: { value: string; labelKey: string }[] }
-  | { kind: 'segmented'; options: { value: string; labelKey: string }[] }
+  | { kind: 'select'; options: { value: string; labelKey: I18nKey }[] }
+  | { kind: 'segmented'; options: { value: string; labelKey: I18nKey }[] }
   | { kind: 'object'; component: 'controller' | 'hotkey' | 'animate' | 'set' }
   | { kind: 'callback'; events: string[] }
 
@@ -57,7 +58,7 @@ export type ParamDef<K extends keyof BaseType = keyof BaseType> = {
   group: ParamGroup
   default: unknown
   control: ControlKind
-  i18n: { labelKey: string; descKey: string }
+  i18n: { labelKey: I18nKey; descKey: I18nKey }
   desktopOnly?: boolean
   required?: boolean
   since?: string
@@ -102,6 +103,28 @@ export const PARAM_SCHEMA: ParamDef[] = [
     i18n: { labelKey: 'param.hideOnScroll.label', descKey: 'param.hideOnScroll.desc' } },
   { name: 'coverVisible', group: 'interface', default: defProp.coverVisible, desktopOnly: true, control: { kind: 'switch' },
     i18n: { labelKey: 'param.coverVisible.label', descKey: 'param.coverVisible.desc' } },
+
+  // Controller
+  { name: 'controller', group: 'controller', default: defPreset.desktop.controller, control: { kind: 'object', component: 'controller' },
+    i18n: { labelKey: 'param.controller.label', descKey: 'param.controller.desc' } },
+
+  // HotKey
+  { name: 'hotKey', group: 'hotkey', default: defPreset.desktop.hotKey, control: { kind: 'object', component: 'hotkey' },
+    i18n: { labelKey: 'param.hotKey.label', descKey: 'param.hotKey.desc' } },
+
+  // Animate
+  { name: 'animate', group: 'animate', default: defPreset.desktop.animate, control: { kind: 'object', component: 'animate' },
+    i18n: { labelKey: 'param.animate.label', descKey: 'param.animate.desc' } },
+
+  // Lifecycle
+  { name: 'onBrowsing', group: 'lifecycle', default: undefined, control: { kind: 'callback', events: ['onBrowsing'] },
+    i18n: { labelKey: 'param.onBrowsing.label', descKey: 'param.onBrowsing.desc' } },
+  { name: 'onZooming', group: 'lifecycle', default: undefined, control: { kind: 'callback', events: ['onZooming'] },
+    i18n: { labelKey: 'param.onZooming.label', descKey: 'param.onZooming.desc' } },
+  { name: 'onSwitching', group: 'lifecycle', default: undefined, control: { kind: 'callback', events: ['onSwitching'] },
+    i18n: { labelKey: 'param.onSwitching.label', descKey: 'param.onSwitching.desc' } },
+  { name: 'onRotating', group: 'lifecycle', default: undefined, control: { kind: 'callback', events: ['onRotating'] },
+    i18n: { labelKey: 'param.onRotating.label', descKey: 'param.onRotating.desc' } },
 
   // Controlled
   { name: 'browsing', group: 'controlled', default: undefined, control: { kind: 'switch' },
