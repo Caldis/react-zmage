@@ -58,11 +58,21 @@ export function ScalarControl ({ def, value, onChange }: Props) {
   }
   if (c.kind === 'segmented') {
     return (
-      // 显式块级 flex 容器固定左对齐, 不依赖 inline-flex + 默认 justify 推断
-      <div className="flex">
+      // - flex justify-start: 显式左对齐, 不依赖任何 inline-flex 推断
+      // - overflow-x-auto: 长 i18n 值 (日语/德语/俄语) 撑爆 cell 时退化为容器内横滑而不是溢出 panel
+      // - 缩小高度+字号: 视觉更轻, 也给长字符串留余量
+      <div className="flex justify-start overflow-x-auto">
         <Tabs value={String(value ?? '')} onValueChange={onChange}>
-          <TabsList className="h-8">
-            {c.options.map(o => <TabsTrigger key={o.value} value={o.value} className="h-7 text-xs">{t(o.labelKey)}</TabsTrigger>)}
+          <TabsList className="h-7 w-fit p-0.5">
+            {c.options.map(o => (
+              <TabsTrigger
+                key={o.value}
+                value={o.value}
+                className="h-6 px-2 text-[11px]"
+              >
+                {t(o.labelKey)}
+              </TabsTrigger>
+            ))}
           </TabsList>
         </Tabs>
       </div>
