@@ -72,8 +72,15 @@ export function CommandK () {
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-xl p-0">
-        <div className="border-b border-border p-3">
-          <Input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder={t('docs.search.placeholder')} className="border-0 px-0 focus-visible:ring-0" />
+        <div className="flex h-12 items-center gap-2 border-b border-border px-4 pr-12">
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <Input
+            autoFocus
+            value={q}
+            onChange={e => setQ(e.target.value)}
+            placeholder={t('docs.search.placeholder')}
+            className="border-0 bg-transparent px-0 shadow-none focus-visible:outline-none focus-visible:ring-0"
+          />
         </div>
         <ul className="max-h-72 overflow-y-auto p-2">
           {results.length === 0 ? (
