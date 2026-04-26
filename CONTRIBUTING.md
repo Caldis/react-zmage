@@ -39,19 +39,31 @@ docs/                    # 演示站构建产物 (GitHub Pages)
 git clone https://github.com/Caldis/react-zmage
 cd react-zmage
 pnpm install
-pnpm dev          # 启动演示站, 默认 http://localhost:5173
+pnpm dev          # 默认演示站 (R17 + Vite SPA), http://127.0.0.1:8080
 ```
 
 修改 `packages/core` 后 home 应用会通过 workspace 链接热更新。
+
+### 切换 React 版本 / 渲染模式做手动验收
+
+```bash
+pnpm dev:csr-r17     # CSR · Vite SPA · React 17                    (:8080)
+pnpm dev:csr-r18     # CSR · Vite SPA · React 18                    (:8080)
+pnpm dev:csr-r19     # CSR · Vite SPA · React 19                    (:8080)
+pnpm dev:ssr-r19     # SSR · Express + Vite + renderToString · R19  (:8090)
+pnpm dev:nextjs      # RSC · Next.js 15 App Router · R19             (:8095)
+```
+
+每个 demo 顶部固定一个 ContextBanner 显示当前实际加载的 React 版本与渲染模式，便于在切换不同环境时确认上下文。GUI / 动画 / 视觉验收只能由人来做——CI 与 Agent 仅负责构建/类型/运行时 smoke 不出错。
 
 ## 跑测试
 
 | 命令 | 用途 |
 |---|---|
-| `pnpm test` | core 单元测试 (vitest + @testing-library/react，jsdom 环境) |
+| `pnpm test` | core 单元测试 (vitest + @testing-library/react, jsdom 环境) |
 | `pnpm build` | 产出 dist/ (tsup 出 cjs/esm/iife + tsc 出 .d.ts) |
 | `pnpm lint` | eslint + stylelint |
-| `pnpm -w run check` | **完整跨版本兼容性测试**：build → pack → 强制重装 → R17/18/19 三套 sandbox 各自跑 strict tsc |
+| `pnpm -w run check` | **完整跨版本程序化测试**：build → pack → 重装 → R17/R18/R19 sandbox 跑 strict tsc + 在真实 Node 跑 renderToString smoke + Next.js sandbox 跑 next build |
 
 **任何会改动 `packages/core/src` 或 `packages/core/package.json` 的 PR，合入前必须能通过 `pnpm -w run check`。**
 

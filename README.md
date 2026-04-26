@@ -409,16 +409,28 @@ return (
 
 仓库布局是 pnpm + turbo 单仓多包：
 - `packages/core` — 发布到 npm 的 `react-zmage` 库
-- `packages/home` — 演示站源码（构建产物在 `docs/`）
-- `packages/sandbox-r{17,18,19}` — 真实 npm 消费者集成测试沙箱
+- `packages/home` — CSR 演示站源码（生产产物在 `docs/`，可切换 React 版本）
+- `packages/sandbox-r{17,18,19}` — 真实 npm 消费者类型 + SSR runtime smoke
+- `packages/sandbox-nextjs` — Next.js 15 + RSC 真实消费者 build smoke
+- `apps/demo-ssr` — Express + Vite SSR 演示（R19）
+- `apps/demo-nextjs` — Next.js 15 App Router 演示
 
 常用命令：
 ```bash
-pnpm install     # 安装所有 workspace 依赖
-pnpm build       # 构建 core 与 home
-pnpm test        # 跑单元测试
-pnpm -w run check  # 跑跨 React 版本兼容性测试 (build → pack → reinstall → 三 sandbox tsc)
+pnpm install         # 安装所有 workspace 依赖
+pnpm build           # 构建 core 与 home
+pnpm test            # 跑单元测试
+pnpm -w run check    # 完整跨版本兼容性: build → pack → reinstall → 4 sandbox tsc + ssr-smoke
+
+# 交互式 demo (用于人工验收 GUI / 动画 / 交互)
+pnpm dev:csr-r17     # CSR · Vite SPA · React 17
+pnpm dev:csr-r18     # CSR · Vite SPA · React 18
+pnpm dev:csr-r19     # CSR · Vite SPA · React 19
+pnpm dev:ssr-r19     # SSR · Express + renderToString · React 19  (:8090)
+pnpm dev:nextjs      # RSC · Next.js App Router · React 19         (:8095)
 ```
+
+每个 demo 顶部会显示 ContextBanner，标明当前实际加载的 React 版本与渲染模式，便于在切换不同环境时确认上下文。
 
 ---
 

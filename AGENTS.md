@@ -119,10 +119,15 @@ packages/
     tsup.config.ts               # build config (esm/cjs/iife + ssr subentry)
     tsconfig.declarations.json   # tsc -- emitDeclarationOnly for .d.ts
     package.json                 # exports map: . | ./ssr | ./style.css
-  home/                          # demo site (Vite)
+  home/                          # CSR demo (Vite SPA, switchable React via env)
   sandbox-r17/                   # ┐
   sandbox-r18/                   # ├ R17/18/19 real-npm-consumer integration tests
-  sandbox-r19/                   # ┘  (installed via `pnpm pack` tgz, NOT workspace:*)
+  sandbox-r19/                   # │  (installed via `pnpm pack` tgz, NOT workspace:*)
+                                 # │  each: tsc --noEmit + node ssr-smoke.cjs
+  sandbox-nextjs/                # ┘  Next.js 15 + R19 + RSC, runs `next build`
+apps/
+  demo-ssr/                      # Express + Vite SSR demo (R19 only)
+  demo-nextjs/                   # Next.js 15 App Router demo (R19)
 ```
 
 ## Build & test
@@ -130,12 +135,32 @@ packages/
 ```bash
 pnpm install
 pnpm build               # turbo: tsup + tsc -- core; vite -- home
-pnpm test                # vitest in jsdom
-pnpm -w run check        # FULL: build → pack → install --force → tsc all sandboxes
+pnpm test                # vitest in jsdom (component-level)
+pnpm -w run check        # FULL: build → pack → install → tsc + ssr-smoke for each sandbox
 ```
 
-The `pnpm -w run check` is the single command that verifies dist correctness
-across all React versions. Use it before claiming a build is good.
+`pnpm -w run check` is the single command that verifies dist correctness across
+React versions. The `scripts/refresh-sandbox-tgz.mjs` helper makes it idempotent
+on Windows by only invalidating the react-zmage cache entry rather than
+rerunning a full `--force` install (which races on Windows + Next.js's many
+small files).
+
+## Interactive demos (human verification, not for agents)
+
+These exist for the human maintainer to visually verify GUI/animation/
+interaction behavior. Agents shouldn't claim "demo verified" — only the human
+who actually opened the page in a browser can.
+
+```bash
+pnpm dev:csr-r17   # CSR R17  :8080
+pnpm dev:csr-r18   # CSR R18  :8080
+pnpm dev:csr-r19   # CSR R19  :8080
+pnpm dev:ssr-r19   # SSR R19  :8090
+pnpm dev:nextjs    # RSC R19  :8095
+```
+
+Each page shows a fixed top-bar `ContextBanner` with the React.version actually
+loaded and the render mode label.
 
 ## Architectural invariants (don't break these)
 
@@ -173,6 +198,9 @@ If README and source disagree, **source wins**:
 
 Before claiming a fix:
 1. `pnpm test` — unit tests must stay green (currently 11 tests).
-2. `pnpm -w run check` — all 3 sandboxes must pass strict tsc.
+2. `pnpm -w run check` — all 4 sandboxes must pass: tsc + ssr-smoke for r17/r18/r19, `next build` for sandbox-nextjs.
 3. If you touched callee or Browser, also confirm no React "setState on
    unmounted component" warnings appear in test output.
+4. **Do not claim GUI/animation/interaction behavior verified.** That requires
+   a human to open `pnpm dev:csr-r19` / `pnpm dev:ssr-r19` / `pnpm dev:nextjs`
+   and check the actual rendering. Agents cannot do this.
