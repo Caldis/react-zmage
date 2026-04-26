@@ -26,7 +26,7 @@ export default defineConfig({
   publicDir: path.resolve(__dirname, 'public'),
   build: {
     outDir: docsDir,
-    emptyOutDir: true,
+    emptyOutDir: false,
   },
   preview: {
     host: process.env.HOST || '127.0.0.1',
