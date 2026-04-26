@@ -89,7 +89,10 @@ function Hero () {
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Button size="lg" asChild>
-            <Link to="/docs">{t('hero.cta.start')} <ArrowRight className="ml-1.5 h-4 w-4" /></Link>
+            <Link to="/docs" className="group">
+              {t('hero.cta.start')}
+              <ArrowRight className="ml-1.5 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+            </Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
             <Link to="/playground">{t('hero.cta.playground')}</Link>
