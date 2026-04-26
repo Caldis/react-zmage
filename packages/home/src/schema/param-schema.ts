@@ -79,14 +79,14 @@ export const PARAM_SCHEMA: ParamDef[] = [
 
   // Preset
   { name: 'preset', group: 'preset', default: '', control: {
-      kind: 'segmented',
-      options: [
-        { value: 'desktop', labelKey: 'preset.desktop' },
-        { value: 'mobile', labelKey: 'preset.mobile' },
-        { value: '', labelKey: 'preset.none' },
-      ],
-    },
-    i18n: { labelKey: 'param.preset.label', descKey: 'param.preset.desc' } },
+    kind: 'segmented',
+    options: [
+      { value: 'desktop', labelKey: 'preset.desktop' },
+      { value: 'mobile', labelKey: 'preset.mobile' },
+      { value: '', labelKey: 'preset.none' },
+    ],
+  },
+  i18n: { labelKey: 'param.preset.label', descKey: 'param.preset.desc' } },
 
   // Interface & interaction
   { name: 'backdrop', group: 'interface', default: defProp.backdrop, control: { kind: 'color' },

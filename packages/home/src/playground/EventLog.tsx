@@ -24,12 +24,12 @@ export function EventLog () {
         {entries.length === 0
           ? <div className="text-muted-foreground">{t('pg.events.empty')}</div>
           : entries.map((e, i) => (
-              <div key={i} className="flex gap-2">
-                <span className="text-muted-foreground">{e.ts}</span>
-                <span>{e.name}</span>
-                <span className="truncate text-muted-foreground">{JSON.stringify(e.args)}</span>
-              </div>
-            ))}
+            <div key={i} className="flex gap-2">
+              <span className="text-muted-foreground">{e.ts}</span>
+              <span>{e.name}</span>
+              <span className="truncate text-muted-foreground">{JSON.stringify(e.args)}</span>
+            </div>
+          ))}
       </div>
     </div>
   )

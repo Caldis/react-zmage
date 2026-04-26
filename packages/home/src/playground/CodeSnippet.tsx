@@ -77,6 +77,6 @@ function renderWrapper (values: Record<string, any>) {
 export function CodeSnippet ({ values, mode }: { values: Record<string, any>; mode: Mode }) {
   const code = mode === 'component' ? renderJsx(values)
     : mode === 'imperative' ? renderImperative(values)
-    : renderWrapper(values)
+      : renderWrapper(values)
   return <CodeBlock code={code} language={'tsx' as any} />
 }
