@@ -43,7 +43,6 @@ export const zhCN = {
   'footer.changelog': '更新日志',
   'footer.madeby': '作者',
   'footer.illustrator': '插图作者',
-  'footer.tech': '技术栈',
   'footer.license': 'MIT 许可证',
 
   // Playground shell

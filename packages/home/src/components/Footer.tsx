@@ -7,7 +7,7 @@ export function Footer () {
   const { t } = useT()
   return (
     <footer className="mt-32 border-t border-border/60 bg-muted/20">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-2">
         <div>
           <h4 className="text-sm font-medium">{t('footer.project')}</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
@@ -24,14 +24,6 @@ export function Footer () {
               <span>{t('footer.illustrator')}: </span>
               <a className="hover:text-foreground" href="https://www.behance.net/gallery/56119387/_">sslololss Guihuahuzi</a>
             </li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="text-sm font-medium">{t('footer.tech')}</h4>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li>React {React.version}</li>
-            <li>Vite</li>
-            <li>shadcn/ui · Tailwind v4</li>
           </ul>
         </div>
       </div>

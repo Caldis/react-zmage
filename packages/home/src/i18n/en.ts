@@ -39,7 +39,6 @@ export const en: I18nDict = {
   'footer.changelog': 'Changelog',
   'footer.madeby': 'Made by',
   'footer.illustrator': 'Illustrator',
-  'footer.tech': 'Built with',
   'footer.license': 'MIT License',
 
   'pg.title': 'Playground',

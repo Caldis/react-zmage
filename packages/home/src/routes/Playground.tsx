@@ -86,7 +86,7 @@ export default function Playground () {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
-        <aside className="rounded-lg border border-border bg-card/30 py-1">
+        <aside className="rounded-lg border border-border bg-card/30 py-2">
           <ParamPanel values={values} onChange={onChange} />
         </aside>
         <section className="min-w-0">
