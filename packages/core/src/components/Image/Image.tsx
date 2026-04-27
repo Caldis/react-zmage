@@ -49,8 +49,6 @@ interface StateType {
   touchProfile: TouchProfile
   // 时间戳 Flag
   timestamp: { [ImageUrl: string]: number },
-  // 鼠标驱动的 zoom 跟随: true 时该次 render transition 强制为 'none', 用于消除 mousemove 粘滞
-  zoomMouseDriven: boolean,
 }
 
 export default class Image extends React.Component<PropsType, StateType> {
@@ -70,10 +68,6 @@ export default class Image extends React.Component<PropsType, StateType> {
   pendingRafHandles: number[] = []
   browsingTransitionRaf?: number
   suppressBrowsingTransition = false
-  // zoom 内首次 mousemove 已被认领 (用 instance prop 避免同帧多次 mousemove 竞态;
-  // 第一次 setState 不翻 zoomMouseDriven 让那一帧走 CSS 350ms transition,
-  // 第二次 mousemove 才把 zoomMouseDriven 翻 true 进入即时跟随)
-  zoomTrackingClaimed = false
   // State
   readonly state = {
     // 加载状态
@@ -87,8 +81,6 @@ export default class Image extends React.Component<PropsType, StateType> {
     touchProfile: new TouchProfile(),
     // 时间戳 Flag
     timestamp: {},
-    // 鼠标驱动的 zoom 跟随标志
-    zoomMouseDriven: false,
   } as StateType
 
   componentDidMount () {
@@ -112,15 +104,6 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { show: prevShow, zoom: prevZoom, rotate: prevRotate, page: prevPage } = prevProps
     const { show: currShow, zoom: currZoom, rotate: currRotate, page: currPage } = this.props
     const { animate, presetIsMobile } = this.context
-    // zoom 状态切换 (无论开还是关) 重置鼠标跟随状态:
-    //   - zoomMouseDriven 翻 false 让 cover↔zoom 走 350ms 过渡
-    //   - zoomTrackingClaimed 重置, 让下一次 enter zoom 后第一次 mousemove 重新走"首次动画"路径
-    if (prevZoom !== currZoom) {
-      this.zoomTrackingClaimed = false
-      if (this.state.zoomMouseDriven) {
-        this.setState({ zoomMouseDriven: false })
-      }
-    }
     // 状态改变时更新样式 (Page 导致的 src 变化的 update 交给图片自身的 onload 调用)
     if (prevShow !== currShow || prevZoom !== currZoom || prevRotate !== currRotate) {
       const updateStyle = () => {
@@ -246,34 +229,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   // 鼠标事件
   handleMouseMove = (e: MouseEvent) => {
     const zoomingStyle = getZoomingStyle(this.context, this.imageRef, e)
-    const { currentStyle } = this.state
-    const inZoomingState = currentStyle._type === 'zooming'
-    const nextStyle = zoomingStyle._behavior === 'merge'
-      ? { ...currentStyle, ...zoomingStyle }
-      : zoomingStyle
-
-    // 三态分支:
-    //   1. 还没切到 zooming 态 (enter zoom 的 debounce 还没触发) → 直接更新 currentStyle,
-    //      不动 zoomMouseDriven, 让 cover→zoom 自己走 350ms 缩放.
-    //   2. 已经在 zooming 但本轮 zoom session 还没认领过 mousemove → 这是用户第一次动鼠标,
-    //      currentStyle 之前是 "centered 1:1", 现在变成 "mouse-positioned 1:1". 仅更新
-    //      currentStyle, 不翻 zoomMouseDriven, 让这一帧的 transform 变化走 CSS 基类 350ms.
-    //      不要在 raf 里翻 zoomMouseDriven=true — Chromium/Webkit 把 transition 改成 'none'
-    //      会取消 in-flight transition, transform 直接 snap, 首次动画就被吃掉.
-    //      让 flag 在第二次 mousemove 自然翻 true: 那次必然伴随 transform 变化, 浏览器看到
-    //      transform + transition: 'none' 同时改 → 直接 snap (期望的即时跟随), 或者用户从此
-    //      不再动鼠标, 单次动画自由完成.
-    //   3. 已经认领过 → setState 同时翻 zoomMouseDriven=true, transition: 'none' 实现零延迟跟随.
-    if (!inZoomingState) {
-      this.setState({ currentStyle: nextStyle })
-      return
-    }
-    if (!this.zoomTrackingClaimed) {
-      this.zoomTrackingClaimed = true
-      this.setState({ currentStyle: nextStyle })
-    } else {
-      this.setState({ currentStyle: nextStyle, zoomMouseDriven: true })
-    }
+    this.setCurrentStyle(zoomingStyle)
   }
   // 加载事件
   handleImageLoadStart = () => {
@@ -392,11 +348,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       cursor: zoom ? 'zoom-out' : 'initial',
       zIndex,
       opacity: invalidate ? 0 : opacity,
-      transition: this.suppressBrowsingTransition
-        || animateParams.flip === false
-        // zoom mousemove 跟随: 仅中心图 + 已经在 zooming 态时关闭 transition, enter zoom 自然过渡
-        || (zoom && !isSideImage && this.state.zoomMouseDriven)
-        ? 'none' : transition,
+      transition: this.suppressBrowsingTransition || animateParams.flip === false ? 'none' : transition,
       pointerEvents,
       ...set[page].style,
     } as CSSProperties
