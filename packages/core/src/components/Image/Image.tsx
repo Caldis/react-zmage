@@ -70,10 +70,10 @@ export default class Image extends React.Component<PropsType, StateType> {
   pendingRafHandles: number[] = []
   browsingTransitionRaf?: number
   suppressBrowsingTransition = false
-  // zoom 内首次 mousemove 已被认领 (用 instance prop 避免相同帧内多次 mousemove 竞态)
+  // zoom 内首次 mousemove 已被认领 (用 instance prop 避免同帧多次 mousemove 竞态;
+  // 第一次 setState 不翻 zoomMouseDriven 让那一帧走 CSS 350ms transition,
+  // 第二次 mousemove 才把 zoomMouseDriven 翻 true 进入即时跟随)
   zoomTrackingClaimed = false
-  // 延后翻 zoomMouseDriven 用的 raf 句柄, 卸载/退出 zoom 时取消
-  zoomTrackingRaf?: number
   // State
   readonly state = {
     // 加载状态
@@ -115,13 +115,8 @@ export default class Image extends React.Component<PropsType, StateType> {
     // zoom 状态切换 (无论开还是关) 重置鼠标跟随状态:
     //   - zoomMouseDriven 翻 false 让 cover↔zoom 走 350ms 过渡
     //   - zoomTrackingClaimed 重置, 让下一次 enter zoom 后第一次 mousemove 重新走"首次动画"路径
-    //   - 取消挂起的 raf
     if (prevZoom !== currZoom) {
       this.zoomTrackingClaimed = false
-      if (this.zoomTrackingRaf !== undefined) {
-        window.cancelAnimationFrame(this.zoomTrackingRaf)
-        this.zoomTrackingRaf = undefined
-      }
       if (this.state.zoomMouseDriven) {
         this.setState({ zoomMouseDriven: false })
       }
@@ -163,10 +158,6 @@ export default class Image extends React.Component<PropsType, StateType> {
     if (this.browsingTransitionRaf !== undefined) {
       window.cancelAnimationFrame(this.browsingTransitionRaf)
       this.browsingTransitionRaf = undefined
-    }
-    if (this.zoomTrackingRaf !== undefined) {
-      window.cancelAnimationFrame(this.zoomTrackingRaf)
-      this.zoomTrackingRaf = undefined
     }
     // 取消挂起的 debounce, 避免在已卸载组件上 setState
     this.debounceUpdateCurrentImageStyle.cancel()
@@ -265,21 +256,21 @@ export default class Image extends React.Component<PropsType, StateType> {
     //   1. 还没切到 zooming 态 (enter zoom 的 debounce 还没触发) → 直接更新 currentStyle,
     //      不动 zoomMouseDriven, 让 cover→zoom 自己走 350ms 缩放.
     //   2. 已经在 zooming 但本轮 zoom session 还没认领过 mousemove → 这是用户第一次动鼠标,
-    //      currentStyle 之前是 "centered 1:1", 现在变成 "mouse-positioned 1:1", 这一帧应该
-    //      走 350ms transition 让平移有动画感. 同时用 raf 在下一帧把 zoomMouseDriven=true,
-    //      之后 mousemove 进入即时跟随分支.
-    //   3. 已经认领过 → 即时跟随 (transition: 'none').
+    //      currentStyle 之前是 "centered 1:1", 现在变成 "mouse-positioned 1:1". 仅更新
+    //      currentStyle, 不翻 zoomMouseDriven, 让这一帧的 transform 变化走 CSS 基类 350ms.
+    //      不要在 raf 里翻 zoomMouseDriven=true — Chromium/Webkit 把 transition 改成 'none'
+    //      会取消 in-flight transition, transform 直接 snap, 首次动画就被吃掉.
+    //      让 flag 在第二次 mousemove 自然翻 true: 那次必然伴随 transform 变化, 浏览器看到
+    //      transform + transition: 'none' 同时改 → 直接 snap (期望的即时跟随), 或者用户从此
+    //      不再动鼠标, 单次动画自由完成.
+    //   3. 已经认领过 → setState 同时翻 zoomMouseDriven=true, transition: 'none' 实现零延迟跟随.
     if (!inZoomingState) {
       this.setState({ currentStyle: nextStyle })
       return
     }
     if (!this.zoomTrackingClaimed) {
       this.zoomTrackingClaimed = true
-      this.setState({ currentStyle: nextStyle }) // zoomMouseDriven 仍 false → CSS 类 350ms 动画
-      this.zoomTrackingRaf = window.requestAnimationFrame(() => {
-        this.zoomTrackingRaf = undefined
-        this.setState({ zoomMouseDriven: true })
-      })
+      this.setState({ currentStyle: nextStyle })
     } else {
       this.setState({ currentStyle: nextStyle, zoomMouseDriven: true })
     }
