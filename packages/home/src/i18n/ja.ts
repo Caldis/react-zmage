@@ -124,6 +124,8 @@ export const ja: I18nDict = {
   'controller.flip.desc': 'ページ送りコントロール群(前へ / 次へボタンを含む)',
   'controller.flipLeft.desc': '前の画像へ移動',
   'controller.flipRight.desc': '次の画像へ移動',
+  'controller.overriddenBy': '親スイッチで有効化',
+  'snippet.overriddenByProp': '{umbrella} により上書き',
 
   'hotkey.close': '閉じる(ESC)',
   'hotkey.zoom': 'ズーム(Space)',
@@ -227,6 +229,7 @@ export const ja: I18nDict = {
   'docs.section.props.interface': 'インターフェースとインタラクション',
   'docs.section.props.controller.keyHeader': 'キー',
   'docs.section.props.controller.descHeader': '説明',
+  'docs.section.props.controller.umbrella': 'rotate は rotateLeft / rotateRight の親スイッチで、有効にすると両方のボタンが表示されます。flip も flipLeft / flipRight に対して同様に動作します。',
 
   'docs.section.examples.title': 'サンプル',
   'docs.section.examples.singleTitle': '単一画像',

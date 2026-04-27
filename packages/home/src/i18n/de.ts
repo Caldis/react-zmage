@@ -124,6 +124,8 @@ export const de: I18nDict = {
   'controller.flip.desc': 'Blätter-Steuergruppe (mit Vorherige- und Nächste-Buttons)',
   'controller.flipLeft.desc': 'Zum vorherigen Bild wechseln',
   'controller.flipRight.desc': 'Zum nächsten Bild wechseln',
+  'controller.overriddenBy': 'Aktiviert durch',
+  'snippet.overriddenByProp': 'überschrieben durch {umbrella}',
 
   'hotkey.close': 'Schließen (ESC)',
   'hotkey.zoom': 'Zoom (Leertaste)',
@@ -227,6 +229,7 @@ export const de: I18nDict = {
   'docs.section.props.interface': 'Oberfläche & Interaktion',
   'docs.section.props.controller.keyHeader': 'Schlüssel',
   'docs.section.props.controller.descHeader': 'Beschreibung',
+  'docs.section.props.controller.umbrella': 'rotate ist der übergeordnete Schalter für rotateLeft / rotateRight — beim Aktivieren werden beide Buttons angezeigt. flip funktioniert genauso für flipLeft / flipRight.',
 
   'docs.section.examples.title': 'Beispiele',
   'docs.section.examples.singleTitle': 'Einzelnes Bild',

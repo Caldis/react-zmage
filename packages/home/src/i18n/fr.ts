@@ -124,6 +124,8 @@ export const fr: I18nDict = {
   'controller.flip.desc': 'Groupe de contrôles de navigation (boutons précédent et suivant)',
   'controller.flipLeft.desc': 'Aller à l\'image précédente',
   'controller.flipRight.desc': 'Aller à l\'image suivante',
+  'controller.overriddenBy': 'Activé par',
+  'snippet.overriddenByProp': 'remplacé par {umbrella}',
 
   'hotkey.close': 'Fermer (ESC)',
   'hotkey.zoom': 'Zoom (Espace)',
@@ -227,6 +229,7 @@ export const fr: I18nDict = {
   'docs.section.props.interface': 'Interface et interaction',
   'docs.section.props.controller.keyHeader': 'Clé',
   'docs.section.props.controller.descHeader': 'Description',
+  'docs.section.props.controller.umbrella': 'rotate est le commutateur parent de rotateLeft / rotateRight — l\'activer affiche les deux boutons. flip fonctionne de la même manière sur flipLeft / flipRight.',
 
   'docs.section.examples.title': 'Exemples',
   'docs.section.examples.singleTitle': 'Image unique',

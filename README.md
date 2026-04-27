@@ -239,12 +239,12 @@ interface ControllerSet {
   zoom?: boolean | string | ReactNode  // 缩放按钮
   download?: boolean | string | ReactNode  // 下载按钮
   close?: boolean | string | ReactNode  // 关闭按钮
-  rotate?: boolean | string | ReactNode  // 旋转 (左+右组合按钮)
-  rotateLeft?: boolean | string | ReactNode  // 仅左旋
-  rotateRight?: boolean | string | ReactNode  // 仅右旋
-  flip?: boolean | string | ReactNode  // 翻页 (左+右)
-  flipLeft?: boolean | string | ReactNode  // 仅上一页
-  flipRight?: boolean | string | ReactNode  // 仅下一页
+  rotate?: boolean | string | ReactNode  // 旋转组合开关 (启用时同时显示左旋+右旋按钮, 覆盖下方两项)
+  rotateLeft?: boolean | string | ReactNode  // 仅左旋 (rotate 启用时被覆盖)
+  rotateRight?: boolean | string | ReactNode  // 仅右旋 (rotate 启用时被覆盖)
+  flip?: boolean | string | ReactNode  // 翻页组合开关 (启用时同时显示上+下一张按钮, 覆盖下方两项)
+  flipLeft?: boolean | string | ReactNode  // 仅上一页 (flip 启用时被覆盖)
+  flipRight?: boolean | string | ReactNode  // 仅下一页 (flip 启用时被覆盖)
 }
 ```
 

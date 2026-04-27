@@ -124,6 +124,8 @@ export const es: I18nDict = {
   'controller.flip.desc': 'Grupo de paginación (incluye botones anterior y siguiente)',
   'controller.flipLeft.desc': 'Ir a la imagen anterior',
   'controller.flipRight.desc': 'Ir a la siguiente imagen',
+  'controller.overriddenBy': 'Activado por',
+  'snippet.overriddenByProp': 'sobrescrito por {umbrella}',
 
   'hotkey.close': 'Cerrar (ESC)',
   'hotkey.zoom': 'Zoom (Espacio)',
@@ -227,6 +229,7 @@ export const es: I18nDict = {
   'docs.section.props.interface': 'Interfaz e interacción',
   'docs.section.props.controller.keyHeader': 'Clave',
   'docs.section.props.controller.descHeader': 'Descripción',
+  'docs.section.props.controller.umbrella': 'rotate es el interruptor maestro de rotateLeft / rotateRight — al activarlo se muestran ambos botones. flip funciona de la misma forma sobre flipLeft / flipRight.',
 
   'docs.section.examples.title': 'Ejemplos',
   'docs.section.examples.singleTitle': 'Imagen única',

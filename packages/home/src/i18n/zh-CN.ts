@@ -135,6 +135,8 @@ export const zhCN = {
   'controller.flip.desc': '翻页控制组(包含上 / 下一张按钮)',
   'controller.flipLeft.desc': '切换到上一张图片',
   'controller.flipRight.desc': '切换到下一张图片',
+  'controller.overriddenBy': '由组合开关启用',
+  'snippet.overriddenByProp': '由 {umbrella} 属性覆盖',
 
   // HotKey keys
   'hotkey.close': '关闭(ESC)',
@@ -243,6 +245,7 @@ export const zhCN = {
   'docs.section.props.interface': '界面与交互',
   'docs.section.props.controller.keyHeader': '名称',
   'docs.section.props.controller.descHeader': '说明',
+  'docs.section.props.controller.umbrella': 'rotate 是 rotateLeft / rotateRight 的组合开关 — 启用时同时显示左右两个旋转按钮;flip 与 flipLeft / flipRight 同理。',
 
   'docs.section.examples.title': '示例',
   'docs.section.examples.singleTitle': '单图',

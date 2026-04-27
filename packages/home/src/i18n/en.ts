@@ -124,6 +124,8 @@ export const en: I18nDict = {
   'controller.flip.desc': 'Flip control group (includes previous and next buttons)',
   'controller.flipLeft.desc': 'Move to the previous image',
   'controller.flipRight.desc': 'Move to the next image',
+  'controller.overriddenBy': 'Enabled by',
+  'snippet.overriddenByProp': 'overridden by {umbrella}',
 
   'hotkey.close': 'Close (ESC)',
   'hotkey.zoom': 'Zoom (Space)',
@@ -228,6 +230,7 @@ export const en: I18nDict = {
   'docs.section.props.interface': 'Interface & interaction',
   'docs.section.props.controller.keyHeader': 'Key',
   'docs.section.props.controller.descHeader': 'Description',
+  'docs.section.props.controller.umbrella': 'rotate is the umbrella for rotateLeft / rotateRight — enabling it shows both buttons. flip works the same way over flipLeft / flipRight.',
 
   'docs.section.examples.title': 'Examples',
   'docs.section.examples.singleTitle': 'Single image',

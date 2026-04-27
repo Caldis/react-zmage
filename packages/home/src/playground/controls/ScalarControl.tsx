@@ -24,12 +24,12 @@ export function ScalarControl ({ def, value, onChange }: Props) {
         type="number"
         value={value ?? ''}
         onChange={e => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-        className="h-8 w-24"
+        className="h-7 w-24 px-2 text-xs md:text-xs"
       />
     )
   }
   if (c.kind === 'text') {
-    return <Input value={value ?? ''} onChange={e => onChange(e.target.value)} className="h-8" />
+    return <Input value={value ?? ''} onChange={e => onChange(e.target.value)} className="h-7 px-2 text-xs md:text-xs" />
   }
   if (c.kind === 'slider') {
     return (
@@ -39,7 +39,7 @@ export function ScalarControl ({ def, value, onChange }: Props) {
           type="number"
           value={value ?? 0}
           onChange={e => onChange(Number(e.target.value))}
-          className="h-8 w-16"
+          className="h-7 w-14 px-2 text-xs md:text-xs"
         />
       </div>
     )
@@ -49,7 +49,7 @@ export function ScalarControl ({ def, value, onChange }: Props) {
       <HoverSelect
         value={String(value ?? '')}
         onValueChange={onChange}
-        triggerClassName="h-8"
+        triggerClassName="h-7 text-xs"
         options={c.options.map(o => ({ value: o.value, label: t(o.labelKey) }))}
       />
     )
@@ -81,13 +81,13 @@ export function ScalarControl ({ def, value, onChange }: Props) {
     return (
       <Popover>
         <PopoverTrigger asChild>
-          <button className="flex h-8 items-center gap-2 rounded-md border border-input px-2 text-xs">
-            <span className="h-4 w-4 rounded border" style={{ backgroundColor: value || '#fff' }} />
+          <button className="flex h-7 items-center gap-2 rounded-md border border-input px-2 text-xs">
+            <span className="h-3.5 w-3.5 rounded border" style={{ backgroundColor: value || '#fff' }} />
             <span className="font-mono">{value || ''}</span>
           </button>
         </PopoverTrigger>
         <PopoverContent className="w-56 space-y-2 p-3">
-          <Input value={value ?? ''} onChange={e => onChange(e.target.value)} className="h-8" />
+          <Input value={value ?? ''} onChange={e => onChange(e.target.value)} className="h-7 px-2 text-xs md:text-xs" />
           <div className="flex gap-1.5">
             {PRESETS.map(p => (
               <button key={p} onClick={() => onChange(p)} className="h-6 w-6 rounded border" style={{ backgroundColor: p }} aria-label={p} />

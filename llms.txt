@@ -62,7 +62,7 @@ const [open, setOpen] = useState(false)
 | `defaultPage` | `number` | `0` | Initial index when `set` is non-empty. |
 | `backdrop` | `string` (CSS color) | `'#FFFFFF'` | **Default is white** — override (e.g. `'#111'`) for dark UIs or you'll get a white-on-white modal. |
 | `preset` | `'desktop' \| 'mobile'` | `'desktop'` | Picks default `controller` / `hotKey` / `animate` bundle. |
-| `controller` | `boolean \| ControllerSet` | preset | Per-button toggles: `pagination`, `rotate`, `rotateLeft`, `rotateRight`, `zoom`, `download`, `close`, `flip`, `flipLeft`, `flipRight`. |
+| `controller` | `boolean \| ControllerSet` | preset | Per-button toggles: `pagination`, `rotate`, `rotateLeft`, `rotateRight`, `zoom`, `download`, `close`, `flip`, `flipLeft`, `flipRight`. `rotate` and `flip` are umbrellas: enabling either overrides its per-side counterparts (e.g. `rotate: true` shows both rotateLeft+rotateRight regardless of those flags). |
 | `hotKey` | `boolean \| { close?, zoom?, flip? }` | preset | Esc / Space / ←→ toggles. |
 | `animate` | `boolean \| { flip?: 'fade' \| 'crossFade' \| 'swipe' \| 'zoom' }` | preset | Transition style between images. |
 | `hideOnScroll` | `boolean` | `true` | Auto-close on page scroll (desktop only). |

@@ -124,6 +124,8 @@ export const ko: I18nDict = {
   'controller.flip.desc': '페이지 이동 컨트롤 그룹(이전 / 다음 버튼 포함)',
   'controller.flipLeft.desc': '이전 이미지로 이동',
   'controller.flipRight.desc': '다음 이미지로 이동',
+  'controller.overriddenBy': '상위 스위치에 의해 활성화',
+  'snippet.overriddenByProp': '{umbrella}에 의해 재정의됨',
 
   'hotkey.close': '닫기 (ESC)',
   'hotkey.zoom': '줌 (Space)',
@@ -227,6 +229,7 @@ export const ko: I18nDict = {
   'docs.section.props.interface': '인터페이스 및 인터랙션',
   'docs.section.props.controller.keyHeader': '키',
   'docs.section.props.controller.descHeader': '설명',
+  'docs.section.props.controller.umbrella': 'rotate는 rotateLeft / rotateRight의 상위 스위치로, 활성화하면 두 버튼이 모두 표시됩니다. flip도 flipLeft / flipRight에 대해 동일하게 동작합니다.',
 
   'docs.section.examples.title': '예제',
   'docs.section.examples.singleTitle': '단일 이미지',

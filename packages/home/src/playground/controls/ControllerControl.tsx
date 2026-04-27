@@ -18,30 +18,53 @@ const KEYS: { key: keyof ControllerSet; labelKey: I18nKey; descKey: I18nKey }[] 
   { key: 'flipRight', labelKey: 'controller.flipRight', descKey: 'controller.flipRight.desc' },
 ]
 
+// lib (Control.tsx) renders left rotate when `rotateLeft || rotate` is truthy.
+// 即 rotate 是 umbrella, 启用时强制覆盖 rotateLeft / rotateRight; flip 同理.
+// 把这层关系映成 disabled state, 让 panel 显式呈现.
+const UMBRELLA: Record<string, string> = {
+  rotateLeft: 'rotate',
+  rotateRight: 'rotate',
+  flipLeft: 'flip',
+  flipRight: 'flip',
+}
+
 export function ControllerControl ({ value, onChange }: { value: ControllerSet | boolean | undefined; onChange: (v: any) => void }) {
   const { t } = useT()
   const obj: ControllerSet = (typeof value === 'object' && value) ? value : {}
   return (
     <div className="grid gap-1.5">
-      {KEYS.map(({ key, labelKey, descKey }) => (
-        <label key={String(key)} className="flex items-center justify-between gap-3 text-[11px] leading-tight">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="cursor-help font-mono text-muted-foreground decoration-dotted underline-offset-4 hover:underline">
-                {String(key)}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent side="left" className="max-w-[260px] text-xs">
-              <div className="font-medium">{t(labelKey)}</div>
-              <div className="mt-0.5 text-primary-foreground/80">{t(descKey)}</div>
-            </TooltipContent>
-          </Tooltip>
-          <Switch
-            checked={!!obj[key]}
-            onCheckedChange={(checked) => onChange({ ...obj, [key]: checked })}
-          />
-        </label>
-      ))}
+      {KEYS.map(({ key, labelKey, descKey }) => {
+        const umbrella = UMBRELLA[String(key)]
+        const overridden = !!umbrella && !!obj[umbrella]
+        return (
+          <label
+            key={String(key)}
+            className={`flex items-center justify-between gap-3 text-[11px] leading-tight ${overridden ? 'opacity-50' : ''}`}
+          >
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="cursor-help font-mono text-muted-foreground decoration-dotted underline-offset-4 hover:underline">
+                  {String(key)}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="max-w-[260px] text-xs">
+                <div className="font-medium">{t(labelKey)}</div>
+                <div className="mt-0.5 text-primary-foreground/80">{t(descKey)}</div>
+                {overridden && (
+                  <div className="mt-1 border-t border-primary-foreground/15 pt-1 text-primary-foreground/70">
+                    {t('controller.overriddenBy')} <code className="font-mono">{umbrella}</code>
+                  </div>
+                )}
+              </TooltipContent>
+            </Tooltip>
+            <Switch
+              checked={!!obj[key]}
+              disabled={overridden}
+              onCheckedChange={(checked) => onChange({ ...obj, [key]: checked })}
+            />
+          </label>
+        )
+      })}
     </div>
   )
 }
