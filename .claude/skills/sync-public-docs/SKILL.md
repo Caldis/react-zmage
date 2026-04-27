@@ -119,9 +119,19 @@ Dispatch one Agent per destination in Group A in a single tool-call message; do 
 
 ### Step 5 — Re-eval the result
 
+**Prerequisite — if root `llms.txt` was edited in Step 4, rebuild home before evaluating:**
+
+```bash
+pnpm --filter react-zmage-home run build
+```
+
+This triggers the `copy-llms-txt` vite plugin in `packages/home/vite.config.mts`, which copies the new root `llms.txt` into `docs/llms.txt`. **Without this step the public-facing `zmage.caldis.me/llms.txt` (served by GitHub Pages from `docs/`) stays on the old version even after your commit lands** — the eval would pass against the source-of-truth file but real LLM consumers would still read the stale one. Verify with `git diff llms.txt docs/llms.txt` — must be empty. The behavioral eval below WebFetches the deployed URL, so this matters even pre-deploy if the eval is run after a previous deploy left `docs/llms.txt` shipped.
+
+Then commit `docs/llms.txt` (and any other regenerated `docs/` artefacts) alongside the source change so the deploy carries both.
+
 Two evaluation layers, both in `packages/llms-eval/`:
 
-**Static contract** (always run after Step 4):
+**Static contract** (always run after the rebuild above):
 
 ```bash
 pnpm --filter llms-eval run test
@@ -157,7 +167,8 @@ Before claiming sync is done:
 - [ ] `git diff` shows changes only in destinations from the Step 2 map
 - [ ] `pnpm --filter llms-eval run test` passes 11/11
 - [ ] If behavioral eval was run: rubric ≥ 90 and SELF_CRITIQUE has no "had to guess core API" complaints
-- [ ] No edits to `docs/llms.txt` (it auto-syncs from root)
+- [ ] No **manual** edits to `docs/llms.txt` (only `pnpm --filter react-zmage-home run build` may touch it)
+- [ ] If root `llms.txt` was edited: home was rebuilt, `git diff llms.txt docs/llms.txt` is empty, **and** `docs/llms.txt` is in the commit alongside the source change (otherwise GitHub Pages keeps serving the old text)
 - [ ] If new public API surface was added: a corresponding contract assertion was added to `packages/llms-eval/eval.test.mjs`
 - [ ] If new i18n prose: keys exist in all 7 language files
 - [ ] If `home/schema/param-schema.ts` `defProp` was edited: the hand-copy comment at the top of that file is still accurate (or removed if values now match core via a real import)
@@ -165,6 +176,7 @@ Before claiming sync is done:
 ## Anti-patterns
 
 - **Don't edit `docs/llms.txt` directly.** It's a build artifact. Edit root `llms.txt`; vite plugin copies on next home build.
+- **Don't ship a root `llms.txt` change without rebuilding home.** GitHub Pages serves `docs/`, not the repo root. If you commit a root-only change without the corresponding `docs/llms.txt` update, the deployed site keeps serving the old version until the *next* unrelated home build sweeps it up — which can be weeks of silent staleness.
 - **Don't dispatch one mega-agent for "update everything".** Per-destination subagents stay focused and parallelize. The dispatcher is also the reviewer — one giant write makes review impossible.
 - **Don't skip Step 3 (drafts).** Going straight from diagnosis to writing means review happens after files change, when reverts are expensive.
 - **Don't trust rubric 100/100 alone.** It's a static check. SELF_CRITIQUE is where you find out the docs *technically* match the code but force the reader to guess. Both signals matter.
