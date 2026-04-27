@@ -167,23 +167,32 @@ function AIDirective () {
 function LiveDemo () {
   const { t } = useT()
   const backdrop = useThemedBackdrop()
+  // 三张水平排列, 各自原始比例渲染 (不用 object-cover 裁剪) —
+  // 这样点击放大时 Zmage 的 cover→browsing 过渡是从真实自然尺寸出发,
+  // 不会出现 cover 被裁/contain 后与模态全图比例错位的视觉跳变.
+  const set = [
+    { src: '/imgSet/childsDream/1.jpg', alt: '童夢 · ONE' },
+    { src: '/imgSet/childsDream/2.jpg', alt: '童夢 · TWO' },
+    { src: '/imgSet/childsDream/3.jpg', alt: '童夢 · THREE' },
+  ]
   return (
     <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-      <div className="overflow-hidden rounded-2xl border border-border bg-muted/20 shadow-2xl shadow-black/40">
-        <div className="aspect-[16/9] w-full">
-          <Zmage
-            className="h-full w-full object-cover"
-            src="/imgSet/childsDream/1.jpg"
-            alt="Live demo"
-            backdrop={backdrop}
-            set={[
-              { src: '/imgSet/childsDream/1.jpg', alt: '童夢 · ONE' },
-              { src: '/imgSet/childsDream/2.jpg', alt: '童夢 · TWO' },
-              { src: '/imgSet/childsDream/3.jpg', alt: '童夢 · THREE' },
-              { src: '/imgSet/childsDream/4.jpg', alt: '童夢 · FOUR' },
-            ]}
-          />
-        </div>
+      <div className="grid items-start gap-4 sm:grid-cols-3">
+        {set.map((item, i) => (
+          <div
+            key={item.src}
+            className="overflow-hidden rounded-2xl border border-border bg-muted/20 shadow-xl shadow-black/30"
+          >
+            <Zmage
+              className="block h-auto w-full"
+              src={item.src}
+              alt={item.alt}
+              backdrop={backdrop}
+              set={set}
+              defaultPage={i}
+            />
+          </div>
+        ))}
       </div>
       <p className="mt-6 text-center text-sm text-muted-foreground">{t('demo.caption')}</p>
     </section>
