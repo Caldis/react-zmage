@@ -60,6 +60,7 @@ export const zhCN = {
   'pg.events.title': '事件',
   'pg.events.empty': '启用任意 lifecycle 回调以查看事件流。',
   'pg.code.title': '代码',
+  'pg.code.hideDefaults': '隐藏默认值',
   'pg.copy': '复制',
   'pg.copied': '已复制',
 

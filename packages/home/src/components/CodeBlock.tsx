@@ -9,10 +9,12 @@ type Props = {
   code: string
   language?: Language
   showCopy?: boolean
+  /** Rendered in the floating top-right cluster, to the left of the Copy button. */
+  actions?: React.ReactNode
   className?: string
 }
 
-export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true, className }: Props) {
+export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true, actions, className }: Props) {
   const { resolved } = useTheme()
   const [copied, setCopied] = React.useState(false)
   const onCopy = async () => {
@@ -23,16 +25,21 @@ export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true
   const theme = resolved === 'dark' ? themes.vsDark : themes.vsLight
   return (
     <div className={cn('relative rounded-lg border border-border bg-muted/40 overflow-hidden flex flex-col', className)}>
-      {showCopy && (
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={onCopy}
-          className="absolute right-2 top-2 z-10 h-7 w-7 opacity-70 hover:opacity-100"
-          aria-label="Copy code"
-        >
-          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-        </Button>
+      {(actions || showCopy) && (
+        <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
+          {actions}
+          {showCopy && (
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={onCopy}
+              className="h-7 w-7 opacity-70 hover:opacity-100"
+              aria-label="Copy code"
+            >
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            </Button>
+          )}
+        </div>
       )}
       <Highlight code={code.trim()} language={language} theme={theme}>
         {({ className: cls, style, tokens, getLineProps, getTokenProps }) => (

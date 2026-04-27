@@ -1,12 +1,23 @@
 import Zmage from 'react-zmage'
-import { CodeSnippet, buildRuntimeProps } from '@/playground/CodeSnippet'
+import { CodeSnippet } from '@/playground/CodeSnippet'
+import { buildLibProps } from '@/playground/state'
 import { EventLog } from '@/playground/EventLog'
 import { useThemedBackdrop } from '@/lib/themedBackdrop'
 
-export default function WrapperMode ({ values }: { values: Record<string, any> }) {
+export default function WrapperMode ({
+  values,
+  touched,
+  hideDefaults,
+  onHideDefaultsChange,
+}: {
+  values: Record<string, any>
+  touched: ReadonlySet<string>
+  hideDefaults: boolean
+  onHideDefaultsChange: (v: boolean) => void
+}) {
   const themedBackdrop = useThemedBackdrop()
-  // 用 buildRuntimeProps 剥 schema 默认空值后再剥单图字段 (wrapper 从被点击的 <img> 自取 src/alt)
-  const runtimeProps = buildRuntimeProps(values)
+  // livedemo 用不带 touched 的 buildLibProps; wrapper 再剥单图字段 (它从 <img> 自取 src/alt)
+  const runtimeProps = buildLibProps(values)
   const { src: _src, set: _set, alt: _alt, txt: _txt, defaultPage: _defaultPage, ...stripped } = runtimeProps
   const wrapperProps: Record<string, any> = { backdrop: themedBackdrop, ...stripped }
   // WYSIWYG: 渲染哪些 <img> 跟随面板的 src / set
@@ -20,7 +31,13 @@ export default function WrapperMode ({ values }: { values: Record<string, any> }
   const Wrapper = (Zmage as any).Wrapper
   return (
     <div className="space-y-6">
-      <CodeSnippet values={values} mode="wrapper" />
+      <CodeSnippet
+        values={values}
+        touched={touched}
+        hideDefaults={hideDefaults}
+        onHideDefaultsChange={onHideDefaultsChange}
+        mode="wrapper"
+      />
       <div className="rounded-lg border border-border bg-card/30 p-6">
         <Wrapper {...wrapperProps}>
           <article className="mx-auto max-w-2xl space-y-4 text-sm">

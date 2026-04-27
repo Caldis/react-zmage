@@ -55,6 +55,7 @@ export const en: I18nDict = {
   'pg.events.title': 'Events',
   'pg.events.empty': 'Enable any lifecycle callback to see events stream here.',
   'pg.code.title': 'Code',
+  'pg.code.hideDefaults': 'Hide defaults',
   'pg.copy': 'Copy',
   'pg.copied': 'Copied',
 

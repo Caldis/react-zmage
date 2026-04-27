@@ -6,20 +6,11 @@ import { useT } from '@/i18n/useT'
 import { cn } from '@/lib/utils'
 import { ParamPanel } from '@/playground/ParamPanel'
 import { SlidingPill } from '@/components/ui/SlidingPill'
-import { PARAM_SCHEMA } from '@/schema/param-schema'
 import { encodeStateToHash, decodeStateFromHash } from '@/playground/shareState'
-import { PLAYGROUND_SEED } from '@/playground/seed'
+import { getInitialValues } from '@/playground/state'
 import ComponentMode from './playground/ComponentMode'
 import ImperativeMode from './playground/ImperativeMode'
 import WrapperMode from './playground/WrapperMode'
-
-function defaultValues () {
-  const v: Record<string, any> = {}
-  for (const def of PARAM_SCHEMA) v[def.name] = def.default
-  // WYSIWYG: 用 demo 种子替换 src/alt/set 的 lib 默认空值, 让 panel 一开始就反映真实预览
-  Object.assign(v, PLAYGROUND_SEED)
-  return v
-}
 
 const TABS = [
   { to: '', labelKey: 'pg.tab.component' as const, end: true },
@@ -30,20 +21,32 @@ const TABS = [
 export default function Playground () {
   const { t } = useT()
   const [values, setValues] = React.useState<Record<string, any>>(() => {
-    const base = defaultValues()
+    const base = getInitialValues()
     if (typeof window !== 'undefined') {
       const hydrated = decodeStateFromHash(window.location.hash)
       Object.assign(base, hydrated)
     }
     return base
   })
+  // dirty 集合: snippet 显示规则的输入. URL 里出现的 key 视为用户曾经动过, 重载后 snippet 仍然展示.
+  const [touched, setTouched] = React.useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set()
+    return new Set(Object.keys(decodeStateFromHash(window.location.hash)))
+  })
+  // snippet-only display preference: when true, drop every prop equal to its schema default
+  // regardless of dirty bit. 不影响 livedemo / 分享 URL.
+  const [hideDefaults, setHideDefaults] = React.useState(false)
   const [shared, setShared] = React.useState(false)
 
   const onChange = React.useCallback((name: string, value: any) => {
     setValues(v => ({ ...v, [name]: value }))
+    setTouched(t => t.has(name) ? t : new Set(t).add(name))
   }, [])
 
-  const onReset = React.useCallback(() => setValues(defaultValues()), [])
+  const onReset = React.useCallback(() => {
+    setValues(getInitialValues())
+    setTouched(new Set())
+  }, [])
 
   const onShare = React.useCallback(async () => {
     const url = window.location.origin + window.location.pathname + encodeStateToHash(values)
@@ -96,9 +99,9 @@ export default function Playground () {
         </aside>
         <section className="min-w-0">
           <Routes>
-            <Route index element={<ComponentMode values={values} />} />
-            <Route path="imperative" element={<ImperativeMode values={values} />} />
-            <Route path="wrapper" element={<WrapperMode values={values} />} />
+            <Route index element={<ComponentMode values={values} touched={touched} hideDefaults={hideDefaults} onHideDefaultsChange={setHideDefaults} />} />
+            <Route path="imperative" element={<ImperativeMode values={values} touched={touched} hideDefaults={hideDefaults} onHideDefaultsChange={setHideDefaults} />} />
+            <Route path="wrapper" element={<WrapperMode values={values} touched={touched} hideDefaults={hideDefaults} onHideDefaultsChange={setHideDefaults} />} />
           </Routes>
         </section>
       </div>

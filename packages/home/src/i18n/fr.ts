@@ -55,6 +55,7 @@ export const fr: I18nDict = {
   'pg.events.title': 'Événements',
   'pg.events.empty': 'Activez n\'importe quel callback de cycle de vie pour voir le flux d\'événements ici.',
   'pg.code.title': 'Code',
+  'pg.code.hideDefaults': 'Masquer les valeurs par défaut',
   'pg.copy': 'Copier',
   'pg.copied': 'Copié',
 

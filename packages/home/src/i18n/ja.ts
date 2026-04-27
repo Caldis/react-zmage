@@ -55,6 +55,7 @@ export const ja: I18nDict = {
   'pg.events.title': 'イベント',
   'pg.events.empty': 'ライフサイクルコールバックを有効にすると、ここにイベントが流れます。',
   'pg.code.title': 'コード',
+  'pg.code.hideDefaults': 'デフォルト値を非表示',
   'pg.copy': 'コピー',
   'pg.copied': 'コピーしました',
 

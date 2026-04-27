@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { CodeBlock } from '@/components/CodeBlock'
-import { PARAM_SCHEMA } from '@/schema/param-schema'
-import { PLAYGROUND_SEED } from '@/playground/seed'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { useT } from '@/i18n/useT'
+import { buildLibProps } from '@/playground/state'
 
 type Mode = 'component' | 'imperative' | 'wrapper'
 
@@ -9,89 +11,34 @@ function isCallback (v: any) {
   return typeof v === 'function' && v?.__zmageLog === true
 }
 
-function isDefault (name: string, value: any) {
-  // 当前值与 playground 种子一致 → 视为默认 (不写进代码片段, 不写进分享 URL)
-  if (name in PLAYGROUND_SEED) {
-    try { return JSON.stringify(value) === JSON.stringify((PLAYGROUND_SEED as any)[name]) } catch { /* fallthrough */ }
-  }
-  const def = PARAM_SCHEMA.find(d => d.name === name)
-  if (!def) return true
-  if (value === undefined) return true
-  if (typeof value === 'object') {
-    try { return JSON.stringify(value) === JSON.stringify(def.default) } catch { return false }
-  }
-  return value === def.default
-}
-
 function formatValue (v: any): string {
   if (typeof v === 'string') return JSON.stringify(v)
-  if (typeof v === 'function') {
-    return `(...args) => console.info(args)`
-  }
+  if (typeof v === 'function') return `(...args) => console.info(args)`
   return JSON.stringify(v, null, 2)
 }
 
-export function buildPropsObject (values: Record<string, any>) {
-  const out: Record<string, any> = {}
-  for (const def of PARAM_SCHEMA) {
-    const v = values[def.name]
-    if (def.required) { out[def.name] = v ?? '' ; continue }
-    if (isDefault(def.name, v)) continue
-    out[def.name] = v
-  }
-  return out
+// JSON.stringify(..., 2) 给出的多行块, 每行从 col 0 起步; 嵌进 `  prop={...}` 时
+// 需要把第二行起的所有行都加上同样宽度的前导缩进, 才能让闭合括号与 prop 名对齐.
+function reindentMultiline (s: string, prefix: string): string {
+  if (!s.includes('\n')) return s
+  const parts = s.split('\n')
+  return parts.map((line, i) => i === 0 ? line : prefix + line).join('\n')
 }
 
-/**
- * Runtime-side props builder.
- * Strips ONLY schema defaults — seed values for src/alt/set pass through so
- * the rendered <Zmage> actually has data. CodeSnippet's `isDefault` (which
- * also treats seed as default) is only suitable for display/share URL.
- *
- * Why this matters: spreading raw `values` directly into <Zmage> would push
- * schema defaults like controller={} / hotKey={} / animate={} through, which
- * override the lib's defPreset.desktop.* causing the modal to render with
- * no controls / no shortcuts / no animations (= "click does nothing" feel).
- */
-function isSchemaDefault (name: string, value: any) {
-  const def = PARAM_SCHEMA.find(d => d.name === name)
-  if (!def) return true
-  if (value === undefined) return true
-  if (typeof value === 'object') {
-    try { return JSON.stringify(value) === JSON.stringify(def.default) } catch { return false }
-  }
-  return value === def.default
+function renderJsxProp (k: string, v: any): string {
+  if (typeof v === 'string' && !v.includes('\n')) return `  ${k}=${JSON.stringify(v)}`
+  if (isCallback(v)) return `  ${k}={(...args) => console.info('${k}', args)}`
+  return `  ${k}={${reindentMultiline(formatValue(v), '  ')}}`
 }
 
-export function buildRuntimeProps (values: Record<string, any>) {
-  const out: Record<string, any> = {}
-  for (const def of PARAM_SCHEMA) {
-    const v = values[def.name]
-    if (def.required) { out[def.name] = v ?? ''; continue }
-    if (isSchemaDefault(def.name, v)) continue
-    out[def.name] = v
-  }
-  return out
-}
-
-function renderJsx (values: Record<string, any>) {
-  const props = buildPropsObject(values)
+function renderJsx (props: Record<string, any>) {
   const lines: string[] = ['<Zmage']
-  for (const [k, v] of Object.entries(props)) {
-    if (typeof v === 'string' && !v.includes('\n')) {
-      lines.push(`  ${k}=${JSON.stringify(v)}`)
-    } else if (isCallback(v)) {
-      lines.push(`  ${k}={(...args) => console.info('${k}', args)}`)
-    } else {
-      lines.push(`  ${k}={${formatValue(v)}}`)
-    }
-  }
+  for (const [k, v] of Object.entries(props)) lines.push(renderJsxProp(k, v))
   lines.push('/>')
   return lines.join('\n')
 }
 
-function renderImperative (values: Record<string, any>) {
-  const props = buildPropsObject(values)
+function renderImperative (props: Record<string, any>) {
   return [
     `import Zmage from 'react-zmage'`,
     ``,
@@ -99,21 +46,59 @@ function renderImperative (values: Record<string, any>) {
   ].join('\n')
 }
 
-function renderWrapper (values: Record<string, any>) {
-  const props = buildPropsObject(values)
-  const propsStr = Object.entries(props)
-    .map(([k, v]) => typeof v === 'string' ? `${k}=${JSON.stringify(v)}` : `${k}={${formatValue(v)}}`)
-    .join(' ')
-  return [
-    `<Zmage.Wrapper${propsStr ? ' ' + propsStr : ''}>`,
-    `  <article dangerouslySetInnerHTML={{ __html: html }} />`,
-    `</Zmage.Wrapper>`,
-  ].join('\n')
+function renderWrapper (props: Record<string, any>) {
+  const entries = Object.entries(props)
+  const lines: string[] = []
+  if (entries.length === 0) {
+    lines.push(`<Zmage.Wrapper>`)
+  } else {
+    lines.push(`<Zmage.Wrapper`)
+    for (const [k, v] of entries) lines.push(renderJsxProp(k, v))
+    lines.push(`>`)
+  }
+  lines.push(`  <article dangerouslySetInnerHTML={{ __html: html }} />`)
+  lines.push(`</Zmage.Wrapper>`)
+  return lines.join('\n')
 }
 
-export function CodeSnippet ({ values, mode }: { values: Record<string, any>; mode: Mode }) {
-  const code = mode === 'component' ? renderJsx(values)
-    : mode === 'imperative' ? renderImperative(values)
-      : renderWrapper(values)
-  return <CodeBlock code={code} language={'tsx' as any} />
+export function CodeSnippet ({
+  values,
+  touched,
+  hideDefaults,
+  onHideDefaultsChange,
+  mode,
+}: {
+  values: Record<string, any>
+  touched: ReadonlySet<string>
+  hideDefaults: boolean
+  onHideDefaultsChange: (v: boolean) => void
+  mode: Mode
+}) {
+  const { t } = useT()
+  // hideDefaults 打开 → 不传 touched, 一律剥 schema 默认.
+  // hideDefaults 关闭 → 传 touched, 保留用户碰过的默认值.
+  const props = buildLibProps(values, hideDefaults ? undefined : touched)
+  const code = mode === 'component' ? renderJsx(props)
+    : mode === 'imperative' ? renderImperative(props)
+      : renderWrapper(props)
+  const id = React.useId()
+  return (
+    <CodeBlock
+      code={code}
+      language={'tsx' as any}
+      actions={
+        <div className="flex items-center gap-1.5">
+          <Label htmlFor={id} className="cursor-pointer text-[11px] text-muted-foreground">
+            {t('pg.code.hideDefaults')}
+          </Label>
+          <Switch
+            id={id}
+            checked={hideDefaults}
+            onCheckedChange={onHideDefaultsChange}
+            className="scale-75 origin-right"
+          />
+        </div>
+      }
+    />
+  )
 }

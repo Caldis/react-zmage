@@ -1,15 +1,26 @@
 import Zmage from 'react-zmage'
-import { CodeSnippet, buildRuntimeProps } from '@/playground/CodeSnippet'
+import { CodeSnippet } from '@/playground/CodeSnippet'
+import { buildLibProps } from '@/playground/state'
 import { useT } from '@/i18n/useT'
 import { EventLog } from '@/playground/EventLog'
 import { useThemedBackdrop } from '@/lib/themedBackdrop'
 
-export default function ComponentMode ({ values }: { values: Record<string, any> }) {
+export default function ComponentMode ({
+  values,
+  touched,
+  hideDefaults,
+  onHideDefaultsChange,
+}: {
+  values: Record<string, any>
+  touched: ReadonlySet<string>
+  hideDefaults: boolean
+  onHideDefaultsChange: (v: boolean) => void
+}) {
   const { t } = useT()
   const themedBackdrop = useThemedBackdrop()
-  // WYSIWYG: panel = source of truth. buildRuntimeProps 只剥 schema 默认空值
-  // (避免 controller={}/hotKey={}/animate={} 覆盖 lib defPreset), 但保留种子的 src/alt/set.
-  const props = buildRuntimeProps(values)
+  // livedemo 用不带 touched 的 buildLibProps, 永远剥 schema 默认空对象 (controller={}/hotKey={}/animate={})
+  // 否则会覆盖 lib defPreset 让 modal 退化成无控件状态.
+  const props = buildLibProps(values)
   const userHasSrc = !!props.src
   const userHasSet = Array.isArray(props.set) && props.set.length > 0
   const cover = userHasSrc ? props.src : (userHasSet ? props.set[0]?.src : '')
@@ -20,7 +31,13 @@ export default function ComponentMode ({ values }: { values: Record<string, any>
   }
   return (
     <div className="space-y-6">
-      <CodeSnippet values={values} mode="component" />
+      <CodeSnippet
+        values={values}
+        touched={touched}
+        hideDefaults={hideDefaults}
+        onHideDefaultsChange={onHideDefaultsChange}
+        mode="component"
+      />
       <div className="rounded-lg border border-border bg-card/30 p-6">
         <div className="mx-auto max-w-md">
           <Zmage {...(safeProps as any)} className="w-full rounded-md" />

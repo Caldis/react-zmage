@@ -55,6 +55,7 @@ export const ko: I18nDict = {
   'pg.events.title': '이벤트',
   'pg.events.empty': '라이프사이클 콜백을 활성화하면 이벤트 스트림이 여기에 표시됩니다.',
   'pg.code.title': '코드',
+  'pg.code.hideDefaults': '기본값 숨기기',
   'pg.copy': '복사',
   'pg.copied': '복사됨',
 
