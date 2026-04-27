@@ -102,10 +102,11 @@ export interface HotKey {
  * @see https://github.com/Caldis/react-zmage#animate
  */
 export type AnimateFlip =
-  | 'fade'      // 渐变 (set小於3時强制使用)
+  | 'fade'      // 渐变
   | 'crossFade' // 交叉渐变
   | 'swipe'     // 翻页
   | 'zoom'      // 缩放
+  | 'none'      // 无动画 (瞬间切换, 不渲染相邻页, caption 也无过渡)
 export interface Animate {
   // 缩放动画 (未实现)
   browsing?: boolean

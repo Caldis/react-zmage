@@ -274,7 +274,7 @@ interface HotKey {
 ```ts
 interface Animate {
   browsing?: boolean              // 进入/退出动画; false 时背景、图片、控制器、caption 直接切换
-  flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom'  // 翻页动画
+  flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'  // 翻页动画 ('none' 跳过相邻页渲染, 翻页瞬间替换)
 }
 ```
 

@@ -4,13 +4,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
 
-type Animate = { browsing?: boolean; flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom' }
+type Animate = { browsing?: boolean; flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none' }
 
 const FLIP_OPTIONS: { value: NonNullable<Animate['flip']>; labelKey: I18nKey }[] = [
   { value: 'fade', labelKey: 'animate.flip.fade' },
   { value: 'crossFade', labelKey: 'animate.flip.crossFade' },
   { value: 'swipe', labelKey: 'animate.flip.swipe' },
   { value: 'zoom', labelKey: 'animate.flip.zoom' },
+  { value: 'none', labelKey: 'animate.flip.none' },
 ]
 
 function TipLabel ({ children, descKey }: { children: React.ReactNode; descKey: I18nKey }) {

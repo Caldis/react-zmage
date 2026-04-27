@@ -115,6 +115,7 @@ export const zhCN = {
   'animate.flip.crossFade': '交叉淡入',
   'animate.flip.swipe': '滑动',
   'animate.flip.zoom': '缩放',
+  'animate.flip.none': '无',
 
   // ControllerSet keys
   'controller.pagination': '分页指示器',

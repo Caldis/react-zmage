@@ -105,6 +105,7 @@ export const es: I18nDict = {
   'animate.flip.crossFade': 'Fundido cruzado',
   'animate.flip.swipe': 'Deslizar',
   'animate.flip.zoom': 'Zoom',
+  'animate.flip.none': 'Ninguno',
 
   'controller.pagination': 'Paginación',
   'controller.rotate': 'Rotar',

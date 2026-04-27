@@ -358,8 +358,10 @@ export default class Image extends React.Component<PropsType, StateType> {
    * 圖片構建
    **/
   buildImageSeries = (edge: 0 | 1 | 2 | 3) => {
-    const { loop = false, set, page } = this.context
-    if (set.length > 1) {
+    const { loop = false, set, page, animate } = this.context
+    // animate.flip === 'none' 时跳过相邻页渲染, 翻页通过中心图 key 变化触发瞬间替换 (无 transition).
+    const flipKind = (typeof animate === 'object' && animate?.flip) ? animate.flip : undefined
+    if (set.length > 1 && flipKind !== 'none') {
       const rangeList = mirrorRange(edge)
       return rangeList.reduce((acc, step) => {
         // 計算索引

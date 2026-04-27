@@ -35,19 +35,67 @@
     max-width: 80vw;
   }
 
-  &.switching {
-    animation: captionSwitch @animationDuration @animationFunction;
+  // —— 翻页时的过渡: 跟随 animate.flip 的形态 ——
+  // 注意所有 keyframe 的终态必须落到 translate(-50%, 0) 以保留水平居中
+  &.switchFade {
+    animation: capFade @animationDuration @animationFunction;
+  }
+
+  &.switchCrossFade {
+    animation: capCrossFade @animationDuration @animationFunction;
+  }
+
+  &.switchSwipe {
+    animation: capSwipe @animationDuration @animationFunction;
+  }
+
+  &.switchZoom {
+    animation: capZoom @animationDuration @animationFunction;
   }
 }
 
-@keyframes captionSwitch {
+@keyframes capFade {
   from {
     opacity: 0;
-    transform: translate(-50%, 18px);
+    transform: translate(-50%, 0);
   }
 
   to {
     opacity: 1;
     transform: translate(-50%, 0);
+  }
+}
+
+@keyframes capCrossFade {
+  from {
+    opacity: 0;
+    transform: translate(calc(-50% + 24px), 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes capSwipe {
+  from {
+    transform: translate(calc(-50% + 60vw), 0);
+  }
+
+  to {
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes capZoom {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
   }
 }

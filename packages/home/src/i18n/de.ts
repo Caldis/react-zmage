@@ -105,6 +105,7 @@ export const de: I18nDict = {
   'animate.flip.crossFade': 'Cross-Fade',
   'animate.flip.swipe': 'Swipe',
   'animate.flip.zoom': 'Zoom',
+  'animate.flip.none': 'Keine',
 
   'controller.pagination': 'Seitennavigation',
   'controller.rotate': 'Drehen',

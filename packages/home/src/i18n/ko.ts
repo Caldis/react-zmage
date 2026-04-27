@@ -105,6 +105,7 @@ export const ko: I18nDict = {
   'animate.flip.crossFade': '크로스 페이드',
   'animate.flip.swipe': '스와이프',
   'animate.flip.zoom': '줌',
+  'animate.flip.none': '없음',
 
   'controller.pagination': '페이지네이션',
   'controller.rotate': '회전',

@@ -10,8 +10,15 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import style from './Caption.module.less'
 // Utils
 import { Context } from '../context'
-import { CaptionObject, CaptionProp } from '../../types/global'
+import { AnimateFlip, CaptionObject, CaptionProp } from '../../types/global'
 import { animationDuration } from '../../config/anim'
+
+const SWITCH_CLASS_BY_FLIP: Record<Exclude<AnimateFlip, 'none'>, string> = {
+  fade: 'switchFade',
+  crossFade: 'switchCrossFade',
+  swipe: 'switchSwipe',
+  zoom: 'switchZoom',
+}
 
 const isCaptionObject = (v: CaptionProp | undefined): v is CaptionObject =>
   !!v && typeof v === 'object' && typeof (v as CaptionObject).text === 'string'
@@ -33,11 +40,15 @@ export default function Caption () {
   const lastCaptionKey = useRef(captionKey)
   const switchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const [switching, setSwitching] = useState(false)
+  // 当前 flip 类型, caption 切换时跟随它的过渡形态 (而非固定 bottom fadein)
+  const flipKind: AnimateFlip | undefined =
+    typeof animate === 'object' && animate?.flip ? (animate.flip as AnimateFlip) : undefined
 
   useEffect(() => {
     if (lastCaptionKey.current !== captionKey) {
       lastCaptionKey.current = captionKey
-      if (show && !zoom && animate?.flip) {
+      // flip='none' 时跳过过渡状态, 文字直接刷新
+      if (show && !zoom && flipKind && flipKind !== 'none') {
         setSwitching(true)
         if (switchTimer.current !== undefined) {
           clearTimeout(switchTimer.current)
@@ -48,7 +59,7 @@ export default function Caption () {
         }, animationDuration)
       }
     }
-  }, [animate?.flip, captionKey, show, zoom])
+  }, [flipKind, captionKey, show, zoom])
 
   useEffect(() => () => {
     if (switchTimer.current !== undefined) {
@@ -64,12 +75,17 @@ export default function Caption () {
     ? { transition: 'none' }
     : undefined
 
+  const switchClass = switching && flipKind && flipKind !== 'none'
+    ? style[SWITCH_CLASS_BY_FLIP[flipKind as Exclude<AnimateFlip, 'none'>]]
+    : undefined
+
   return (
     <div
       id="zmageCaption"
       className={classnames(
         style.caption,
-        { [style.show]: !zoom && show, [style.mobile]: presetIsMobile, [style.switching]: switching },
+        { [style.show]: !zoom && show, [style.mobile]: presetIsMobile },
+        switchClass,
         userClassName,
       )}
       style={{ ...userStyle, ...browsingTransitionStyle }}

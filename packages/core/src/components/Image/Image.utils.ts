@@ -181,6 +181,10 @@ export const getAnimateConfig = (type?: AnimateFlip | false): ImageAnimateType =
     overflow = ZOOM_OVERFLOW
     opacity = 0
     break
+  case 'none':
+    // 无动画: 相邻页不参与渲染 (在 Image.tsx 的 buildImageSeries 里直接 short-circuit),
+    // 这里返回的零值仅作 fallback, 实际不会被消费.
+    break
   }
   return { offset, overflow, opacity }
 }
