@@ -3,7 +3,7 @@ import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { HoverSelect } from '@/components/ui/HoverSelect'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
@@ -46,14 +46,12 @@ export function ScalarControl ({ def, value, onChange }: Props) {
   }
   if (c.kind === 'select') {
     return (
-      <Select value={String(value ?? '')} onValueChange={onChange}>
-        <SelectTrigger className="h-8">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {c.options.map(o => <SelectItem key={o.value} value={o.value}>{t(o.labelKey)}</SelectItem>)}
-        </SelectContent>
-      </Select>
+      <HoverSelect
+        value={String(value ?? '')}
+        onValueChange={onChange}
+        triggerClassName="h-8"
+        options={c.options.map(o => ({ value: o.value, label: t(o.labelKey) }))}
+      />
     )
   }
   if (c.kind === 'segmented') {

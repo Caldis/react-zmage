@@ -11,7 +11,7 @@ export const ja: I18nDict = {
   'hero.subtitle': 'どんな画像もフルスクリーン・キーボード操作対応のビューアに変える、軽量な React コンポーネント。Portal 設定も状態管理も不要。<Zmage> ひとつで完結します。',
   'hero.cta.start': 'はじめる',
   'hero.cta.playground': 'プレイグラウンドを開く',
-  'hero.cta.npm.copied': 'コピーしました',
+  'hero.ai.label': 'このプロンプトをコピーして、AI エージェントに渡してください',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 
   'demo.caption': 'これは本物の <Zmage> です。クリック、スクロール、Space キーを試してみてください。',
@@ -68,6 +68,7 @@ export const ja: I18nDict = {
   'group.controlled': '制御コンポーネント',
 
   'common.desktopOnly': 'デスクトップのみ',
+  'common.desktopOnly.desc': 'このプロパティはデスクトップでのみ有効です。モバイルでは無視されます。',
   'common.required': '必須',
   'common.default': 'デフォルト',
   'common.add': '追加',

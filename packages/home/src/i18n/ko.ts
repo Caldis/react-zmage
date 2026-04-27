@@ -11,7 +11,7 @@ export const ko: I18nDict = {
   'hero.subtitle': '어떤 이미지든 전체 화면 키보드 내비게이션 뷰어로 바꿔주는 가벼운 React 컴포넌트. Portal 설정도, 상태 배선도 필요 없습니다. <Zmage> 하나면 충분합니다.',
   'hero.cta.start': '시작하기',
   'hero.cta.playground': '플레이그라운드 열기',
-  'hero.cta.npm.copied': '복사됨',
+  'hero.ai.label': '이 프롬프트를 복사해서 AI 에이전트에 넘겨 주세요',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 
   'demo.caption': '실제로 동작하는 <Zmage>입니다. 클릭, 스크롤, Space 키를 눌러보세요.',
@@ -68,6 +68,7 @@ export const ko: I18nDict = {
   'group.controlled': '제어 컴포넌트',
 
   'common.desktopOnly': '데스크톱 전용',
+  'common.desktopOnly.desc': '이 옵션은 데스크톱에서만 작동하며 모바일에서는 무시됩니다.',
   'common.required': '필수',
   'common.default': '기본값',
   'common.add': '추가',

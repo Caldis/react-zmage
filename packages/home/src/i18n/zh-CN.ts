@@ -11,7 +11,7 @@ export const zhCN = {
   'hero.subtitle': '一个轻量 React 组件,把任何图片变成全屏、可键盘导航的查看器。无需 portal,无需状态管线,只需一个 <Zmage>。',
   'hero.cta.start': '快速开始',
   'hero.cta.playground': '打开调试台',
-  'hero.cta.npm.copied': '已复制',
+  'hero.ai.label': '复制这段 PROMPT, 接下来交给你的 AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 
   // Live demo strip
@@ -75,6 +75,7 @@ export const zhCN = {
 
   // Common
   'common.desktopOnly': '仅桌面端',
+  'common.desktopOnly.desc': '该参数仅在桌面端生效, 移动端会忽略',
   'common.required': '必填',
   'common.default': '默认',
   'common.add': '新增',

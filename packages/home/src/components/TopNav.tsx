@@ -24,7 +24,7 @@ export function TopNav () {
           {/* Wordmark: bold geometric sans aligned with the rz logo's blocky letterforms */}
           <span className="text-lg font-bold tracking-tight font-sans">react-zmage</span>
         </Link>
-        <Separator orientation="vertical" className="hidden h-5 md:block" />
+        <Separator orientation="vertical" className="hidden h-5 md:block ml-2 sm:ml-3" />
         <nav className="hidden flex-1 items-center gap-1 md:flex">
           {links.map(({ to, key }) => (
             <NavLink

@@ -11,7 +11,7 @@ export const es: I18nDict = {
   'hero.subtitle': 'Un componente React ligero que convierte cualquier imagen en un visor a pantalla completa con navegación por teclado. Sin configurar portales. Sin cablear estado. Solo <Zmage>.',
   'hero.cta.start': 'Empezar',
   'hero.cta.playground': 'Abrir playground',
-  'hero.cta.npm.copied': 'Copiado',
+  'hero.ai.label': 'Copia este prompt y pásaselo a tu AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 
   'demo.caption': 'Esto es un <Zmage> real. Prueba a hacer clic, desplazarte, pulsar Espacio.',
@@ -68,6 +68,7 @@ export const es: I18nDict = {
   'group.controlled': 'Controlado',
 
   'common.desktopOnly': 'Solo escritorio',
+  'common.desktopOnly.desc': 'Esta opción solo se aplica en escritorio; en móvil se ignora.',
   'common.required': 'Obligatorio',
   'common.default': 'Por defecto',
   'common.add': 'Añadir',

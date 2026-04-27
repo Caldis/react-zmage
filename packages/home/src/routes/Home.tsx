@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Copy, Check, ImageIcon, GalleryHorizontal, Wand2, Code2, Plus, Bot } from 'lucide-react'
+import { ArrowRight, Copy, Check, ImageIcon, GalleryHorizontal, Wand2, Code2, Plus, Bot, Sparkles } from 'lucide-react'
 import Zmage from 'react-zmage'
 import zmagePkg from 'react-zmage/package.json'
 import { Badge } from '@/components/ui/badge'
@@ -12,22 +12,36 @@ import { useT } from '@/i18n/useT'
 import { cn } from '@/lib/utils'
 import { useThemedBackdrop } from '@/lib/themedBackdrop'
 
+// Shared copy-state hook — single source of truth for Hero's two copyable chips
+// (`NpmChip`, `AIDirective`). Same 1500ms revert window, same timer-cleanup
+// guard against unmount mid-revert. Keeps the two visual chips consistent
+// without forcing them to share rendering code (their layouts diverge).
+function useCopyToClipboard () {
+  const [copied, setCopied] = React.useState(false)
+  const timer = React.useRef<number | undefined>(undefined)
+  React.useEffect(() => () => {
+    if (timer.current !== undefined) window.clearTimeout(timer.current)
+  }, [])
+  const copy = React.useCallback(async (text: string) => {
+    await navigator.clipboard.writeText(text)
+    setCopied(true)
+    if (timer.current !== undefined) window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(() => setCopied(false), 1500)
+  }, [])
+  return { copied, copy }
+}
+
 function NpmChip () {
   const cmd = 'pnpm add react-zmage'
-  const [copied, setCopied] = React.useState(false)
-  const { t } = useT()
+  const { copied, copy } = useCopyToClipboard()
   return (
     <button
-      onClick={async () => {
-        await navigator.clipboard.writeText(cmd)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 1500)
-      }}
+      onClick={() => copy(cmd)}
       className="group inline-flex cursor-pointer items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       <span>$ {cmd}</span>
       {copied
-        ? <><Check className="h-3.5 w-3.5" /> <span className="text-foreground">{t('hero.cta.npm.copied')}</span></>
+        ? <Check className="h-3.5 w-3.5 text-foreground" />
         : <Copy className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100" />}
     </button>
   )
@@ -115,33 +129,37 @@ function Hero () {
 function AIDirective () {
   const { t } = useT()
   const directive = t('hero.ai.directive')
-  const [copied, setCopied] = React.useState(false)
-  const onCopy = async () => {
-    await navigator.clipboard.writeText(directive)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
-  }
+  const { copied, copy } = useCopyToClipboard()
   return (
-    <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-[11px]">
-      <button
-        onClick={onCopy}
-        aria-label="Copy AI assistant directive"
-        className="group inline-flex cursor-pointer items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-3 py-1.5 font-mono text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-      >
-        <Bot aria-hidden className="h-3.5 w-3.5 opacity-70" />
-        <span>{directive}</span>
-        {copied
-          ? <Check className="h-3.5 w-3.5 text-foreground" />
-          : <Copy className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100" />}
-      </button>
-      <a
-        href="/llms.txt"
-        target="_blank"
-        rel="noreferrer"
-        className="text-muted-foreground/70 underline-offset-4 hover:text-foreground hover:underline"
-      >
-        view llms.txt →
-      </a>
+    // Vertical: kicker label sits on its own line above the directive pill.
+    // The label is a hierarchy hint — uppercase + tracking + lower opacity reads as
+    // a section header, not body text, so it doesn't compete with the pill below.
+    <div className="mt-4 flex flex-col items-center gap-1.5">
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium tracking-wide text-muted-foreground/80">
+        <Sparkles aria-hidden className="h-3.5 w-3.5" />
+        {t('hero.ai.label')}
+      </span>
+      <div className="flex flex-wrap items-center justify-center gap-2 text-[11px]">
+        <button
+          onClick={() => copy(directive)}
+          aria-label="Copy AI assistant directive"
+          className="group inline-flex cursor-pointer items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-3 py-1.5 font-mono text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <Bot aria-hidden className="h-3.5 w-3.5 opacity-70" />
+          <span>{directive}</span>
+          {copied
+            ? <Check className="h-3.5 w-3.5 text-foreground" />
+            : <Copy className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100" />}
+        </button>
+        <a
+          href="/llms.txt"
+          target="_blank"
+          rel="noreferrer"
+          className="text-muted-foreground/70 underline-offset-4 hover:text-foreground hover:underline"
+        >
+          view llms.txt →
+        </a>
+      </div>
     </div>
   )
 }

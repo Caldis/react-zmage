@@ -19,12 +19,13 @@ export function HotKeyControl ({ value, onChange }: { value: HotKey | boolean | 
         <label key={String(key)} className="flex items-center justify-between gap-3 text-[11px] leading-tight">
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="cursor-help text-muted-foreground decoration-dotted underline-offset-4 hover:underline">
-                {t(labelKey)}
+              <span className="cursor-help font-mono text-muted-foreground decoration-dotted underline-offset-4 hover:underline">
+                {String(key)}
               </span>
             </TooltipTrigger>
             <TooltipContent side="left" className="max-w-[260px] text-xs">
-              {t(descKey)}
+              <div className="font-medium">{t(labelKey)}</div>
+              <div className="mt-0.5 text-primary-foreground/80">{t(descKey)}</div>
             </TooltipContent>
           </Tooltip>
           <Switch checked={!!obj[key]} onCheckedChange={c => onChange({ ...obj, [key]: c })} />

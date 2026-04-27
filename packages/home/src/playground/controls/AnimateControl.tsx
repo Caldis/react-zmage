@@ -1,4 +1,4 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { HoverSelect } from '@/components/ui/HoverSelect'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useT } from '@/i18n/useT'
@@ -40,12 +40,12 @@ export function AnimateControl ({ value, onChange }: { value: Animate | boolean 
       </label>
       <label className="flex items-center justify-between gap-3">
         <TipLabel descKey="animate.flip.desc">flip</TipLabel>
-        <Select value={obj.flip ?? 'fade'} onValueChange={(v) => onChange({ ...obj, flip: v })}>
-          <SelectTrigger className="h-7 w-32 text-[11px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {FLIP_OPTIONS.map(o => <SelectItem key={o.value} value={o.value} className="text-[11px]">{t(o.labelKey)}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        <HoverSelect
+          value={obj.flip ?? 'fade'}
+          onValueChange={(v) => onChange({ ...obj, flip: v })}
+          triggerClassName="h-7 w-32 text-[11px]"
+          options={FLIP_OPTIONS.map(o => ({ value: o.value, label: t(o.labelKey) }))}
+        />
       </label>
     </div>
   )

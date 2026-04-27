@@ -33,6 +33,15 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Radix UI 的 modal primitives (Select/Dialog/...) 依赖 react-remove-scroll-bar,
+   会在 [data-scroll-locked] 时给 <body> 加 `margin-right: 15px !important` 来"补"
+   隐藏滚动条留下的位移. 但我们用 scrollbar-gutter: stable 已经永久预留这条 gutter,
+   所以那 15px 反而变成多余位移, 表现为打开 dropdown 时页面横向抖动. 这里抵消之.
+   选择器多嵌一个 `html` 提高 specificity, 否则被运行时注入的同特异度规则源序压过. */
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -106,3 +115,52 @@ html {
     background-color: hsl(var(--muted-foreground) / 0.55);
   }
 }
+
+/* Hover-dropdown menu animation — placed outside @layer so its specificity-equal
+   rules win against utilities (e.g. Radix's `origin-[--radix-...]`).
+   Radix delays unmount until animationend, so [data-state="closed"] plays out fully. */
+@keyframes nav-menu-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+@keyframes nav-menu-out {
+  from { opacity: 1; transform: translateY(0)   scale(1);    }
+  to   { opacity: 0; transform: translateY(4px) scale(0.98); }
+}
+.nav-menu-anim {
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+.nav-menu-anim[data-state="open"] {
+  animation: nav-menu-in 180ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.nav-menu-anim[data-state="closed"] {
+  animation: nav-menu-out 140ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Dialog (search popup) animation — overlay fade + content rise/scale, ease-out-expo.
+   Content base transform is `translate: -50% -50%` (Tailwind centering); we layer
+   `transform: translateY/scale` on top — per CSS Transforms L2, the `transform`
+   property applies AFTER the individual `translate` property, so this composes
+   without us re-stating the centering inside the keyframes. */
+@keyframes dialog-overlay-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dialog-overlay-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes dialog-content-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+@keyframes dialog-content-out {
+  from { opacity: 1; transform: translateY(0)    scale(1);    }
+  to   { opacity: 0; transform: translateY(10px) scale(0.97); }
+}
+.dialog-overlay-anim {
+  will-change: opacity;
+}
+.dialog-overlay-anim[data-state="open"]   { animation: dialog-overlay-in  180ms cubic-bezier(0.16, 1, 0.3, 1); }
+.dialog-overlay-anim[data-state="closed"] { animation: dialog-overlay-out 140ms cubic-bezier(0.4, 0, 1, 1);    }
+.dialog-content-anim {
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+.dialog-content-anim[data-state="open"]   { animation: dialog-content-in  220ms cubic-bezier(0.16, 1, 0.3, 1); }
+.dialog-content-anim[data-state="closed"] { animation: dialog-content-out 160ms cubic-bezier(0.4, 0, 1, 1);    }

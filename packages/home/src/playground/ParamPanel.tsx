@@ -78,7 +78,17 @@ export function ParamPanel ({ values, onChange }: Props) {
                         </TooltipContent>
                       </Tooltip>
                       {def.required && <span aria-label="required" className="text-destructive font-bold text-sm leading-none">*</span>}
-                      {def.desktopOnly && <Badge variant="secondary" className="h-4 px-1 text-[9px]">D</Badge>}
+                      {def.desktopOnly && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge variant="secondary" className="h-4 px-1 text-[9px] cursor-help">D</Badge>
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-[260px] text-xs">
+                            <div className="font-medium">{t('common.desktopOnly')}</div>
+                            <div className="mt-0.5 text-primary-foreground/80">{t('common.desktopOnly.desc')}</div>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
                     </div>
                     <div>{renderControl(def, values[def.name], (v) => onChange(def.name, v))}</div>
                   </div>

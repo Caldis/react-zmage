@@ -11,7 +11,7 @@ export const de: I18nDict = {
   'hero.subtitle': 'Eine schlanke React-Komponente, die jedes Bild in einen Vollbild-Viewer mit Tastatursteuerung verwandelt. Kein Portal-Setup. Kein State-Verkabeln. Einfach <Zmage>.',
   'hero.cta.start': 'Loslegen',
   'hero.cta.playground': 'Playground öffnen',
-  'hero.cta.npm.copied': 'Kopiert',
+  'hero.ai.label': 'Kopiere diesen Prompt und übergib ihn deinem AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 
   'demo.caption': 'Das ist ein echtes <Zmage>. Probiere klicken, scrollen, Leertaste drücken.',
@@ -68,6 +68,7 @@ export const de: I18nDict = {
   'group.controlled': 'Controlled',
 
   'common.desktopOnly': 'Nur Desktop',
+  'common.desktopOnly.desc': 'Diese Option wirkt nur auf dem Desktop; mobil wird sie ignoriert.',
   'common.required': 'Erforderlich',
   'common.default': 'Standard',
   'common.add': 'Hinzufügen',

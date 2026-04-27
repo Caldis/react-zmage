@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useT } from '@/i18n/useT'
 import { cn } from '@/lib/utils'
 import { ParamPanel } from '@/playground/ParamPanel'
+import { SlidingPill } from '@/components/ui/SlidingPill'
 import { PARAM_SCHEMA } from '@/schema/param-schema'
 import { encodeStateToHash, decodeStateFromHash } from '@/playground/shareState'
 import { PLAYGROUND_SEED } from '@/playground/seed'
@@ -70,7 +71,8 @@ export default function Playground () {
         </div>
       </div>
 
-      <div className="mb-6 inline-flex rounded-lg border border-border bg-muted/30 p-1">
+      <div className="relative mb-6 inline-flex rounded-lg border border-border bg-muted/30 p-1">
+        <SlidingPill />
         {TABS.map(tab => (
           <NavLink
             key={tab.to}
@@ -78,8 +80,8 @@ export default function Playground () {
             end={tab.end}
             className={({ isActive }) =>
               cn(
-                'rounded-md px-3 py-1.5 text-sm transition-colors',
-                isActive ? 'bg-background text-foreground shadow' : 'text-muted-foreground hover:text-foreground',
+                'relative z-10 cursor-pointer rounded-md px-3 py-1.5 text-sm transition-colors',
+                isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
               )
             }
           >

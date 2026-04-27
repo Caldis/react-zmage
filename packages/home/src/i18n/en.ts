@@ -11,7 +11,7 @@ export const en: I18nDict = {
   'hero.subtitle': 'A tiny React component that turns any image into a fullscreen, keyboard-navigable viewer. No portal setup. No state plumbing. Just <Zmage>.',
   'hero.cta.start': 'Get started',
   'hero.cta.playground': 'Open playground',
-  'hero.cta.npm.copied': 'Copied',
+  'hero.ai.label': 'Copy this prompt, then hand it to your AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 
   'demo.caption': 'This is a real <Zmage>. Try clicking, scrolling, hitting Space.',
@@ -68,6 +68,7 @@ export const en: I18nDict = {
   'group.controlled': 'Controlled',
 
   'common.desktopOnly': 'Desktop only',
+  'common.desktopOnly.desc': 'This prop only takes effect on desktop; mobile ignores it.',
   'common.required': 'Required',
   'common.default': 'Default',
   'common.add': 'Add',
