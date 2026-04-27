@@ -19,12 +19,12 @@
   height: auto;
 
   &.zooming {
+    // 保留 enter zoom 的 cover→zoom 缩放过渡 (走基类 350ms transform).
+    // mousemove 跟随的零延迟在 React 层面 (Image.tsx state.zoomMouseDriven) 实现:
+    // 鼠标驱动的 setState 会带 inline transition: 'none', 仅那一帧关闭过渡;
+    // 进入 zoom 的初始那一帧 currentStyle._type 还可能是 cover/browsing,
+    // 此时不关闭过渡, 让 cover→zoom 自然缩放.
     transition-timing-function: @animationFunctionOnZooming;
-    // zoom 态下必须把 transform transition 时长清零, 否则 mousemove 跟随会被 350ms
-    // 默认插值拖滞, 表现为光标领先于图像的粘滞感. 进入 zoom 的 cover→zoom 缩放
-    // 也会变成瞬时 — 这是 trade-off, 但 click→zoom 即时反馈通常更符合预期.
-    // 旧版本只加了 -ms- 前缀 (IE only), 现代浏览器 fall through 到基类 350ms.
-    transition-duration: @animationDurationOnZooming;
     -ms-transition-duration: @animationDurationOnZooming;
   }
 

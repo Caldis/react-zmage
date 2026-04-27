@@ -49,6 +49,8 @@ interface StateType {
   touchProfile: TouchProfile
   // 时间戳 Flag
   timestamp: { [ImageUrl: string]: number },
+  // 鼠标驱动的 zoom 跟随: true 时该次 render transition 强制为 'none', 用于消除 mousemove 粘滞
+  zoomMouseDriven: boolean,
 }
 
 export default class Image extends React.Component<PropsType, StateType> {
@@ -81,6 +83,8 @@ export default class Image extends React.Component<PropsType, StateType> {
     touchProfile: new TouchProfile(),
     // 时间戳 Flag
     timestamp: {},
+    // 鼠标驱动的 zoom 跟随标志
+    zoomMouseDriven: false,
   } as StateType
 
   componentDidMount () {
@@ -104,6 +108,10 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { show: prevShow, zoom: prevZoom, rotate: prevRotate, page: prevPage } = prevProps
     const { show: currShow, zoom: currZoom, rotate: currRotate, page: currPage } = this.props
     const { animate, presetIsMobile } = this.context
+    // zoom 状态切换 (无论开还是关) 都要清掉 mouseDriven, 让 cover↔zoom 走 350ms 过渡
+    if (prevZoom !== currZoom && this.state.zoomMouseDriven) {
+      this.setState({ zoomMouseDriven: false })
+    }
     // 状态改变时更新样式 (Page 导致的 src 变化的 update 交给图片自身的 onload 调用)
     if (prevShow !== currShow || prevZoom !== currZoom || prevRotate !== currRotate) {
       const updateStyle = () => {
@@ -229,7 +237,18 @@ export default class Image extends React.Component<PropsType, StateType> {
   // 鼠标事件
   handleMouseMove = (e: MouseEvent) => {
     const zoomingStyle = getZoomingStyle(this.context, this.imageRef, e)
-    this.setCurrentStyle(zoomingStyle)
+    const { currentStyle } = this.state
+    // 仅当已经处在 zooming 态时才打开 mouseDriven (transition: 'none') —
+    // 否则 cover→zoom 的初次缩放会被这一帧硬切, 用户看到瞬时跳变. 第一帧让它走基类 350ms 缓动,
+    // 之后任何 mousemove 都会落进 zoomMouseDriven=true 分支实现零延迟跟随.
+    const inZoomingState = currentStyle._type === 'zooming'
+    const nextStyle = zoomingStyle._behavior === 'merge'
+      ? { ...currentStyle, ...zoomingStyle }
+      : zoomingStyle
+    this.setState({
+      currentStyle: nextStyle,
+      zoomMouseDriven: inZoomingState,
+    })
   }
   // 加载事件
   handleImageLoadStart = () => {
@@ -348,7 +367,11 @@ export default class Image extends React.Component<PropsType, StateType> {
       cursor: zoom ? 'zoom-out' : 'initial',
       zIndex,
       opacity: invalidate ? 0 : opacity,
-      transition: this.suppressBrowsingTransition || animateParams.flip === false ? 'none' : transition,
+      transition: this.suppressBrowsingTransition
+        || animateParams.flip === false
+        // zoom mousemove 跟随: 仅中心图 + 已经在 zooming 态时关闭 transition, enter zoom 自然过渡
+        || (zoom && !isSideImage && this.state.zoomMouseDriven)
+        ? 'none' : transition,
       pointerEvents,
       ...set[page].style,
     } as CSSProperties
