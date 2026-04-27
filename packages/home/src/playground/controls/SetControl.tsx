@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useT } from '@/i18n/useT'
 
-type SetItem = { src: string; alt?: string }
+type SetItem = { src: string; alt?: string; caption?: string }
 
 export function SetControl ({ value, onChange }: { value: SetItem[] | undefined; onChange: (v: SetItem[]) => void }) {
   const { t } = useT()
@@ -14,7 +14,7 @@ export function SetControl ({ value, onChange }: { value: SetItem[] | undefined;
     onChange(next)
   }
   const remove = (i: number) => onChange(items.filter((_, idx) => idx !== i))
-  const add = () => onChange([...items, { src: '', alt: '' }])
+  const add = () => onChange([...items, { src: '', alt: '', caption: '' }])
   return (
     <div className="space-y-3">
       {items.map((it, i) => {
@@ -38,6 +38,12 @@ export function SetControl ({ value, onChange }: { value: SetItem[] | undefined;
                 value={it.alt ?? ''}
                 onChange={e => update(i, { alt: e.target.value })}
                 placeholder="alt"
+                className="h-7 px-2 text-xs md:text-xs"
+              />
+              <Input
+                value={it.caption ?? ''}
+                onChange={e => update(i, { caption: e.target.value })}
+                placeholder="caption"
                 className="h-7 px-2 text-xs md:text-xs"
               />
             </div>

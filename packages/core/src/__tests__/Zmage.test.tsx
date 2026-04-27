@@ -5,6 +5,7 @@ import React, { StrictMode } from 'react'
 import { render, fireEvent, screen, act } from '@testing-library/react'
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 import Zmage from '../Zmage'
+import { resolvePreset } from '../types/default'
 
 const SRC = 'https://example.com/test.jpg'
 
@@ -96,6 +97,183 @@ describe('Zmage StrictMode 双 mount/unmount 不应泄漏副作用', () => {
     expect(countListeners('touchstart')).toBe(0)
     expect(countListeners('touchmove')).toBe(0)
     expect(countListeners('touchend')).toBe(0)
+  })
+})
+
+describe('resolvePreset (preset=auto 媒体查询解析)', () => {
+  const realMatchMedia = window.matchMedia
+
+  afterEach(() => {
+    // 复原, 避免污染其它 case
+    Object.defineProperty(window, 'matchMedia', { configurable: true, value: realMatchMedia })
+  })
+
+  const stubMatchMedia = (matches: boolean) => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: vi.fn().mockImplementation((q: string) => ({
+        matches,
+        media: q,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+        onchange: null,
+      })),
+    })
+  }
+
+  it('显式 desktop / mobile 不走媒体查询', () => {
+    stubMatchMedia(true) // 即便 mobile-like, 显式 desktop 仍返回 desktop
+    expect(resolvePreset('desktop')).toBe('desktop')
+    expect(resolvePreset('mobile')).toBe('mobile')
+  })
+
+  it('未传 preset 默认 desktop', () => {
+    stubMatchMedia(true)
+    expect(resolvePreset(undefined)).toBe('desktop')
+  })
+
+  it('auto + (pointer:coarse hover:none) → mobile', () => {
+    stubMatchMedia(true)
+    expect(resolvePreset('auto')).toBe('mobile')
+  })
+
+  it('auto + 非粗指针 → desktop', () => {
+    stubMatchMedia(false)
+    expect(resolvePreset('auto')).toBe('desktop')
+  })
+
+  it('auto + 无 matchMedia (SSR-like) → desktop fallback', () => {
+    Object.defineProperty(window, 'matchMedia', { configurable: true, value: undefined })
+    expect(resolvePreset('auto')).toBe('desktop')
+  })
+})
+
+describe('Zmage caption 渲染', () => {
+  it('单图模式: 顶层 caption prop 在浏览模式渲染为 #zmageCaption', async () => {
+    render(<Zmage src={SRC} alt="t" caption="hello caption"/>)
+    fireEvent.click(screen.getByAltText('t'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+    const cap = document.getElementById('zmageCaption')
+    expect(cap).toBeTruthy()
+    expect(cap?.textContent).toBe('hello caption')
+  })
+
+  it('空 caption 不渲染节点', async () => {
+    render(<Zmage src={SRC} alt="t"/>)
+    fireEvent.click(screen.getByAltText('t'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+    expect(document.getElementById('zmageCaption')).toBeNull()
+  })
+
+  it('对象形式 caption: 应用用户传入的 style 与 className', async () => {
+    render(
+      <Zmage
+        src={SRC}
+        alt="t"
+        caption={{ text: 'styled', style: { color: 'rgb(255, 0, 0)', fontSize: '20px' }, className: 'my-cap' }}
+      />
+    )
+    fireEvent.click(screen.getByAltText('t'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+    const cap = document.getElementById('zmageCaption')
+    expect(cap?.textContent).toBe('styled')
+    expect(cap?.style.color).toBe('rgb(255, 0, 0)')
+    expect(cap?.style.fontSize).toBe('20px')
+    expect(cap?.className.includes('my-cap')).toBe(true)
+  })
+
+  it('多图模式: 翻页后 caption 跟随当前 set[page].caption 切换', async () => {
+    render(
+      <Zmage
+        src={SRC}
+        alt="t"
+        set={[
+          { src: SRC, alt: 'p1', caption: 'first' },
+          { src: SRC, alt: 'p2', caption: 'second' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('t'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+    // 触发右翻按钮 (DOM 事件比 window keydown 在 JSDOM 下更可靠)
+    const flipRight = document.getElementById('zmageControlFlipRight')
+    expect(flipRight).toBeTruthy()
+    await act(async () => {
+      fireEvent.click(flipRight!)
+      await new Promise(r => setTimeout(r, 50))
+    })
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
+  })
+})
+
+describe('Zmage hotKey 翻页 (umbrella + 单边)', () => {
+  // 工具: 直接向 window 派发 keydown (lib 的监听器挂在 window 上, 用 e.keyCode 判断)
+  const dispatchArrow = async (which: 'left' | 'right') => {
+    await act(async () => {
+      const keyCode = which === 'left' ? 37 : 39
+      const key = which === 'left' ? 'ArrowLeft' : 'ArrowRight'
+      window.dispatchEvent(new KeyboardEvent('keydown', { key, keyCode } as KeyboardEventInit))
+      await new Promise(r => setTimeout(r, 50))
+    })
+  }
+
+  const renderTwoPageSet = (hotKey: any) =>
+    render(
+      <Zmage
+        src={SRC}
+        alt="t"
+        preset="desktop"
+        hotKey={hotKey}
+        set={[
+          { src: SRC, alt: 'p1', caption: 'first' },
+          { src: SRC, alt: 'p2', caption: 'second' },
+        ]}
+      />
+    )
+
+  it('hotKey={{ flip: true }} → ← 与 → 都翻页 (legacy 行为保留)', async () => {
+    renderTwoPageSet({ flip: true })
+    fireEvent.click(screen.getByAltText('t'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+    // → 翻到 second
+    await dispatchArrow('right')
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
+    // ← 翻回 first
+    await dispatchArrow('left')
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+  })
+
+  it('hotKey={{ flip: false, flipLeft: true, flipRight: false }} → 仅 ← 生效', async () => {
+    // 注: desktop preset 默认带 flip: true (umbrella), 用户必须显式 flip: false
+    // 才能测试单边语义 — 否则 umbrella 强制覆盖两侧.
+    renderTwoPageSet({ flip: false, flipLeft: true, flipRight: false })
+    fireEvent.click(screen.getByAltText('t'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+    // → 不应翻页 (flipRight=false 且 umbrella flip=false)
+    await dispatchArrow('right')
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+    // ← 翻到 second (loop=true 默认 → wrap to last)
+    await dispatchArrow('left')
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
+  })
+
+  it('hotKey={{ flip: false, flipLeft: false, flipRight: true }} → 仅 → 生效', async () => {
+    renderTwoPageSet({ flip: false, flipLeft: false, flipRight: true })
+    fireEvent.click(screen.getByAltText('t'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+    // ← 不应翻页
+    await dispatchArrow('left')
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+    // → 翻到 second
+    await dispatchArrow('right')
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
   })
 })
 

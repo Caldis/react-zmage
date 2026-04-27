@@ -83,6 +83,7 @@ export const zhCN = {
   'common.remove': '删除',
   'common.enable': '启用',
   'common.disable': '禁用',
+  'param.viewInDocs': '在文档中查看',
 
   // Docs shell
   'docs.title': 'API 文档',
@@ -106,6 +107,7 @@ export const zhCN = {
   // Preset values
   'preset.desktop': '桌面端',
   'preset.mobile': '移动端',
+  'preset.auto': '自动',
   'preset.none': '无',
 
   // Animate flip values
@@ -142,9 +144,13 @@ export const zhCN = {
   'hotkey.close': '关闭(ESC)',
   'hotkey.zoom': '缩放(空格)',
   'hotkey.flip': '翻页(←/→)',
+  'hotkey.flipLeft': '上一张(←)',
+  'hotkey.flipRight': '下一张(→)',
   'hotkey.close.desc': '按 ESC 关闭查看器',
   'hotkey.zoom.desc': '按空格切换 1:1 放大模式',
   'hotkey.flip.desc': '按 ← / → 在 set 中翻页',
+  'hotkey.flipLeft.desc': '按 ← 切换到上一张',
+  'hotkey.flipRight.desc': '按 → 切换到下一张',
 
   // Animate keys
   'animate.browsing.desc': '查看器开 / 关时的过渡动画',
@@ -155,8 +161,8 @@ export const zhCN = {
   'param.src.desc': '图片地址,必填项。',
   'param.alt.label': 'alt',
   'param.alt.desc': '图片标题,作为大图查看时的标题显示。',
-  'param.txt.label': 'txt',
-  'param.txt.desc': '图片描述,大图下方的辅助文案。',
+  'param.caption.label': 'caption',
+  'param.caption.desc': '大图下方的辅助文案。可传字符串使用默认胶囊样式,或传 { text, style?, className? } 自定义样式。多图时可由 set[i].caption 单独覆盖。',
   'param.set.label': 'set',
   'param.set.desc': '图片集合;传入后启用画廊模式,左右键翻页。',
   'param.defaultPage.label': 'defaultPage',
@@ -227,7 +233,7 @@ export const zhCN = {
   'docs.search.desc.ssr': '服务端渲染入口,import 时不会触碰 document',
   'docs.search.desc.modes': '组件 / 命令式 / 包裹器 —— 三种调用方式',
   'docs.search.desc.theming': '让查看器的背景与图标与你的站点主题保持一致',
-  'docs.search.desc.propsData': 'src · alt · txt · set · defaultPage',
+  'docs.search.desc.propsData': 'src · alt · caption · set · defaultPage',
   'docs.search.desc.propsPreset': '预设包: desktop / mobile',
   'docs.search.desc.propsInterface': 'backdrop · radius · edge · loop · zIndex 等界面参数',
   'docs.search.desc.propsController': '控制栏按钮(分页 / 旋转 / 缩放 / 关闭 / 翻页…)',
@@ -246,6 +252,11 @@ export const zhCN = {
   'docs.section.props.controller.keyHeader': '名称',
   'docs.section.props.controller.descHeader': '说明',
   'docs.section.props.controller.umbrella': 'rotate 是 rotateLeft / rotateRight 的组合开关 — 启用时同时显示左右两个旋转按钮;flip 与 flipLeft / flipRight 同理。',
+  'docs.section.props.preset.title': '预设默认值表',
+  'docs.section.props.preset.intro': 'preset 是一组打包好的默认值,会作用于 controller / hotKey / animate 三组子参数。auto 在运行时根据 matchMedia(\'(pointer: coarse) and (hover: none)\') 解析为 desktop 或 mobile;SSR 与无 matchMedia 环境下回退到 desktop。',
+  'docs.section.props.preset.subParamHeader': '子参数',
+  'docs.section.props.preset.desktopHeader': 'desktop',
+  'docs.section.props.preset.mobileHeader': 'mobile',
 
   'docs.section.examples.title': '示例',
   'docs.section.examples.singleTitle': '单图',

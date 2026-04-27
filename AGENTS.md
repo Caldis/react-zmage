@@ -21,7 +21,7 @@ import type {
   BaseType,                  // union of all props (use this when typing config objects)
   ReactZmageComponent,       // typeof Zmage
   Set,                       // shape of items in `set` prop
-  Preset,                    // 'desktop' | 'mobile' | 'auto' (auto deprecated)
+  Preset,                    // 'desktop' | 'mobile' | 'auto' (auto = matchMedia-driven)
   ControllerSet, HotKey, Animate, AnimateFlip,
 } from 'react-zmage'
 
@@ -76,10 +76,10 @@ Single `BaseType` covers all. Grouped here by purpose:
 
 | Group | Props | Notes |
 |---|---|---|
-| Data | `src`, `alt`, `txt`, `set`, `defaultPage` | `set` enables multi-image mode |
-| Preset | `preset: 'desktop' \| 'mobile'` | drives default `controller` / `hotKey` / `animate` |
+| Data | `src`, `alt`, `caption`, `set`, `defaultPage` | `set` enables multi-image mode. `caption` is `string \| { text, style?, className? }` — renders below the image; per-set override via `set[i].caption` |
+| Preset | `preset: 'desktop' \| 'mobile' \| 'auto'` | drives default `controller` / `hotKey` / `animate`. `'auto'` resolves via `matchMedia('(pointer: coarse) and (hover: none)')` on the client; SSR falls back to desktop |
 | Controlled | `browsing` | omit for self-managed; pair with `onBrowsing` if set |
-| Functional | `controller`, `hotKey`, `animate` | pass `boolean` to disable, or partial object to override |
+| Functional | `controller`, `hotKey`, `animate` | pass `boolean` to disable, or partial object to override. `controller.flip` and `hotKey.flip` are umbrellas over their per-side counterparts (`flipLeft` / `flipRight`); enabling the umbrella forces both sides on |
 | Interface | `hideOnScroll`, `coverVisible`, `backdrop`, `zIndex`, `radius`, `edge`, `loop` | desktop-only flags noted in README |
 | Lifecycle | `onBrowsing`, `onZooming`, `onSwitching`, `onRotating` | callback args: `boolean`/`boolean`/`number`/`number` |
 | Native | All `HTMLAttributes<HTMLImageElement>` | className, style, onClick, etc. transparently forwarded to inner `<img>` |
@@ -89,7 +89,7 @@ Defaults & sub-shapes: see [`packages/core/src/types/default.ts`](./packages/cor
 ## Common pitfalls (LLM-written code often hits these)
 
 1. **Forgetting `import 'react-zmage/style.css'`** — component renders but viewer is unstyled.
-2. **Passing `preset='auto'`** — deprecated; will warn. Use `'desktop'` or `'mobile'`.
+2. **Hard-coding `preset='desktop'` on a touch-targeted page** — the desktop bundle ships hotkeys + arrow buttons that are no-ops on touch. Use `'auto'` (CSS-media-query-driven) or `'mobile'` explicitly when serving touch users.
 3. **Treating `Zmage` as a class** — it is a `forwardRef` exotic component. ❌ `new Zmage()`. ✅ JSX or `Zmage.browsing()`.
 4. **Mixing controlled and uncontrolled** — if `browsing` is in props, it must be a fully controlled `boolean` (provide `onBrowsing` to receive changes). Mixing both modes silently breaks state sync.
 5. **Calling `Zmage.browsing` server-side** — it manipulates `document.body`. Guard with `typeof window !== 'undefined'` or call from event handlers / effects.

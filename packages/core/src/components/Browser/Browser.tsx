@@ -10,12 +10,13 @@ import style from './Browser.module.less'
 // Components
 import Portals from '../Portal'
 import Control from '../Control'
+import Caption from '../Caption'
 import Image from '../Image'
 import Background from '../Background'
 // Utils
 import { Context, ContextType } from '../context'
 import { disableScroll, enableScroll, getTargetPage, unlockTouchInteraction } from '../../utils'
-import { defPropsWithEnv } from '../../types/default'
+import { defPropsWithEnv, resolvePreset } from '../../types/default'
 import { animationDuration } from '../../config/anim'
 import { hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
 import { FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
@@ -136,12 +137,13 @@ export default class Browser extends React.Component<Props, State> {
   getPropsWithEnv = () => {
     const { preset, controller, hotKey, animate } = this.props
     const defProp = defPropsWithEnv(preset)
+    const resolved = resolvePreset(preset)
     return {
       // Merge Props
       ...this.props,
-      // Preset flags
-      presetIsMobile: preset === 'mobile',
-      presetIsDesktop: preset !== 'mobile',
+      // Preset flags (driven by resolved preset so 'auto' picks the right branch)
+      presetIsMobile: resolved === 'mobile',
+      presetIsDesktop: resolved === 'desktop',
       // Control
       controller: { ...defProp.controller, ...(typeof (controller) === 'object' ? controller : {}) },
       hotKey: { ...defProp.hotKey, ...(typeof (hotKey) === 'object' ? hotKey : {}) },
@@ -256,12 +258,12 @@ export default class Browser extends React.Component<Props, State> {
     case 37: // ArrowLeft
       // 上一张
       e.preventDefault()
-      !(!loop && page === 0) && !zoom && hotKey.flip && this.handleToPrevPage()
+      !(!loop && page === 0) && !zoom && (hotKey.flipLeft || hotKey.flip) && this.handleToPrevPage()
       break
     case 39: // ArrowRight
       // 下一张
       e.preventDefault()
-      !(!loop && page === set.length - 1) && !zoom && hotKey.flip && this.handleToNextPage()
+      !(!loop && page === set.length - 1) && !zoom && (hotKey.flipRight || hotKey.flip) && this.handleToNextPage()
       break
     default:
       return
@@ -389,6 +391,9 @@ export default class Browser extends React.Component<Props, State> {
 
             {/*控制层*/}
             <Control/>
+
+            {/*文案层*/}
+            <Caption/>
 
             {/*图片层*/}
             <Image {...statusValue}/>

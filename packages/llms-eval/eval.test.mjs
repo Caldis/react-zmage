@@ -83,6 +83,40 @@ test('Zmage.browsing return value is destructor (callee returns destroy fn)', ()
   assert.match(llmsTxt, /Returns a destructor/i)
 })
 
+test('caption prop wired across types, defaults and llms.txt (no legacy txt residue)', () => {
+  // global.ts declares CaptionProp union + caption?: CaptionProp on BaseParams + Set
+  assert.match(globalTs, /export\s+type\s+CaptionProp\s*=\s*string\s*\|\s*CaptionObject/,
+    'CaptionProp union missing in types/global.ts')
+  assert.match(globalTs, /\bcaption\?:\s*CaptionProp\b/, 'caption?: CaptionProp missing in types/global.ts')
+  assert.doesNotMatch(globalTs, /\btxt\?:\s*string\b/, 'legacy txt declaration must be removed from global.ts')
+  // default.ts mirrors caption in defProp (string is valid in the union)
+  assert.match(defaultTs, /\bcaption:\s*''/, 'caption default missing in defProp')
+  assert.doesNotMatch(defaultTs, /\btxt:\s*''/, 'legacy txt default must be removed from defProp')
+  // llms.txt API table lists caption
+  const captionLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|/.test(line) && /`caption`/.test(line)
+  )
+  assert.ok(captionLine, 'no API-table row in llms.txt declares the caption prop')
+})
+
+test('hotKey umbrella + per-side keys wired across types and llms.txt', () => {
+  // global.ts: HotKey interface declares flip / flipLeft / flipRight optional fields
+  assert.match(globalTs, /export\s+interface\s+HotKey\b/, 'HotKey interface missing in types/global.ts')
+  assert.match(globalTs, /\bflip\?:\s*boolean\b/, 'HotKey.flip missing in types/global.ts')
+  assert.match(globalTs, /\bflipLeft\?:\s*boolean\b/, 'HotKey.flipLeft missing in types/global.ts')
+  assert.match(globalTs, /\bflipRight\?:\s*boolean\b/, 'HotKey.flipRight missing in types/global.ts')
+  // llms.txt API table row for hotKey must mention all three
+  // (require `hotKey` as the *first* cell so we skip the preset row that mentions
+  // "controller / hotKey / animate" in prose)
+  const hotKeyLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|\s*`hotKey`\s*\|/.test(line)
+  )
+  assert.ok(hotKeyLine, 'no API-table row in llms.txt declares the hotKey prop')
+  assert.match(hotKeyLine, /\bflip\b/, 'llms.txt hotKey row missing flip')
+  assert.match(hotKeyLine, /\bflipLeft\b/, 'llms.txt hotKey row missing flipLeft')
+  assert.match(hotKeyLine, /\bflipRight\b/, 'llms.txt hotKey row missing flipRight')
+})
+
 test('public type symbols present in types/global.ts', () => {
   for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'HotKey', 'Animate']) {
     const re = new RegExp(`(?:export\\s+(?:interface|type)\\s+${sym}\\b)`)

@@ -2,6 +2,7 @@ import { Heading } from '@/docs/Heading'
 import { ParamTable } from '@/docs/ParamTable'
 import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
+import { defPreset } from '@/schema/param-schema'
 
 const CONTROLLER_KEYS: { k: string; labelKey: I18nKey }[] = [
   { k: 'pagination', labelKey: 'controller.pagination' },
@@ -15,6 +16,70 @@ const CONTROLLER_KEYS: { k: string; labelKey: I18nKey }[] = [
   { k: 'flipLeft', labelKey: 'controller.flipLeft' },
   { k: 'flipRight', labelKey: 'controller.flipRight' },
 ]
+
+type PresetRow = { path: string; label: I18nKey }
+const PRESET_ROWS: PresetRow[] = [
+  { path: 'controller.pagination', label: 'controller.pagination' },
+  { path: 'controller.rotate', label: 'controller.rotate' },
+  { path: 'controller.zoom', label: 'controller.zoom' },
+  { path: 'controller.download', label: 'controller.download' },
+  { path: 'controller.close', label: 'controller.close' },
+  { path: 'controller.flip', label: 'controller.flip' },
+  { path: 'hotKey.close', label: 'hotkey.close' },
+  { path: 'hotKey.zoom', label: 'hotkey.zoom' },
+  { path: 'hotKey.flip', label: 'hotkey.flip' },
+  { path: 'animate.browsing', label: 'animate.browsing.desc' },
+  { path: 'animate.flip', label: 'animate.flip.desc' },
+]
+
+function readPresetValue (preset: 'desktop' | 'mobile', path: string): unknown {
+  const [group, key] = path.split('.') as ['controller' | 'hotKey' | 'animate', string]
+  const bucket = defPreset[preset][group] as Record<string, unknown>
+  return bucket[key]
+}
+
+function PresetCell ({ value }: { value: unknown }) {
+  const display = typeof value === 'string' ? `'${value}'` : String(value)
+  return <code className="font-mono text-xs">{display}</code>
+}
+
+function PresetDetail () {
+  const { t } = useT()
+  return (
+    <>
+      <p className="text-sm text-muted-foreground">
+        {t('docs.section.props.preset.intro')}
+      </p>
+      <div className="my-6 overflow-hidden rounded-lg border border-border">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+            <tr>
+              <th className="px-4 py-2.5 font-medium">{t('docs.section.props.preset.subParamHeader')}</th>
+              <th className="px-4 py-2.5 font-medium">{t('docs.section.props.preset.desktopHeader')}</th>
+              <th className="px-4 py-2.5 font-medium">{t('docs.section.props.preset.mobileHeader')}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {PRESET_ROWS.map(({ path, label }) => (
+              <tr key={path}>
+                <td className="px-4 py-2.5">
+                  <span className="font-mono text-xs">{path}</span>
+                  <span className="ml-2 text-muted-foreground">{t(label)}</span>
+                </td>
+                <td className="px-4 py-2.5">
+                  <PresetCell value={readPresetValue('desktop', path)} />
+                </td>
+                <td className="px-4 py-2.5">
+                  <PresetCell value={readPresetValue('mobile', path)} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  )
+}
 
 function ControllerDetail () {
   const { t } = useT()
@@ -55,6 +120,8 @@ export function Props () {
       <ParamTable group="data" />
       <Heading id="props-preset" level={3}>{t('group.preset')}</Heading>
       <ParamTable group="preset" />
+      <Heading id="props-preset-bundles" level={3}>{t('docs.section.props.preset.title')}</Heading>
+      <PresetDetail />
       <Heading id="props-interface" level={3}>{t('docs.section.props.interface')}</Heading>
       <ParamTable group="interface" />
       <Heading id="props-controller" level={3}>{t('group.controller')}</Heading>

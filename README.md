@@ -205,7 +205,7 @@ API 完全一致，仅产物为 platform-neutral，避免 SSR 阶段引用浏览
 |---|---|---|---|
 | `src` | `string` | `""` | 图片 URL，等同于 `<img>` 的 `src` |
 | `alt` | `string` | `""` | 图片占位文字，等同于 `<img>` 的 `alt` |
-| `txt` | `string` | `""` | 图片描述文本（除标题外的二级文案，可选） |
+| `caption` | `string \| { text: string; style?: CSSProperties; className?: string }` | `""` | 大图下方渲染的辅助文案（图说，可选）。string 形式取默认胶囊样式；对象形式可通过 `style` / `className` 覆盖样式或主题化。多图模式下可由 `set[i].caption` 单独覆盖 |
 | `set` | `Set[]` | `[]` | 多图集合，传入后启用浏览模式（左右翻页） |
 | `defaultPage` | `number` | `0` | 多图模式下的初始页码 |
 
@@ -213,9 +213,7 @@ API 完全一致，仅产物为 platform-neutral，避免 SSR 阶段引用浏览
 
 | 配置项 | 类型 | 默认 | 说明 |
 |---|---|---|---|
-| `preset` | `'desktop' \| 'mobile'` | `'desktop'` | 端预设。决定 `controller` / `hotKey` / `animate` 的默认值集合（[详见预设表](./packages/core/src/types/default.ts)） |
-
-> ⚠️ 旧值 `'auto'` 已废弃，会 fallback 到 `'desktop'` 并打 warning。
+| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'desktop'` | 端预设。决定 `controller` / `hotKey` / `animate` 的默认值集合（[详见预设表](./packages/core/src/types/default.ts)）。`'auto'` 走 CSS media query `(pointer: coarse) and (hover: none)` 判定：满足则取 mobile 默认，否则 desktop；SSR / 无 `matchMedia` 环境 fallback 到 desktop |
 
 ### 受控 Props
 
@@ -228,7 +226,7 @@ API 完全一致，仅产物为 platform-neutral，避免 SSR 阶段引用浏览
 | 配置项 | 类型 | 默认 | 说明 |
 |---|---|---|---|
 | `controller` | `boolean \| ControllerSet` | preset 决定 | 顶部工具栏按钮显隐 |
-| `hotKey` | `boolean \| HotKey` | preset 决定 | 键盘快捷键开关 |
+| `hotKey` | `boolean \| HotKey` | preset 决定 | 键盘快捷键开关。`HotKey = { close?, zoom?, flip?, flipLeft?, flipRight? }`；`flip` 为左右键 umbrella，启用时同时控制 `flipLeft` / `flipRight`（与 `controller` 的 umbrella 模式一致） |
 | `animate` | `boolean \| Animate` | preset 决定 | 动画行为 |
 
 #### `ControllerSet` 全字段
@@ -311,7 +309,7 @@ interface Animate {
 
 ```ts
 export type BaseType =
-  & BaseParams                    // src / alt / txt / set / defaultPage
+  & BaseParams                    // src / alt / caption / set / defaultPage
   & PresetParams                  // preset
   & FunctionalParams              // controller / hotKey / animate
   & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop

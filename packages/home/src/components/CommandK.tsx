@@ -14,6 +14,54 @@ const SHORTCUT_LABEL = IS_MAC ? '⌘K' : 'Ctrl+K'
 
 type Item = { id: string; label: string; desc: string; href: string; group: string }
 
+// Sub-property entries surfaced in search. Each leaf gets its own searchable entry,
+// linking back to the parent group's anchor in the Props section.
+type SubEntry = {
+  parent: 'controller' | 'hotkey' | 'animate'
+  /** Leaf key, e.g. "flip", "flipLeft". Combined with the parent into the displayed label. */
+  leaf: string
+  /** i18n key for the localized leaf name. */
+  labelKey: I18nKey
+  /** i18n key for the longer description. May be omitted for value-style entries. */
+  descKey?: I18nKey
+  /** Optional override for the dotted-path token in the haystack — used when the
+   *  parent prop is `hotKey` (camel) but the i18n namespace is `hotkey` (lower). */
+  parentDisplay?: string
+  /** Marks this as a "value you can pass" rather than a sub-property toggle. */
+  isValue?: boolean
+}
+
+const SUB_PARAM_ENTRIES: SubEntry[] = [
+  // Controller children — link → /docs#props-controller
+  { parent: 'controller', leaf: 'pagination', labelKey: 'controller.pagination', descKey: 'controller.pagination.desc' },
+  { parent: 'controller', leaf: 'rotate',      labelKey: 'controller.rotate',      descKey: 'controller.rotate.desc' },
+  { parent: 'controller', leaf: 'rotateLeft',  labelKey: 'controller.rotateLeft',  descKey: 'controller.rotateLeft.desc' },
+  { parent: 'controller', leaf: 'rotateRight', labelKey: 'controller.rotateRight', descKey: 'controller.rotateRight.desc' },
+  { parent: 'controller', leaf: 'zoom',        labelKey: 'controller.zoom',        descKey: 'controller.zoom.desc' },
+  { parent: 'controller', leaf: 'download',    labelKey: 'controller.download',    descKey: 'controller.download.desc' },
+  { parent: 'controller', leaf: 'close',       labelKey: 'controller.close',       descKey: 'controller.close.desc' },
+  { parent: 'controller', leaf: 'flip',        labelKey: 'controller.flip',        descKey: 'controller.flip.desc' },
+  { parent: 'controller', leaf: 'flipLeft',    labelKey: 'controller.flipLeft',    descKey: 'controller.flipLeft.desc' },
+  { parent: 'controller', leaf: 'flipRight',   labelKey: 'controller.flipRight',   descKey: 'controller.flipRight.desc' },
+
+  // HotKey children — link → /docs#props-hotkey. Display the parent as "hotKey"
+  // (matching the prop name) while the i18n namespace stays lowercase.
+  { parent: 'hotkey', leaf: 'close',     labelKey: 'hotkey.close',     descKey: 'hotkey.close.desc',     parentDisplay: 'hotKey' },
+  { parent: 'hotkey', leaf: 'zoom',      labelKey: 'hotkey.zoom',      descKey: 'hotkey.zoom.desc',      parentDisplay: 'hotKey' },
+  { parent: 'hotkey', leaf: 'flip',      labelKey: 'hotkey.flip',      descKey: 'hotkey.flip.desc',      parentDisplay: 'hotKey' },
+  { parent: 'hotkey', leaf: 'flipLeft',  labelKey: 'hotkey.flipLeft',  descKey: 'hotkey.flipLeft.desc',  parentDisplay: 'hotKey' },
+  { parent: 'hotkey', leaf: 'flipRight', labelKey: 'hotkey.flipRight', descKey: 'hotkey.flipRight.desc', parentDisplay: 'hotKey' },
+
+  // Animate children — link → /docs#props-animate.
+  // browsing/flip are sub-keys; the four flip animation values are values you can pass.
+  { parent: 'animate', leaf: 'browsing', labelKey: 'animate.browsing.desc', descKey: 'animate.browsing.desc' },
+  { parent: 'animate', leaf: 'flip',     labelKey: 'animate.flip.desc',     descKey: 'animate.flip.desc' },
+  { parent: 'animate', leaf: 'fade',      labelKey: 'animate.flip.fade',      descKey: 'animate.flip.desc', isValue: true },
+  { parent: 'animate', leaf: 'crossFade', labelKey: 'animate.flip.crossFade', descKey: 'animate.flip.desc', isValue: true },
+  { parent: 'animate', leaf: 'swipe',     labelKey: 'animate.flip.swipe',     descKey: 'animate.flip.desc', isValue: true },
+  { parent: 'animate', leaf: 'zoom',      labelKey: 'animate.flip.zoom',      descKey: 'animate.flip.desc', isValue: true },
+]
+
 // Side-anchor → desc i18n key. Items without an entry fall back to '' (no second line).
 const SIDEBAR_DESC: Record<string, I18nKey> = {
   installation: 'docs.search.desc.installation',
@@ -56,6 +104,26 @@ function buildIndex (t: (k: I18nKey) => string): Item[] {
       label: def.name as string,
       desc: t(def.i18n.descKey),
       href: `/docs#props-${def.group}`,
+      group: propsLabel,
+    })
+  }
+  // Sub-property entries — controller.X / hotKey.X / animate.X (+ flip-animation values).
+  // Label embeds the dotted path so the existing label-includes scorer matches both
+  // "flip" alone and "controller flip" / "controller.flip" queries.
+  for (const sub of SUB_PARAM_ENTRIES) {
+    const parentToken = sub.parentDisplay ?? sub.parent
+    const localized = t(sub.labelKey)
+    const descLine = sub.descKey ? t(sub.descKey) : ''
+    const label = sub.isValue
+      ? `${parentToken}.flip = "${sub.leaf}"`
+      : `${parentToken}.${sub.leaf}`
+    // Localized leaf name appears in desc so non-Latin queries still match.
+    const desc = descLine && descLine !== localized ? `${localized} — ${descLine}` : localized
+    out.push({
+      id: `sub-${sub.parent}-${sub.leaf}${sub.isValue ? '-value' : ''}`,
+      label,
+      desc,
+      href: `/docs#props-${sub.parent}`,
       group: propsLabel,
     })
   }

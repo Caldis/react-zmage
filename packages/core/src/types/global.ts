@@ -23,13 +23,27 @@ declare global {
  */
 
 /**
+ * @see https://github.com/Caldis/react-zmage#caption
+ */
+export interface CaptionObject {
+  // 文案
+  text: string
+  // 自定义样式 (覆盖默认胶囊样式; 浅合并)
+  style?: import('react').CSSProperties
+  // 自定义 className (与默认 class 合并; 用于主题化)
+  className?: string
+}
+export type CaptionProp = string | CaptionObject
+
+/**
  * @see https://github.com/Caldis/react-zmage#set
  */
 export interface Set {
   // 基础属性
   src: string,
   alt?: string,
-  text?: string,
+  // 图片下方辅助文案 (string 或 { text, style?, className? })
+  caption?: CaptionProp,
   // 类及样式
   className?: string
   style?: CSSStyleDeclaration
@@ -41,7 +55,7 @@ export interface Set {
 export type Preset =
   | 'desktop' // 桌面模式
   | 'mobile'  // 移动端模式
-  | 'auto'    // 自动识别 (废弃)
+  | 'auto'    // 按 CSS media query (pointer:coarse + hover:none) 自动判定
 
 /**
  * @see https://github.com/Caldis/react-zmage#controllerItem
@@ -80,6 +94,8 @@ export interface HotKey {
   zoom?: boolean
   // 翻页（左右键）
   flip?: boolean
+  flipLeft?: boolean
+  flipRight?: boolean
 }
 
 /**
@@ -105,8 +121,8 @@ export interface BaseParams {
   src: string
   // 图片标题
   alt?: string
-  // 图片描述
-  txt?: string
+  // 图片下方辅助文案 (string 或 { text, style?, className? })
+  caption?: CaptionProp
   // 图片集合
   set?: Set[]
   // 图片默认页

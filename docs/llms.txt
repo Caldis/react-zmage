@@ -58,12 +58,13 @@ const [open, setOpen] = useState(false)
 |------|------|---------|-------|
 | `src` | `string` | — | Required. Same as `<img src>`. |
 | `alt` | `string` | `''` | Same as `<img alt>`. |
-| `set` | `Array<{ src, alt? }>` | `[]` | Multi-image gallery. When non-empty, arrow keys page. |
+| `caption` | `string \| { text: string; style?: CSSProperties; className?: string }` | `''` | Caption rendered below the image inside the viewer. Pass a string for the default pill, or an object to override styling (`style` is shallow-merged onto the default class; `className` appends). Per-set entries may override via `set[i].caption`. |
+| `set` | `Array<{ src, alt?, caption? }>` | `[]` | Multi-image gallery. When non-empty, arrow keys page. `caption` per item accepts the same `string \| object` shape as the top-level prop. |
 | `defaultPage` | `number` | `0` | Initial index when `set` is non-empty. |
 | `backdrop` | `string` (CSS color) | `'#FFFFFF'` | **Default is white** — override (e.g. `'#111'`) for dark UIs or you'll get a white-on-white modal. |
-| `preset` | `'desktop' \| 'mobile'` | `'desktop'` | Picks default `controller` / `hotKey` / `animate` bundle. |
+| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'desktop'` | Picks default `controller` / `hotKey` / `animate` bundle. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → mobile defaults, otherwise desktop. SSR / no `matchMedia` falls back to desktop. |
 | `controller` | `boolean \| ControllerSet` | preset | Per-button toggles: `pagination`, `rotate`, `rotateLeft`, `rotateRight`, `zoom`, `download`, `close`, `flip`, `flipLeft`, `flipRight`. `rotate` and `flip` are umbrellas: enabling either overrides its per-side counterparts (e.g. `rotate: true` shows both rotateLeft+rotateRight regardless of those flags). |
-| `hotKey` | `boolean \| { close?, zoom?, flip? }` | preset | Esc / Space / ←→ toggles. |
+| `hotKey` | `boolean \| { close?, zoom?, flip?, flipLeft?, flipRight? }` | preset | Esc / Space / ←→ toggles. `flip` is the umbrella over `flipLeft` / `flipRight` (mirrors the `controller` pattern): enabling `flip` forces both arrow keys on regardless of the per-side flags. |
 | `animate` | `boolean \| { flip?: 'fade' \| 'crossFade' \| 'swipe' \| 'zoom' }` | preset | Transition style between images. |
 | `hideOnScroll` | `boolean` | `true` | Auto-close on page scroll (desktop only). |
 | `coverVisible` | `boolean` | `false` | Keep the underlying `<img>` visible while the modal is open. |

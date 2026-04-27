@@ -17,8 +17,8 @@ export const defProp = {
   src: '',
   // 图片标题
   alt: '',
-  // 图片描述
-  txt: '',
+  // 图片下方辅助文案 (大图模式渲染为 caption)
+  caption: '',
   // 图片集合
   set: [] as Set[],
   // 图片默认页
@@ -116,7 +116,6 @@ export const defPreset = {
 /**
  * 默认值 (不同平台)
  **/
-let IS_PROP_PRESET_AUTO_DEPRECATED_WARNED = false
 const DEF_PROP_DESKTOP = {
   ...defProp,
   ...defPreset.desktop,
@@ -125,22 +124,27 @@ const DEF_PROP_MOBILE = {
   ...defProp,
   ...defPreset.mobile,
 }
-export const defPropsWithEnv = (preset?: Preset) => {
-  switch (preset) {
-  case 'desktop':
-    return DEF_PROP_DESKTOP
-  case 'mobile':
-    return DEF_PROP_MOBILE
-  case 'auto':
-    // Deprecated
-    if (!IS_PROP_PRESET_AUTO_DEPRECATED_WARNED) {
-      console.warn('Zmage: The value \'auto\' for the props \'preset\' has been deprecated, replace with one of \'Desktop\' or \'Mobile\', the value \'auto\' will be fallback to \'desktop\'')
-      IS_PROP_PRESET_AUTO_DEPRECATED_WARNED = true
-    }
-    return DEF_PROP_DESKTOP
-  default:
-    return DEF_PROP_DESKTOP
+
+/**
+ * 把可能的 'auto' 解析为具体平台。
+ * 判定基于 CSS media query: 同时满足 (pointer: coarse) 与 (hover: none) 视为移动端。
+ * SSR / 无 matchMedia 环境 fallback 到 desktop, 客户端 mount 后会重新求值。
+ *
+ * 不依赖 UA-sniff: tablet+键盘 / 触屏笔记本 用各自当前的指针能力判定,
+ * 比"是不是手机"更贴近"该不该展示 hotkey 与 swipe"的真正语义。
+ */
+export const resolvePreset = (preset?: Preset): 'desktop' | 'mobile' => {
+  if (preset === 'mobile') return 'mobile'
+  if (preset === 'desktop') return 'desktop'
+  if (preset === 'auto') {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 'desktop'
+    return window.matchMedia('(pointer: coarse) and (hover: none)').matches ? 'mobile' : 'desktop'
   }
+  return 'desktop'
+}
+
+export const defPropsWithEnv = (preset?: Preset) => {
+  return resolvePreset(preset) === 'mobile' ? DEF_PROP_MOBILE : DEF_PROP_DESKTOP
 }
 
 /**
@@ -153,7 +157,7 @@ export const getConfigFromProps = (props: BaseType) => {
     // Callee
     coverRef, destructor,
     // Data
-    src, alt, txt, set, defaultPage,
+    src, alt, caption, set, defaultPage,
     // Presets
     preset,
     // Control
@@ -172,8 +176,8 @@ export const getConfigFromProps = (props: BaseType) => {
     coverProps: {
       // Internal
       className, style, onClick, forwardedRef,
-      // Data
-      src, alt, txt,
+      // Data (cover only consumes src/alt; caption is viewer-only)
+      src, alt,
     },
     calleeProps: {
       // Callee
@@ -186,7 +190,7 @@ export const getConfigFromProps = (props: BaseType) => {
     configProps: {
       // Data
       defaultPage,
-      set: (Array.isArray(set) && set.length > 0) ? set : [{ src, alt, txt, ...restProps }],
+      set: (Array.isArray(set) && set.length > 0) ? set : [{ src, alt, caption, ...restProps }],
       // Presets
       preset,
       // Control

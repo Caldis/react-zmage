@@ -1,0 +1,37 @@
+@import "../../config/anim.less";
+
+.caption {
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  bottom: 3rem;
+  z-index: 110;
+  max-width: 60vw;
+  padding: 0.35rem 0.85rem;
+  border-radius: 1rem;
+  opacity: 0;
+  text-align: center;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  word-break: break-word;
+  // 固定的高对比胶囊: 半透明黑底 + 白字
+  // 不随 backdrop 联动 (依赖 backdrop 在 dark mode 下会消失);
+  // 用户可通过 caption: { style: {...} } 或 className 主题化覆盖
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  pointer-events: none;
+  transform: translate(-50%, 100px);
+  transition: transform @animationDuration @animationFunction, opacity @animationDuration @animationFunction;
+
+  &.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  &.mobile {
+    bottom: 4.5rem;
+    max-width: 80vw;
+  }
+}

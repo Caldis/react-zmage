@@ -18,7 +18,7 @@ export default function WrapperMode ({
   const themedBackdrop = useThemedBackdrop()
   // livedemo 用不带 touched 的 buildLibProps; wrapper 再剥单图字段 (它从 <img> 自取 src/alt)
   const runtimeProps = buildLibProps(values)
-  const { src: _src, set: _set, alt: _alt, txt: _txt, defaultPage: _defaultPage, ...stripped } = runtimeProps
+  const { src: _src, set: _set, alt: _alt, caption: _caption, defaultPage: _defaultPage, ...stripped } = runtimeProps
   const wrapperProps: Record<string, any> = { backdrop: themedBackdrop, ...stripped }
   // WYSIWYG: 渲染哪些 <img> 跟随面板的 src / set
   const userHasSet = Array.isArray(values.set) && values.set.length > 0

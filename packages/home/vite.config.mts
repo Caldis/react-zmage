@@ -34,6 +34,11 @@ export default defineConfig({
   server: {
     host: process.env.HOST || '127.0.0.1',
     port: Number(process.env.PORT || 8080),
+    // Reach across the monorepo to read core's tsup output (served as react-zmage).
+    fs: { allow: ['..', '../..'] },
+    // Default chokidar config ignores node_modules; re-include the workspace pkg
+    // so HMR fires when tsup --watch rewrites packages/core/dist on source edits.
+    watch: { ignored: ['!**/packages/core/dist/**'] },
   },
   publicDir: path.resolve(__dirname, 'public'),
   build: {
@@ -49,5 +54,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
     dedupe: ['react', 'react-dom'],
+  },
+  // Skip pre-bundling react-zmage into node_modules/.vite/deps/ — that cache
+  // is the source of staleness when core/dist gets rewritten mid-session.
+  // Vite serves the workspace artifact directly; combined with the watch
+  // override above, dist changes propagate as HMR instead of needing a restart.
+  optimizeDeps: {
+    exclude: ['react-zmage'],
   },
 })

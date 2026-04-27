@@ -1,4 +1,6 @@
 import * as React from 'react'
+import { Link } from 'react-router-dom'
+import { BookOpen } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -11,6 +13,19 @@ import { HotKeyControl } from './controls/HotKeyControl'
 import { AnimateControl } from './controls/AnimateControl'
 import { SetControl } from './controls/SetControl'
 import { CallbackControl } from './controls/CallbackControl'
+
+// Map each ParamGroup to the corresponding docs anchor in
+// packages/home/src/docs/sections/Props.tsx (keep in sync with <Heading id="props-*"> there).
+const GROUP_TO_DOCS_ANCHOR: Record<ParamGroup, string> = {
+  data: '/docs#props-data',
+  preset: '/docs#props-preset',
+  interface: '/docs#props-interface',
+  controller: '/docs#props-controller',
+  hotkey: '/docs#props-hotkey',
+  animate: '/docs#props-animate',
+  lifecycle: '/docs#props-lifecycle',
+  controlled: '/docs#props-controlled',
+}
 
 const GROUP_ORDER: ParamGroup[] = ['data', 'preset', 'interface', 'controller', 'hotkey', 'animate', 'lifecycle', 'controlled']
 const GROUP_LABELS: Record<ParamGroup, I18nKey> = {
@@ -78,6 +93,20 @@ export function ParamPanel ({ values, onChange }: Props) {
                         </TooltipContent>
                       </Tooltip>
                       {def.required && <span aria-label="required" className="text-destructive font-bold text-sm leading-none">*</span>}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Link
+                            to={GROUP_TO_DOCS_ANCHOR[def.group] ?? '/docs'}
+                            aria-label={t('param.viewInDocs')}
+                            className="inline-flex items-center text-muted-foreground/60 hover:text-foreground transition-colors"
+                          >
+                            <BookOpen className="h-3 w-3" />
+                          </Link>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="text-xs">
+                          {t('param.viewInDocs')}
+                        </TooltipContent>
+                      </Tooltip>
                       {def.desktopOnly && (
                         <Tooltip>
                           <TooltipTrigger asChild>
