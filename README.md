@@ -273,14 +273,12 @@ interface HotKey {
 
 ```ts
 interface Animate {
-  browsing?: boolean              // 进入/退出动画 (暂不可配, 仅占位)
+  browsing?: boolean              // 进入/退出动画; false 时背景、图片、控制器、caption 直接切换
   flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom'  // 翻页动画
 }
 ```
 
-> ⚠️ 当 `set.length < 3` 时，`flip` 强制为 `'fade'`（避免单/双图边图为空时的视觉破绽）。
->
-> 默认值：desktop = `'fade'`，mobile = `'swipe'`。
+> 默认值：desktop = `{ browsing: true, flip: 'fade' }`，mobile = `{ browsing: true, flip: 'swipe' }`。
 
 ### 界面交互 Props
 

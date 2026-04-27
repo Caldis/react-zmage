@@ -5,6 +5,9 @@ import path from 'path'
 import fs from 'fs'
 
 const docsDir = path.resolve(__dirname, '../../docs')
+const workspaceRoot = path.resolve(__dirname, '../..')
+const coreSrcEntry = path.resolve(__dirname, '../core/src/index.ts')
+const devZmageStyle = path.resolve(__dirname, 'src/styles/react-zmage-dev.css')
 
 const spaFallback: Plugin = {
   name: 'home-spa-fallback',
@@ -29,37 +32,40 @@ const copyLlmsTxt: Plugin = {
   },
 }
 
-export default defineConfig({
-  plugins: [react(), tailwindcss(), spaFallback, copyLlmsTxt],
-  server: {
-    host: process.env.HOST || '127.0.0.1',
-    port: Number(process.env.PORT || 8080),
-    // Reach across the monorepo to read core's tsup output (served as react-zmage).
-    fs: { allow: ['..', '../..'] },
-    // Default chokidar config ignores node_modules; re-include the workspace pkg
-    // so HMR fires when tsup --watch rewrites packages/core/dist on source edits.
-    watch: { ignored: ['!**/packages/core/dist/**'] },
-  },
-  publicDir: path.resolve(__dirname, 'public'),
-  build: {
-    outDir: docsDir,
-    emptyOutDir: false,
-  },
-  preview: {
-    host: process.env.HOST || '127.0.0.1',
-    port: Number(process.env.PREVIEW_PORT || 4173),
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, 'src'),
+export default defineConfig(({ command }) => {
+  const devCoreAlias = command === 'serve'
+    ? [
+        { find: /^react-zmage$/, replacement: coreSrcEntry },
+        { find: /^react-zmage\/style\.css$/, replacement: devZmageStyle },
+      ]
+    : []
+
+  return {
+    plugins: [react(), tailwindcss(), spaFallback, copyLlmsTxt],
+    server: {
+      host: process.env.HOST || '127.0.0.1',
+      port: Number(process.env.PORT || 8080),
+      // Dev serves packages/core/src directly so Vite owns JS + CSS HMR.
+      fs: { allow: [workspaceRoot] },
     },
-    dedupe: ['react', 'react-dom'],
-  },
-  // Skip pre-bundling react-zmage into node_modules/.vite/deps/ — that cache
-  // is the source of staleness when core/dist gets rewritten mid-session.
-  // Vite serves the workspace artifact directly; combined with the watch
-  // override above, dist changes propagate as HMR instead of needing a restart.
-  optimizeDeps: {
-    exclude: ['react-zmage'],
-  },
+    publicDir: path.resolve(__dirname, 'public'),
+    build: {
+      outDir: docsDir,
+      emptyOutDir: false,
+    },
+    preview: {
+      host: process.env.HOST || '127.0.0.1',
+      port: Number(process.env.PREVIEW_PORT || 4173),
+    },
+    resolve: {
+      alias: [
+        ...devCoreAlias,
+        { find: '@', replacement: path.resolve(__dirname, 'src') },
+      ],
+      dedupe: ['react', 'react-dom'],
+    },
+    optimizeDeps: {
+      exclude: ['react-zmage'],
+    },
+  }
 })

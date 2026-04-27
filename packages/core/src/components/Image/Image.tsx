@@ -66,6 +66,8 @@ export default class Image extends React.Component<PropsType, StateType> {
   imageLoadingTimer: ReturnType<typeof setInterval>
   // 延迟监听器注册的 RAF 句柄 — 卸载时必须 cancel, 否则 StrictMode 双 mount 会泄漏监听
   pendingRafHandles: number[] = []
+  browsingTransitionRaf?: number
+  suppressBrowsingTransition = false
   // State
   readonly state = {
     // 加载状态
@@ -101,18 +103,25 @@ export default class Image extends React.Component<PropsType, StateType> {
   componentDidUpdate (prevProps: BrowsingParams) {
     const { show: prevShow, zoom: prevZoom, rotate: prevRotate, page: prevPage } = prevProps
     const { show: currShow, zoom: currZoom, rotate: currRotate, page: currPage } = this.props
-    const { presetIsMobile } = this.context
+    const { animate, presetIsMobile } = this.context
     // 状态改变时更新样式 (Page 导致的 src 变化的 update 交给图片自身的 onload 调用)
     if (prevShow !== currShow || prevZoom !== currZoom || prevRotate !== currRotate) {
+      const updateStyle = () => {
+        if (prevShow !== currShow && animate?.browsing === false) {
+          this.updateCurrentImageStyleWithoutBrowsingTransition()
+        } else {
+          this.debounceUpdateCurrentImageStyle()
+        }
+      }
       // 显示状态切换
       if (!prevShow) {
         // 显示
-        this.debounceUpdateCurrentImageStyle()
+        updateStyle()
         this.handleDetectImageLoadComplete()
         presetIsMobile && lockTouchInteraction()
       } else {
         // 隐藏
-        this.debounceUpdateCurrentImageStyle()
+        updateStyle()
       }
       // 更新监听状态
       this.updateZoomEventListenerWithState()
@@ -129,6 +138,10 @@ export default class Image extends React.Component<PropsType, StateType> {
     // 取消所有还未触发的 RAF, 防止 unmount 后再注册监听 (StrictMode 双 mount 泄漏的根因)
     this.pendingRafHandles.forEach(handle => window.cancelAnimationFrame(handle))
     this.pendingRafHandles = []
+    if (this.browsingTransitionRaf !== undefined) {
+      window.cancelAnimationFrame(this.browsingTransitionRaf)
+      this.browsingTransitionRaf = undefined
+    }
     // 取消挂起的 debounce, 避免在已卸载组件上 setState
     this.debounceUpdateCurrentImageStyle.cancel()
     if (presetIsMobile) {
@@ -165,6 +178,20 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { touchProfile } = this.state
     const nextStyle = getCurrentImageStyle(this.context, this.imageRef, touchProfile)
     this.setCurrentStyle(nextStyle)
+  }
+  updateCurrentImageStyleWithoutBrowsingTransition = () => {
+    const { touchProfile } = this.state
+    const nextStyle = getCurrentImageStyle(this.context, this.imageRef, touchProfile)
+    this.suppressBrowsingTransition = true
+    this.setCurrentStyle(nextStyle, () => {
+      if (this.browsingTransitionRaf !== undefined) {
+        window.cancelAnimationFrame(this.browsingTransitionRaf)
+      }
+      this.browsingTransitionRaf = window.requestAnimationFrame(() => {
+        this.browsingTransitionRaf = undefined
+        this.suppressBrowsingTransition = false
+      })
+    })
   }
   debounceUpdateCurrentImageStyle = debounce(this.updateCurrentImageStyle, 50)
 
@@ -223,7 +250,12 @@ export default class Image extends React.Component<PropsType, StateType> {
     })
   }
   handleImageLoad = () => {
-    this.debounceUpdateCurrentImageStyle()
+    const { animate, show, zoom } = this.context
+    if (animate?.browsing === false && show && !zoom) {
+      this.updateCurrentImageStyleWithoutBrowsingTransition()
+    } else {
+      this.debounceUpdateCurrentImageStyle()
+    }
   }
   handleImageError = () => {
     this.handleImageLoadEnd({ invalidate: true })
@@ -258,13 +290,14 @@ export default class Image extends React.Component<PropsType, StateType> {
   /**
    * 样式应用
    **/
-  setCurrentStyle = (nextStyle: ImageStyleType) => {
+  setCurrentStyle = (nextStyle: ImageStyleType, callback?: () => void) => {
     const { animate } = this.context
+    const animateParams = (animate || {}) as Animate & { flip?: false }
     const { currentStyle } = this.state
     this.setState({
       currentStyle: nextStyle._behavior === 'merge' ? { ...currentStyle, ...nextStyle } : nextStyle,
-      animateConfig: getAnimateConfig(((animate || {}) as Animate).flip),
-    })
+      animateConfig: getAnimateConfig(animateParams.flip),
+    }, callback)
   }
   setTouchProfile = (nextProfile: TouchProfile) => {
     if (nextProfile) {
@@ -285,8 +318,9 @@ export default class Image extends React.Component<PropsType, StateType> {
     }
   }
   getStyle = (step: number, distance: number, isSideImage: boolean): CSSProperties => {
-    const { set, zoom, page } = this.context
+    const { animate, set, zoom, page } = this.context
     const { invalidate, currentStyle, touchProfile, animateConfig } = this.state
+    const animateParams = (animate || {}) as Animate & { flip?: false }
     let transform, zIndex, pointerEvents
     // 获取动画配置
     // eslint-disable-next-line prefer-const
@@ -314,7 +348,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       cursor: zoom ? 'zoom-out' : 'initial',
       zIndex,
       opacity: invalidate ? 0 : opacity,
-      transition,
+      transition: this.suppressBrowsingTransition || animateParams.flip === false ? 'none' : transition,
       pointerEvents,
       ...set[page].style,
     } as CSSProperties
@@ -373,7 +407,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     // 構建内容
     if (isSideImage) {
       const sideImageShow = show && !zoom
-      return sideImageShow && <img {...commonProps}/>
+      return sideImageShow && <img key={key} {...commonProps}/>
     } else {
       return <img key={key} {...commonProps} {...centerProps}/>
     }

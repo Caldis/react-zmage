@@ -104,8 +104,12 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
 
 /* 获取浏览样式 */
 export const getBrowsingStyle = (context: ContextType, imageRef: RefObject<HTMLImageElement>): ImageStyleType => {
-  const { radius, edge, rotate } = context
-  const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
+  const { coverRef, edge, page, radius, rotate, set } = context
+  const imageNaturalWidth = imageRef.current?.naturalWidth || 0
+  const imageNaturalHeight = imageRef.current?.naturalHeight || 0
+  const coverIsCurrentImage = !!coverRef.current && coverRef.current.getAttribute('src') === set?.[page]?.src
+  const naturalWidth = imageNaturalWidth || (coverIsCurrentImage ? coverRef.current?.naturalWidth : 0) || 0
+  const naturalHeight = imageNaturalHeight || (coverIsCurrentImage ? coverRef.current?.naturalHeight : 0) || 0
   const scale = calcFitScale(naturalWidth, naturalHeight, edge)
   return {
     _type: 'browsing',
@@ -158,8 +162,8 @@ export interface ImageAnimateType {
   opacity: number
 }
 
-export const getAnimateConfig = (type?: AnimateFlip): ImageAnimateType => {
-  let offset = 0, overflow = 0, opacity = 1
+export const getAnimateConfig = (type?: AnimateFlip | false): ImageAnimateType => {
+  let offset = 0, overflow = 0, opacity = 0
   switch (type) {
   case 'fade':
     opacity = 0
@@ -171,6 +175,7 @@ export const getAnimateConfig = (type?: AnimateFlip): ImageAnimateType => {
   case 'swipe':
     // Modal 是 viewport-fixed, swipe 一屏的距离应当等于布局视口宽 (排除滚动条占位)
     offset = getClientWidth() + SWIPE_GAP
+    opacity = 1
     break
   case 'zoom':
     overflow = ZOOM_OVERFLOW

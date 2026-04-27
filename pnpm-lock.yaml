@@ -135,7 +135,7 @@ importers:
         specifier: ^4.6.4
         version: 4.6.4
       postcss:
-        specifier: ^8.5.10
+        specifier: ^8.5.12
         version: 8.5.12
       postcss-less:
         specifier: ^6.0.0
@@ -4209,7 +4209,7 @@ packages:
       react-dom: '*'
 
   react-zmage@file:.pack/react-zmage-1.1.2.tgz:
-    resolution: {integrity: sha512-P9j1k7Kh9nyc4aQvz/EVLkFEULELN9Ypm0MZh+qd6G7qRHJ5/j82Za2O560UTkbtoTvFkzQMGsfPrVAxwdNVBg==, tarball: file:.pack/react-zmage-1.1.2.tgz}
+    resolution: {integrity: sha512-weFIr44X3pqYH1AMfgd0FcFQ+QQVLzkadll+PAY8nfTbydPy84VcqSHRk5x93bAjcfJz8j18N/x3+Av+FGGOiA==, tarball: file:.pack/react-zmage-1.1.2.tgz}
     version: 1.1.2
     peerDependencies:
       react: '>=16.8.0 <20'

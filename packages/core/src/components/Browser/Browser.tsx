@@ -19,7 +19,7 @@ import { disableScroll, enableScroll, getTargetPage, unlockTouchInteraction } fr
 import { defPropsWithEnv, resolvePreset } from '../../types/default'
 import { animationDuration } from '../../config/anim'
 import { hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
-import { FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
+import { Animate, ControllerSet, FunctionalParams, HotKey, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
 
 export interface Props extends PresetParams, FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams {
   // Controlled status
@@ -69,6 +69,23 @@ export default class Browser extends React.Component<Props, State> {
   // 异步动作句柄 — 卸载时必须取消, 否则 StrictMode/快速卸载下会在已卸载组件上 setState 并跳过副作用清理
   initRaf?: number
   unInitTimer?: ReturnType<typeof setTimeout>
+
+  getControllerConfig = (controller: Props['controller'], fallback: ControllerSet): ControllerSet => (
+    controller === false ? {} : { ...fallback, ...(typeof controller === 'object' ? controller : {}) }
+  )
+
+  getHotKeyConfig = (hotKey: Props['hotKey'], fallback: HotKey): HotKey => (
+    hotKey === false ? {} : { ...fallback, ...(typeof hotKey === 'object' ? hotKey : {}) }
+  )
+
+  getAnimateConfig = (animate: Props['animate'], fallback: Animate): Animate => (
+    animate === false ? { browsing: false, flip: false } as unknown as Animate : { ...fallback, ...(typeof animate === 'object' ? animate : {}) }
+  )
+
+  getClosingRotate = () => {
+    const { rotate } = this.state
+    return Math.round(rotate / 360) * 360
+  }
 
   // State
   readonly state = (() => {
@@ -145,9 +162,9 @@ export default class Browser extends React.Component<Props, State> {
       presetIsMobile: resolved === 'mobile',
       presetIsDesktop: resolved === 'desktop',
       // Control
-      controller: { ...defProp.controller, ...(typeof (controller) === 'object' ? controller : {}) },
-      hotKey: { ...defProp.hotKey, ...(typeof (hotKey) === 'object' ? hotKey : {}) },
-      animate: { ...defProp.animate, ...(typeof (animate) === 'object' ? animate : {}) },
+      controller: this.getControllerConfig(controller, defProp.controller),
+      hotKey: this.getHotKeyConfig(hotKey, defProp.hotKey),
+      animate: this.getAnimateConfig(animate, defProp.animate),
     }
   }
 
@@ -196,7 +213,8 @@ export default class Browser extends React.Component<Props, State> {
       hideOnScroll,
       coverVisible,
       presetIsMobile,
-      presetIsDesktop
+      presetIsDesktop,
+      animate,
     } = this.getPropsWithEnv()
     const { show, pageIsCover } = this.state
     if (show || force) {
@@ -227,11 +245,20 @@ export default class Browser extends React.Component<Props, State> {
         finalize()
       } else {
         // 正常关闭路径: 走动画时间, 用句柄管理 timeout
-        this.setState({ show: false, zoom: false, rotate: 0 }, () => {
-          this.unInitTimer = setTimeout(() => {
+        const closingRotate = this.getClosingRotate()
+        const closeDelay = animate.browsing === false
+          ? 0
+          : presetIsDesktop ? animationDuration - 10 : animationDuration * 2 - 10
+        this.setState({ show: false, zoom: false, rotate: closingRotate }, () => {
+          const finishClose = () => {
             this.unInitTimer = undefined
-            this.setState({ mounted: false }, finalize)
-          }, presetIsDesktop ? animationDuration - 10 : animationDuration * 2 - 10)
+            this.setState({ mounted: false, rotate: 0 }, finalize)
+          }
+          if (closeDelay === 0) {
+            finishClose()
+          } else {
+            this.unInitTimer = setTimeout(finishClose, closeDelay)
+          }
         })
       }
     }
@@ -327,11 +354,11 @@ export default class Browser extends React.Component<Props, State> {
     const { onRotating } = this.props
     switch (direction) {
     case 'left':
-      return () => this.setState({ rotate: this.state.rotate - 90 }, () => {
+      return () => this.setState(({ rotate }) => ({ rotate: rotate - 90 }), () => {
         typeof onRotating === 'function' && onRotating(this.state.rotate)
       })
     case 'right':
-      return () => this.setState({ rotate: this.state.rotate + 90 }, () => {
+      return () => this.setState(({ rotate }) => ({ rotate: rotate + 90 }), () => {
         typeof onRotating === 'function' && onRotating(this.state.rotate)
       })
     default:

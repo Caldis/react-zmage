@@ -5,9 +5,9 @@
   "packageManager": "pnpm@9.12.0",
   "scripts": {
     "build": "turbo run build",
-    "dev": "pnpm --filter react-zmage-home run dev",
+    "dev": "node scripts/dev-home.mjs",
     "dev:parallel": "turbo run dev --parallel",
-    "dev:csr": "pnpm --filter react-zmage-home run dev",
+    "dev:csr": "node scripts/dev-home.mjs",
     "dev:ssr-r19": "pnpm --filter react-zmage-demo-ssr run dev:r19",
     "dev:nextjs": "pnpm --filter react-zmage-demo-nextjs run dev",
     "lint": "turbo run lint",

@@ -11,7 +11,7 @@
  * 的盒子三者都用这个参考系.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { getCoverStyle } from '../Image.utils'
+import { getAnimateConfig, getBrowsingStyle, getCoverStyle } from '../Image.utils'
 import type { ContextType } from '../../context'
 
 describe('getCoverStyle 跨 viewport 几何', () => {
@@ -52,6 +52,7 @@ describe('getCoverStyle 跨 viewport 几何', () => {
   function buildCoverImg ({ left, top, width, height }: { left: number, top: number, width: number, height: number }) {
     const img = document.createElement('img')
     Object.defineProperty(img, 'naturalWidth', { value: width, configurable: true })
+    Object.defineProperty(img, 'naturalHeight', { value: height, configurable: true })
     img.getBoundingClientRect = () => ({
       left, top, width, height,
       right: left + width, bottom: top + height,
@@ -128,5 +129,47 @@ describe('getCoverStyle 跨 viewport 几何', () => {
     // 中心 X = 250, 视口中心 = 512 → x = -262
     expect(style.x).toBe(250 - 512)
     expect(style.y).toBe(150 - 384)
+  })
+
+  it('模态 img 尚未读到 natural 尺寸时, 用同 src 封面图尺寸直接计算 browsing fit', () => {
+    setViewport({
+      inner: { w: 1000, h: 800 },
+      client: { w: 1000, h: 800 },
+    })
+
+    const cover = buildCoverImg({ left: 0, top: 0, width: 2000, height: 1000 })
+    cover.setAttribute('src', 'same.jpg')
+    const modalImg = document.createElement('img')
+    Object.defineProperty(modalImg, 'naturalWidth', { value: 0, configurable: true })
+    Object.defineProperty(modalImg, 'naturalHeight', { value: 0, configurable: true })
+
+    const style = getBrowsingStyle({
+      coverRef: { current: cover },
+      edge: 0,
+      page: 0,
+      radius: 0,
+      rotate: 0,
+      set: [{ src: 'same.jpg' }],
+    } as unknown as ContextType, { current: modalImg })
+
+    expect(style.scale).toBeCloseTo(0.502, 5)
+  })
+})
+
+describe('getAnimateConfig 翻页动画参数', () => {
+  it('四种 flip 动画返回可区分的初始态; 未指定时隐藏边图', () => {
+    const originalClientWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { value: 1000, configurable: true })
+
+    try {
+      expect(getAnimateConfig('fade')).toEqual({ offset: 0, overflow: 0, opacity: 0 })
+      expect(getAnimateConfig('crossFade')).toEqual({ offset: 30, overflow: 0, opacity: 0 })
+      expect(getAnimateConfig('swipe')).toEqual({ offset: 1010, overflow: 0, opacity: 1 })
+      expect(getAnimateConfig('zoom')).toEqual({ offset: 0, overflow: 0.08, opacity: 0 })
+      expect(getAnimateConfig(false)).toEqual({ offset: 0, overflow: 0, opacity: 0 })
+      expect(getAnimateConfig()).toEqual({ offset: 0, overflow: 0, opacity: 0 })
+    } finally {
+      if (originalClientWidthDescriptor) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidthDescriptor)
+    }
   })
 })

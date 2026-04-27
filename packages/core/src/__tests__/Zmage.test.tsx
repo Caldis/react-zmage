@@ -210,6 +210,105 @@ describe('Zmage caption 渲染', () => {
   })
 })
 
+describe('Zmage 动画行为', () => {
+  const wait = async (ms: number) => {
+    await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+
+  it('关闭时按最小角度恢复旋转, 不按累计点击次数反转', async () => {
+    render(<Zmage src={SRC} alt="t"/>)
+    fireEvent.click(screen.getByAltText('t'))
+    await wait(50)
+
+    const rotateRight = document.getElementById('zmageControlRotateRight')
+    expect(rotateRight).toBeTruthy()
+    await act(async () => {
+      for (let i = 0; i < 5; i++) {
+        fireEvent.click(rotateRight!)
+      }
+      await new Promise(r => setTimeout(r, 80))
+    })
+
+    expect((document.getElementById('zmageImage') as HTMLImageElement).style.transform).toContain('450deg')
+
+    fireEvent.click(document.getElementById('zmageControlClose')!)
+    await wait(80)
+
+    const closingImage = document.getElementById('zmageImage') as HTMLImageElement
+    expect(closingImage.style.transform).toContain('360deg')
+  })
+
+  it('animate.browsing=false 时打开/关闭不使用过渡, 且关闭立即卸载 portal', async () => {
+    render(<Zmage src={SRC} alt="t" caption="instant" animate={{ browsing: false }}/>)
+    fireEvent.click(screen.getByAltText('t'))
+    await wait(50)
+
+    expect(document.getElementById('zmageImage')?.style.transition).toBe('none')
+    expect(document.getElementById('zmageBackground')?.style.transition).toBe('none')
+    expect(document.getElementById('zmageControl')?.style.transition).toBe('none')
+    expect(document.getElementById('zmageCaption')?.style.transition).toBe('none')
+
+    fireEvent.click(document.getElementById('zmageControlClose')!)
+    await wait(0)
+    expect(document.getElementById('zmage')).toBeNull()
+  })
+
+  it('animate=false 同时禁用打开和翻页图片过渡', async () => {
+    render(
+      <Zmage
+        src="https://example.com/a.jpg"
+        alt="cover"
+        animate={false}
+        set={[
+          { src: 'https://example.com/a.jpg', alt: 'a' },
+          { src: 'https://example.com/b.jpg', alt: 'b' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('cover'))
+    await wait(50)
+
+    fireEvent.click(document.getElementById('zmageControlFlipRight')!)
+    await wait(50)
+
+    const centerImage = document.getElementById('zmageImage') as HTMLImageElement
+    expect(centerImage.src).toContain('b.jpg')
+    expect(centerImage.style.transition).toBe('none')
+  })
+
+  it('flip 动画复用左右边图节点, 让新旧页面可以执行 transition', async () => {
+    render(
+      <Zmage
+        src="https://example.com/01.jpg"
+        alt="cover"
+        preset="desktop"
+        animate={{ flip: 'swipe' }}
+        set={[
+          { src: 'https://example.com/01.jpg', alt: 'p1', caption: 'first' },
+          { src: 'https://example.com/02.jpg', alt: 'p2', caption: 'second' },
+          { src: 'https://example.com/03.jpg', alt: 'p3', caption: 'third' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('cover'))
+    await wait(50)
+
+    const nextSideImage = Array
+      .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg') && img.style.transform.includes('10px'))
+
+    expect(nextSideImage).toBeTruthy()
+
+    fireEvent.click(document.getElementById('zmageControlFlipRight')!)
+    await wait(50)
+
+    const centerImage = document.getElementById('zmageImage') as HTMLImageElement
+    expect(centerImage.src).toContain('02.jpg')
+    expect(centerImage).toBe(nextSideImage)
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
+  })
+})
+
 describe('Zmage hotKey 翻页 (umbrella + 单边)', () => {
   // 工具: 直接向 window 派发 keydown (lib 的监听器挂在 window 上, 用 e.keyCode 判断)
   const dispatchArrow = async (which: 'left' | 'right') => {

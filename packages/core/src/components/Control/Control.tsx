@@ -5,7 +5,7 @@
 
 // Libs
 import classnames from 'classnames'
-import React, { ComponentType, Fragment, useContext } from 'react'
+import React, { ComponentType, CSSProperties, Fragment, useContext } from 'react'
 // Style
 import style from './Control.module.less'
 // Asserts
@@ -34,11 +34,12 @@ function getControllerItem (
   show: boolean,
   zoom: boolean,
   child?: React.JSX.Element,
+  itemStyle?: CSSProperties,
 ) {
   if (typeof item === 'boolean' || typeof item === 'string') {
     // Flag or Color
     return !!item && (
-      <div id={id} className={className} onClick={onClick}>
+      <div id={id} className={className} style={itemStyle} onClick={onClick}>
         {child || <Icon color={typeof item === 'string' ? item : ''}/>}
       </div>
     )
@@ -56,7 +57,7 @@ export default function Control () {
     // Preset
     presetIsMobile,
     // Control
-    controller,
+    controller, animate,
     // Styles & interactive
     backdrop, loop,
     // Status
@@ -71,6 +72,7 @@ export default function Control () {
   } = useContext(Context)
 
   const controllerParams = (controller || {}) as ControllerSet
+  const browsingTransitionStyle = animate?.browsing === false ? { transition: 'none' } : undefined
   const handleMobileZoom = () => {
     const current = Array.isArray(set) ? set[page] : undefined
     if (!current) {
@@ -90,7 +92,7 @@ export default function Control () {
       <div
         id="zmageControl"
         className={classnames(style.controls, { [style.show]: !zoom && show })}
-        style={{ backgroundColor: backdrop }}
+        style={{ backgroundColor: backdrop, ...browsingTransitionStyle }}
       >
 
         {/*旋转*/}
@@ -102,7 +104,9 @@ export default function Control () {
             classnames(style.rotateLeft, { [style.show]: !zoom && show }),
             toggleRotate('left'),
             show,
-            zoom
+            zoom,
+            undefined,
+            browsingTransitionStyle
           )
         }
         {
@@ -113,7 +117,9 @@ export default function Control () {
             classnames(style.rotateRight, { [style.show]: !zoom && show }),
             toggleRotate('right'),
             show,
-            zoom
+            zoom,
+            undefined,
+            browsingTransitionStyle
           )
         }
 
@@ -126,7 +132,9 @@ export default function Control () {
             classnames(style.download, { [style.show]: !zoom && show }),
             () => downloadFromLink(set[page].src),
             show,
-            zoom
+            zoom,
+            undefined,
+            browsingTransitionStyle
           )
         }
 
@@ -139,7 +147,9 @@ export default function Control () {
             classnames(style.zoom, { [style.show]: !zoom && show }),
             presetIsMobile ? handleMobileZoom : toggleZoom,
             show,
-            zoom
+            zoom,
+            undefined,
+            browsingTransitionStyle
           )
         }
 
@@ -152,7 +162,9 @@ export default function Control () {
             classnames(style.close, { [style.show]: !zoom && show }),
             zoom ? toggleZoom : outBrowsing,
             show,
-            zoom
+            zoom,
+            undefined,
+            browsingTransitionStyle
           )
         }
 
@@ -171,7 +183,9 @@ export default function Control () {
               classnames(style.flipLeft, { [style.show]: !zoom && show }),
               toPrevPage,
               show,
-              zoom
+              zoom,
+              undefined,
+              browsingTransitionStyle
             )
           }
           {
@@ -183,7 +197,9 @@ export default function Control () {
               classnames(style.flipRight, { [style.show]: !zoom && show }),
               toNextPage,
               show,
-              zoom
+              zoom,
+              undefined,
+              browsingTransitionStyle
             )
           }
         </Fragment>
@@ -198,7 +214,7 @@ export default function Control () {
             <div
               id="zmageControlPagination"
               className={classnames(style.pages, { [style.show]: !zoom && show, [style.mobile]: presetIsMobile })}
-              style={{ backgroundColor: backdrop }}
+              style={{ backgroundColor: backdrop, ...browsingTransitionStyle }}
             >
               {
                 set.map((_, i) =>

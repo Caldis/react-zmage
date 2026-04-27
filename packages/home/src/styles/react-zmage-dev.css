@@ -1,0 +1,5 @@
+/*
+ * In dev, Vite aliases react-zmage to packages/core/src.
+ * Component-level Less modules inject the runtime styles, so the package
+ * style.css subpath only needs to stay import-compatible.
+ */

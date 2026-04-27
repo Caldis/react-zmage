@@ -34,4 +34,20 @@
     bottom: 4.5rem;
     max-width: 80vw;
   }
+
+  &.switching {
+    animation: captionSwitch @animationDuration @animationFunction;
+  }
+}
+
+@keyframes captionSwitch {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
