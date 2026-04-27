@@ -18,5 +18,10 @@
   },
   "devDependencies": {
     "turbo": "^2.9.6"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "^8.5.10"
+    }
   }
 }
