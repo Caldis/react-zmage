@@ -278,7 +278,7 @@ interface Animate {
 }
 ```
 
-> 默认值：desktop = `{ browsing: true, flip: 'fade' }`，mobile = `{ browsing: true, flip: 'swipe' }`。
+> 默认值：desktop = `{ browsing: true, flip: 'crossFade' }`，mobile = `{ browsing: true, flip: 'swipe' }`。
 
 ### 界面交互 Props
 

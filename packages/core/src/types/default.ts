@@ -88,7 +88,7 @@ export const defPreset = {
     },
     animate: {
       browsing: true,
-      flip: 'fade' as AnimateFlip,
+      flip: 'crossFade' as AnimateFlip,
     },
   },
   // 移动端

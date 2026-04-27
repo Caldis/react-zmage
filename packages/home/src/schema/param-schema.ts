@@ -30,7 +30,7 @@ export const defPreset = {
   desktop: {
     controller: { pagination: true, rotate: true, zoom: true, download: false, close: true, flip: true },
     hotKey: { close: true, zoom: true, flip: true },
-    animate: { browsing: true, flip: 'fade' as const },
+    animate: { browsing: true, flip: 'crossFade' as const },
   },
   mobile: {
     controller: { pagination: true, rotate: false, zoom: false, download: false, close: true, flip: false },
