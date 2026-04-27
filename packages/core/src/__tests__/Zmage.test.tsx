@@ -6,6 +6,7 @@ import { render, fireEvent, screen, act } from '@testing-library/react'
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 import Zmage from '../Zmage'
 import { resolvePreset } from '../types/default'
+import { pageIsCover } from '../components/Browser/Browser.utils'
 
 const SRC = 'https://example.com/test.jpg'
 
@@ -97,6 +98,35 @@ describe('Zmage StrictMode 双 mount/unmount 不应泄漏副作用', () => {
     expect(countListeners('touchstart')).toBe(0)
     expect(countListeners('touchmove')).toBe(0)
     expect(countListeners('touchend')).toBe(0)
+  })
+})
+
+describe('pageIsCover (close 动画方向判定)', () => {
+  // mock 一个能响应 getAttribute('src') 的 coverRef
+  const mkCover = (src: string | null) => ({
+    current: src === null ? null : ({
+      getAttribute: (k: string) => k === 'src' ? src : null,
+    } as unknown as HTMLImageElement),
+  }) as React.RefObject<HTMLImageElement>
+
+  const set = [{ src: '/a.jpg' }, { src: '/b.jpg' }, { src: '/c.jpg' }]
+
+  it('cover 与 set[page].src 匹配 → true (返回 cover 位置)', () => {
+    expect(pageIsCover(mkCover('/b.jpg'), set, 1)).toBe(true)
+  })
+
+  it('cover 与 set[page].src 不匹配 → false (close 走 fly-out)', () => {
+    expect(pageIsCover(mkCover('/b.jpg'), set, 0)).toBe(false)
+    expect(pageIsCover(mkCover('/b.jpg'), set, 2)).toBe(false)
+  })
+
+  it('回归: defaultPage>0 时切到 page 0, 不应被旧 page === 0 短路误判', () => {
+    // hero 场景: 用户点了第二张图 (cover.src=/b.jpg), 在 viewer 里翻回第一张
+    expect(pageIsCover(mkCover('/b.jpg'), set, 0)).toBe(false)
+  })
+
+  it('coverRef 为 null (命令式调用) → false', () => {
+    expect(pageIsCover(mkCover(null), set, 0)).toBe(false)
   })
 })
 
