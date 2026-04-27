@@ -24,24 +24,62 @@ import 'react-zmage/style.css'
 ]} />
 
 // Imperative: open the viewer from any event handler. Returns a destructor.
-const close = Zmage.browsing({ src: '/photo.jpg' })
+// `opts` accepts the same fields as <Zmage> props (see API reference below).
+const close = Zmage.browsing({ src: '/photo.jpg', backdrop: '#111' })
 // later: close()
 
 // Wrapper: auto-attach to every <img> inside an HTML subtree
 <Zmage.Wrapper>
   <article dangerouslySetInnerHTML={{ __html: html }} />
 </Zmage.Wrapper>
+
+// Controlled mode: drive open/close from React state via the `browsing` PROP
+// (not to be confused with the static method Zmage.browsing()). Always pair
+// the prop with onBrowsing so external state stays in sync.
+const [open, setOpen] = useState(false)
+<button onClick={() => setOpen(true)}>Open</button>
+<Zmage src="/photo.jpg" browsing={open} onBrowsing={setOpen} backdrop="#111" />
+
+// SSR / RSC: import from the SSR-safe subpath (no browser globals at module load)
+// import Zmage from 'react-zmage/ssr'
 ```
 
 ## Choosing a usage mode
 
 - **Component**: you control the markup. Highest specificity, recommended default.
-- **Imperative**: open from arbitrary callbacks (e.g., a button onClick handler outside JSX). Always need `typeof window !== 'undefined'` guard if called server-side.
-- **Wrapper**: you don't control the rendered HTML (CMS markup, MDX, dangerouslySetInnerHTML). Wrapper queries `<img>` children at `componentDidMount` / `componentDidUpdate` and binds click handlers.
+- **Imperative**: open from arbitrary callbacks (e.g., a button onClick handler outside JSX). `Zmage.browsing(opts)` returns a destructor — calling it closes the viewer. Guard with `typeof window !== 'undefined'` if it can run server-side.
+- **Wrapper**: you don't control the rendered HTML (CMS markup, MDX, `dangerouslySetInnerHTML`). Wrapper scans its `<img>` descendants on mount and on every re-render, then binds click handlers; new imgs injected without a Wrapper re-render are not picked up.
+
+## API quick reference
+
+`<Zmage>` props (and the same options bag accepts these for `Zmage.browsing(opts)`):
+
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `src` | `string` | — | Required. Same as `<img src>`. |
+| `alt` | `string` | `''` | Same as `<img alt>`. |
+| `set` | `Array<{ src, alt? }>` | `[]` | Multi-image gallery. When non-empty, arrow keys page. |
+| `defaultPage` | `number` | `0` | Initial index when `set` is non-empty. |
+| `backdrop` | `string` (CSS color) | `'#FFFFFF'` | **Default is white** — override (e.g. `'#111'`) for dark UIs or you'll get a white-on-white modal. |
+| `preset` | `'desktop' \| 'mobile'` | `'desktop'` | Picks default `controller` / `hotKey` / `animate` bundle. |
+| `controller` | `boolean \| ControllerSet` | preset | Per-button toggles: `pagination`, `rotate`, `rotateLeft`, `rotateRight`, `zoom`, `download`, `close`, `flip`, `flipLeft`, `flipRight`. |
+| `hotKey` | `boolean \| { close?, zoom?, flip? }` | preset | Esc / Space / ←→ toggles. |
+| `animate` | `boolean \| { flip?: 'fade' \| 'crossFade' \| 'swipe' \| 'zoom' }` | preset | Transition style between images. |
+| `hideOnScroll` | `boolean` | `true` | Auto-close on page scroll (desktop only). |
+| `coverVisible` | `boolean` | `false` | Keep the underlying `<img>` visible while the modal is open. |
+| `zIndex` / `radius` / `edge` | `number` | `1000` / `0` / `0` | Modal stacking, image corner radius, viewport padding. |
+| `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
+| `onBrowsing` | `(isBrowsing: boolean) => void` | — | Fires on open/close. |
+| `onZooming` | `(isZooming: boolean) => void` | — | Fires on zoom in/out. |
+| `onSwitching` | `(page: number) => void` | — | Fires on page change. |
+| `onRotating` | `(deg: number) => void` | — | Fires on rotation. |
+| `browsing` | `boolean` | — | **Controlled-mode prop**, distinct from the static method `Zmage.browsing()`. Pair with `onBrowsing` to drive open state from outside. |
+
+Standard `<img>` HTML attributes (`className`, `style`, `width`, `height`, `loading`, `id`, etc.) pass through to the cover image.
 
 ## Theming
 
-The library is theme-agnostic by design. It accepts a `backdrop` prop (any valid CSS color string, default `#FFFFFF`); icons render with SVG `currentColor`. Pair these with your own theme provider — read your resolved theme value and pass `backdrop` accordingly. Common host-side reset gotchas (Tailwind preflight, normalize.css, Bootstrap) were defended against in lib v1.1.2 — upgrade if `<Zmage>` opens with the modal image rendering smaller than the cover.
+The library is theme-agnostic by design — there's no theme provider, no light/dark switch. Read your resolved theme value at the host level and pass `backdrop` accordingly; icons render with SVG `currentColor`. Common host-side reset gotchas (Tailwind preflight, normalize.css, Bootstrap) were defended against in lib v1.1.2 — upgrade if `<Zmage>` opens with the modal image rendering smaller than the cover.
 
 ## Docs
 
@@ -65,9 +103,10 @@ The library is theme-agnostic by design. It accepts a `backdrop` prop (any valid
 ## Common pitfalls
 
 1. Forgetting `import 'react-zmage/style.css'` — viewer renders unstyled.
-2. Mixing `browsing` (controlled) without `onBrowsing` callback — state desyncs silently.
-3. Wrapper not picking up dynamically-injected imgs — wrapper only re-queries on its own re-render.
-4. Calling `Zmage.browsing()` server-side — guard with `typeof window !== 'undefined'`.
+2. Confusing the static method `Zmage.browsing(opts)` (imperative open, returns a destructor) with the `browsing` prop (controlled-mode boolean). Same name, different things — the prop must always be paired with an `onBrowsing` handler or state desyncs silently.
+3. Wrapper not picking up dynamically-injected imgs — Wrapper only re-scans on its own re-render, not on DOM mutations.
+4. Calling `Zmage.browsing()` in code that may run server-side — guard with `typeof window !== 'undefined'`, or import from `react-zmage/ssr`.
+5. Leaving `backdrop` at the default `#FFFFFF` on a dark-themed page — the modal will render white-on-white. Always set `backdrop` explicitly if your host UI isn't light.
 
 ## Optional
 
