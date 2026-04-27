@@ -17,8 +17,20 @@ const spaFallback: Plugin = {
   },
 }
 
+// Copy repo-root llms.txt to deploy output so it's reachable at zmage.caldis.me/llms.txt
+// (llmstxt.org canonical location). Repo root is the single source of truth — keep it
+// updated there; this plugin keeps the deployed copy in sync.
+const copyLlmsTxt: Plugin = {
+  name: 'copy-llms-txt',
+  closeBundle () {
+    const src = path.resolve(__dirname, '../../llms.txt')
+    const dest = path.join(docsDir, 'llms.txt')
+    if (fs.existsSync(src)) fs.copyFileSync(src, dest)
+  },
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss(), spaFallback],
+  plugins: [react(), tailwindcss(), spaFallback, copyLlmsTxt],
   server: {
     host: process.env.HOST || '127.0.0.1',
     port: Number(process.env.PORT || 8080),

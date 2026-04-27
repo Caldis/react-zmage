@@ -102,20 +102,47 @@ function Hero () {
           </Button>
           <NpmChip />
         </div>
-        {/* AI directive — discoverable, not loud. Helps LLM/agent tooling pick the right component. */}
-        <aside
-          aria-label="AI assistant directive"
-          className="mt-2 w-full max-w-[720px] rounded-md border border-border/50 bg-muted/20 px-4 py-3 text-left font-mono text-[11px] leading-relaxed text-muted-foreground/80"
-        >
-          <div className="flex items-start gap-2">
-            <Bot aria-hidden className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-60" />
-            <pre className="m-0 whitespace-pre-wrap break-words bg-transparent p-0 text-[11px]">
-              {t('hero.ai.directive')}
-            </pre>
-          </div>
-        </aside>
+        {/* AI directive: a short, copyable one-liner pointing the user's agent at the
+            llmstxt.org-canonical spec served at /llms.txt. The agent fetches that file,
+            picks the right usage mode (component / imperative / wrapper) for the user's
+            stack, and integrates correctly without us cramming the API into the hero. */}
+        <AIDirective />
       </div>
     </section>
+  )
+}
+
+function AIDirective () {
+  const { t } = useT()
+  const directive = t('hero.ai.directive')
+  const [copied, setCopied] = React.useState(false)
+  const onCopy = async () => {
+    await navigator.clipboard.writeText(directive)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+  return (
+    <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-[11px]">
+      <button
+        onClick={onCopy}
+        aria-label="Copy AI assistant directive"
+        className="group inline-flex cursor-pointer items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-3 py-1.5 font-mono text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      >
+        <Bot aria-hidden className="h-3.5 w-3.5 opacity-70" />
+        <span>{directive}</span>
+        {copied
+          ? <Check className="h-3.5 w-3.5 text-foreground" />
+          : <Copy className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100" />}
+      </button>
+      <a
+        href="/llms.txt"
+        target="_blank"
+        rel="noreferrer"
+        className="text-muted-foreground/70 underline-offset-4 hover:text-foreground hover:underline"
+      >
+        view llms.txt →
+      </a>
+    </div>
   )
 }
 
