@@ -48,7 +48,8 @@
     "lint:eslint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:style": "stylelint \"src/**/*.{css,less}\"",
     "test": "vitest run",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "postpublish": "node ../../scripts/postpublish-llms-reminder.mjs"
   },
   "dependencies": {
     "classnames": "^2.5.1",
