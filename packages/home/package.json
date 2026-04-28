@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter react-zmage run build && vite dev",
-    "build": "pnpm --filter react-zmage run build && rimraf ../../docs/assets ../../docs/index.html ../../docs/404.html && vite build",
+    "build": "rimraf ../../docs/assets ../../docs/index.html ../../docs/404.html && vite build",
     "preview": "vite preview --outDir ../../docs",
     "clean": "rimraf ../../docs",
     "lint": "eslint \"src/**/*.{ts,tsx}\""
