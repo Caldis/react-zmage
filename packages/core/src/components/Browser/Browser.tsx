@@ -14,7 +14,8 @@ import Caption from '../Caption'
 import Image from '../Image'
 import Background from '../Background'
 // Utils
-import { Context, ContextType } from '../context'
+import { Context } from '../context'
+import type { ContextType, ZoomTrigger } from '../context'
 import { disableScroll, enableScroll, getTargetPage, unlockTouchInteraction } from '../../utils'
 import { defPropsWithEnv, resolvePreset } from '../../types/default'
 import { animationDuration } from '../../config/anim'
@@ -41,6 +42,8 @@ export interface State {
   show: boolean
   // 缩放
   zoom: boolean
+  zoomTrigger?: ZoomTrigger
+  zoomPosition?: Coordinate
   // 旋转
   rotate: number
   // 页数
@@ -69,6 +72,8 @@ export default class Browser extends React.Component<Props, State> {
   // 异步动作句柄 — 卸载时必须取消, 否则 StrictMode/快速卸载下会在已卸载组件上 setState 并跳过副作用清理
   initRaf?: number
   unInitTimer?: ReturnType<typeof setTimeout>
+  listeningMouseMove = false
+  lastPointerPosition?: Coordinate
 
   getControllerConfig = (controller: Props['controller'], fallback: ControllerSet): ControllerSet => (
     controller === false ? {} : { ...fallback, ...(typeof controller === 'object' ? controller : {}) }
@@ -144,6 +149,7 @@ export default class Browser extends React.Component<Props, State> {
       clearTimeout(this.unInitTimer)
       this.unInitTimer = undefined
     }
+    this.stopMouseMoveListener()
     this.unInit({ force: true })
   }
 
@@ -175,6 +181,7 @@ export default class Browser extends React.Component<Props, State> {
     const {
       isBrowsingControlled,
       coverRef,
+      coverPos,
       onBrowsing,
       hideOnScroll,
       coverVisible,
@@ -186,6 +193,7 @@ export default class Browser extends React.Component<Props, State> {
       // Only desktop should handle the keydown & scroll events
       if (presetIsDesktop) {
         window.addEventListener('keydown', this.handleKeyDown)
+        this.startMouseMoveListener()
         // Handle scroll from hide to prevent
         if (hideOnScroll) {
           // Listen to scroll to hide the browser
@@ -195,10 +203,11 @@ export default class Browser extends React.Component<Props, State> {
           disableScroll()
         }
       }
+      this.lastPointerPosition = coverPos || this.lastPointerPosition
       // Delay showing the browser
       this.initRaf = window.requestAnimationFrame(() => {
         this.initRaf = undefined
-        this.setState({ show: true, zoom: false, rotate: 0, }, () => {
+        this.setState({ show: true, zoom: false, rotate: 0, zoomTrigger: undefined, zoomPosition: undefined }, () => {
           presetIsDesktop && pageIsCover && !coverVisible && hideCover(coverRef)
           !isBrowsingControlled && typeof onBrowsing === 'function' && onBrowsing(true)
         })
@@ -222,6 +231,7 @@ export default class Browser extends React.Component<Props, State> {
       // 这部分必须立即执行, 否则卸载或快速重渲染时会留下监听器/滚动锁
       if (presetIsDesktop) {
         window.removeEventListener('keydown', this.handleKeyDown)
+        this.stopMouseMoveListener()
         if (hideOnScroll) {
           window.removeEventListener('scroll', this.handleScroll)
         } else {
@@ -249,7 +259,7 @@ export default class Browser extends React.Component<Props, State> {
         const closeDelay = animate.browsing === false
           ? 0
           : presetIsDesktop ? animationDuration - 10 : animationDuration * 2 - 10
-        this.setState({ show: false, zoom: false, rotate: closingRotate }, () => {
+        this.setState({ show: false, zoom: false, rotate: closingRotate, zoomTrigger: undefined, zoomPosition: undefined }, () => {
           const finishClose = () => {
             this.unInitTimer = undefined
             this.setState({ mounted: false, rotate: 0 }, finalize)
@@ -280,7 +290,7 @@ export default class Browser extends React.Component<Props, State> {
     case 32: // SpaceBar
       // 缩放
       e.preventDefault()
-      hotKey.zoom && this.handleToggleZoom()
+      hotKey.zoom && this.handleToggleZoom('keyboard')
       break
     case 37: // ArrowLeft
       // 上一张
@@ -303,6 +313,23 @@ export default class Browser extends React.Component<Props, State> {
       outBrowsing()
     }
   }
+  handleMouseMove = (e: MouseEvent) => {
+    this.lastPointerPosition = { x: e.clientX, y: e.clientY }
+  }
+  startMouseMoveListener = () => {
+    if (this.listeningMouseMove) {
+      return
+    }
+    window.addEventListener('mousemove', this.handleMouseMove)
+    this.listeningMouseMove = true
+  }
+  stopMouseMoveListener = () => {
+    if (!this.listeningMouseMove) {
+      return
+    }
+    window.removeEventListener('mousemove', this.handleMouseMove)
+    this.listeningMouseMove = false
+  }
 
   /**
    * 翻页控制
@@ -324,6 +351,8 @@ export default class Browser extends React.Component<Props, State> {
             pageIsCover: pageIsCover(coverRef, set, targetPage),
             pageWithStep: pageWithStep + step,
             zoom: false,
+            zoomTrigger: undefined,
+            zoomPosition: undefined,
             rotate: 0,
           }, () => {
             typeof onSwitching === 'function' && onSwitching(targetPage)
@@ -338,10 +367,13 @@ export default class Browser extends React.Component<Props, State> {
   /**
    * 缩放控制
    */
-  handleToggleZoom = () => {
+  handleToggleZoom = (trigger: ZoomTrigger = 'control') => {
     const { onZooming } = this.props
+    const nextZoom = !this.state.zoom
     this.setState({
-      zoom: !this.state.zoom
+      zoom: nextZoom,
+      zoomTrigger: nextZoom ? trigger : undefined,
+      zoomPosition: nextZoom && trigger === 'keyboard' ? this.lastPointerPosition : undefined,
     }, () => {
       typeof onZooming === 'function' && onZooming(this.state.zoom)
     })

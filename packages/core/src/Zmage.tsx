@@ -39,12 +39,20 @@ class ReactZmage extends React.Component<PropsType, StateType> {
 
   // Refs
   coverRef: { current: HTMLImageElement | null } = { current: null }
+  // 打开浏览层时的指针位置
+  browsingPosition?: Coordinate
   // Flags
   isBrowsingControlled = ('browsing' in this.props)
   // State
   readonly state = {
     // 浏览
     browsing: false,
+  }
+
+  componentDidUpdate (prevProps: PropsType) {
+    if (this.isBrowsingControlled && prevProps.browsing && !this.props.browsing) {
+      this.browsingPosition = undefined
+    }
   }
 
   /* 切换查看状态 */
@@ -56,6 +64,7 @@ class ReactZmage extends React.Component<PropsType, StateType> {
     }
   }
   outBrowsing = () => {
+    this.browsingPosition = undefined
     if (this.isBrowsingControlled) {
       this.props.onBrowsing?.(false)
     } else {
@@ -78,6 +87,7 @@ class ReactZmage extends React.Component<PropsType, StateType> {
           style={{ cursor: 'zoom-in', ...coverProps.style }}
           src={coverProps.src} alt={coverProps.alt}
           onClick={(e) => {
+            this.browsingPosition = { x: e.clientX, y: e.clientY }
             this.inBrowsing()
             typeof coverProps.onClick === 'function' && coverProps.onClick(e)
           }}
@@ -101,6 +111,7 @@ class ReactZmage extends React.Component<PropsType, StateType> {
           browsing={this.isBrowsingControlled ? controlledProps.browsing : internalBrowsing}
           // Internal
           coverRef={this.coverRef}
+          coverPos={this.browsingPosition}
           outBrowsing={this.outBrowsing}
           // Config
           {...configProps}

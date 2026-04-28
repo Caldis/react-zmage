@@ -24,7 +24,7 @@ export default function Background ({ show, zoom }: Props) {
     <div
       id="zmageBackground"
       className={style.backgroundLayer}
-      onClick={zoom ? toggleZoom : outBrowsing}
+      onClick={zoom ? () => toggleZoom() : outBrowsing}
       style={{
         opacity: show ? 1 : 0,
         background: backdrop || '',

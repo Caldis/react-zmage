@@ -9,6 +9,7 @@ import { FunctionalNormalizedParams, InterfaceAndInteractionParams, Preset, Set,
 import type { State as BrowsingParams } from './Browser/Browser'
 
 export type { BrowsingParams }
+export type ZoomTrigger = 'control' | 'keyboard'
 
 export interface ContextType extends BrowsingParams, FunctionalNormalizedParams, InterfaceAndInteractionParams {
   // Internal
@@ -25,7 +26,7 @@ export interface ContextType extends BrowsingParams, FunctionalNormalizedParams,
   toPage: (targetPage: number) => void
   toPrevPage: () => void
   toNextPage: () => void
-  toggleZoom: () => void
+  toggleZoom: (trigger?: ZoomTrigger) => void
   toggleRotate: (direction: '' | 'left' | 'right') => () => void
 }
 

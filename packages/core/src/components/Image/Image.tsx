@@ -13,6 +13,7 @@ import Loading from './loading'
 // Utils
 import { Animate } from '../../types/global'
 import { BrowsingParams, Context, ContextType } from '../context'
+import { animationDuration } from '../../config/anim'
 import {
   appendParams,
   checkImageLoadedComplete,
@@ -72,11 +73,13 @@ export default class Image extends React.Component<PropsType, StateType> {
   // 延迟监听器注册的 RAF 句柄 — 卸载时必须 cancel, 否则 StrictMode 双 mount 会泄漏监听
   pendingRafHandles: number[] = []
   browsingTransitionRaf?: number
+  zoomEnterTimer?: ReturnType<typeof setTimeout>
   zoomFollowRaf?: number
   zoomFollowCurrentStyle?: ImageStyleType
   zoomFollowTargetStyle?: ImageStyleType
   motionPhase: MotionPhase = 'idle'
   pendingZoomMousePosition?: Coordinate
+  zoomPointerPosition?: Coordinate
   // State
   readonly state = {
     // 加载状态
@@ -113,16 +116,19 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { show: prevShow, zoom: prevZoom, rotate: prevRotate, page: prevPage } = prevProps
     const { show: currShow, zoom: currZoom, rotate: currRotate, page: currPage } = this.props
     const { animate, presetIsMobile } = this.context
+    const keyboardZoomEnter = !prevZoom && currZoom && this.context.zoomTrigger === 'keyboard'
     if (prevShow !== currShow || prevPage !== currPage || (prevZoom && !currZoom)) {
       this.resetZoomMotionState()
     }
     if (!prevZoom && currZoom) {
-      this.startZoomEnter()
+      keyboardZoomEnter ? this.startKeyboardZoomEnter() : this.startZoomEnter()
     }
     // 状态改变时更新样式 (Page 导致的 src 变化的 update 交给图片自身的 onload 调用)
     if (prevShow !== currShow || prevZoom !== currZoom || prevRotate !== currRotate) {
       const updateStyle = () => {
-        if (prevShow !== currShow && animate?.browsing === false) {
+        if (keyboardZoomEnter) {
+          this.updateCurrentImageStyleForKeyboardZoom()
+        } else if (prevShow !== currShow && animate?.browsing === false) {
           this.updateCurrentImageStyleWithoutBrowsingTransition()
         } else {
           this.debounceUpdateCurrentImageStyle()
@@ -192,10 +198,16 @@ export default class Image extends React.Component<PropsType, StateType> {
    **/
   updateCurrentImageStyle = () => {
     const { touchProfile } = this.state
-    const nextStyle = getCurrentImageStyle(this.context, this.imageRef, touchProfile)
+    const nextStyle = this.context.zoom && this.context.zoomTrigger === 'keyboard'
+      ? this.getZoomingStyleFromKeyboardPosition()
+      : getCurrentImageStyle(this.context, this.imageRef, touchProfile)
     this.setCurrentStyle(nextStyle, () => {
       if (nextStyle._type === 'zooming') {
-        this.consumePendingZoomMousePosition()
+        if (this.motionPhase === 'zoom-enter') {
+          this.scheduleZoomEnterComplete()
+        } else {
+          this.consumePendingZoomMousePosition()
+        }
       }
     })
   }
@@ -214,6 +226,10 @@ export default class Image extends React.Component<PropsType, StateType> {
         }
       })
     })
+  }
+  updateCurrentImageStyleForKeyboardZoom = () => {
+    const nextStyle = this.getZoomingStyleFromKeyboardPosition()
+    this.setCurrentStyle(nextStyle, this.scheduleZoomEnterComplete)
   }
   debounceUpdateCurrentImageStyle = debounce(this.updateCurrentImageStyle, 50)
 
@@ -255,7 +271,8 @@ export default class Image extends React.Component<PropsType, StateType> {
       return
     }
     const mousePosition = { x: e.clientX, y: e.clientY }
-    if (this.state.currentStyle._type !== 'zooming') {
+    this.zoomPointerPosition = mousePosition
+    if (this.motionPhase === 'zoom-enter' || this.state.currentStyle._type !== 'zooming') {
       this.pendingZoomMousePosition = mousePosition
       return
     }
@@ -331,19 +348,40 @@ export default class Image extends React.Component<PropsType, StateType> {
     }, callback)
   }
   startZoomEnter = () => {
+    this.debounceUpdateCurrentImageStyle.cancel()
+    this.cancelZoomEnterTimer()
     this.cancelZoomFollowFrame()
     this.zoomFollowCurrentStyle = undefined
     this.zoomFollowTargetStyle = undefined
     this.pendingZoomMousePosition = undefined
+    this.zoomPointerPosition = undefined
+    this.motionPhase = 'zoom-enter'
+  }
+  startKeyboardZoomEnter = () => {
+    this.debounceUpdateCurrentImageStyle.cancel()
+    this.cancelZoomEnterTimer()
+    this.cancelZoomFollowFrame()
+    this.zoomFollowCurrentStyle = undefined
+    this.zoomFollowTargetStyle = undefined
+    this.pendingZoomMousePosition = undefined
+    this.zoomPointerPosition = this.context.zoomPosition
     this.motionPhase = 'zoom-enter'
   }
   resetZoomMotionState = () => {
+    this.cancelZoomEnterTimer()
     this.cancelZoomFollowFrame()
     this.zoomFollowCurrentStyle = undefined
     this.zoomFollowTargetStyle = undefined
     this.pendingZoomMousePosition = undefined
+    this.zoomPointerPosition = undefined
     if (isZoomMotionPhase(this.motionPhase)) {
       this.motionPhase = 'idle'
+    }
+  }
+  cancelZoomEnterTimer = () => {
+    if (this.zoomEnterTimer !== undefined) {
+      clearTimeout(this.zoomEnterTimer)
+      this.zoomEnterTimer = undefined
     }
   }
   cancelZoomFollowFrame = () => {
@@ -366,6 +404,23 @@ export default class Image extends React.Component<PropsType, StateType> {
   setNodeTransitionNone = (node: HTMLImageElement) => {
     node.style.transition = 'none'
     node.style.setProperty('-webkit-transition', 'none')
+  }
+  getZoomingStyleFromKeyboardPosition = () => {
+    const zoomPosition = this.zoomPointerPosition || this.context.zoomPosition
+    return zoomPosition
+      ? getZoomingStyle(this.context, this.imageRef, { clientX: zoomPosition.x, clientY: zoomPosition.y })
+      : getZoomingStyle(this.context, this.imageRef)
+  }
+  scheduleZoomEnterComplete = () => {
+    this.cancelZoomEnterTimer()
+    this.zoomEnterTimer = setTimeout(() => {
+      this.zoomEnterTimer = undefined
+      if (!this.context.zoom || this.motionPhase !== 'zoom-enter') {
+        return
+      }
+      this.motionPhase = 'zoom-follow'
+      this.consumePendingZoomMousePosition()
+    }, animationDuration)
   }
   getNextZoomFollowStyle = (current: ImageStyleType, target: ImageStyleType) => ({
     ...target,

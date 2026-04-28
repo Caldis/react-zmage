@@ -338,6 +338,69 @@ describe('Zmage 动画行为', () => {
     expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
   })
 
+  it('Space 触发 zoom 时直接放大到当前鼠标位置', async () => {
+    const originalNaturalWidth = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
+    const originalNaturalHeight = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', { configurable: true, get: () => 2000 })
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', { configurable: true, get: () => 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+
+    try {
+      render(<Zmage src={SRC} alt="keyboard-zoom"/>)
+      fireEvent.click(screen.getByAltText('keyboard-zoom'))
+      await wait(50)
+
+      await act(async () => {
+        fireEvent.mouseMove(document.body, { clientX: 900, clientY: 700 })
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', keyCode: 32 } as KeyboardEventInit))
+        await new Promise(r => setTimeout(r, 80))
+      })
+
+      const centerImage = document.getElementById('zmageImage') as HTMLImageElement
+      expect(centerImage.style.transition).toContain('transform 350ms')
+      expect(centerImage.style.transform).toContain('translate3d(-440px, -112.5px, 0px)')
+    } finally {
+      if (originalNaturalWidth) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', originalNaturalWidth)
+      if (originalNaturalHeight) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', originalNaturalHeight)
+      if (originalClientWidth) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      if (originalClientHeight) Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight)
+    }
+  })
+
+  it('控制按钮触发 zoom 时保留中心放大过渡', async () => {
+    const originalNaturalWidth = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
+    const originalNaturalHeight = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', { configurable: true, get: () => 2000 })
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', { configurable: true, get: () => 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+
+    try {
+      render(<Zmage src={SRC} alt="control-zoom"/>)
+      fireEvent.click(screen.getByAltText('control-zoom'))
+      await wait(50)
+
+      fireEvent.click(document.getElementById('zmageControlZoom')!)
+      await wait(80)
+
+      const centerImage = document.getElementById('zmageImage') as HTMLImageElement
+      expect(centerImage.style.transition).toContain('transform 350ms')
+      expect(centerImage.style.transform).toContain('translate3d(0px, 0px, 0px)')
+    } finally {
+      if (originalNaturalWidth) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', originalNaturalWidth)
+      if (originalNaturalHeight) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', originalNaturalHeight)
+      if (originalClientWidth) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      if (originalClientHeight) Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight)
+    }
+  })
+
   it('zoom 鼠标跟随使用 RAF 插值, 不用 CSS transition 追鼠标', async () => {
     const originalNaturalWidth = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
     const originalNaturalHeight = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
@@ -366,8 +429,15 @@ describe('Zmage 动画行为', () => {
 
       const centerImage = document.getElementById('zmageImage') as HTMLImageElement
       const firstTransform = centerImage.style.transform
-      expect(centerImage.style.transition).toBe('none')
+      expect(centerImage.style.transition).toContain('transform 350ms')
       expect(firstTransform).toContain('scale3d(1, 1, 1)')
+
+      await act(async () => {
+        await new Promise(r => setTimeout(r, 320))
+      })
+
+      expect(centerImage.style.transition).toBe('none')
+      expect(centerImage.style.transform).not.toBe(firstTransform)
 
       await act(async () => {
         window.dispatchEvent(new MouseEvent('mousemove', { clientX: 100, clientY: 100 }))
