@@ -44,6 +44,9 @@ const SUB_PARAM_ENTRIES: SubEntry[] = [
   { parent: 'controller', leaf: 'flip',        labelKey: 'controller.flip',        descKey: 'controller.flip.desc' },
   { parent: 'controller', leaf: 'flipLeft',    labelKey: 'controller.flipLeft',    descKey: 'controller.flipLeft.desc' },
   { parent: 'controller', leaf: 'flipRight',   labelKey: 'controller.flipRight',   descKey: 'controller.flipRight.desc' },
+  // Visual override entries — strings the toolbar renders, not button toggles.
+  { parent: 'controller', leaf: 'backdrop',    labelKey: 'controller.backdrop',    descKey: 'controller.backdrop.desc' },
+  { parent: 'controller', leaf: 'color',       labelKey: 'controller.color',       descKey: 'controller.color.desc' },
 
   // HotKey children — link → /docs#props-hotkey. Display the parent as "hotKey"
   // (matching the prop name) while the i18n namespace stays lowercase.
