@@ -13,7 +13,7 @@ import Loading from './loading'
 // Utils
 import { Animate } from '../../types/global'
 import { BrowsingParams, Context, ContextType } from '../context'
-import { animationDuration } from '../../config/anim'
+import { animationDuration, getBrowsingAnimationDuration } from '../../config/anim'
 import {
   appendParams,
   checkImageLoadedComplete,
@@ -25,6 +25,7 @@ import {
   withVendorPrefix,
 } from '../../utils'
 import {
+  closingEase,
   getAnimateConfig,
   getCoverStyle,
   getCurrentImageStyle,
@@ -34,6 +35,7 @@ import {
   ImageAnimateType,
   ImageStyleType,
   isZoomMotionPhase,
+  lerpCoverStyle,
   MotionPhase,
   TOUCH_BEHAVIOR_PHASE,
   TOUCH_BEHAVIOR_TYPE,
@@ -78,6 +80,11 @@ export default class Image extends React.Component<PropsType, StateType> {
   zoomFollowRaf?: number
   zoomFollowCurrentStyle?: ImageStyleType
   zoomFollowTargetStyle?: ImageStyleType
+  // 关闭路径 RAF: 每帧重读 cover 视口位置作为 target, 解决滚动期间 transition target snapshot 导致的滞后
+  closingFollowRaf?: number
+  closingStartTime?: number
+  closingDuration?: number
+  closingFromStyle?: ImageStyleType
   motionPhase: MotionPhase = 'idle'
   pendingZoomMousePosition?: Coordinate
   zoomPointerPosition?: Coordinate
@@ -121,6 +128,10 @@ export default class Image extends React.Component<PropsType, StateType> {
     if (prevShow !== currShow || prevPage !== currPage || (prevZoom && !currZoom)) {
       this.resetZoomMotionState()
     }
+    // 快速重新打开会让 closing RAF 持续覆盖打开动画的 inline transform — 切换到 show=true 时主动取消
+    if (!prevShow && currShow) {
+      this.cancelClosingFollow()
+    }
     if (!prevZoom && currZoom) {
       keyboardZoomEnter ? this.startKeyboardZoomEnter() : this.startZoomEnter()
     }
@@ -131,6 +142,9 @@ export default class Image extends React.Component<PropsType, StateType> {
           this.updateCurrentImageStyleForKeyboardZoom()
         } else if (prevShow !== currShow && animate?.browsing === false) {
           this.updateCurrentImageStyleWithoutBrowsingTransition()
+        } else if (prevShow && !currShow) {
+          // 关闭路径: 启动 RAF 实时追踪 cover 视口位置, 避免 350ms transition 期间 target snapshot 导致的滚动滞后
+          this.startClosingFollow()
         } else {
           this.debounceUpdateCurrentImageStyle()
         }
@@ -164,6 +178,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       window.cancelAnimationFrame(this.browsingTransitionRaf)
       this.browsingTransitionRaf = undefined
     }
+    this.cancelClosingFollow()
     this.resetZoomMotionState()
     // 取消挂起的 debounce, 避免在已卸载组件上 setState
     this.debounceUpdateCurrentImageStyle.cancel()
@@ -245,6 +260,11 @@ export default class Image extends React.Component<PropsType, StateType> {
   handleScroll = () => {
     if (this.imageRef.current) {
       const { show } = this.context
+      // 关闭路径下由 RAF (startClosingFollow) 接管整个位置计算 — 此时 inline top 不能再叠加滚动量,
+      // 否则会与 transform 内的 cover-y 偏移产生双重位移.
+      if (this.motionPhase === 'closing-follow') {
+        return
+      }
       this.imageRef.current.style.top = `calc(50% + ${show ? 0 : this.initialPageOffset - window.pageYOffset}px)`
     }
   }
@@ -497,6 +517,87 @@ export default class Image extends React.Component<PropsType, StateType> {
     }
 
     this.zoomFollowRaf = window.requestAnimationFrame(this.stepZoomFollow)
+  }
+  /**
+   * 关闭路径 RAF 追踪
+   *
+   * 关闭动画期间, 用户可能正在快速滚动页面 — 此时 cover 元素在视口中的位置是动态的.
+   * 走 React state + CSS transition 路径会在动画起始时 snapshot cover 视口坐标,
+   * 整个 350ms transition 朝着 stale 位置内插, 视觉上表现为"慢半拍".
+   *
+   * 这套 RAF 每帧都重新调用 getCoverStyle 拿 cover 当前视口位置作为 target,
+   * 然后从 closingFromStyle 用 cubic-bezier easing 插值到 fresh target,
+   * 直接命令式写 inline transform — 绕过 React render + CSS transition 的延迟,
+   * 让追踪精度落到 1 帧以内.
+   */
+  startClosingFollow = () => {
+    this.cancelClosingFollow()
+    this.debounceUpdateCurrentImageStyle.cancel()
+
+    const node = this.imageRef.current
+    if (!node) {
+      // 没有节点就走原 debounce 路径作为 fallback (理论上 closing 时节点一定存在)
+      this.debounceUpdateCurrentImageStyle()
+      return
+    }
+
+    this.closingStartTime = performance.now()
+    this.closingDuration = getBrowsingAnimationDuration(this.context.presetIsDesktop)
+    this.closingFromStyle = this.state.currentStyle
+    this.motionPhase = 'closing-follow'
+
+    // scroll handler 之前可能在 inline top 上写了滚动差; RAF 接管位置后必须复位,
+    // 否则 transform 内已经包含 cover 视口偏移, 再叠加 inline top 会导致双重位移.
+    node.style.top = '50%'
+    this.setNodeTransitionNone(node)
+
+    this.closingFollowRaf = window.requestAnimationFrame(this.stepClosingFollow)
+  }
+  stepClosingFollow = () => {
+    this.closingFollowRaf = undefined
+    const node = this.imageRef.current
+    const from = this.closingFromStyle
+    const startTime = this.closingStartTime
+    const duration = this.closingDuration
+    if (!node || !from || startTime === undefined || duration === undefined) {
+      this.cancelClosingFollow()
+      return
+    }
+
+    const rawProgress = Math.min(1, (performance.now() - startTime) / duration)
+    const eased = closingEase(rawProgress)
+
+    // 实时读 cover 视口位置 — 这是"零滞后追踪"的关键
+    const target = getCoverStyle(this.context, this.imageRef, this.state.touchProfile)
+    const visual = lerpCoverStyle(from, target, eased)
+
+    this.setNodeTransitionNone(node)
+    this.setNodeTransform(node, this.getCenterImageTransform(visual))
+    node.style.opacity = String(visual.opacity ?? 1)
+
+    if (rawProgress >= 1) {
+      // 落地: 同步 React state, 让后续 render 接管 transform/opacity
+      this.closingFromStyle = undefined
+      this.closingStartTime = undefined
+      this.closingDuration = undefined
+      this.motionPhase = 'idle'
+      this.setCurrentStyle(target)
+      return
+    }
+
+    this.closingFollowRaf = window.requestAnimationFrame(this.stepClosingFollow)
+  }
+  cancelClosingFollow = () => {
+    if (this.closingFollowRaf !== undefined) {
+      window.cancelAnimationFrame(this.closingFollowRaf)
+      this.closingFollowRaf = undefined
+    }
+    this.closingFromStyle = undefined
+    this.closingStartTime = undefined
+    this.closingDuration = undefined
+    if (this.motionPhase === 'closing-follow') {
+      this.motionPhase = 'idle'
+    }
   }
   consumePendingZoomMousePosition = () => {
     const pending = this.pendingZoomMousePosition

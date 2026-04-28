@@ -6,7 +6,7 @@
 import { RefObject } from 'react'
 // Utils
 import { getClientHeight, getClientWidth, numberOfStyleUnits } from '../../utils'
-import { animationDuration, animationFunctionOnZooming, animationTransition } from '../../config/anim'
+import { animationCurve, animationDuration, animationFunctionOnZooming, animationTransition } from '../../config/anim'
 import { ContextType } from '../context'
 import { AnimateFlip } from '../../types/global'
 
@@ -28,6 +28,7 @@ export type MotionPhase =
   | 'browsing-instant'
   | 'zoom-enter'
   | 'zoom-follow'
+  | 'closing-follow'
 
 const zoomTransition = `transform ${animationDuration}ms ${animationFunctionOnZooming}, opacity ${animationDuration}ms ${animationFunctionOnZooming}, clip-path ${animationDuration}ms ${animationFunctionOnZooming}`
 
@@ -94,6 +95,9 @@ export const getImageTransition = ({
       return zoomTransition
     }
     if (motionPhase === 'zoom-follow') {
+      return 'none'
+    }
+    if (motionPhase === 'closing-follow') {
       return 'none'
     }
   }
@@ -179,6 +183,44 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
     }
   }
 }
+
+/* 关闭路径用: 在动画期间逐帧把 from(浏览态)向 to(实时 cover)插值
+ * 关键点是 to 由调用方每帧用 getCoverStyle 重算, 保证滚动期间 target 跟得上 cover 视口位置 */
+export const lerpCoverStyle = (from: ImageStyleType, to: ImageStyleType, t: number): ImageStyleType => {
+  const lerp = (a: number, b: number) => a + (b - a) * t
+  return {
+    _type: 'cover',
+    x: lerp(from.x ?? 0, to.x ?? 0),
+    y: lerp(from.y ?? 0, to.y ?? 0),
+    scale: lerp(from.scale ?? 0, to.scale ?? 0),
+    rotate: lerp(from.rotate ?? 0, to.rotate ?? 0),
+    opacity: lerp(from.opacity ?? 1, to.opacity ?? 1),
+    radius: lerp(from.radius ?? 0, to.radius ?? 0),
+  }
+}
+
+/* cubic-bezier 求解 (Newton-Raphson 迭代). 把 CSS transition-timing-function 还原成 t→y 函数,
+ * 让关闭路径的 RAF 用同一根曲线插值 — visual 上和 CSS transition 完全一致. */
+export const makeCubicBezierEase = (p1x: number, p1y: number, p2x: number, p2y: number) => {
+  const bezier = (t: number, c1: number, c2: number) =>
+    3 * (1 - t) ** 2 * t * c1 + 3 * (1 - t) * t ** 2 * c2 + t ** 3
+  const bezierDeriv = (t: number, c1: number, c2: number) =>
+    3 * (1 - t) ** 2 * c1 + 6 * (1 - t) * t * (c2 - c1) + 3 * t ** 2 * (1 - c2)
+  return (x: number): number => {
+    if (x <= 0) return 0
+    if (x >= 1) return 1
+    let t = x
+    for (let i = 0; i < 8; i++) {
+      const fx = bezier(t, p1x, p2x) - x
+      const dx = bezierDeriv(t, p1x, p2x)
+      if (Math.abs(dx) < 1e-6) break
+      t = Math.max(0, Math.min(1, t - fx / dx))
+    }
+    return bezier(t, p1y, p2y)
+  }
+}
+// 用 anim.ts 的 animationCurve 实例化, 跟 CSS animationFunction 共享单一来源.
+export const closingEase = makeCubicBezierEase(...animationCurve)
 
 /* 获取浏览样式 */
 export const getBrowsingStyle = (context: ContextType, imageRef: RefObject<HTMLImageElement>): ImageStyleType => {

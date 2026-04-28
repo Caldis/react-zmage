@@ -6,7 +6,17 @@
  * Chrome 移动端模拟 + 宿主横向溢出时 clientWidth / innerWidth / fixed 层尺寸分裂。
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { getAnimateConfig, getBrowsingStyle, getCoverStyle, getImageTransition } from '../Image.utils'
+import {
+  closingEase,
+  getAnimateConfig,
+  getBrowsingStyle,
+  getCoverStyle,
+  getImageTransition,
+  ImageStyleType,
+  lerpCoverStyle,
+  makeCubicBezierEase,
+} from '../Image.utils'
+import { animationCurve } from '../../../config/anim'
 import type { ContextType } from '../../context'
 
 describe('getCoverStyle 跨 viewport 几何', () => {
@@ -214,6 +224,14 @@ describe('getImageTransition 动画边界', () => {
     })).toBe('none')
   })
 
+  it('closing-follow 阶段必须返回 none — 让 RAF 接管, 防止 CSS transition 内插覆盖每帧的 setNodeTransform', () => {
+    expect(getImageTransition({
+      role: 'center',
+      motionPhase: 'closing-follow',
+      imageType: 'cover',
+    })).toBe('none')
+  })
+
   it('flip=false 只在非 zoom 图片状态下关闭图片 transition', () => {
     expect(getImageTransition({
       role: 'center',
@@ -228,5 +246,105 @@ describe('getImageTransition 动画边界', () => {
       flip: false,
       imageType: 'zooming',
     })).toBeUndefined()
+  })
+})
+
+/**
+ * 关闭路径 RAF 用到的纯函数
+ *
+ * lerpCoverStyle: 在动画起点 (browsing 状态) 与实时 cover 视口位置之间逐帧插值
+ * closingEase: cubic-bezier(animationCurve) 的 t→y 求解器, 让 RAF 视觉与 CSS transition 同曲线
+ */
+describe('lerpCoverStyle (关闭路径 RAF 插值)', () => {
+  const browsingStyle: ImageStyleType = {
+    _type: 'browsing',
+    x: 0, y: 0, scale: 1, rotate: 0, opacity: 1, radius: 0,
+  }
+  const coverStyle: ImageStyleType = {
+    _type: 'cover',
+    x: 200, y: 100, scale: 0.25, rotate: 360, opacity: 1, radius: 8,
+  }
+
+  it('t=0 → from (动画起点)', () => {
+    const out = lerpCoverStyle(browsingStyle, coverStyle, 0)
+    expect(out._type).toBe('cover')
+    expect(out.x).toBe(0)
+    expect(out.y).toBe(0)
+    expect(out.scale).toBe(1)
+    expect(out.rotate).toBe(0)
+    expect(out.radius).toBe(0)
+  })
+
+  it('t=1 → to (动画终点)', () => {
+    const out = lerpCoverStyle(browsingStyle, coverStyle, 1)
+    expect(out.x).toBe(200)
+    expect(out.y).toBe(100)
+    expect(out.scale).toBe(0.25)
+    expect(out.rotate).toBe(360)
+    expect(out.radius).toBe(8)
+  })
+
+  it('t=0.5 → 中点 (线性插值)', () => {
+    const out = lerpCoverStyle(browsingStyle, coverStyle, 0.5)
+    expect(out.x).toBe(100)
+    expect(out.y).toBe(50)
+    expect(out.scale).toBe(0.625)
+    expect(out.rotate).toBe(180)
+    expect(out.radius).toBe(4)
+  })
+
+  it('undefined 字段按默认值: x/y/scale/rotate=0, opacity=1, radius=0', () => {
+    const sparseFrom: ImageStyleType = { _type: 'browsing', y: 0 }
+    const sparseTo: ImageStyleType = { _type: 'cover', y: 0 }
+    const out = lerpCoverStyle(sparseFrom, sparseTo, 0.5)
+    expect(out.x).toBe(0)
+    expect(out.scale).toBe(0)
+    expect(out.rotate).toBe(0)
+    expect(out.opacity).toBe(1)
+    expect(out.radius).toBe(0)
+  })
+
+  it('始终返回 _type="cover" 让上层走 cover 渲染分支', () => {
+    expect(lerpCoverStyle(browsingStyle, coverStyle, 0.3)._type).toBe('cover')
+    expect(lerpCoverStyle(coverStyle, browsingStyle, 0.7)._type).toBe('cover')
+  })
+})
+
+describe('closingEase (cubic-bezier 求解器)', () => {
+  it('与 anim.ts 的 animationCurve 同步 — 单一来源验证', () => {
+    // 防止 animationCurve 改了但 closingEase 没跟随的回归
+    const ease = makeCubicBezierEase(...animationCurve)
+    expect(closingEase(0.25)).toBeCloseTo(ease(0.25), 6)
+    expect(closingEase(0.75)).toBeCloseTo(ease(0.75), 6)
+  })
+
+  it('边界: t=0 → 0, t=1 → 1', () => {
+    expect(closingEase(0)).toBe(0)
+    expect(closingEase(1)).toBe(1)
+  })
+
+  it('越界 clamp: t<0 → 0, t>1 → 1', () => {
+    expect(closingEase(-0.5)).toBe(0)
+    expect(closingEase(1.5)).toBe(1)
+  })
+
+  it('单调递增 (没有反向)', () => {
+    let prev = closingEase(0)
+    for (let i = 1; i <= 100; i++) {
+      const v = closingEase(i / 100)
+      expect(v).toBeGreaterThanOrEqual(prev)
+      prev = v
+    }
+  })
+
+  it('cubic-bezier(0.6, 0, 0.1, 1) 中段加速特征 — t=0.5 时已超过 0.5 (后段慢出)', () => {
+    expect(closingEase(0.5)).toBeGreaterThan(0.5)
+  })
+
+  it('makeCubicBezierEase 通用性: linear (0,0,1,1) 应该是恒等函数', () => {
+    const linear = makeCubicBezierEase(0, 0, 1, 1)
+    expect(linear(0.25)).toBeCloseTo(0.25, 4)
+    expect(linear(0.5)).toBeCloseTo(0.5, 4)
+    expect(linear(0.75)).toBeCloseTo(0.75, 4)
   })
 })

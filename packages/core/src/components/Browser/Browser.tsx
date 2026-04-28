@@ -18,7 +18,7 @@ import { Context } from '../context'
 import type { ContextType, ZoomTrigger } from '../context'
 import { disableScroll, enableScroll, getTargetPage, unlockTouchInteraction } from '../../utils'
 import { defPropsWithEnv, resolvePreset } from '../../types/default'
-import { animationDuration } from '../../config/anim'
+import { getBrowsingAnimationDuration } from '../../config/anim'
 import { probeStylesheet } from '../../utils/styleProbe'
 import { hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
 import { Animate, ControllerSet, FunctionalParams, HotKey, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
@@ -270,9 +270,10 @@ export default class Browser extends React.Component<Props, State> {
       } else {
         // 正常关闭路径: 走动画时间, 用句柄管理 timeout
         const closingRotate = this.getClosingRotate()
+        // -10ms: 让 React state 在动画快结束时同步, 避免最后一帧的 flicker
         const closeDelay = animate.browsing === false
           ? 0
-          : presetIsDesktop ? animationDuration - 10 : animationDuration * 2 - 10
+          : getBrowsingAnimationDuration(presetIsDesktop) - 10
         this.setState({ show: false, zoom: false, rotate: closingRotate, zoomTrigger: undefined, zoomPosition: undefined }, () => {
           const finishClose = () => {
             this.unInitTimer = undefined

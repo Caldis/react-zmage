@@ -273,10 +273,19 @@ describe('Zmage 动画行为', () => {
     expect((document.getElementById('zmageImage') as HTMLImageElement).style.transform).toContain('450deg')
 
     clickById('zmageControlClose')
+    // closing-follow RAF 用 lerp 从 currentStyle.rotate=450 推进到 closingRotate=360.
+    // wait 80ms 时 RAF 跑了几帧, rotate 应已朝 360 收敛 — 数值落在 [360, 450].
+    // 不能等到 portal 卸载 (340ms 后 mounted=false), 也不依赖具体某帧字符串 (RAF 时序不稳).
     await wait(80)
 
     const closingImage = document.getElementById('zmageImage') as HTMLImageElement
-    expect(closingImage.style.transform).toContain('360deg')
+    const m = closingImage.style.transform.match(/rotate3d\(0,\s*0,\s*1,\s*([-\d.]+)deg\)/)
+    expect(m).not.toBeNull()
+    const rotateValue = Number(m![1])
+    // 关键回归: closingRotate = round(450/360)*360 = 360, 朝 360 走 (90deg 短路径), 不会反向 450 度回 0.
+    // 任何中间帧 rotate ∈ [360, 450]; 修复前 (transition + React state=360) 与修复后 (RAF lerp) 都满足.
+    expect(rotateValue).toBeGreaterThanOrEqual(360)
+    expect(rotateValue).toBeLessThanOrEqual(450)
   })
 
   it('animate.browsing=false 时打开/关闭不使用过渡, 且关闭立即卸载 portal', async () => {
@@ -658,3 +667,177 @@ describe('Zmage 命令式调用', () => {
     expect(document.getElementById('zmagePortal')).toBeNull()
   })
 })
+
+/**
+ * 关闭路径 cover 实时追踪 (RAF) — 核心回归
+ *
+ * 修复前: 关闭瞬间 getCoverStyle 把 cover 视口坐标 snapshot 进 transform,
+ *         350ms transition 内不再重算 → 用户滚动时大图飞向旧位置,"慢半拍".
+ * 修复后: 关闭路径走 RAF, 每帧重新 getBoundingClientRect 拿 cover 当前视口位置,
+ *         直接命令式 setNodeTransform — 滚动时大图 1 帧内追上 cover.
+ */
+describe('关闭路径 cover 实时追踪 (RAF)', () => {
+  const wait = async (ms: number) => {
+    await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+
+  // 解析 transform 字符串里第二段 translate3d 的 y (RAF/render 写出的 cover 偏移)
+  // 形如: `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(...)`
+  const parseTransformY = (transform: string): number | null => {
+    const matches = transform.match(/translate3d\([^)]+\)/g)
+    if (!matches || matches.length < 2) return null
+    const m = matches[1].match(/-?[\d.]+px,\s*(-?[\d.]+)px/)
+    return m ? Number(m[1]) : null
+  }
+
+  // 给 cover img 装一个由外部 closure 控制的可变 BCR — 中途改 box 即可模拟滚动
+  const installMutableCoverBCR = (cover: HTMLImageElement) => {
+    const box = { left: 0, top: 0, width: 100, height: 100 }
+    cover.getBoundingClientRect = () => ({
+      left: box.left,
+      top: box.top,
+      width: box.width,
+      height: box.height,
+      right: box.left + box.width,
+      bottom: box.top + box.height,
+      x: box.left,
+      y: box.top,
+      toJSON: () => ({}),
+    } as DOMRect)
+    return box
+  }
+
+  it('关闭过程中 cover 视口位置变化 → 大图 transform 跟随更新 (修复前会保留旧 snapshot)', async () => {
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1024 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 768 })
+
+    try {
+      render(<Zmage src={SRC} alt="track-cover" preset="desktop"/>)
+      const cover = screen.getByAltText('track-cover') as HTMLImageElement
+      const coverBox = installMutableCoverBCR(cover)
+
+      // 起始 cover 在 viewport 顶部
+      coverBox.top = 100
+
+      fireEvent.click(cover)
+      await wait(60) // init RAF + first updateStyle
+
+      const center = document.getElementById('zmageImage') as HTMLImageElement
+      expect(center).toBeTruthy()
+
+      // 触发关闭 — 走 startClosingFollow 路径
+      clickById('zmageControlClose')
+      await wait(30) // 让 RAF 跑出一两帧的 inline transform
+
+      // closing-follow 期间 transition 必须是 none, 让 RAF 的 setNodeTransform 直接生效
+      expect(center.style.transition).toBe('none')
+      const y1 = parseTransformY(center.style.transform)
+      expect(y1).not.toBeNull()
+
+      // 模拟用户在关闭动画中途滚动了 500px (cover 视口位置随之改变)
+      coverBox.top = 600
+
+      // 再等几帧 — RAF 应该读到新的 BCR 并把 transform 重写到追赶位置
+      await wait(40)
+      const y2 = parseTransformY(center.style.transform)
+      expect(y2).not.toBeNull()
+
+      // 修复前: y2 == y1 完全相同 (target 是 setState 时 snapshot 的, 不会跟 cover 变化).
+      // 修复后: 任何非零差距都证明 RAF 在每帧重读 BCR. 不断言量级 — cubic-bezier(0.6,0,0.1,1)
+      // 起步极慢 (jsdom 下 RAF tick ≤ 几帧时 eased 还在 0.05 以下), 量级波动太大测不稳.
+      // "y2 != y1" 已经能区分 fix vs regression: 修复前两个值会精确相等.
+      expect(y2).not.toBe(y1)
+    } finally {
+      if (originalClientWidth) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      if (originalClientHeight) Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight)
+    }
+  })
+
+  it('动画结束后 inline transition/transform 让位给 React state — RAF 已退场', async () => {
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1024 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 768 })
+
+    try {
+      render(<Zmage src={SRC} alt="raf-handoff" preset="desktop"/>)
+      const cover = screen.getByAltText('raf-handoff') as HTMLImageElement
+      installMutableCoverBCR(cover)
+
+      fireEvent.click(cover)
+      await wait(60)
+
+      clickById('zmageControlClose')
+      // 等比 closeDelay (340ms) 长一些, 确保 RAF 跑完且 React state 同步、portal 卸载
+      await wait(500)
+      // portal 应已卸载, 标志整条关闭链路 (RAF + setTimeout finalize) 都干净退场
+      expect(document.getElementById('zmage')).toBeNull()
+    } finally {
+      if (originalClientWidth) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      if (originalClientHeight) Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight)
+    }
+  })
+
+  it('animate.browsing=false 时不走 RAF — 关闭立即落 transition=none 并卸载', async () => {
+    // 防回归: instant 路径必须保留 (走 updateCurrentImageStyleWithoutBrowsingTransition, 不进入 startClosingFollow)
+    render(<Zmage src={SRC} alt="instant-close" animate={{ browsing: false }}/>)
+    fireEvent.click(screen.getByAltText('instant-close'))
+    await wait(50)
+
+    expect(document.getElementById('zmageImage')?.style.transition).toBe('none')
+
+    clickById('zmageControlClose')
+    await wait(0)
+    // 立即卸载 (closeDelay=0), 不存在 RAF 残留
+    expect(document.getElementById('zmage')).toBeNull()
+  })
+
+  it('快速重新打开 — closing 动画中途切回 open 不会让 portal 卸载 (RAF 被取消)', async () => {
+    // 防回归: 修复前 closing-follow RAF 持续写 inline transform, 与 open 动画的 React render 抢同一个 inline.transform.
+    // 主要保护点是: 重开后 portal 仍存活, 中心图节点存在 — 没有崩溃 / 没被 unmount 链路误清.
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1024 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 768 })
+
+    try {
+      const { rerender } = render(<RzControlled alt="reopen" browsing={false}/>)
+      rerender(<RzControlled alt="reopen" browsing={true}/>)
+      await wait(60)
+      // 关闭 (closing RAF 启动)
+      rerender(<RzControlled alt="reopen" browsing={false}/>)
+      await wait(20)
+      // 关闭动画刚跑了一两帧就立刻重开
+      rerender(<RzControlled alt="reopen" browsing={true}/>)
+      await wait(80)
+
+      // portal + 中心图都还在 — 说明重开链路没被 closing RAF 残余打断
+      expect(document.getElementById('zmage')).toBeTruthy()
+      expect(document.getElementById('zmageImage')).toBeTruthy()
+
+      // 再等一段时间, 期间不应有任何卸载 (closing 那个 setTimeout finalize 应该被新 init 接管掉)
+      await wait(500)
+      expect(document.getElementById('zmage')).toBeTruthy()
+    } finally {
+      if (originalClientWidth) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      if (originalClientHeight) Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight)
+    }
+  })
+})
+
+// 受控组件帮手 — 用于"快速重开"测试, 通过 props.browsing 切换浏览状态而不依赖 click
+function RzControlled (props: { alt: string, browsing: boolean }) {
+  const [_, setLocal] = React.useState(props.browsing)
+  React.useEffect(() => { setLocal(props.browsing) }, [props.browsing])
+  return (
+    <Zmage
+      src={SRC}
+      alt={props.alt}
+      preset="desktop"
+      browsing={props.browsing}
+      onBrowsing={setLocal}
+    />
+  )
+}
