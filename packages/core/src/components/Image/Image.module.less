@@ -19,16 +19,11 @@
   height: auto;
 
   &.zooming {
-    // zoom 态用统一的短过渡 + quick-out 缓动:
-    //   - 350ms (基类默认) 在 mousemove 跟随时会感觉粘滞 (光标领先于图像)
-    //   - 0ms 又会丢失 enter zoom 的缩放感和 mousemove 的"跟随质感"
-    //   - 150ms + cubic-bezier(0, 0.1, 0.1, 1) → 约 80ms 内完成 80% 位移,
-    //     视觉跟手且保留缓动. 此值同时覆盖 enter zoom (cover→centered) 与
-    //     所有 mousemove follow, 不再需要 React 状态分支区分 "首次/后续",
-    //     也避免了 React 19 auto-batching + vsync paint 合并导致的"first
-    //     mousemove 动画被吞" 问题 (参考 commit f4019aa 的失败尝试).
+    // enter zoom (cover→centered) 仍走基类 350ms transform transition + zooming 缓动.
+    // 首次 mousemove 由 Image.tsx 用 WAAPI (element.animate) 接管, 后续 mousemove
+    // 由 Image.tsx 直接 DOM mutation (style.transition='none') 实现零延迟跟随.
+    // 任何在 mousemove 期间使用 CSS transition 的方案都会粘滞 — 即使 150ms 也不行.
     transition-timing-function: @animationFunctionOnZooming;
-    transition-duration: 150ms;
     -ms-transition-duration: @animationDurationOnZooming;
   }
 
