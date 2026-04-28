@@ -32,8 +32,8 @@ export default function Background ({ show, zoom }: Props) {
         transitionDelay: browsingAnimationDisabled
           ? '0s'
           : presetIsDesktop
-          ? show ? '.15s' : '0s'
-          : show ? '0s' : '.35s'
+            ? show ? '.15s' : '0s'
+            : show ? '0s' : '.35s'
       }}
     />
   )
