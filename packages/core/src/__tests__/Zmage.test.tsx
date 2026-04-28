@@ -45,8 +45,12 @@ describe('Zmage StrictMode 双 mount/unmount 不应泄漏副作用', () => {
     originalAddEventListener = window.addEventListener.bind(window)
     originalRemoveEventListener = window.removeEventListener.bind(window)
     window.addEventListener = vi.fn(((type: string, fn: EventListenerOrEventListenerObject) => {
-      if (!listeners.has(type)) listeners.set(type, new Set())
-      listeners.get(type)!.add(fn)
+      let bucket = listeners.get(type)
+      if (!bucket) {
+        bucket = new Set()
+        listeners.set(type, bucket)
+      }
+      bucket.add(fn)
       return originalAddEventListener(type, fn)
     }) as typeof window.addEventListener)
     window.removeEventListener = vi.fn(((type: string, fn: EventListenerOrEventListenerObject) => {

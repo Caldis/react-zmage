@@ -63,7 +63,11 @@ export function ParamPanel ({ values, onChange }: Props) {
   const grouped = React.useMemo(() => {
     const map = new Map<ParamGroup, ParamDef[]>()
     for (const g of GROUP_ORDER) map.set(g, [])
-    for (const def of PARAM_SCHEMA) map.get(def.group)!.push(def)
+    for (const def of PARAM_SCHEMA) {
+      const bucket = map.get(def.group) ?? []
+      if (!map.has(def.group)) map.set(def.group, bucket)
+      bucket.push(def)
+    }
     return map
   }, [])
 
@@ -71,8 +75,8 @@ export function ParamPanel ({ values, onChange }: Props) {
     <TooltipProvider delayDuration={300}>
       <Accordion type="multiple" defaultValue={GROUP_ORDER as string[]} className="w-full">
         {GROUP_ORDER.map(group => {
-          const items = grouped.get(group)!
-          if (items.length === 0) return null
+          const items = grouped.get(group)
+          if (!items || items.length === 0) return null
           return (
             <AccordionItem key={group} value={group} className="border-border/60">
               <AccordionTrigger className="px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
