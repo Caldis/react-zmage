@@ -1,5 +1,13 @@
 @import "../../config/anim.less";
 
+// Stylesheet-loaded sentinel — read by utils/styleProbe.ts to detect
+// "user forgot `import 'react-zmage/style.css'`" in development.
+// Contract locked by __tests__/style-probe-contract.test.ts.
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(:root) {
+  --rz-stylesheet-loaded: 1;
+}
+
 .backgroundLayer {
   position: absolute;
   top: 0;

@@ -19,6 +19,7 @@ import type { ContextType, ZoomTrigger } from '../context'
 import { disableScroll, enableScroll, getTargetPage, unlockTouchInteraction } from '../../utils'
 import { defPropsWithEnv, resolvePreset } from '../../types/default'
 import { animationDuration } from '../../config/anim'
+import { probeStylesheet } from '../../utils/styleProbe'
 import { hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
 import { Animate, ControllerSet, FunctionalParams, HotKey, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
 
@@ -113,6 +114,7 @@ export default class Browser extends React.Component<Props, State> {
   })()
 
   componentDidMount () {
+    probeStylesheet()
     if (this.props.browsing) {
       this.init()
     }
