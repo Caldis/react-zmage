@@ -33,6 +33,10 @@ export const ja: I18nDict = {
   'modes.wrapper.label': 'ラッパー',
   'modes.wrapper.desc': '子要素には触れず、内部のすべての <img> に自動でビューアをひも付けます。',
   'modes.try': '試してみる →',
+  // TODO: translate — currently EN fallback
+  'modes.component.when': 'The default. Reach for this when you control the JSX you render — replace any <img> with <Zmage>; all native props pass through.',
+  'modes.imperative.when': 'No cover <img> required, nothing leaks into your component tree. Open the viewer from event handlers, async callbacks, or third-party widgets — anywhere.',
+  'modes.wrapper.when': "When you don't control the rendered HTML — markdown, CMS rich text, dangerouslySetInnerHTML — wrap the subtree and every <img> inside automatically gains the viewer.",
 
   'footer.project': 'プロジェクト',
   'footer.repo': 'リポジトリ',
@@ -196,8 +200,12 @@ export const ja: I18nDict = {
   'docs.section.modes.title': '3 つの呼び出し方',
   'docs.section.modes.intro': 'react-zmage は同じ設定インターフェースを 3 つの呼び出し形式で提供します:',
   'docs.section.modes.componentTitle': 'コンポーネント',
+  // TODO: translate the *Body keys below — currently EN fallback
+  'docs.section.modes.componentBody': 'The default — use this when you control the JSX you render. Swap any <img> for <Zmage>; every native HTML attribute (className, style, onClick, etc.) passes through to the underlying <img>.',
   'docs.section.modes.imperativeTitle': '命令式',
+  'docs.section.modes.imperativeBody': "Reach for this when you have no good cover <img>, or don't want to mount extra nodes in your component tree. Call from event handlers, async callbacks, or third-party widgets to open the viewer from anywhere. Returns a destructor closure for manual close.",
   'docs.section.modes.wrapperTitle': 'ラッパー',
+  'docs.section.modes.wrapperBody': "Use this when you don't control the rendered HTML — markdown output, CMS rich text, dangerouslySetInnerHTML. Wrap the subtree and every <img> inside automatically gains the viewer, without modifying the source content.",
   'docs.section.modes.wrapperNote': 'ラッパーは componentDidMount / componentDidUpdate のタイミングで子の img を検索します。ラッパーがレンダリングされた後に挿入された画像は、ラッパーが再レンダリングされるまでひも付きません。',
 
   'docs.section.theming.title': 'テーマ統合',

@@ -33,6 +33,10 @@ export const ko: I18nDict = {
   'modes.wrapper.label': '래퍼',
   'modes.wrapper.desc': '자식 요소를 건드리지 않고, 내부의 모든 <img>에 자동으로 뷰어를 연결합니다.',
   'modes.try': '직접 해보기 →',
+  // TODO: translate — currently EN fallback
+  'modes.component.when': 'The default. Reach for this when you control the JSX you render — replace any <img> with <Zmage>; all native props pass through.',
+  'modes.imperative.when': 'No cover <img> required, nothing leaks into your component tree. Open the viewer from event handlers, async callbacks, or third-party widgets — anywhere.',
+  'modes.wrapper.when': "When you don't control the rendered HTML — markdown, CMS rich text, dangerouslySetInnerHTML — wrap the subtree and every <img> inside automatically gains the viewer.",
 
   'footer.project': '프로젝트',
   'footer.repo': '저장소',
@@ -196,8 +200,12 @@ export const ko: I18nDict = {
   'docs.section.modes.title': '세 가지 호출 방식',
   'docs.section.modes.intro': 'react-zmage는 동일한 설정 인터페이스를 세 가지 호출 형태로 제공합니다:',
   'docs.section.modes.componentTitle': '컴포넌트',
+  // TODO: translate the *Body keys below — currently EN fallback
+  'docs.section.modes.componentBody': 'The default — use this when you control the JSX you render. Swap any <img> for <Zmage>; every native HTML attribute (className, style, onClick, etc.) passes through to the underlying <img>.',
   'docs.section.modes.imperativeTitle': '명령형',
+  'docs.section.modes.imperativeBody': "Reach for this when you have no good cover <img>, or don't want to mount extra nodes in your component tree. Call from event handlers, async callbacks, or third-party widgets to open the viewer from anywhere. Returns a destructor closure for manual close.",
   'docs.section.modes.wrapperTitle': '래퍼',
+  'docs.section.modes.wrapperBody': "Use this when you don't control the rendered HTML — markdown output, CMS rich text, dangerouslySetInnerHTML. Wrap the subtree and every <img> inside automatically gains the viewer, without modifying the source content.",
   'docs.section.modes.wrapperNote': '래퍼는 componentDidMount / componentDidUpdate 시점에 자식 img를 탐색합니다. 래퍼가 렌더링된 이후에 주입된 이미지는 래퍼가 다시 렌더될 때까지 연결되지 않습니다.',
 
   'docs.section.theming.title': '테마 통합',

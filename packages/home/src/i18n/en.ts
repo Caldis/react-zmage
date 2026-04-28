@@ -27,12 +27,15 @@ export const en: I18nDict = {
 
   'modes.title': 'Three ways to use it',
   'modes.component.label': 'Component',
-  'modes.component.desc': 'Most common. Swap <img> for <Zmage>.',
+  'modes.component.desc': 'The default. Replace any <img> with <Zmage>.',
   'modes.imperative.label': 'Imperative',
-  'modes.imperative.desc': 'Open the viewer from arbitrary event handlers.',
+  'modes.imperative.desc': 'No cover <img>, no component-tree pollution — open from anywhere.',
   'modes.wrapper.label': 'Wrapper',
-  'modes.wrapper.desc': "Don't touch children — auto-attach the viewer to every <img> within.",
+  'modes.wrapper.desc': 'For markdown / CMS / dangerouslySetInnerHTML you do not control.',
   'modes.try': 'Try it →',
+  'modes.component.when': 'The default. Reach for this when you control the JSX you render — replace any <img> with <Zmage>; all native props pass through.',
+  'modes.imperative.when': 'No cover <img> required, nothing leaks into your component tree. Open the viewer from event handlers, async callbacks, or third-party widgets — anywhere.',
+  'modes.wrapper.when': "When you don't control the rendered HTML — markdown, CMS rich text, dangerouslySetInnerHTML — wrap the subtree and every <img> inside automatically gains the viewer.",
 
   'footer.project': 'Project',
   'footer.repo': 'Repository',
@@ -194,10 +197,13 @@ export const en: I18nDict = {
   'docs.section.installation.ssrBody': 'For server-rendered apps, use the /ssr entry to avoid touching document at import time:',
 
   'docs.section.modes.title': 'Three modes',
-  'docs.section.modes.intro': 'react-zmage exposes the same configuration surface through three call shapes:',
+  'docs.section.modes.intro': 'react-zmage exposes the same configuration surface through three call shapes; which one to pick depends on how much control you have over the rendered HTML:',
   'docs.section.modes.componentTitle': 'Component',
+  'docs.section.modes.componentBody': 'The default — use this when you control the JSX you render. Swap any <img> for <Zmage>; every native HTML attribute (className, style, onClick, etc.) passes through to the underlying <img>.',
   'docs.section.modes.imperativeTitle': 'Imperative',
+  'docs.section.modes.imperativeBody': "Reach for this when you have no good cover <img>, or don't want to mount extra nodes in your component tree. Call from event handlers, async callbacks, or third-party widgets to open the viewer from anywhere. Returns a destructor closure for manual close.",
   'docs.section.modes.wrapperTitle': 'Wrapper',
+  'docs.section.modes.wrapperBody': "Use this when you don't control the rendered HTML — markdown output, CMS rich text, dangerouslySetInnerHTML. Wrap the subtree and every <img> inside automatically gains the viewer, without modifying the source content.",
   'docs.section.modes.wrapperNote': "Wrapper queries img children during componentDidMount / componentDidUpdate. Imgs injected after the wrapper renders won't get bound until the wrapper re-renders.",
 
   'docs.section.theming.title': 'Theming',

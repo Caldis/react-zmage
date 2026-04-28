@@ -9,14 +9,17 @@ export function ThreeModes () {
       <Heading id="modes">{t('docs.section.modes.title')}</Heading>
       <p>{t('docs.section.modes.intro')}</p>
       <h3 className="mt-6 text-lg font-semibold">{t('docs.section.modes.componentTitle')}</h3>
+      <p>{t('docs.section.modes.componentBody')}</p>
       <CodeBlock code={`<Zmage
   src="hero.jpg"
   set={[...]}
 />`} language={'tsx' as any} />
       <h3 className="mt-6 text-lg font-semibold">{t('docs.section.modes.imperativeTitle')}</h3>
+      <p>{t('docs.section.modes.imperativeBody')}</p>
       <CodeBlock code={`Zmage.browsing({ src: 'hero.jpg', set: [...] })
 // returns a destructor: () => void`} language={'tsx' as any} />
       <h3 className="mt-6 text-lg font-semibold">{t('docs.section.modes.wrapperTitle')}</h3>
+      <p>{t('docs.section.modes.wrapperBody')}</p>
       <CodeBlock code={`<Zmage.Wrapper backdrop="#0a0a0a">
   <article dangerouslySetInnerHTML={{ __html: html }} />
 </Zmage.Wrapper>`} language={'tsx' as any} />

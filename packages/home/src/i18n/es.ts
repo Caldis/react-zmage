@@ -33,6 +33,10 @@ export const es: I18nDict = {
   'modes.wrapper.label': 'Wrapper',
   'modes.wrapper.desc': 'Sin tocar los hijos: engancha automáticamente el visor a cada <img> dentro.',
   'modes.try': 'Pruébalo →',
+  // TODO: translate — currently EN fallback
+  'modes.component.when': 'The default. Reach for this when you control the JSX you render — replace any <img> with <Zmage>; all native props pass through.',
+  'modes.imperative.when': 'No cover <img> required, nothing leaks into your component tree. Open the viewer from event handlers, async callbacks, or third-party widgets — anywhere.',
+  'modes.wrapper.when': "When you don't control the rendered HTML — markdown, CMS rich text, dangerouslySetInnerHTML — wrap the subtree and every <img> inside automatically gains the viewer.",
 
   'footer.project': 'Proyecto',
   'footer.repo': 'Repositorio',
@@ -196,8 +200,12 @@ export const es: I18nDict = {
   'docs.section.modes.title': 'Tres modos',
   'docs.section.modes.intro': 'react-zmage expone la misma superficie de configuración a través de tres formas de invocación:',
   'docs.section.modes.componentTitle': 'Componente',
+  // TODO: translate the *Body keys below — currently EN fallback
+  'docs.section.modes.componentBody': 'The default — use this when you control the JSX you render. Swap any <img> for <Zmage>; every native HTML attribute (className, style, onClick, etc.) passes through to the underlying <img>.',
   'docs.section.modes.imperativeTitle': 'Imperativa',
+  'docs.section.modes.imperativeBody': "Reach for this when you have no good cover <img>, or don't want to mount extra nodes in your component tree. Call from event handlers, async callbacks, or third-party widgets to open the viewer from anywhere. Returns a destructor closure for manual close.",
   'docs.section.modes.wrapperTitle': 'Wrapper',
+  'docs.section.modes.wrapperBody': "Use this when you don't control the rendered HTML — markdown output, CMS rich text, dangerouslySetInnerHTML. Wrap the subtree and every <img> inside automatically gains the viewer, without modifying the source content.",
   'docs.section.modes.wrapperNote': 'El wrapper consulta los hijos img durante componentDidMount / componentDidUpdate. Las imágenes inyectadas tras el render del wrapper no se enlazarán hasta que vuelva a renderizarse.',
 
   'docs.section.theming.title': 'Tematización',

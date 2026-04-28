@@ -30,12 +30,16 @@ export const zhCN = {
   // Three modes
   'modes.title': '三种使用方式',
   'modes.component.label': '组件',
-  'modes.component.desc': '最常见,把 <img> 直接换成 <Zmage>。',
+  'modes.component.desc': '常规调用方式,把 <img> 直接换成 <Zmage>。',
   'modes.imperative.label': '命令式',
-  'modes.imperative.desc': '在事件处理器里弹出查看器,适合超出 JSX 范围的场景。',
+  'modes.imperative.desc': '无需封面 <img>,不污染组件树,任意位置呼出。',
   'modes.wrapper.label': '包裹器',
-  'modes.wrapper.desc': '不改动子组件,自动给所有 <img> 加上查看器。',
+  'modes.wrapper.desc': '用于 markdown / 富文本等不可控的 HTML 子树。',
   'modes.try': '试一下 →',
+  // Three modes — extended "when to use" copy for playground subtitle
+  'modes.component.when': '常规调用方式 —— 当你完全控制要渲染的 JSX 时优先选这个。把 <img> 直接换成 <Zmage>,原生属性继续透传。',
+  'modes.imperative.when': '不需要封面 <img>,也不会向组件树里塞节点。从事件处理器、第三方回调、异步流程等任意位置弹出查看器。',
+  'modes.wrapper.when': '当渲染出的 HTML 不在你的控制之内时使用 —— markdown 输出、CMS 富文本、dangerouslySetInnerHTML 等。包住子树,内部所有 <img> 自动获得查看能力。',
 
   // Footer
   'footer.project': '项目',
@@ -209,10 +213,13 @@ export const zhCN = {
   'docs.section.installation.ssrBody': '对于服务端渲染应用,使用 /ssr 入口可避免在 import 阶段触碰 document:',
 
   'docs.section.modes.title': '三种调用方式',
-  'docs.section.modes.intro': 'react-zmage 通过三种调用方式暴露相同的配置接口:',
+  'docs.section.modes.intro': 'react-zmage 通过三种调用方式暴露相同的配置接口,选择哪一种取决于你对页面 HTML 的控制权:',
   'docs.section.modes.componentTitle': '组件',
+  'docs.section.modes.componentBody': '默认调用方式 —— 当你完全控制要渲染的 JSX 时使用。把 <img> 替换为 <Zmage> 即可,所有原生 HTML 属性(className / style / onClick 等)按原样转发到内部 <img>。',
   'docs.section.modes.imperativeTitle': '命令式',
+  'docs.section.modes.imperativeBody': '当你没有合适的封面 <img>,或不希望在组件树里多挂载节点时使用。可以从事件处理器、第三方回调或异步流程中调用,在任意位置弹出查看器。返回值是一个 destructor 闭包,用于手动关闭。',
   'docs.section.modes.wrapperTitle': '包裹器',
+  'docs.section.modes.wrapperBody': '当渲染出的 HTML 不在你的控制之内时使用 —— markdown 输出、CMS 富文本、dangerouslySetInnerHTML 等。把这棵子树整个包起来,内部所有 <img> 自动获得查看能力,无需修改原始内容。',
   'docs.section.modes.wrapperNote': '包裹器会在 componentDidMount / componentDidUpdate 期间查找子节点中的 img。包裹器渲染之后再注入的图片,需等到包裹器重新渲染时才会被绑定。',
 
   'docs.section.theming.title': '主题集成',

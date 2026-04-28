@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { NavLink, Route, Routes } from 'react-router-dom'
+import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { RotateCcw, Share2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useT } from '@/i18n/useT'
@@ -20,6 +20,13 @@ const TABS = [
 
 export default function Playground () {
   const { t } = useT()
+  const location = useLocation()
+  // Active-mode "when to use" key, derived from URL — drives the subtitle below the tab pills.
+  const activeWhenKey = location.pathname.endsWith('/imperative')
+    ? 'modes.imperative.when' as const
+    : location.pathname.endsWith('/wrapper')
+      ? 'modes.wrapper.when' as const
+      : 'modes.component.when' as const
   const [values, setValues] = React.useState<Record<string, any>>(() => {
     const base = getInitialValues()
     if (typeof window !== 'undefined') {
@@ -74,7 +81,7 @@ export default function Playground () {
         </div>
       </div>
 
-      <div className="relative mb-6 inline-flex rounded-lg border border-border bg-muted/30 p-1">
+      <div className="relative mb-3 inline-flex rounded-lg border border-border bg-muted/30 p-1">
         <SlidingPill />
         {TABS.map(tab => (
           <NavLink
@@ -92,6 +99,7 @@ export default function Playground () {
           </NavLink>
         ))}
       </div>
+      <p className="mb-6 max-w-3xl text-sm text-muted-foreground">{t(activeWhenKey)}</p>
 
       <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
         <aside className="rounded-lg border border-border bg-card/30 py-2">
