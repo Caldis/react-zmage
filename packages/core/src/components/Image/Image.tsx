@@ -27,15 +27,20 @@ import {
   getAnimateConfig,
   getCoverStyle,
   getCurrentImageStyle,
+  getImageTransition,
   getZoomingStyle,
   ImageAnimateType,
   ImageStyleType,
+  isZoomMotionPhase,
+  MotionPhase,
   TOUCH_BEHAVIOR_PHASE,
   TOUCH_BEHAVIOR_TYPE,
   TouchProfile,
 } from './Image.utils'
 
 type PropsType = BrowsingParams
+const ZOOM_FOLLOW_EASE = 0.05
+const ZOOM_FOLLOW_THRESHOLD = 0.35
 
 interface StateType {
   // 加载状态
@@ -67,7 +72,11 @@ export default class Image extends React.Component<PropsType, StateType> {
   // 延迟监听器注册的 RAF 句柄 — 卸载时必须 cancel, 否则 StrictMode 双 mount 会泄漏监听
   pendingRafHandles: number[] = []
   browsingTransitionRaf?: number
-  suppressBrowsingTransition = false
+  zoomFollowRaf?: number
+  zoomFollowCurrentStyle?: ImageStyleType
+  zoomFollowTargetStyle?: ImageStyleType
+  motionPhase: MotionPhase = 'idle'
+  pendingZoomMousePosition?: Coordinate
   // State
   readonly state = {
     // 加载状态
@@ -104,6 +113,12 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { show: prevShow, zoom: prevZoom, rotate: prevRotate, page: prevPage } = prevProps
     const { show: currShow, zoom: currZoom, rotate: currRotate, page: currPage } = this.props
     const { animate, presetIsMobile } = this.context
+    if (prevShow !== currShow || prevPage !== currPage || (prevZoom && !currZoom)) {
+      this.resetZoomMotionState()
+    }
+    if (!prevZoom && currZoom) {
+      this.startZoomEnter()
+    }
     // 状态改变时更新样式 (Page 导致的 src 变化的 update 交给图片自身的 onload 调用)
     if (prevShow !== currShow || prevZoom !== currZoom || prevRotate !== currRotate) {
       const updateStyle = () => {
@@ -142,6 +157,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       window.cancelAnimationFrame(this.browsingTransitionRaf)
       this.browsingTransitionRaf = undefined
     }
+    this.resetZoomMotionState()
     // 取消挂起的 debounce, 避免在已卸载组件上 setState
     this.debounceUpdateCurrentImageStyle.cancel()
     if (presetIsMobile) {
@@ -177,19 +193,25 @@ export default class Image extends React.Component<PropsType, StateType> {
   updateCurrentImageStyle = () => {
     const { touchProfile } = this.state
     const nextStyle = getCurrentImageStyle(this.context, this.imageRef, touchProfile)
-    this.setCurrentStyle(nextStyle)
+    this.setCurrentStyle(nextStyle, () => {
+      if (nextStyle._type === 'zooming') {
+        this.consumePendingZoomMousePosition()
+      }
+    })
   }
   updateCurrentImageStyleWithoutBrowsingTransition = () => {
     const { touchProfile } = this.state
     const nextStyle = getCurrentImageStyle(this.context, this.imageRef, touchProfile)
-    this.suppressBrowsingTransition = true
+    this.motionPhase = 'browsing-instant'
     this.setCurrentStyle(nextStyle, () => {
       if (this.browsingTransitionRaf !== undefined) {
         window.cancelAnimationFrame(this.browsingTransitionRaf)
       }
       this.browsingTransitionRaf = window.requestAnimationFrame(() => {
         this.browsingTransitionRaf = undefined
-        this.suppressBrowsingTransition = false
+        if (this.motionPhase === 'browsing-instant') {
+          this.motionPhase = 'idle'
+        }
       })
     })
   }
@@ -228,8 +250,17 @@ export default class Image extends React.Component<PropsType, StateType> {
   }
   // 鼠标事件
   handleMouseMove = (e: MouseEvent) => {
+    const { zoom } = this.context
+    if (!zoom) {
+      return
+    }
+    const mousePosition = { x: e.clientX, y: e.clientY }
+    if (this.state.currentStyle._type !== 'zooming') {
+      this.pendingZoomMousePosition = mousePosition
+      return
+    }
     const zoomingStyle = getZoomingStyle(this.context, this.imageRef, e)
-    this.setCurrentStyle(zoomingStyle)
+    this.startZoomFollow(zoomingStyle)
   }
   // 加载事件
   handleImageLoadStart = () => {
@@ -299,6 +330,108 @@ export default class Image extends React.Component<PropsType, StateType> {
       animateConfig: getAnimateConfig(animateParams.flip),
     }, callback)
   }
+  startZoomEnter = () => {
+    this.cancelZoomFollowFrame()
+    this.zoomFollowCurrentStyle = undefined
+    this.zoomFollowTargetStyle = undefined
+    this.pendingZoomMousePosition = undefined
+    this.motionPhase = 'zoom-enter'
+  }
+  resetZoomMotionState = () => {
+    this.cancelZoomFollowFrame()
+    this.zoomFollowCurrentStyle = undefined
+    this.zoomFollowTargetStyle = undefined
+    this.pendingZoomMousePosition = undefined
+    if (isZoomMotionPhase(this.motionPhase)) {
+      this.motionPhase = 'idle'
+    }
+  }
+  cancelZoomFollowFrame = () => {
+    if (this.zoomFollowRaf !== undefined) {
+      window.cancelAnimationFrame(this.zoomFollowRaf)
+      this.zoomFollowRaf = undefined
+    }
+  }
+  getCenterImageTransform = (imageStyle: ImageStyleType) => {
+    const x = imageStyle.x || 0
+    const y = imageStyle.y || 0
+    const scale = imageStyle.scale || 0
+    const rotate = imageStyle.rotate || 0
+    return `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${scale}, ${scale}, 1) rotate3d(0, 0, 1, ${rotate}deg)`
+  }
+  setNodeTransform = (node: HTMLImageElement, transform: string) => {
+    node.style.transform = transform
+    node.style.setProperty('-webkit-transform', transform)
+  }
+  setNodeTransitionNone = (node: HTMLImageElement) => {
+    node.style.transition = 'none'
+    node.style.setProperty('-webkit-transition', 'none')
+  }
+  getNextZoomFollowStyle = (current: ImageStyleType, target: ImageStyleType) => ({
+    ...target,
+    x: (current.x || 0) + ((target.x || 0) - (current.x || 0)) * ZOOM_FOLLOW_EASE,
+    y: (current.y || 0) + ((target.y || 0) - (current.y || 0)) * ZOOM_FOLLOW_EASE,
+    scale: (current.scale || 0) + ((target.scale || 0) - (current.scale || 0)) * ZOOM_FOLLOW_EASE,
+    rotate: (current.rotate || 0) + ((target.rotate || 0) - (current.rotate || 0)) * ZOOM_FOLLOW_EASE,
+  })
+  zoomFollowHasSettled = (current: ImageStyleType, target: ImageStyleType) => (
+    Math.abs((current.x || 0) - (target.x || 0)) < ZOOM_FOLLOW_THRESHOLD &&
+    Math.abs((current.y || 0) - (target.y || 0)) < ZOOM_FOLLOW_THRESHOLD &&
+    Math.abs((current.scale || 0) - (target.scale || 0)) < 0.001 &&
+    Math.abs((current.rotate || 0) - (target.rotate || 0)) < 0.001
+  )
+  startZoomFollow = (zoomingStyle: ImageStyleType) => {
+    const node = this.imageRef.current
+    this.motionPhase = 'zoom-follow'
+    this.zoomFollowTargetStyle = zoomingStyle
+    this.zoomFollowCurrentStyle = this.zoomFollowCurrentStyle || (
+      this.state.currentStyle._type === 'zooming' ? this.state.currentStyle : zoomingStyle
+    )
+    if (node) {
+      this.setNodeTransitionNone(node)
+    }
+    if (this.zoomFollowRaf === undefined) {
+      this.zoomFollowRaf = window.requestAnimationFrame(this.stepZoomFollow)
+    }
+  }
+  stepZoomFollow = () => {
+    this.zoomFollowRaf = undefined
+    const node = this.imageRef.current
+    const target = this.zoomFollowTargetStyle
+    const current = this.zoomFollowCurrentStyle
+    if (!node || !target || !current || !this.context.zoom) {
+      this.resetZoomMotionState()
+      return
+    }
+
+    const nextStyle = this.getNextZoomFollowStyle(current, target)
+    const settled = this.zoomFollowHasSettled(nextStyle, target)
+    const visibleStyle = settled ? target : nextStyle
+    this.zoomFollowCurrentStyle = visibleStyle
+    this.setNodeTransitionNone(node)
+    this.setNodeTransform(node, this.getCenterImageTransform(visibleStyle))
+
+    if (settled) {
+      this.zoomFollowCurrentStyle = undefined
+      this.zoomFollowTargetStyle = undefined
+      this.setCurrentStyle(target)
+      return
+    }
+
+    this.zoomFollowRaf = window.requestAnimationFrame(this.stepZoomFollow)
+  }
+  consumePendingZoomMousePosition = () => {
+    const pending = this.pendingZoomMousePosition
+    if (!pending || !this.context.zoom || this.state.currentStyle._type !== 'zooming') {
+      return
+    }
+    this.pendingZoomMousePosition = undefined
+    const zoomingStyle = getZoomingStyle(this.context, this.imageRef, {
+      clientX: pending.x,
+      clientY: pending.y,
+    })
+    this.startZoomFollow(zoomingStyle)
+  }
   setTouchProfile = (nextProfile: TouchProfile) => {
     if (nextProfile) {
       this.setState({
@@ -348,7 +481,13 @@ export default class Image extends React.Component<PropsType, StateType> {
       cursor: zoom ? 'zoom-out' : 'initial',
       zIndex,
       opacity: invalidate ? 0 : opacity,
-      transition: this.suppressBrowsingTransition || animateParams.flip === false ? 'none' : transition,
+      transition: getImageTransition({
+        role: isSideImage ? 'side' : 'center',
+        motionPhase: this.motionPhase,
+        touchTransition: transition,
+        flip: animateParams.flip,
+        imageType: currentStyle._type,
+      }),
       pointerEvents,
       ...set[page].style,
     } as CSSProperties

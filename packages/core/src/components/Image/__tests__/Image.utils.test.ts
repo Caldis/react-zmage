@@ -11,7 +11,7 @@
  * 的盒子三者都用这个参考系.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { getAnimateConfig, getBrowsingStyle, getCoverStyle } from '../Image.utils'
+import { getAnimateConfig, getBrowsingStyle, getCoverStyle, getImageTransition } from '../Image.utils'
 import type { ContextType } from '../../context'
 
 describe('getCoverStyle 跨 viewport 几何', () => {
@@ -171,5 +171,39 @@ describe('getAnimateConfig 翻页动画参数', () => {
     } finally {
       if (originalClientWidthDescriptor) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidthDescriptor)
     }
+  })
+})
+
+describe('getImageTransition 动画边界', () => {
+  it('zoom 进入动画不受 flip=false 影响, 鼠标跟随禁用 transition', () => {
+    expect(getImageTransition({
+      role: 'center',
+      motionPhase: 'zoom-enter',
+      flip: false,
+      imageType: 'zooming',
+    })).toContain('transform 350ms')
+
+    expect(getImageTransition({
+      role: 'center',
+      motionPhase: 'zoom-follow',
+      flip: false,
+      imageType: 'zooming',
+    })).toBe('none')
+  })
+
+  it('flip=false 只在非 zoom 图片状态下关闭图片 transition', () => {
+    expect(getImageTransition({
+      role: 'center',
+      motionPhase: 'idle',
+      flip: false,
+      imageType: 'browsing',
+    })).toBe('none')
+
+    expect(getImageTransition({
+      role: 'center',
+      motionPhase: 'idle',
+      flip: false,
+      imageType: 'zooming',
+    })).toBeUndefined()
   })
 })

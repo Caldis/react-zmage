@@ -337,6 +337,53 @@ describe('Zmage 动画行为', () => {
     expect(centerImage).toBe(nextSideImage)
     expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
   })
+
+  it('zoom 鼠标跟随使用 RAF 插值, 不用 CSS transition 追鼠标', async () => {
+    const originalNaturalWidth = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
+    const originalNaturalHeight = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', { configurable: true, get: () => 2000 })
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', { configurable: true, get: () => 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+
+    try {
+      render(<Zmage src={SRC} alt="zoom-target"/>)
+      fireEvent.click(screen.getByAltText('zoom-target'))
+      await wait(50)
+
+      await act(async () => {
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', keyCode: 32 } as KeyboardEventInit))
+        await new Promise(r => setTimeout(r, 80))
+      })
+
+      await act(async () => {
+        window.dispatchEvent(new MouseEvent('mousemove', { clientX: 900, clientY: 700 }))
+        await new Promise(r => setTimeout(r, 20))
+      })
+
+      const centerImage = document.getElementById('zmageImage') as HTMLImageElement
+      const firstTransform = centerImage.style.transform
+      expect(centerImage.style.transition).toBe('none')
+      expect(firstTransform).toContain('scale3d(1, 1, 1)')
+
+      await act(async () => {
+        window.dispatchEvent(new MouseEvent('mousemove', { clientX: 100, clientY: 100 }))
+        window.dispatchEvent(new MouseEvent('mousemove', { clientX: 500, clientY: 400 }))
+        await new Promise(r => setTimeout(r, 20))
+      })
+
+      expect(centerImage.style.transition).toBe('none')
+      expect(centerImage.style.transform).not.toBe(firstTransform)
+    } finally {
+      if (originalNaturalWidth) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', originalNaturalWidth)
+      if (originalNaturalHeight) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', originalNaturalHeight)
+      if (originalClientWidth) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      if (originalClientHeight) Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight)
+    }
+  })
 })
 
 describe('Zmage hotKey 翻页 (umbrella + 单边)', () => {

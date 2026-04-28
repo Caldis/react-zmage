@@ -6,7 +6,7 @@
 import { RefObject } from 'react'
 // Utils
 import { calcFitScale, getClientHeight, getClientWidth, numberOfStyleUnits } from '../../utils'
-import { animationTransition } from '../../config/anim'
+import { animationDuration, animationFunctionOnZooming, animationTransition } from '../../config/anim'
 import { ContextType } from '../context'
 import { AnimateFlip } from '../../types/global'
 
@@ -19,6 +19,54 @@ export interface ImageStyleType {
   scale?: number
   rotate?: number
   radius?: number
+}
+
+export type ImageRole = 'center' | 'side'
+
+export type MotionPhase =
+  | 'idle'
+  | 'browsing-instant'
+  | 'zoom-enter'
+  | 'zoom-follow'
+
+const zoomTransition = `transform ${animationDuration}ms ${animationFunctionOnZooming}, opacity ${animationDuration}ms ${animationFunctionOnZooming}, clip-path ${animationDuration}ms ${animationFunctionOnZooming}`
+
+export const isZoomMotionPhase = (phase: MotionPhase) => (
+  phase === 'zoom-enter' ||
+  phase === 'zoom-follow'
+)
+
+export const getImageTransition = ({
+  role,
+  motionPhase,
+  touchTransition,
+  flip,
+  imageType,
+}: {
+  role: ImageRole
+  motionPhase: MotionPhase
+  touchTransition?: string
+  flip?: AnimateFlip | false
+  imageType: ImageStyleType['_type']
+}) => {
+  if (touchTransition === 'none') {
+    return 'none'
+  }
+  if (motionPhase === 'browsing-instant') {
+    return 'none'
+  }
+  if (role === 'center') {
+    if (motionPhase === 'zoom-enter') {
+      return zoomTransition
+    }
+    if (motionPhase === 'zoom-follow') {
+      return 'none'
+    }
+  }
+  if (flip === false && imageType !== 'zooming') {
+    return 'none'
+  }
+  return touchTransition
 }
 
 /* 获取当前图片样式 */
