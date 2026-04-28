@@ -132,6 +132,8 @@ export const zhCN = {
   'controller.flip': '翻页',
   'controller.flipLeft': '上一张',
   'controller.flipRight': '下一张',
+  'controller.backdrop': 'backdrop',
+  'controller.color': 'color',
   'controller.pagination.desc': '顶部页码指示器,展示当前位置 / 总页数',
   'controller.rotate.desc': '旋转控制组(包含左旋与右旋按钮)',
   'controller.rotateLeft.desc': '逆时针旋转 90°',
@@ -142,6 +144,8 @@ export const zhCN = {
   'controller.flip.desc': '翻页控制组(包含上 / 下一张按钮)',
   'controller.flipLeft.desc': '切换到上一张图片',
   'controller.flipRight.desc': '切换到下一张图片',
+  'controller.backdrop.desc': '工具栏背景色。未传时沿用顶层 backdrop。当顶层 backdrop 为深色实色时建议设为半透明值 (例如 `rgba(0,0,0,0.4)`)。',
+  'controller.color.desc': '工具栏图标默认色。未传时使用 currentColor。单按钮字符串覆盖 (例如 `controller.zoom = "#ff8800"`) 仍优先生效。',
   'controller.overriddenBy': '由组合开关启用',
   'snippet.overriddenByProp': '由 {umbrella} 属性覆盖',
 
@@ -235,6 +239,8 @@ export const zhCN = {
   'docs.section.theming.imperativeBody': '在事件处理器中读取当前 DOM 状态(例如 document.documentElement 上的主题 class),换算成 backdrop 后再调用 Zmage.browsing:',
   'docs.section.theming.iconsTitle': '与设计系统的图标颜色对齐',
   'docs.section.theming.iconsBody': '控制器图标在 #zmage 容器内,可以用任意 CSS 选择器覆盖颜色。如果你用 CSS 变量做主题(Tailwind shadcn 等),直接绑定到设计令牌即可:',
+  'docs.section.theming.toolbarTitle': '将工具栏与蒙版背景解耦',
+  'docs.section.theming.toolbarBody': '默认情况下工具栏容器底色等于顶层 backdrop,图标用 currentColor 渲染。当 backdrop 是深色实色时,深色图标融在深色容器上,几乎不可辨。传 controller.backdrop (容器底色) 和 controller.color (图标色) 即可解耦。单按钮字符串覆盖 (例如 controller.zoom = "#ff8800") 仍优先于 controller.color。',
 
   // 搜索结果下方的简短描述
   'docs.search.desc.installation': '通过包管理器安装并引入样式表',
@@ -251,7 +257,7 @@ export const zhCN = {
   'docs.search.desc.propsControlled': '受控的浏览状态',
   'docs.search.desc.examples': '单图与多图画廊示例',
   'docs.search.desc.typescript': 'BaseType / Set / ControllerSet 等类型声明',
-  'docs.search.desc.migration': '从 v2 升级的注意事项',
+  'docs.search.desc.migration': '从 0.x 升级的注意事项',
   'docs.search.desc.faq': '常见集成问题与版本相关的修复说明',
 
   'docs.section.props.title': 'API 参数',
@@ -283,7 +289,7 @@ export const zhCN = {
   'docs.section.typescript.refIntro': '组件接受 ref,会转发到封面 img:',
 
   'docs.section.migration.title': '迁移指南',
-  'docs.section.migration.fromV2': '从 v2 升级:',
+  'docs.section.migration.from': '从 0.x 升级:',
   'docs.section.migration.bullet1': '组件是 forwardRef exotic;请勿使用 new Zmage()。',
   'docs.section.migration.bullet2': '如果你引用的是 SSR 入口,请改为 react-zmage/ssr。',
 
@@ -299,6 +305,10 @@ export const zhCN = {
   'docs.section.faq.vite-esm.a': '1.1.2 之前用 require(\'react-dom/client\') 做运行时探测,而浏览器 ESM 没有 require 全局。1.1.2 已改为静态 import,升级到 >=1.1.2 即可。',
   'docs.section.faq.wrapper-dynamic.q': '我在挂载之后注入的 img 没有被包裹器绑定点击事件?',
   'docs.section.faq.wrapper-dynamic.a': '包裹器只在 componentDidMount / componentDidUpdate 时查找子节点 img。如果你绕过 React 渲染树注入 DOM(例如 dangerouslySetInnerHTML 在父级未重渲染时改动),要么强制让包裹器重渲染,要么从你自己的点击处理器中调用 Zmage.browsing()。',
+  'docs.section.faq.lazy-src.q': '我的 <img> 用 data-src / 懒加载, src 是占位图 — 打开 Zmage 看到的也是占位图, 怎么办?',
+  'docs.section.faq.lazy-src.a': 'Zmage 默认从 <img> 的 src 读图, 占位图就是它能看到的全部。把要预览的真实 URL 通过 set 显式传入即可: <Zmage src={placeholderUrl} set={[{ src: realUrl }]} />。命令式调用同理: Zmage.browsing({ src: realUrl })。',
+  'docs.section.faq.cover-vs-set.q': '想在页面上放缩略图, 点开时显示高清大图 — 不传 set 行吗?',
+  'docs.section.faq.cover-vs-set.a': '不行。不传 set 时, cover 的 src 就是预览图; 要"小图入口 + 大图查看"必须显式分离: <Zmage src={thumbUrl} set={[{ src: hdUrl }]} />。这套模式同时解决 data-src 懒加载 (上一条 FAQ) 和 CDN 多尺寸场景。如果你想要的是"图墙/网格 + 点击进入查看模式" (gallery UI), Zmage 不直接提供 — 把图墙自己渲染好, 点击时调用 Zmage.browsing({ src, set }) 即可。',
   'docs.section.faq.controlled-mismatch.q': '我的受控 browsing 属性和查看器实际状态总是对不上?',
   'docs.section.faq.controlled-mismatch.a': '受控模式必须同时提供 browsing 和 onBrowsing。只传 browsing 时内部状态只会同步一次,之后就会漂移 —— 始终成对使用即可。',
   'docs.section.faq.ssr.q': '在 Next.js / Remix / SSR 框架中怎么用 react-zmage?',

@@ -63,7 +63,7 @@ const [open, setOpen] = useState(false)
 | `defaultPage` | `number` | `0` | Initial index when `set` is non-empty. |
 | `backdrop` | `string` (CSS color) | `'#FFFFFF'` | **Default is white** — override (e.g. `'#111'`) for dark UIs or you'll get a white-on-white modal. |
 | `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'desktop'` | Picks default `controller` / `hotKey` / `animate` bundle. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → mobile defaults, otherwise desktop. SSR / no `matchMedia` falls back to desktop. |
-| `controller` | `boolean \| ControllerSet` | preset | Per-button toggles: `pagination`, `rotate`, `rotateLeft`, `rotateRight`, `zoom`, `download`, `close`, `flip`, `flipLeft`, `flipRight`. `rotate` and `flip` are umbrellas: enabling either overrides its per-side counterparts (e.g. `rotate: true` shows both rotateLeft+rotateRight regardless of those flags). |
+| `controller` | `boolean \| ControllerSet` | preset | Per-button toggles: `pagination`, `rotate`, `rotateLeft`, `rotateRight`, `zoom`, `download`, `close`, `flip`, `flipLeft`, `flipRight`. `rotate` and `flip` are umbrellas: enabling either overrides its per-side counterparts (e.g. `rotate: true` shows both rotateLeft+rotateRight regardless of those flags). Visual keys: `backdrop` (toolbar bg, falls back to top-level `backdrop`) and `color` (icon color, falls back to `currentColor`). Pair them on dark `backdrop` to keep the toolbar legible — e.g. `backdrop="#111"` + `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}`. Per-button string overrides (e.g. `controller.zoom: '#ff8800'`) still win over `controller.color`. |
 | `hotKey` | `boolean \| { close?, zoom?, flip?, flipLeft?, flipRight? }` | preset | Esc / Space / ←→ toggles. `flip` is the umbrella over `flipLeft` / `flipRight` (mirrors the `controller` pattern): enabling `flip` forces both arrow keys on regardless of the per-side flags. |
 | `animate` | `boolean \| { browsing?: boolean; flip?: 'fade' \| 'crossFade' \| 'swipe' \| 'zoom' \| 'none' }` | preset | Viewer open/close and page-flip transitions. `animate=false` disables animations; `animate.browsing=false` makes background, image, controls, and caption open/close without transition. `animate.flip='none'` skips adjacent-page rendering — page change is an instant swap with no transition (caption text also updates instantly). |
 | `hideOnScroll` | `boolean` | `true` | Auto-close on page scroll (desktop only). |
@@ -80,7 +80,7 @@ Standard `<img>` HTML attributes (`className`, `style`, `width`, `height`, `load
 
 ## Theming
 
-The library is theme-agnostic by design — there's no theme provider, no light/dark switch. Read your resolved theme value at the host level and pass `backdrop` accordingly; icons render with SVG `currentColor`. Common host-side reset gotchas (Tailwind preflight, normalize.css, Bootstrap) were defended against in lib v1.1.2 — upgrade if `<Zmage>` opens with the modal image rendering smaller than the cover.
+The library is theme-agnostic by design — there's no theme provider, no light/dark switch. Read your resolved theme value at the host level and pass `backdrop` accordingly; icons default to SVG `currentColor` (override globally with `controller.color`, or per-button by passing a color string to `controller.zoom` etc.). The toolbar background tracks `backdrop` by default — set `controller.backdrop` to a translucent value (e.g. `'rgba(0,0,0,0.4)'`) when the modal `backdrop` is solid dark, or icons disappear into the toolbar. Common host-side reset gotchas (Tailwind preflight, normalize.css, Bootstrap) were defended against in lib v1.1.2 — upgrade if `<Zmage>` opens with the modal image rendering smaller than the cover.
 
 ## Docs
 
@@ -108,6 +108,7 @@ The library is theme-agnostic by design — there's no theme provider, no light/
 3. Wrapper not picking up dynamically-injected imgs — Wrapper only re-scans on its own re-render, not on DOM mutations.
 4. Calling `Zmage.browsing()` in code that may run server-side — guard with `typeof window !== 'undefined'`, or import from `react-zmage/ssr`.
 5. Leaving `backdrop` at the default `#FFFFFF` on a dark-themed page — the modal will render white-on-white. Always set `backdrop` explicitly if your host UI isn't light.
+6. Setting `backdrop` to a solid dark color (e.g. `'#000'`) without also setting `controller.color`/`controller.backdrop` — toolbar icons default to `currentColor` (often near-black) and the toolbar bg follows `backdrop` unless overridden, so icons disappear into the bar. Pair: `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}`.
 
 ## Optional
 

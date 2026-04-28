@@ -46,6 +46,17 @@ Zmage.browsing({ src: 'hero.jpg', backdrop: themedBackdrop })`} language={'tsx' 
 #zmage svg {
   color: hsl(var(--foreground));   /* match your design system */
 }`} language={'css' as any} />
+
+      <Heading id="theming-toolbar" level={3}>{t('docs.section.theming.toolbarTitle')}</Heading>
+      <p>{t('docs.section.theming.toolbarBody')}</p>
+      <CodeBlock code={`<Zmage
+  src="hero.jpg"
+  backdrop="#0a0a0a"
+  controller={{
+    backdrop: 'rgba(0,0,0,0.4)',  // toolbar capsule, decoupled from modal backdrop
+    color: '#ffffff',             // icon color (per-button string overrides still win)
+  }}
+/>`} language={'tsx' as any} />
     </section>
   )
 }

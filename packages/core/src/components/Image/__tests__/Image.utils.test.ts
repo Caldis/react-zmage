@@ -1,14 +1,9 @@
 /**
- * 锁定 cover/zoom 几何计算用 documentElement.clientWidth/Height (布局视口),
- * 而不是 body.scrollWidth (内容宽) 或 window.innerWidth (含滚动条占位).
+ * 锁定 cover/zoom 几何计算用 Zmage overlay 的实际盒子尺寸。
  *
- * 历史 bug 双重:
- *   1. body.scrollWidth: full-bleed 大图把 body 撑出横向滚动条时, scrollWidth >> 视口宽,
- *      点击放大动画从屏幕左下方"飘出"而不是从原图位置长出.
- *   2. window.innerWidth: 普通竖向滚动页面 (有右侧滚动条占位) 时, innerWidth 比布局视口
- *      宽 ~15-17px, 计算的中心位置整体向左偏一个滚动条宽.
- * 正确选择是 clientWidth/Height — getBoundingClientRect / event.clientX / position:fixed
- * 的盒子三者都用这个参考系.
+ * 没有 overlay ref 时回退到 documentElement.clientWidth/Height, 保持旧测试环境和
+ * 普通页面行为稳定。真实浏览器里优先读 overlay.getBoundingClientRect(), 避免
+ * Chrome 移动端模拟 + 宿主横向溢出时 clientWidth / innerWidth / fixed 层尺寸分裂。
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { getAnimateConfig, getBrowsingStyle, getCoverStyle, getImageTransition } from '../Image.utils'
@@ -62,10 +57,22 @@ describe('getCoverStyle 跨 viewport 几何', () => {
     return img
   }
 
-  function buildContext (cover: HTMLImageElement, pageIsCover = true) {
+  function buildViewport ({ left = 0, top = 0, width, height }: { left?: number, top?: number, width: number, height: number }) {
+    const viewport = document.createElement('div')
+    viewport.getBoundingClientRect = () => ({
+      left, top, width, height,
+      right: left + width, bottom: top + height,
+      x: left, y: top,
+      toJSON: () => ({}),
+    } as DOMRect)
+    return viewport
+  }
+
+  function buildContext (cover: HTMLImageElement, pageIsCover = true, viewport?: HTMLElement) {
     return {
       coverRef: { current: cover },
       coverPos: undefined,
+      viewportRef: { current: viewport || null },
       rotate: 0,
       pageIsCover,
     } as unknown as ContextType
@@ -82,6 +89,22 @@ describe('getCoverStyle 跨 viewport 几何', () => {
     const cover = buildCoverImg({ left: 400, top: 350, width: 200, height: 100 })
     const style = getCoverStyle(buildContext(cover))
 
+    expect(style.x).toBe(0)
+    expect(style.y).toBe(0)
+  })
+
+  it('移动端模拟 + 宿主横向溢出: 几何跟随 overlay 实际盒子, 不跟 clientWidth 分裂', () => {
+    setViewport({
+      inner: { w: 481, h: 1043 },
+      client: { w: 430, h: 932 },
+      scroll: { w: 481 },
+    })
+
+    const viewport = buildViewport({ width: 481, height: 1043 })
+    const cover = buildCoverImg({ left: 190.5, top: 471.5, width: 100, height: 100 })
+    const style = getCoverStyle(buildContext(cover, true, viewport))
+
+    // 若仍用 clientWidth/clientHeight, x/y 会分别偏 25.5 / 55.5。
     expect(style.x).toBe(0)
     expect(style.y).toBe(0)
   })

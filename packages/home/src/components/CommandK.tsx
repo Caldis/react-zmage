@@ -4,6 +4,7 @@ import { Search } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { SIDEBAR_GROUPS } from '@/docs/Sidebar'
+import { FAQ_ITEMS } from '@/docs/sections/FAQ'
 import { PARAM_SCHEMA } from '@/schema/param-schema'
 import { useT } from '@/i18n/useT'
 import { Button } from '@/components/ui/button'
@@ -125,6 +126,19 @@ function buildIndex (t: (k: I18nKey) => string): Item[] {
       desc,
       href: `/docs#props-${sub.parent}`,
       group: propsLabel,
+    })
+  }
+  // Per-FAQ entries — surfaced so queries like "data-src" or "缩略图" hit the specific
+  // FAQ rather than only the top-level FAQ anchor. Q is the label (high-weight match);
+  // A is the desc (low-weight) so any keyword in the answer still scores.
+  const faqLabel = t('docs.sidebar.faq')
+  for (const slug of FAQ_ITEMS) {
+    out.push({
+      id: `faq-${slug}`,
+      label: t(`docs.section.faq.${slug}.q` as I18nKey),
+      desc: t(`docs.section.faq.${slug}.a` as I18nKey),
+      href: `/docs#faq-${slug}`,
+      group: faqLabel,
     })
   }
   return out

@@ -33,10 +33,9 @@ export const ko: I18nDict = {
   'modes.wrapper.label': '래퍼',
   'modes.wrapper.desc': '자식 요소를 건드리지 않고, 내부의 모든 <img>에 자동으로 뷰어를 연결합니다.',
   'modes.try': '직접 해보기 →',
-  // TODO: translate — currently EN fallback
-  'modes.component.when': 'The default. Reach for this when you control the JSX you render — replace any <img> with <Zmage>; all native props pass through.',
-  'modes.imperative.when': 'No cover <img> required, nothing leaks into your component tree. Open the viewer from event handlers, async callbacks, or third-party widgets — anywhere.',
-  'modes.wrapper.when': "When you don't control the rendered HTML — markdown, CMS rich text, dangerouslySetInnerHTML — wrap the subtree and every <img> inside automatically gains the viewer.",
+  'modes.component.when': '기본 방식. 렌더링하는 JSX를 직접 제어할 때 사용합니다 — <img>를 <Zmage>로 교체하기만 하면 모든 네이티브 prop이 그대로 전달됩니다.',
+  'modes.imperative.when': '커버 <img>가 필요 없으며, 컴포넌트 트리에 어떠한 노드도 추가되지 않습니다. 이벤트 핸들러, 비동기 콜백, 서드파티 위젯 등 어디에서든 뷰어를 열 수 있습니다.',
+  'modes.wrapper.when': '렌더링되는 HTML을 직접 제어할 수 없을 때 — markdown, CMS 리치 텍스트, dangerouslySetInnerHTML — 하위 트리를 감싸기만 하면 내부의 모든 <img>에 자동으로 뷰어가 연결됩니다.',
 
   'footer.project': '프로젝트',
   'footer.repo': '저장소',
@@ -121,6 +120,8 @@ export const ko: I18nDict = {
   'controller.flip': '페이지 이동',
   'controller.flipLeft': '이전',
   'controller.flipRight': '다음',
+  'controller.backdrop': 'backdrop',
+  'controller.color': 'color',
   'controller.pagination.desc': '상단의 페이지 표시기 — 현재 위치 / 전체 페이지 수',
   'controller.rotate.desc': '회전 컨트롤 그룹(왼쪽 / 오른쪽 회전 버튼 포함)',
   'controller.rotateLeft.desc': '반시계 방향으로 90° 회전',
@@ -131,6 +132,8 @@ export const ko: I18nDict = {
   'controller.flip.desc': '페이지 이동 컨트롤 그룹(이전 / 다음 버튼 포함)',
   'controller.flipLeft.desc': '이전 이미지로 이동',
   'controller.flipRight.desc': '다음 이미지로 이동',
+  'controller.backdrop.desc': '툴바 배경색. 미지정 시 최상위 backdrop을 따릅니다. 최상위 backdrop이 어두운 단색일 때 반투명 값 (예: `rgba(0,0,0,0.4)`)을 권장합니다.',
+  'controller.color.desc': '툴바 아이콘 색상. 미지정 시 currentColor를 따릅니다. 개별 버튼 문자열 지정 (예: `controller.zoom = "#ff8800"`)이 우선합니다.',
   'controller.overriddenBy': '상위 스위치에 의해 활성화',
   'snippet.overriddenByProp': '{umbrella}에 의해 재정의됨',
 
@@ -200,12 +203,11 @@ export const ko: I18nDict = {
   'docs.section.modes.title': '세 가지 호출 방식',
   'docs.section.modes.intro': 'react-zmage는 동일한 설정 인터페이스를 세 가지 호출 형태로 제공합니다:',
   'docs.section.modes.componentTitle': '컴포넌트',
-  // TODO: translate the *Body keys below — currently EN fallback
-  'docs.section.modes.componentBody': 'The default — use this when you control the JSX you render. Swap any <img> for <Zmage>; every native HTML attribute (className, style, onClick, etc.) passes through to the underlying <img>.',
+  'docs.section.modes.componentBody': '기본 방식 — 렌더링하는 JSX를 직접 제어할 때 사용합니다. <img>를 <Zmage>로 바꾸기만 하면, 모든 네이티브 HTML 속성(className, style, onClick 등)이 내부의 <img>로 그대로 전달됩니다.',
   'docs.section.modes.imperativeTitle': '명령형',
-  'docs.section.modes.imperativeBody': "Reach for this when you have no good cover <img>, or don't want to mount extra nodes in your component tree. Call from event handlers, async callbacks, or third-party widgets to open the viewer from anywhere. Returns a destructor closure for manual close.",
+  'docs.section.modes.imperativeBody': '적절한 커버 <img>가 없거나, 컴포넌트 트리에 추가 노드를 마운트하고 싶지 않을 때 사용합니다. 이벤트 핸들러, 비동기 콜백, 서드파티 위젯 등 어디에서든 호출하여 뷰어를 열 수 있습니다. 수동으로 닫을 수 있도록 destructor 클로저를 반환합니다.',
   'docs.section.modes.wrapperTitle': '래퍼',
-  'docs.section.modes.wrapperBody': "Use this when you don't control the rendered HTML — markdown output, CMS rich text, dangerouslySetInnerHTML. Wrap the subtree and every <img> inside automatically gains the viewer, without modifying the source content.",
+  'docs.section.modes.wrapperBody': '렌더링되는 HTML을 직접 제어할 수 없을 때 사용합니다 — markdown 출력, CMS 리치 텍스트, dangerouslySetInnerHTML. 하위 트리를 감싸기만 하면 원본 콘텐츠를 수정하지 않고도 내부의 모든 <img>에 자동으로 뷰어가 연결됩니다.',
   'docs.section.modes.wrapperNote': '래퍼는 componentDidMount / componentDidUpdate 시점에 자식 img를 탐색합니다. 래퍼가 렌더링된 이후에 주입된 이미지는 래퍼가 다시 렌더될 때까지 연결되지 않습니다.',
 
   'docs.section.theming.title': '테마 통합',
@@ -221,6 +223,8 @@ export const ko: I18nDict = {
   'docs.section.theming.imperativeBody': '이벤트 핸들러에서 현재 DOM 상태(예: documentElement의 테마 클래스)를 읽고 색상으로 변환한 뒤 Zmage.browsing에 전달하세요:',
   'docs.section.theming.iconsTitle': '디자인 시스템과 아이콘 색상 정렬',
   'docs.section.theming.iconsBody': '컨트롤 아이콘은 #zmage 컨테이너 안에 있습니다. 글로벌 CSS에서 색상을 덮어쓸 수 있습니다. CSS 변수로 테마를 관리한다면(Tailwind / shadcn 등), 디자인 토큰에 직접 바인딩할 수 있습니다:',
+  'docs.section.theming.toolbarTitle': '툴바를 모달 backdrop에서 분리하기',
+  'docs.section.theming.toolbarBody': '기본적으로 툴바 캡슐은 최상위 backdrop을 따르고 아이콘은 currentColor로 그려집니다. 어두운 단색 backdrop에서는 어두운 아이콘이 어두운 캡슐에 묻혀 보이지 않습니다. controller.backdrop(캡슐 색상)과 controller.color(아이콘 색상)을 지정해 분리하세요. 개별 버튼 문자열 지정(예: controller.zoom = "#ff8800")은 controller.color보다 우선합니다.',
 
   'docs.search.desc.installation': '패키지 매니저로 설치하고 스타일시트 가져오기',
   'docs.search.desc.ssr': 'import 시 document에 접근하지 않는 SSR 엔트리',
@@ -236,7 +240,7 @@ export const ko: I18nDict = {
   'docs.search.desc.propsControlled': '제어된 브라우징 상태',
   'docs.search.desc.examples': '단일 이미지와 다중 이미지 갤러리 예제',
   'docs.search.desc.typescript': 'BaseType / Set / ControllerSet 타입 선언',
-  'docs.search.desc.migration': 'v2에서의 업그레이드 노트',
+  'docs.search.desc.migration': '0.x에서의 업그레이드 노트',
   'docs.search.desc.faq': '흔한 통합 이슈와 버전별 수정 사항',
 
   'docs.section.props.title': 'Props',
@@ -268,7 +272,7 @@ export const ko: I18nDict = {
   'docs.section.typescript.refIntro': '컴포넌트는 ref를 받아 커버 img로 전달합니다:',
 
   'docs.section.migration.title': '마이그레이션',
-  'docs.section.migration.fromV2': 'v2에서 업그레이드:',
+  'docs.section.migration.from': '0.x에서 업그레이드:',
   'docs.section.migration.bullet1': '컴포넌트는 forwardRef exotic이므로 new Zmage()로 호출하지 마세요.',
   'docs.section.migration.bullet2': 'SSR 엔트리를 가져오고 있다면 react-zmage/ssr로 전환하세요.',
 
@@ -283,6 +287,10 @@ export const ko: I18nDict = {
   'docs.section.faq.vite-esm.a': '1.1.2 이전에는 런타임 감지에 `require(\'react-dom/client\')`를 사용했지만 브라우저 ESM에는 `require` 전역이 없습니다. 1.1.2는 정적 import로 전환했습니다 — >=1.1.2로 업그레이드하세요.',
   'docs.section.faq.wrapper-dynamic.q': '마운트 이후에 추가한 이미지에 래퍼가 클릭 핸들러를 연결하지 않습니다.',
   'docs.section.faq.wrapper-dynamic.a': '래퍼는 `componentDidMount`와 `componentDidUpdate` 시점에만 `<img>`를 탐색합니다. React 렌더 트리 바깥에서 DOM img를 주입한다면(예: 부모가 재렌더되지 않은 채로 변하는 dangerouslySetInnerHTML), 래퍼가 다시 렌더되도록 강제하거나, 직접 클릭 핸들러에서 `Zmage.browsing()`을 호출하세요.',
+  'docs.section.faq.lazy-src.q': '제 `<img>`는 data-src / 지연 로딩을 사용합니다 — Zmage를 열면 실제 이미지가 아니라 플레이스홀더가 보입니다. 어떻게 수정하나요?',
+  'docs.section.faq.lazy-src.a': 'Zmage는 기본적으로 커버 `<img>`의 `src`를 읽습니다 — 플레이스홀더가 전부입니다. 미리보기할 실제 URL을 `set`으로 명시적으로 전달하세요: `<Zmage src={placeholderUrl} set={[{ src: realUrl }]} />`. 명령형 호출도 동일합니다: `Zmage.browsing({ src: realUrl })`.',
+  'docs.section.faq.cover-vs-set.q': '페이지에는 썸네일을 보여주고 클릭하면 고해상도 이미지를 표시하고 싶습니다 — `set`을 생략할 수 있나요?',
+  'docs.section.faq.cover-vs-set.a': '아니요. `set`을 주지 않으면 커버의 `src`가 곧 뷰어가 보여주는 것입니다. "썸네일 진입점 + 풀사이즈 뷰어"를 만들려면 명시적으로 분리해야 합니다: `<Zmage src={thumbUrl} set={[{ src: hdUrl }]} />`. 같은 패턴이 data-src 지연 로딩 (위 FAQ) 과 CDN 다중 해상도 시나리오를 모두 해결합니다. "그리드/갤러리 + 뷰어 열기" UI를 원한다면 Zmage가 직접 제공하지 않습니다 — 갤러리는 직접 렌더하고 클릭 시 `Zmage.browsing({ src, set })`을 호출하세요.',
   'docs.section.faq.controlled-mismatch.q': '제어된 `browsing` prop이 모달 상태와 어긋납니다.',
   'docs.section.faq.controlled-mismatch.a': '제어 모드에서는 `browsing`과 `onBrowsing`이 모두 필요합니다. `browsing`만 전달하면 내부 상태가 한 번만 동기화된 뒤 점점 어긋납니다. 항상 짝으로 사용하세요.',
   'docs.section.faq.ssr.q': 'Next.js / Remix / SSR 프레임워크에서 어떻게 사용하나요?',

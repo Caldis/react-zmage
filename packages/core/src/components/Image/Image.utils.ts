@@ -5,7 +5,7 @@
 // Libs
 import { RefObject } from 'react'
 // Utils
-import { calcFitScale, getClientHeight, getClientWidth, numberOfStyleUnits } from '../../utils'
+import { getClientHeight, getClientWidth, numberOfStyleUnits } from '../../utils'
 import { animationDuration, animationFunctionOnZooming, animationTransition } from '../../config/anim'
 import { ContextType } from '../context'
 import { AnimateFlip } from '../../types/global'
@@ -30,6 +30,40 @@ export type MotionPhase =
   | 'zoom-follow'
 
 const zoomTransition = `transform ${animationDuration}ms ${animationFunctionOnZooming}, opacity ${animationDuration}ms ${animationFunctionOnZooming}, clip-path ${animationDuration}ms ${animationFunctionOnZooming}`
+
+export interface ViewportRect {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+export const getViewportRect = (context?: Pick<ContextType, 'viewportRef'>): ViewportRect => {
+  const rect = context?.viewportRef?.current?.getBoundingClientRect()
+  if (rect && rect.width > 0 && rect.height > 0) {
+    return {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
+    }
+  }
+
+  return {
+    left: 0,
+    top: 0,
+    width: getClientWidth(),
+    height: getClientHeight(),
+  }
+}
+
+const calcFitScale = (naturalWidth: number, naturalHeight: number, edge = 0, viewport = getViewportRect()) => {
+  const figureWidth = naturalWidth + 2 * edge
+  const figureHeight = naturalHeight + 2 * edge
+  const scaleX = figureWidth > viewport.width ? viewport.width / figureWidth : 1
+  const scaleY = figureHeight > viewport.height ? viewport.height / figureHeight : 1
+  return Math.min(scaleX, scaleY) + 0.002
+}
 
 export const isZoomMotionPhase = (phase: MotionPhase) => (
   phase === 'zoom-enter' ||
@@ -86,12 +120,13 @@ export const getCurrentImageStyle = (context: ContextType, imageRef: RefObject<H
 /* 获取封面样式 */
 export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLImageElement>, touchProfile?: TouchProfile): ImageStyleType => {
   const { coverRef, coverPos, rotate, pageIsCover } = context
+  const viewport = getViewportRect(context)
   if (touchProfile && touchProfile.phase === TOUCH_BEHAVIOR_PHASE.END) {
     const offset = touchProfile.getCurrentOffset()
     return {
       _type: 'cover',
       _behavior: 'merge',
-      y: offset.y > 0 ? getClientHeight() : -getClientHeight()
+      y: offset.y > 0 ? viewport.height : -viewport.height
     }
   }
   if (coverRef.current) {
@@ -101,15 +136,10 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
     const { opacity, borderRadius } = window.getComputedStyle(coverRef.current)
     return pageIsCover ? {
       _type: 'cover',
-      // 用 documentElement.clientWidth/Height (布局视口) 而不是 scrollWidth (body 内容宽)
-      // 也不是 innerWidth (含滚动条占位). 这套几何要与三件事的参考系对齐:
-      //   - getBoundingClientRect 返回的 left/top (布局视口坐标系)
-      //   - 模态层 Portal 的 position:fixed 实际盒子尺寸 (= clientWidth/Height)
-      //   - 后面 zoom 路径里的 event.clientX/Y (布局视口坐标系)
-      // scrollWidth 在横向溢出时暴涨, innerWidth 在有竖向滚动条时多算一截 (~15-17px),
-      // 只有 clientWidth 同时规避两者.
-      x: -getClientWidth() / 2 + left + width / 2,
-      y: -getClientHeight() / 2 + top + height / 2,
+      // 所有 modal 几何都以实际 overlay 盒子为参考系, 避免宿主横向溢出时
+      // documentElement.clientWidth / window.innerWidth 与 fixed 层尺寸分裂.
+      x: left + width / 2 - (viewport.left + viewport.width / 2),
+      y: top + height / 2 - (viewport.top + viewport.height / 2),
       opacity: Number(opacity) || 1,
       scale: naturalWidth ? width / naturalWidth : 1,
       rotate: rotate - rotate % 360,
@@ -117,7 +147,7 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
     } : {
       _type: 'cover',
       x: 0,
-      y: -getClientHeight(),
+      y: -viewport.height,
       opacity: 0,
       scale: naturalWidth ? width / naturalWidth : 1,
       rotate: rotate - rotate % 360,
@@ -128,8 +158,8 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
     // 获取以鼠标指针为起始点的封面样式
     return {
       _type: 'cover',
-      x: coverPos.x ? coverPos.x - getClientWidth() / 2 : 0,
-      y: coverPos.y ? coverPos.y - getClientHeight() / 2 : 0,
+      x: coverPos.x ? coverPos.x - (viewport.left + viewport.width / 2) : 0,
+      y: coverPos.y ? coverPos.y - (viewport.top + viewport.height / 2) : 0,
       opacity: 0,
       scale: 0,
       rotate: 0,
@@ -158,7 +188,7 @@ export const getBrowsingStyle = (context: ContextType, imageRef: RefObject<HTMLI
   const coverIsCurrentImage = !!coverRef.current && coverRef.current.getAttribute('src') === set?.[page]?.src
   const naturalWidth = imageNaturalWidth || (coverIsCurrentImage ? coverRef.current?.naturalWidth : 0) || 0
   const naturalHeight = imageNaturalHeight || (coverIsCurrentImage ? coverRef.current?.naturalHeight : 0) || 0
-  const scale = calcFitScale(naturalWidth, naturalHeight, edge)
+  const scale = calcFitScale(naturalWidth, naturalHeight, edge, getViewportRect(context))
   return {
     _type: 'browsing',
     x: 0,
@@ -171,22 +201,26 @@ export const getBrowsingStyle = (context: ContextType, imageRef: RefObject<HTMLI
 }
 
 /* 获取缩放样式 */
-export const getZoomingStyle = (context: ContextType, imageRef: RefObject<HTMLImageElement>, {
-  clientX: mouseX = getClientWidth() / 2,
-  clientY: mouseY = getClientHeight() / 2
-} = {}): ImageStyleType => {
+export const getZoomingStyle = (
+  context: ContextType,
+  imageRef: RefObject<HTMLImageElement>,
+  pointer: { clientX?: number, clientY?: number } = {}
+): ImageStyleType => {
   const { radius, edge, rotate } = context
   const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
   // 随鼠标位移偏移量
   const saveEdge = edge || 50
-  // mouseX/mouseY 来自 event.clientX/Y (布局视口坐标系), viewWidth/Height 必须用 clientWidth/Height
-  // 才在同一参考系; innerWidth 含滚动条占位会让两边长度不匹配, 缩放跟随会偏一个滚动条宽
-  const viewWidth = getClientWidth()
-  const viewHeight = getClientHeight()
+  const viewport = getViewportRect(context)
+  const viewWidth = viewport.width
+  const viewHeight = viewport.height
+  const mouseX = pointer.clientX ?? viewport.left + viewWidth / 2
+  const mouseY = pointer.clientY ?? viewport.top + viewHeight / 2
+  const localMouseX = mouseX - viewport.left
+  const localMouseY = mouseY - viewport.top
   const rangeX = naturalWidth - viewWidth + (2 * saveEdge)
   const rangeY = naturalHeight - viewHeight + (2 * saveEdge)
-  const imgPosX = naturalWidth > viewWidth ? ((naturalWidth - viewWidth) / 2 + saveEdge) - (rangeX * (mouseX / viewWidth)) : 0
-  const imgPosY = naturalHeight > viewHeight ? ((naturalHeight - viewHeight) / 2 + saveEdge) - (rangeY * (mouseY / viewHeight)) : 0
+  const imgPosX = naturalWidth > viewWidth ? ((naturalWidth - viewWidth) / 2 + saveEdge) - (rangeX * (localMouseX / viewWidth)) : 0
+  const imgPosY = naturalHeight > viewHeight ? ((naturalHeight - viewHeight) / 2 + saveEdge) - (rangeY * (localMouseY / viewHeight)) : 0
   // 返回位置
   return {
     _type: 'zooming',
@@ -210,7 +244,11 @@ export interface ImageAnimateType {
   opacity: number
 }
 
-export const getAnimateConfig = (type?: AnimateFlip | false): ImageAnimateType => {
+export function getAnimateConfig(type?: AnimateFlip | false): ImageAnimateType
+export function getAnimateConfig(context: ContextType, type?: AnimateFlip | false): ImageAnimateType
+export function getAnimateConfig(contextOrType?: ContextType | AnimateFlip | false, maybeType?: AnimateFlip | false): ImageAnimateType {
+  const context = typeof contextOrType === 'object' && contextOrType !== null ? contextOrType : undefined
+  const type = context ? maybeType : contextOrType as AnimateFlip | false | undefined
   let offset = 0, overflow = 0, opacity = 0
   switch (type) {
   case 'fade':
@@ -221,8 +259,7 @@ export const getAnimateConfig = (type?: AnimateFlip | false): ImageAnimateType =
     opacity = 0
     break
   case 'swipe':
-    // Modal 是 viewport-fixed, swipe 一屏的距离应当等于布局视口宽 (排除滚动条占位)
-    offset = getClientWidth() + SWIPE_GAP
+    offset = getViewportRect(context).width + SWIPE_GAP
     opacity = 1
     break
   case 'zoom':

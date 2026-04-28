@@ -3,6 +3,16 @@
 // Vars
 @baseDelay: 0.06s;
 
+// Animations
+@keyframes zoomShake {
+  0%,
+  100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
 // 基础按钮
 .baseButton {
   z-index: 1000;
@@ -103,6 +113,29 @@
   // 放大
   .zoom {
     .pinButton;
+
+    // 图片原生尺寸不大于视口时, 放大没有意义 — 整体灰显, 不响应点击.
+    // hover/active 的 !important 必须在这里也用 !important 才能覆盖.
+    &.disabled {
+      opacity: 0.35 !important;
+      cursor: not-allowed;
+
+      &:hover {
+        opacity: 0.35 !important;
+        transform: none !important;
+      }
+
+      &:active {
+        opacity: 0.35 !important;
+        transform: none !important;
+      }
+    }
+
+    // 用户从键盘按空格但当前不可放大时, 抖一下作为反馈.
+    // 通过 ref + reflow 控制重放 (见 Control.tsx).
+    &.shake {
+      animation: zoomShake 320ms @animationFunction;
+    }
   }
 
   // 关闭

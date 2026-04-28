@@ -33,10 +33,9 @@ export const de: I18nDict = {
   'modes.wrapper.label': 'Wrapper',
   'modes.wrapper.desc': 'Ohne Children anzufassen — bindet den Viewer automatisch an jedes <img> darin.',
   'modes.try': 'Ausprobieren →',
-  // TODO: translate — currently EN fallback
-  'modes.component.when': 'The default. Reach for this when you control the JSX you render — replace any <img> with <Zmage>; all native props pass through.',
-  'modes.imperative.when': 'No cover <img> required, nothing leaks into your component tree. Open the viewer from event handlers, async callbacks, or third-party widgets — anywhere.',
-  'modes.wrapper.when': "When you don't control the rendered HTML — markdown, CMS rich text, dangerouslySetInnerHTML — wrap the subtree and every <img> inside automatically gains the viewer.",
+  'modes.component.when': 'Der Standardfall. Greif hierzu, wenn du das gerenderte JSX kontrollierst — ersetze jedes <img> durch <Zmage>; alle nativen Props werden durchgereicht.',
+  'modes.imperative.when': 'Kein Cover-<img> nötig, nichts dringt in deinen Komponentenbaum ein. Öffne den Viewer aus Event-Handlern, async Callbacks oder Drittanbieter-Widgets — von überall.',
+  'modes.wrapper.when': 'Wenn du das gerenderte HTML nicht kontrollierst — markdown, CMS-Rich-Text, dangerouslySetInnerHTML — umhülle den Teilbaum und jedes enthaltene <img> erhält automatisch den Viewer.',
 
   'footer.project': 'Projekt',
   'footer.repo': 'Repository',
@@ -121,6 +120,8 @@ export const de: I18nDict = {
   'controller.flip': 'Blättern',
   'controller.flipLeft': 'Vorherige',
   'controller.flipRight': 'Nächste',
+  'controller.backdrop': 'backdrop',
+  'controller.color': 'color',
   'controller.pagination.desc': 'Seitenanzeige oben — zeigt aktuelle Position / Gesamtseiten',
   'controller.rotate.desc': 'Rotations-Steuergruppe (mit Links- und Rechts-Buttons)',
   'controller.rotateLeft.desc': 'Um 90° gegen den Uhrzeigersinn drehen',
@@ -131,6 +132,8 @@ export const de: I18nDict = {
   'controller.flip.desc': 'Blätter-Steuergruppe (mit Vorherige- und Nächste-Buttons)',
   'controller.flipLeft.desc': 'Zum vorherigen Bild wechseln',
   'controller.flipRight.desc': 'Zum nächsten Bild wechseln',
+  'controller.backdrop.desc': 'Hintergrund der Toolbar. Fällt auf das übergeordnete `backdrop` zurück. Bei dunklem Volltonhintergrund einen Halbtransparentwert empfohlen (z. B. `rgba(0,0,0,0.4)`).',
+  'controller.color.desc': 'Symbolfarbe der Toolbar. Fällt auf `currentColor` zurück. Einzelbutton-String-Override (z. B. `controller.zoom = "#ff8800"`) hat weiterhin Vorrang.',
   'controller.overriddenBy': 'Aktiviert durch',
   'snippet.overriddenByProp': 'überschrieben durch {umbrella}',
 
@@ -200,12 +203,11 @@ export const de: I18nDict = {
   'docs.section.modes.title': 'Drei Modi',
   'docs.section.modes.intro': 'react-zmage stellt dieselbe Konfigurationsfläche über drei Aufrufformen bereit:',
   'docs.section.modes.componentTitle': 'Komponente',
-  // TODO: translate the *Body keys below — currently EN fallback
-  'docs.section.modes.componentBody': 'The default — use this when you control the JSX you render. Swap any <img> for <Zmage>; every native HTML attribute (className, style, onClick, etc.) passes through to the underlying <img>.',
+  'docs.section.modes.componentBody': 'Der Standardfall — nutze dies, wenn du das gerenderte JSX kontrollierst. Tausche jedes <img> gegen <Zmage>; jedes native HTML-Attribut (className, style, onClick usw.) wird an das zugrundeliegende <img> durchgereicht.',
   'docs.section.modes.imperativeTitle': 'Imperativ',
-  'docs.section.modes.imperativeBody': "Reach for this when you have no good cover <img>, or don't want to mount extra nodes in your component tree. Call from event handlers, async callbacks, or third-party widgets to open the viewer from anywhere. Returns a destructor closure for manual close.",
+  'docs.section.modes.imperativeBody': 'Greif hierzu, wenn du kein passendes Cover-<img> hast oder keine zusätzlichen Knoten in deinen Komponentenbaum hängen willst. Aufruf aus Event-Handlern, async Callbacks oder Drittanbieter-Widgets, um den Viewer von überall zu öffnen. Gibt eine Destruktor-Closure zum manuellen Schließen zurück.',
   'docs.section.modes.wrapperTitle': 'Wrapper',
-  'docs.section.modes.wrapperBody': "Use this when you don't control the rendered HTML — markdown output, CMS rich text, dangerouslySetInnerHTML. Wrap the subtree and every <img> inside automatically gains the viewer, without modifying the source content.",
+  'docs.section.modes.wrapperBody': 'Nutze dies, wenn du das gerenderte HTML nicht kontrollierst — markdown-Output, CMS-Rich-Text, dangerouslySetInnerHTML. Umhülle den Teilbaum und jedes enthaltene <img> erhält automatisch den Viewer, ohne den Quellinhalt zu verändern.',
   'docs.section.modes.wrapperNote': 'Der Wrapper sucht img-Children während componentDidMount / componentDidUpdate. Bilder, die nach dem Rendering eingefügt werden, werden erst beim nächsten Re-Render gebunden.',
 
   'docs.section.theming.title': 'Theming',
@@ -221,6 +223,8 @@ export const de: I18nDict = {
   'docs.section.theming.imperativeBody': 'Lies im Event-Handler den aktuellen DOM-Status (z. B. eine Theme-Klasse auf documentElement), übersetze ihn in eine Farbe und übergib sie an Zmage.browsing:',
   'docs.section.theming.iconsTitle': 'Icons mit dem Design-System angleichen',
   'docs.section.theming.iconsBody': 'Steuer-Icons leben innerhalb des #zmage-Containers; überschreibe ihre Farbe per globalem CSS. Wenn du CSS-Variablen für Theming nutzt (Tailwind / shadcn / vanilla Tokens), binde direkt an den Design-Token:',
+  'docs.section.theming.toolbarTitle': 'Toolbar vom Modal-Backdrop entkoppeln',
+  'docs.section.theming.toolbarBody': 'Standardmäßig erbt die Toolbar-Kapsel den obersten `backdrop` und Icons werden mit `currentColor` gezeichnet. Auf einem dunklen Volltonhintergrund verschwinden dunkle Icons in der dunklen Kapsel. Mit `controller.backdrop` (Kapselhintergrund) und `controller.color` (Icon-Farbe) lassen sich beide entkoppeln. Einzelbutton-String-Overrides (z. B. `controller.zoom = "#ff8800"`) haben weiterhin Vorrang vor `controller.color`.',
 
   'docs.search.desc.installation': 'Über Paketmanager installieren und Stylesheet importieren',
   'docs.search.desc.ssr': 'SSR-Eintrag, der document beim Import nicht berührt',
@@ -236,7 +240,7 @@ export const de: I18nDict = {
   'docs.search.desc.propsControlled': 'Controlled-Browsing-Status',
   'docs.search.desc.examples': 'Beispiele für Einzelbild und Multi-Bild-Galerie',
   'docs.search.desc.typescript': 'BaseType / Set / ControllerSet Typdeklarationen',
-  'docs.search.desc.migration': 'Upgrade-Hinweise von v2',
+  'docs.search.desc.migration': 'Upgrade-Hinweise von 0.x',
   'docs.search.desc.faq': 'Häufige Integrations-Fallstricke und versionsspezifische Fixes',
 
   'docs.section.props.title': 'Props',
@@ -268,7 +272,7 @@ export const de: I18nDict = {
   'docs.section.typescript.refIntro': 'Die Komponente akzeptiert eine ref, die an das Cover-img weitergeleitet wird:',
 
   'docs.section.migration.title': 'Migration',
-  'docs.section.migration.fromV2': 'Von v2:',
+  'docs.section.migration.from': 'Upgrade von 0.x:',
   'docs.section.migration.bullet1': 'Die Komponente ist ein forwardRef-Exotic; rufe sie nicht mit new Zmage() auf.',
   'docs.section.migration.bullet2': 'Falls du den SSR-Eintrag importierst, wechsle zu react-zmage/ssr.',
 
@@ -283,6 +287,10 @@ export const de: I18nDict = {
   'docs.section.faq.vite-esm.a': 'Vor 1.1.2 wurde `require(\'react-dom/client\')` zur Runtime-Erkennung verwendet, aber Browser-ESM hat kein `require`-Global. 1.1.2 wechselt zu einem statischen Import — aktualisiere auf >=1.1.2.',
   'docs.section.faq.wrapper-dynamic.q': 'Der Wrapper bindet keine Click-Handler an Bilder, die ich nach dem Mount eingefügt habe.',
   'docs.section.faq.wrapper-dynamic.a': 'Der Wrapper sucht `<img>` nur in `componentDidMount` und `componentDidUpdate`. Wenn du DOM-imgs außerhalb des React-Render-Trees einfügst (z. B. ein dangerouslySetInnerHTML, das ohne Eltern-Re-Render mutiert), erzwinge ein Re-Render des Wrappers — oder rufe `Zmage.browsing()` aus deinem eigenen Click-Handler auf.',
+  'docs.section.faq.lazy-src.q': 'Mein `<img>` nutzt Lazy-Loading mit `data-src` — beim Öffnen von Zmage sehe ich den Platzhalter statt des echten Bildes. Wie behebe ich das?',
+  'docs.section.faq.lazy-src.a': 'Zmage liest standardmäßig die `src` des Cover-`<img>` — der Platzhalter ist alles, was es sieht. Übergib die echte URL explizit über `set`: `<Zmage src={placeholderUrl} set={[{ src: realUrl }]} />`. Beim imperativen Aufruf gleichermaßen: `Zmage.browsing({ src: realUrl })`.',
+  'docs.section.faq.cover-vs-set.q': 'Ich möchte eine Thumbnail auf der Seite und das hochauflösende Bild beim Klick — kann ich `set` weglassen?',
+  'docs.section.faq.cover-vs-set.a': 'Nein. Ohne `set` ist die Cover-`src` auch das, was der Viewer zeigt. Für "Thumbnail-Einstieg + Vollbild-Viewer" musst du sie explizit trennen: `<Zmage src={thumbUrl} set={[{ src: hdUrl }]} />`. Dasselbe Muster löst lazy-loaded `data-src` (vorherige FAQ) und CDN-Multi-Auflösung. Wenn du eine "Grid/Gallery + Viewer öffnen"-UI willst, bietet Zmage das nicht — render die Galerie selbst und rufe beim Klick `Zmage.browsing({ src, set })` auf.',
   'docs.section.faq.controlled-mismatch.q': 'Mein controlled `browsing`-Prop und der Modal-Status laufen auseinander.',
   'docs.section.faq.controlled-mismatch.a': 'Der controlled-Modus erfordert sowohl `browsing` als auch `onBrowsing`. Wenn du nur `browsing` (ohne Callback) übergibst, synchronisiert sich der interne Status einmal und driftet dann. Immer paaren.',
   'docs.section.faq.ssr.q': 'Wie nutze ich react-zmage in Next.js / Remix / SSR-Frameworks?',

@@ -82,6 +82,10 @@ export interface ControllerSet {
   flip?: ControllerItem
   flipLeft?: ControllerItem
   flipRight?: ControllerItem
+  // 视觉 — 控件容器底色 / 图标默认色 (与顶层 backdrop 解耦, 让 backdrop 暗色场景下控件仍可辨)
+  // 单按钮通过 ControllerItem 字符串值仍可独立覆盖颜色 (per-button override 优先)
+  backdrop?: string
+  color?: string
 }
 
 /**
@@ -182,7 +186,7 @@ export interface InterfaceAndInteractionParams {
   hideOnScroll?: boolean
   // 封面可见性
   coverVisible?: boolean
-  // 背景色
+  // 背景色 (蒙版层)
   backdrop?: string
   // 高度
   zIndex?: number

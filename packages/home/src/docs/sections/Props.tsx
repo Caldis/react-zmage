@@ -15,6 +15,8 @@ const CONTROLLER_KEYS: { k: string; descKey: I18nKey }[] = [
   { k: 'flip', descKey: 'controller.flip.desc' },
   { k: 'flipLeft', descKey: 'controller.flipLeft.desc' },
   { k: 'flipRight', descKey: 'controller.flipRight.desc' },
+  { k: 'backdrop', descKey: 'controller.backdrop.desc' },
+  { k: 'color', descKey: 'controller.color.desc' },
 ]
 
 const HOTKEY_KEYS: { k: string; descKey: I18nKey }[] = [

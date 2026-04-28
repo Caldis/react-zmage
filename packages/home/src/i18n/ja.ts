@@ -33,10 +33,9 @@ export const ja: I18nDict = {
   'modes.wrapper.label': 'ラッパー',
   'modes.wrapper.desc': '子要素には触れず、内部のすべての <img> に自動でビューアをひも付けます。',
   'modes.try': '試してみる →',
-  // TODO: translate — currently EN fallback
-  'modes.component.when': 'The default. Reach for this when you control the JSX you render — replace any <img> with <Zmage>; all native props pass through.',
-  'modes.imperative.when': 'No cover <img> required, nothing leaks into your component tree. Open the viewer from event handlers, async callbacks, or third-party widgets — anywhere.',
-  'modes.wrapper.when': "When you don't control the rendered HTML — markdown, CMS rich text, dangerouslySetInnerHTML — wrap the subtree and every <img> inside automatically gains the viewer.",
+  'modes.component.when': '一番標準的な使い方。レンダリングする JSX を自分で制御できるときに選んでください ── 任意の <img> を <Zmage> に置き換えるだけで、ネイティブ props はすべてそのまま透過します。',
+  'modes.imperative.when': 'カバー用の <img> は不要で、コンポーネントツリーに余計なノードが混入しません。イベントハンドラ、非同期コールバック、サードパーティ製ウィジェットなど、どこからでもビューアを開けます。',
+  'modes.wrapper.when': 'レンダリングされる HTML を自分で制御できないとき(markdown、CMS リッチテキスト、dangerouslySetInnerHTML など)に使います。サブツリーをラップするだけで、内側のすべての <img> が自動的にビューアを獲得します。',
 
   'footer.project': 'プロジェクト',
   'footer.repo': 'リポジトリ',
@@ -121,6 +120,8 @@ export const ja: I18nDict = {
   'controller.flip': 'ページ送り',
   'controller.flipLeft': '前へ',
   'controller.flipRight': '次へ',
+  'controller.backdrop': 'backdrop',
+  'controller.color': 'color',
   'controller.pagination.desc': '上部のページインジケーター。現在位置 / 総ページ数を表示します',
   'controller.rotate.desc': '回転コントロール群(左回転と右回転ボタンを含む)',
   'controller.rotateLeft.desc': '反時計回りに 90° 回転',
@@ -131,6 +132,8 @@ export const ja: I18nDict = {
   'controller.flip.desc': 'ページ送りコントロール群(前へ / 次へボタンを含む)',
   'controller.flipLeft.desc': '前の画像へ移動',
   'controller.flipRight.desc': '次の画像へ移動',
+  'controller.backdrop.desc': 'ツールバーの背景色。未指定時は最上位の backdrop を継承。最上位 backdrop が暗い実色の場合は半透明値 (例: `rgba(0,0,0,0.4)`) を推奨。',
+  'controller.color.desc': 'ツールバーアイコンの色。未指定時は currentColor を継承。単一ボタンの文字列指定 (例: `controller.zoom = "#ff8800"`) が優先されます。',
   'controller.overriddenBy': '親スイッチで有効化',
   'snippet.overriddenByProp': '{umbrella} により上書き',
 
@@ -200,12 +203,11 @@ export const ja: I18nDict = {
   'docs.section.modes.title': '3 つの呼び出し方',
   'docs.section.modes.intro': 'react-zmage は同じ設定インターフェースを 3 つの呼び出し形式で提供します:',
   'docs.section.modes.componentTitle': 'コンポーネント',
-  // TODO: translate the *Body keys below — currently EN fallback
-  'docs.section.modes.componentBody': 'The default — use this when you control the JSX you render. Swap any <img> for <Zmage>; every native HTML attribute (className, style, onClick, etc.) passes through to the underlying <img>.',
+  'docs.section.modes.componentBody': '一番標準的な使い方 ── レンダリングする JSX を自分で制御できるときに選んでください。任意の <img> を <Zmage> に置き換えるだけで、ネイティブ HTML 属性 (className、style、onClick など) はすべて内側の <img> に透過します。',
   'docs.section.modes.imperativeTitle': '命令式',
-  'docs.section.modes.imperativeBody': "Reach for this when you have no good cover <img>, or don't want to mount extra nodes in your component tree. Call from event handlers, async callbacks, or third-party widgets to open the viewer from anywhere. Returns a destructor closure for manual close.",
+  'docs.section.modes.imperativeBody': '適切なカバー用 <img> がない、あるいはコンポーネントツリーに余計なノードをマウントしたくないときに選んでください。イベントハンドラ、非同期コールバック、サードパーティ製ウィジェットから呼び出して、どこからでもビューアを開けます。戻り値は手動クローズ用のデストラクタクロージャです。',
   'docs.section.modes.wrapperTitle': 'ラッパー',
-  'docs.section.modes.wrapperBody': "Use this when you don't control the rendered HTML — markdown output, CMS rich text, dangerouslySetInnerHTML. Wrap the subtree and every <img> inside automatically gains the viewer, without modifying the source content.",
+  'docs.section.modes.wrapperBody': 'レンダリングされる HTML を自分で制御できないとき(markdown 出力、CMS リッチテキスト、dangerouslySetInnerHTML など)に使ってください。サブツリーをラップするだけで、ソースコンテンツを書き換えることなく、内側のすべての <img> が自動的にビューアを獲得します。',
   'docs.section.modes.wrapperNote': 'ラッパーは componentDidMount / componentDidUpdate のタイミングで子の img を検索します。ラッパーがレンダリングされた後に挿入された画像は、ラッパーが再レンダリングされるまでひも付きません。',
 
   'docs.section.theming.title': 'テーマ統合',
@@ -221,6 +223,8 @@ export const ja: I18nDict = {
   'docs.section.theming.imperativeBody': 'イベントハンドラ内で現在の DOM 状態(documentElement のテーマクラスなど)を読み取り、色に変換してから Zmage.browsing に渡します:',
   'docs.section.theming.iconsTitle': 'デザインシステムとアイコン色を揃える',
   'docs.section.theming.iconsBody': 'コントロールアイコンは #zmage コンテナ内に存在します。グローバル CSS から色を上書きできます。Tailwind や shadcn のように CSS 変数でテーマを管理しているなら、デザイントークンに直接バインドできます:',
+  'docs.section.theming.toolbarTitle': 'ツールバーをモーダル backdrop から切り離す',
+  'docs.section.theming.toolbarBody': 'デフォルトではツールバーの背景は最上位の backdrop を継承し、アイコンは currentColor で描画されます。暗い実色の backdrop では、暗いアイコンが暗いツールバーに溶け込んで見えません。controller.backdrop (ツールバー背景) と controller.color (アイコン色) を指定して切り離してください。単一ボタンの文字列指定 (例: controller.zoom = "#ff8800") は controller.color よりも優先されます。',
 
   'docs.search.desc.installation': 'パッケージマネージャーでインストールしてスタイルシートを取り込む',
   'docs.search.desc.ssr': 'import 時に document に触れない SSR エントリ',
@@ -236,7 +240,7 @@ export const ja: I18nDict = {
   'docs.search.desc.propsControlled': '制御された閲覧状態',
   'docs.search.desc.examples': '単一画像と複数画像ギャラリーのサンプル',
   'docs.search.desc.typescript': 'BaseType / Set / ControllerSet などの型宣言',
-  'docs.search.desc.migration': 'v2 からのアップグレードノート',
+  'docs.search.desc.migration': '0.x からのアップグレードノート',
   'docs.search.desc.faq': 'よくある統合上の落とし穴とバージョン別の修正ノート',
 
   'docs.section.props.title': 'Props',
@@ -268,7 +272,7 @@ export const ja: I18nDict = {
   'docs.section.typescript.refIntro': 'コンポーネントは ref を受け取り、カバーの img に転送します:',
 
   'docs.section.migration.title': 'マイグレーション',
-  'docs.section.migration.fromV2': 'v2 からの移行:',
+  'docs.section.migration.from': '0.x からの移行:',
   'docs.section.migration.bullet1': 'コンポーネントは forwardRef exotic です。new Zmage() しないでください。',
   'docs.section.migration.bullet2': 'SSR エントリを参照している場合は react-zmage/ssr に切り替えてください。',
 
@@ -283,6 +287,10 @@ export const ja: I18nDict = {
   'docs.section.faq.vite-esm.a': '1.1.2 より前は `require(\'react-dom/client\')` でランタイム検出していましたが、ブラウザの ESM には `require` グローバルがありません。1.1.2 では静的 import に切り替えました — >=1.1.2 にアップグレードしてください。',
   'docs.section.faq.wrapper-dynamic.q': 'マウント後に追加した画像にラッパーがクリックハンドラをひも付けてくれません。',
   'docs.section.faq.wrapper-dynamic.a': 'ラッパーは `componentDidMount` と `componentDidUpdate` のときだけ `<img>` を探します。React のレンダーツリー外で DOM の img を注入している場合(例: 親が再レンダーしないままの dangerouslySetInnerHTML)、ラッパーを強制的に再レンダーさせるか、自前のクリックハンドラから `Zmage.browsing()` を呼び出してください。',
+  'docs.section.faq.lazy-src.q': '`<img>` で data-src / 遅延読み込みを使っているのですが、Zmage を開くと実画像ではなくプレースホルダが表示されます。どうすればよいですか?',
+  'docs.section.faq.lazy-src.a': 'Zmage はデフォルトでカバー `<img>` の `src` を読みます — プレースホルダしか見えません。プレビュー対象の実 URL を `set` で明示的に渡してください: `<Zmage src={placeholderUrl} set={[{ src: realUrl }]} />`。命令型呼び出しも同様: `Zmage.browsing({ src: realUrl })`。',
+  'docs.section.faq.cover-vs-set.q': 'ページにはサムネイルを表示し、クリック時に高解像度の画像を見せたい — `set` を省略できますか?',
+  'docs.section.faq.cover-vs-set.a': 'いいえ。`set` を渡さないとカバーの `src` がそのままビューアで表示されます。「サムネイル入口 + 大画像ビューア」にするには明示的に分離する必要があります: `<Zmage src={thumbUrl} set={[{ src: hdUrl }]} />`。同じパターンで data-src 遅延読み込み (上の FAQ) と CDN マルチ解像度の両方を解決できます。「グリッド/ギャラリー + ビューアを開く」UI が欲しい場合、Zmage 自体は提供しません — ギャラリーは自分で描画し、クリック時に `Zmage.browsing({ src, set })` を呼んでください。',
   'docs.section.faq.controlled-mismatch.q': '受け渡した `browsing` プロップとビューアの実状態がずれてしまいます。',
   'docs.section.faq.controlled-mismatch.a': '制御モードでは `browsing` と `onBrowsing` の両方が必要です。`browsing` だけを渡した場合、内部状態は最初に一度だけ同期され、その後ずれていきます。必ず対で使ってください。',
   'docs.section.faq.ssr.q': 'Next.js / Remix / SSR フレームワークでの使い方は?',

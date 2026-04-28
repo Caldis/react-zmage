@@ -184,10 +184,15 @@ interface ControllerSet {
   flip?:        boolean | string | ReactNode    // umbrella over flipLeft + flipRight
   flipLeft?:    boolean | string | ReactNode
   flipRight?:   boolean | string | ReactNode
+  // visual
+  backdrop?:    string                          // control bar bg; falls back to top-level `backdrop`
+  color?:       string                          // control bar icon color; falls back to `currentColor`
 }
 ```
 
 > `rotate` and `flip` are umbrella switches — enabling either forces both per-side counterparts on, regardless of those flags.
+
+> `backdrop` and `color` decouple the toolbar from the modal backdrop. Pair them when the modal `backdrop` is dark — e.g. `backdrop="#111"` + `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}` keeps the toolbar legible. Per-button color overrides (e.g. `controller={{ zoom: '#ff8800' }}`) still win over `controller.color`.
 
 #### Preset defaults
 

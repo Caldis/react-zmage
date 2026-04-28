@@ -29,6 +29,7 @@ import {
   getCoverStyle,
   getCurrentImageStyle,
   getImageTransition,
+  getViewportRect,
   getZoomingStyle,
   ImageAnimateType,
   ImageStyleType,
@@ -88,7 +89,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     // 样式
     currentStyle: getCoverStyle(this.context),
     // 动画
-    animateConfig: getAnimateConfig(this.context.animate?.flip),
+    animateConfig: getAnimateConfig(this.context, this.context.animate?.flip),
     // 触控
     touchProfile: new TouchProfile(),
     // 时间戳 Flag
@@ -239,6 +240,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   // 页面事件
   handleResize = () => {
     this.debounceUpdateCurrentImageStyle()
+    this.reportCanZoom()
   }
   handleScroll = () => {
     if (this.imageRef.current) {
@@ -304,6 +306,19 @@ export default class Image extends React.Component<PropsType, StateType> {
     } else {
       this.debounceUpdateCurrentImageStyle()
     }
+    this.reportCanZoom()
+  }
+  // 把 "图是否大于视口" 的判断上抛给 Browser, 用于 Control 的禁用态和空格键的早返回.
+  // 旋转/dpr 暂不参与计算; 这里只用 naturalWidth/Height vs 布局视口宽高的保守判断.
+  reportCanZoom = () => {
+    const { setCanZoom } = this.context
+    if (typeof setCanZoom !== 'function') return
+    const node = this.imageRef.current
+    if (!node) return
+    const { naturalWidth, naturalHeight } = node
+    if (!naturalWidth || !naturalHeight) return
+    const viewport = getViewportRect(this.context)
+    setCanZoom(naturalWidth > viewport.width || naturalHeight > viewport.height)
   }
   handleImageError = () => {
     this.handleImageLoadEnd({ invalidate: true })
@@ -344,7 +359,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { currentStyle } = this.state
     this.setState({
       currentStyle: nextStyle._behavior === 'merge' ? { ...currentStyle, ...nextStyle } : nextStyle,
-      animateConfig: getAnimateConfig(animateParams.flip),
+      animateConfig: getAnimateConfig(this.context, animateParams.flip),
     }, callback)
   }
   startZoomEnter = () => {

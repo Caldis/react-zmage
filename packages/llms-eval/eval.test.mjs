@@ -117,6 +117,23 @@ test('hotKey umbrella + per-side keys wired across types and llms.txt', () => {
   assert.match(hotKeyLine, /\bflipRight\b/, 'llms.txt hotKey row missing flipRight')
 })
 
+test('controller visual keys (backdrop + color) declared in ControllerSet and llms.txt', () => {
+  // global.ts: ControllerSet declares the visual keys
+  assert.match(globalTs, /export\s+interface\s+ControllerSet\b/, 'ControllerSet interface missing in types/global.ts')
+  // Match the optional string fields anywhere inside the interface body (not pinned to top-level
+  // because TS lets fields appear in any order)
+  assert.match(globalTs, /\bbackdrop\?:\s*string\b/, 'ControllerSet.backdrop missing in types/global.ts')
+  assert.match(globalTs, /\bcolor\?:\s*string\b/, 'ControllerSet.color missing in types/global.ts')
+  // llms.txt controller row must mention both visual keys (require `controller` as the first cell
+  // to skip preset row prose)
+  const controllerLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|\s*`controller`\s*\|/.test(line)
+  )
+  assert.ok(controllerLine, 'no API-table row in llms.txt declares the controller prop')
+  assert.match(controllerLine, /controller\.backdrop|`backdrop`/, 'llms.txt controller row missing the backdrop visual key')
+  assert.match(controllerLine, /controller\.color|`color`/, 'llms.txt controller row missing the color visual key')
+})
+
 test('public type symbols present in types/global.ts', () => {
   for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'HotKey', 'Animate']) {
     const re = new RegExp(`(?:export\\s+(?:interface|type)\\s+${sym}\\b)`)

@@ -79,7 +79,7 @@ Single `BaseType` covers all. Grouped here by purpose:
 | Data | `src`, `alt`, `caption`, `set`, `defaultPage` | `set` enables multi-image mode. `caption` is `string \| { text, style?, className? }` — renders below the image; per-set override via `set[i].caption` |
 | Preset | `preset: 'desktop' \| 'mobile' \| 'auto'` | drives default `controller` / `hotKey` / `animate`. `'auto'` resolves via `matchMedia('(pointer: coarse) and (hover: none)')` on the client; SSR falls back to desktop |
 | Controlled | `browsing` | omit for self-managed; pair with `onBrowsing` if set |
-| Functional | `controller`, `hotKey`, `animate` | pass `boolean` to disable, or partial object to override. `controller.flip` and `hotKey.flip` are umbrellas over their per-side counterparts (`flipLeft` / `flipRight`); enabling the umbrella forces both sides on |
+| Functional | `controller`, `hotKey`, `animate` | pass `boolean` to disable, or partial object to override. `controller.flip` and `hotKey.flip` are umbrellas over their per-side counterparts (`flipLeft` / `flipRight`); enabling the umbrella forces both sides on. `controller.backdrop` / `controller.color` decouple the toolbar bg/icon-color from the modal `backdrop` (set both when `backdrop` is solid dark) |
 | Interface | `hideOnScroll`, `coverVisible`, `backdrop`, `zIndex`, `radius`, `edge`, `loop` | desktop-only flags noted in README |
 | Lifecycle | `onBrowsing`, `onZooming`, `onSwitching`, `onRotating` | callback args: `boolean`/`boolean`/`number`/`number` |
 | Native | All `HTMLAttributes<HTMLImageElement>` | className, style, onClick, etc. transparently forwarded to inner `<img>` |

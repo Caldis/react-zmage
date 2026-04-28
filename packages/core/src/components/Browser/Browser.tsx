@@ -45,6 +45,12 @@ export interface State {
   zoom: boolean
   zoomTrigger?: ZoomTrigger
   zoomPosition?: Coordinate
+  // 当前图原生尺寸是否大于视口 — 决定空格/按钮是否能进入 zoom 状态
+  // 默认 true: 图片未加载完时保持兼容旧行为
+  canZoom: boolean
+  // 当前图无法进一步放大时, 用户从键盘触发空格的视觉反馈计数
+  // Control 层用 useEffect 监听变化, 强制重放放大按钮的 shake 动画
+  zoomShakeKey: number
   // 旋转
   rotate: number
   // 页数
@@ -75,6 +81,7 @@ export default class Browser extends React.Component<Props, State> {
   unInitTimer?: ReturnType<typeof setTimeout>
   listeningMouseMove = false
   lastPointerPosition?: Coordinate
+  viewportRef = React.createRef<HTMLDivElement>()
 
   getControllerConfig = (controller: Props['controller'], fallback: ControllerSet): ControllerSet => (
     controller === false ? {} : { ...fallback, ...(typeof controller === 'object' ? controller : {}) }
@@ -104,6 +111,8 @@ export default class Browser extends React.Component<Props, State> {
       show: false,
       // 缩放
       zoom: false,
+      canZoom: true,
+      zoomShakeKey: 0,
       // 旋转
       rotate: 0,
       // 页数
@@ -209,7 +218,7 @@ export default class Browser extends React.Component<Props, State> {
       // Delay showing the browser
       this.initRaf = window.requestAnimationFrame(() => {
         this.initRaf = undefined
-        this.setState({ show: true, zoom: false, rotate: 0, zoomTrigger: undefined, zoomPosition: undefined }, () => {
+        this.setState({ show: true, zoom: false, rotate: 0, zoomTrigger: undefined, zoomPosition: undefined, canZoom: true }, () => {
           presetIsDesktop && pageIsCover && !coverVisible && hideCover(coverRef)
           !isBrowsingControlled && typeof onBrowsing === 'function' && onBrowsing(true)
         })
@@ -281,7 +290,7 @@ export default class Browser extends React.Component<Props, State> {
    */
   handleKeyDown = (e: KeyboardEvent) => {
     const { set, hotKey, loop, outBrowsing } = this.getPropsWithEnv()
-    const { zoom, page } = this.state
+    const { zoom, page, canZoom } = this.state
     // 判斷按鍵編碼
     switch (e.keyCode) {
     case 27: // Escape
@@ -292,7 +301,13 @@ export default class Browser extends React.Component<Props, State> {
     case 32: // SpaceBar
       // 缩放
       e.preventDefault()
-      hotKey.zoom && this.handleToggleZoom('keyboard')
+      if (!hotKey.zoom) break
+      // 图片已是原始尺寸: 不进入 zoom 状态(否则 ESC 会被多消耗一次), 仅重放放大按钮 shake
+      if (!zoom && !canZoom) {
+        this.handleTriggerZoomShake()
+        break
+      }
+      this.handleToggleZoom('keyboard')
       break
     case 37: // ArrowLeft
       // 上一张
@@ -355,6 +370,8 @@ export default class Browser extends React.Component<Props, State> {
             zoom: false,
             zoomTrigger: undefined,
             zoomPosition: undefined,
+            // 复位 canZoom 至允许态; 新图 onLoad 会重新评估并下发准确值
+            canZoom: true,
             rotate: 0,
           }, () => {
             typeof onSwitching === 'function' && onSwitching(targetPage)
@@ -379,6 +396,20 @@ export default class Browser extends React.Component<Props, State> {
     }, () => {
       typeof onZooming === 'function' && onZooming(this.state.zoom)
     })
+  }
+  handleSetCanZoom = (canZoom: boolean) => {
+    if (this.state.canZoom !== canZoom) {
+      this.setState({ canZoom })
+    }
+  }
+  handleTriggerZoomShake = () => {
+    this.setState(({ zoomShakeKey }) => ({ zoomShakeKey: zoomShakeKey + 1 }))
+  }
+  handleViewportClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) {
+      return
+    }
+    this.state.zoom ? this.handleToggleZoom() : this.props.outBrowsing()
   }
 
   /**
@@ -422,7 +453,7 @@ export default class Browser extends React.Component<Props, State> {
 
     const contextValue = {
       // Internal
-      coverRef, coverPos, outBrowsing,
+      coverRef, coverPos, outBrowsing, viewportRef: this.viewportRef,
       // Data
       set,
       // Preset
@@ -439,6 +470,7 @@ export default class Browser extends React.Component<Props, State> {
       toNextPage: this.handleToNextPage,
       toggleZoom: this.handleToggleZoom,
       toggleRotate: this.handleToggleRotate,
+      setCanZoom: this.handleSetCanZoom,
     }
 
     return (
@@ -450,14 +482,23 @@ export default class Browser extends React.Component<Props, State> {
             {/*背景层*/}
             <Background {...statusValue}/>
 
-            {/*控制层*/}
-            <Control/>
+            <div
+              id="zmageViewport"
+              ref={this.viewportRef}
+              className={style.viewportLayer}
+              onClick={this.handleViewportClick}
+            >
 
-            {/*文案层*/}
-            <Caption/>
+              {/*控制层*/}
+              <Control/>
 
-            {/*图片层*/}
-            <Image {...statusValue}/>
+              {/*文案层*/}
+              <Caption/>
+
+              {/*图片层*/}
+              <Image {...statusValue}/>
+
+            </div>
 
           </Portals>
         }

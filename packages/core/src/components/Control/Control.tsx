@@ -5,7 +5,7 @@
 
 // Libs
 import classnames from 'classnames'
-import React, { ComponentType, CSSProperties, Fragment, useContext } from 'react'
+import React, { ComponentType, CSSProperties, Fragment, RefObject, useContext, useEffect, useRef } from 'react'
 // Style
 import style from './Control.module.less'
 // Asserts
@@ -35,16 +35,20 @@ function getControllerItem (
   zoom: boolean,
   child?: React.JSX.Element,
   itemStyle?: CSSProperties,
+  disabled?: boolean,
+  innerRef?: RefObject<HTMLDivElement>,
+  defaultColor?: string,
 ) {
   if (typeof item === 'boolean' || typeof item === 'string') {
-    // Flag or Color
+    // Flag or Color: item-as-string (per-button override) 仍优先, 否则 fallback 到 defaultColor (controllerColor)
+    // disabled 时不渲染 onClick, 避免 pointer-events:none 在某些浏览器下被穿透或被外层重置
     return !!item && (
-      <div id={id} className={className} style={itemStyle} onClick={onClick}>
-        {child || <Icon color={typeof item === 'string' ? item : ''}/>}
+      <div ref={innerRef} id={id} className={className} style={itemStyle} onClick={disabled ? undefined : onClick}>
+        {child || <Icon color={typeof item === 'string' ? item : (defaultColor || '')}/>}
       </div>
     )
   } else if (React.isValidElement(item)) {
-    return React.cloneElement(item as React.ReactElement<{ show?: boolean; zoom?: boolean; onClick?: () => void }>, { show, zoom, onClick })
+    return React.cloneElement(item as React.ReactElement<{ show?: boolean; zoom?: boolean; disabled?: boolean; color?: string; onClick?: () => void }>, { show, zoom, onClick, disabled, color: defaultColor })
   }
   return null
 }
@@ -61,7 +65,7 @@ export default function Control () {
     // Styles & interactive
     backdrop, loop,
     // Status
-    show, zoom, page,
+    show, zoom, page, canZoom, zoomShakeKey,
     // Action
     outBrowsing,
     toPage,
@@ -71,7 +75,26 @@ export default function Control () {
     toggleRotate,
   } = useContext(Context)
 
+  // 放大按钮禁用态: 仅在桌面端 (移动端按钮走 window.open, 与 canZoom 无关)
+  const zoomDisabled = !presetIsMobile && !canZoom
+
   const controllerParams = (controller || {}) as ControllerSet
+  // 控件容器底色 / 图标默认色: 用户显式传 controller.backdrop / controller.color 时生效,
+  // 否则容器沿用顶层 backdrop, 图标用 currentColor (向前兼容).
+  // 解耦原因: backdrop="black" 时控件容器跟蒙版同色, 黑底黑图标无法辨认 (issue #129).
+  const effectiveControllerBackdrop = controllerParams.backdrop ?? backdrop
+  const controllerColor = controllerParams.color
+  // 用 ref + reflow 强制重放 shake 动画 (CSS class 重复添加不会自动重启动画)
+  const zoomButtonRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (zoomShakeKey === 0) return
+    const el = zoomButtonRef.current
+    if (!el) return
+    el.classList.remove(style.shake)
+    void el.offsetWidth
+    el.classList.add(style.shake)
+  }, [zoomShakeKey])
+
   const browsingTransitionStyle = animate?.browsing === false ? { transition: 'none' } : undefined
   const handleMobileZoom = () => {
     const current = Array.isArray(set) ? set[page] : undefined
@@ -92,7 +115,7 @@ export default function Control () {
       <div
         id="zmageControl"
         className={classnames(style.controls, { [style.show]: !zoom && show })}
-        style={{ backgroundColor: backdrop, ...browsingTransitionStyle }}
+        style={{ backgroundColor: effectiveControllerBackdrop, ...browsingTransitionStyle }}
       >
 
         {/*旋转*/}
@@ -106,7 +129,10 @@ export default function Control () {
             show,
             zoom,
             undefined,
-            browsingTransitionStyle
+            browsingTransitionStyle,
+            undefined,
+            undefined,
+            controllerColor
           )
         }
         {
@@ -119,7 +145,10 @@ export default function Control () {
             show,
             zoom,
             undefined,
-            browsingTransitionStyle
+            browsingTransitionStyle,
+            undefined,
+            undefined,
+            controllerColor
           )
         }
 
@@ -134,7 +163,10 @@ export default function Control () {
             show,
             zoom,
             undefined,
-            browsingTransitionStyle
+            browsingTransitionStyle,
+            undefined,
+            undefined,
+            controllerColor
           )
         }
 
@@ -144,12 +176,15 @@ export default function Control () {
             controllerParams.zoom,
             IconZoom,
             'zmageControlZoom',
-            classnames(style.zoom, { [style.show]: !zoom && show }),
+            classnames(style.zoom, { [style.show]: !zoom && show, [style.disabled]: zoomDisabled }),
             presetIsMobile ? handleMobileZoom : () => toggleZoom(),
             show,
             zoom,
             undefined,
-            browsingTransitionStyle
+            browsingTransitionStyle,
+            zoomDisabled,
+            zoomButtonRef,
+            controllerColor
           )
         }
 
@@ -164,7 +199,10 @@ export default function Control () {
             show,
             zoom,
             undefined,
-            browsingTransitionStyle
+            browsingTransitionStyle,
+            undefined,
+            undefined,
+            controllerColor
           )
         }
 
@@ -185,7 +223,10 @@ export default function Control () {
               show,
               zoom,
               undefined,
-              browsingTransitionStyle
+              browsingTransitionStyle,
+              undefined,
+              undefined,
+              controllerColor
             )
           }
           {
@@ -199,7 +240,10 @@ export default function Control () {
               show,
               zoom,
               undefined,
-              browsingTransitionStyle
+              browsingTransitionStyle,
+              undefined,
+              undefined,
+              controllerColor
             )
           }
         </Fragment>
@@ -214,7 +258,7 @@ export default function Control () {
             <div
               id="zmageControlPagination"
               className={classnames(style.pages, { [style.show]: !zoom && show, [style.mobile]: presetIsMobile })}
-              style={{ backgroundColor: backdrop, ...browsingTransitionStyle }}
+              style={{ backgroundColor: effectiveControllerBackdrop, ...browsingTransitionStyle }}
             >
               {
                 set.map((_, i) =>

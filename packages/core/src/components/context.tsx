@@ -15,6 +15,7 @@ export interface ContextType extends BrowsingParams, FunctionalNormalizedParams,
   // Internal
   coverRef: RefObject<HTMLImageElement>
   coverPos?: Coordinate
+  viewportRef: RefObject<HTMLElement>
   outBrowsing: () => void
   // Data
   set: Set[]
@@ -28,6 +29,7 @@ export interface ContextType extends BrowsingParams, FunctionalNormalizedParams,
   toNextPage: () => void
   toggleZoom: (trigger?: ZoomTrigger) => void
   toggleRotate: (direction: '' | 'left' | 'right') => () => void
+  setCanZoom: (canZoom: boolean) => void
 }
 
 export const Context = createContext({} as ContextType)

@@ -120,6 +120,8 @@ export const en: I18nDict = {
   'controller.flip': 'Flip',
   'controller.flipLeft': 'Previous',
   'controller.flipRight': 'Next',
+  'controller.backdrop': 'backdrop',
+  'controller.color': 'color',
   'controller.pagination.desc': 'Top-bar page indicator showing current position / total pages',
   'controller.rotate.desc': 'Rotation control group (includes left and right buttons)',
   'controller.rotateLeft.desc': 'Rotate 90° counter-clockwise',
@@ -130,6 +132,8 @@ export const en: I18nDict = {
   'controller.flip.desc': 'Flip control group (includes previous and next buttons)',
   'controller.flipLeft.desc': 'Move to the previous image',
   'controller.flipRight.desc': 'Move to the next image',
+  'controller.backdrop.desc': 'Toolbar background. Falls back to top-level `backdrop` when omitted. Set to a translucent value (e.g. `rgba(0,0,0,0.4)`) when `backdrop` is solid dark.',
+  'controller.color.desc': 'Toolbar icon color. Falls back to `currentColor` when omitted. Per-button string overrides (e.g. `controller.zoom = "#ff8800"`) still take precedence.',
   'controller.overriddenBy': 'Enabled by',
   'snippet.overriddenByProp': 'overridden by {umbrella}',
 
@@ -219,6 +223,8 @@ export const en: I18nDict = {
   'docs.section.theming.imperativeBody': 'In an event handler, read the current DOM state (e.g. a theme class on `documentElement`), translate it to a color, then pass it to `Zmage.browsing`:',
   'docs.section.theming.iconsTitle': 'Aligning icons with the design system',
   'docs.section.theming.iconsBody': 'Control icons live inside the `#zmage` container; override their color from your global CSS. If you use CSS variables for theming (Tailwind / shadcn / vanilla tokens), bind directly to the design token:',
+  'docs.section.theming.toolbarTitle': 'Decoupling the toolbar from the modal backdrop',
+  'docs.section.theming.toolbarBody': 'By default the toolbar capsule shares the modal `backdrop` and icons render with `currentColor`. On a solid dark `backdrop` that means dark icons on a dark capsule — invisible. Pass `controller.backdrop` (capsule color) and `controller.color` (icon color) to decouple them. Per-button string overrides (e.g. `controller.zoom = "#ff8800"`) still take precedence over `controller.color`.',
 
   // Search descriptions — short hint shown under each search result title
   'docs.search.desc.installation': 'Install via your package manager and import the stylesheet',
@@ -235,7 +241,7 @@ export const en: I18nDict = {
   'docs.search.desc.propsControlled': 'Controlled browsing state',
   'docs.search.desc.examples': 'Single image and multi-image gallery examples',
   'docs.search.desc.typescript': 'BaseType / Set / ControllerSet type declarations',
-  'docs.search.desc.migration': 'Upgrade notes from v2',
+  'docs.search.desc.migration': 'Upgrade notes from 0.x',
   'docs.search.desc.faq': 'Common integration gotchas and version-specific fixes',
 
   'docs.section.props.title': 'Props',
@@ -267,7 +273,7 @@ export const en: I18nDict = {
   'docs.section.typescript.refIntro': 'The component accepts a ref, which forwards to the cover img:',
 
   'docs.section.migration.title': 'Migration',
-  'docs.section.migration.fromV2': 'From v2:',
+  'docs.section.migration.from': 'Upgrading from 0.x:',
   'docs.section.migration.bullet1': 'Component is a forwardRef exotic; do not new Zmage().',
   'docs.section.migration.bullet2': 'If you import the SSR entry, switch to react-zmage/ssr.',
 
@@ -283,6 +289,10 @@ export const en: I18nDict = {
   'docs.section.faq.vite-esm.a': 'Pre-1.1.2 used `require(\'react-dom/client\')` for runtime detection, but browser ESM has no `require` global. 1.1.2 switches to a static import — upgrade to >=1.1.2.',
   'docs.section.faq.wrapper-dynamic.q': "Wrapper isn't binding click handlers to images I added after mount.",
   'docs.section.faq.wrapper-dynamic.a': 'Wrapper queries `<img>` only in `componentDidMount` and `componentDidUpdate`. If you inject DOM imgs outside React\'s render tree (e.g. dangerouslySetInnerHTML changing without a parent re-render), force the wrapper to re-render — or call `Zmage.browsing()` from your own click handler instead.',
+  'docs.section.faq.lazy-src.q': 'My `<img>` uses lazy-loading with `data-src` — opening Zmage shows the placeholder, not the real image. How do I fix it?',
+  'docs.section.faq.lazy-src.a': 'Zmage reads the cover `<img>`\'s `src` by default — the placeholder is all it sees. Pass the real URL explicitly via `set`: `<Zmage src={placeholderUrl} set={[{ src: realUrl }]} />`. Same idea for the imperative call: `Zmage.browsing({ src: realUrl })`.',
+  'docs.section.faq.cover-vs-set.q': 'I want a thumbnail on the page and the full-resolution image when clicked — can I skip `set`?',
+  'docs.section.faq.cover-vs-set.a': 'No. Without `set`, the cover `src` is what the viewer shows. To get a "thumbnail entrypoint + full-size viewer", separate them explicitly: `<Zmage src={thumbUrl} set={[{ src: hdUrl }]} />`. The same pattern handles lazy-loaded `data-src` (FAQ above) and CDN multi-resolution. If you want a "grid/gallery + open viewer" UI, Zmage doesn\'t provide that — render the gallery yourself and call `Zmage.browsing({ src, set })` on click.',
   'docs.section.faq.controlled-mismatch.q': 'My controlled `browsing` prop and the modal state are out of sync.',
   'docs.section.faq.controlled-mismatch.a': 'Controlled mode requires both `browsing` and `onBrowsing`. If you pass only `browsing` (no callback), internal state syncs once and then drifts. Always pair them.',
   'docs.section.faq.ssr.q': 'How do I use react-zmage in Next.js / Remix / SSR frameworks?',
