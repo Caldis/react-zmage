@@ -7,8 +7,15 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 import Zmage from '../Zmage'
 import { resolvePreset } from '../types/default'
 import { pageIsCover } from '../components/Browser/Browser.utils'
+import type { HotKey } from '../types/global'
 
 const SRC = 'https://example.com/test.jpg'
+
+function clickById (id: string) {
+  const el = document.getElementById(id)
+  if (!el) throw new Error(`expected #${id} to be in the DOM at this point`)
+  fireEvent.click(el)
+}
 
 describe('Zmage 基础组件', () => {
   it('封面 img 可被渲染并附加 zoom-in cursor', () => {
@@ -235,9 +242,9 @@ describe('Zmage caption 渲染', () => {
     expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
     // 触发右翻按钮 (DOM 事件比 window keydown 在 JSDOM 下更可靠)
     const flipRight = document.getElementById('zmageControlFlipRight')
-    expect(flipRight).toBeTruthy()
+    if (!flipRight) throw new Error('expected #zmageControlFlipRight in DOM')
     await act(async () => {
-      fireEvent.click(flipRight!)
+      fireEvent.click(flipRight)
       await new Promise(r => setTimeout(r, 50))
     })
     expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
@@ -255,17 +262,17 @@ describe('Zmage 动画行为', () => {
     await wait(50)
 
     const rotateRight = document.getElementById('zmageControlRotateRight')
-    expect(rotateRight).toBeTruthy()
+    if (!rotateRight) throw new Error('expected #zmageControlRotateRight in DOM')
     await act(async () => {
       for (let i = 0; i < 5; i++) {
-        fireEvent.click(rotateRight!)
+        fireEvent.click(rotateRight)
       }
       await new Promise(r => setTimeout(r, 80))
     })
 
     expect((document.getElementById('zmageImage') as HTMLImageElement).style.transform).toContain('450deg')
 
-    fireEvent.click(document.getElementById('zmageControlClose')!)
+    clickById('zmageControlClose')
     await wait(80)
 
     const closingImage = document.getElementById('zmageImage') as HTMLImageElement
@@ -282,7 +289,7 @@ describe('Zmage 动画行为', () => {
     expect(document.getElementById('zmageControl')?.style.transition).toBe('none')
     expect(document.getElementById('zmageCaption')?.style.transition).toBe('none')
 
-    fireEvent.click(document.getElementById('zmageControlClose')!)
+    clickById('zmageControlClose')
     await wait(0)
     expect(document.getElementById('zmage')).toBeNull()
   })
@@ -302,7 +309,7 @@ describe('Zmage 动画行为', () => {
     fireEvent.click(screen.getByAltText('cover'))
     await wait(50)
 
-    fireEvent.click(document.getElementById('zmageControlFlipRight')!)
+    clickById('zmageControlFlipRight')
     await wait(50)
 
     const centerImage = document.getElementById('zmageImage') as HTMLImageElement
@@ -333,7 +340,7 @@ describe('Zmage 动画行为', () => {
 
     expect(nextSideImage).toBeTruthy()
 
-    fireEvent.click(document.getElementById('zmageControlFlipRight')!)
+    clickById('zmageControlFlipRight')
     await wait(50)
 
     const centerImage = document.getElementById('zmageImage') as HTMLImageElement
@@ -391,7 +398,7 @@ describe('Zmage 动画行为', () => {
       fireEvent.click(screen.getByAltText('control-zoom'))
       await wait(50)
 
-      fireEvent.click(document.getElementById('zmageControlZoom')!)
+      clickById('zmageControlZoom')
       await wait(80)
 
       const centerImage = document.getElementById('zmageImage') as HTMLImageElement
@@ -471,7 +478,7 @@ describe('Zmage hotKey 翻页 (umbrella + 单边)', () => {
     })
   }
 
-  const renderTwoPageSet = (hotKey: any) =>
+  const renderTwoPageSet = (hotKey: boolean | HotKey) =>
     render(
       <Zmage
         src={SRC}
