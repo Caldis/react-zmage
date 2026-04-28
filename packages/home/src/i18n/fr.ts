@@ -11,7 +11,7 @@ export const fr: I18nDict = {
   'hero.subtitle': 'Un petit composant React qui transforme n\'importe quelle image en une visionneuse plein écran navigable au clavier. Aucun portail à configurer. Aucune plomberie d\'état. Juste <Zmage>.',
   'hero.cta.start': 'Commencer',
   'hero.cta.playground': 'Ouvrir le playground',
-  'hero.ai.label': "Copiez ce prompt, puis confiez-le à votre AI Agent",
+  'hero.ai.label': 'Copiez ce prompt, puis confiez-le à votre AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 
   'demo.caption': 'Ceci est une véritable <Zmage>. Cliquez, faites défiler, appuyez sur Espace.',
