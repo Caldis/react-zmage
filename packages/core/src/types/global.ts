@@ -66,8 +66,9 @@ export type ControllerItem = boolean | string | ReactNode
  * @see https://github.com/Caldis/react-zmage#controllerSet
  */
 export interface ControllerSet {
-  // 分页
-  pagination?: Omit<ControllerItem, string>
+  // 分页 — 不接受 string (运行时若传 string 会被 isValidElement 判否, 静默渲染默认指示器,
+  // 用户的字符串被吞)。Exclude 让"想用字符串自定义页码"的写法在编译期就报错而不是运行期消失。
+  pagination?: Exclude<ControllerItem, string>
   // 旋转
   rotate?: ControllerItem
   rotateLeft?: ControllerItem
