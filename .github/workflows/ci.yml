@@ -17,8 +17,13 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies (skip sandbox until pack/ tgz is built)
+        # sandbox-* 包用 file:..\..\.pack\react-zmage-X.Y.Z.tgz 引用 core, 但 .pack/ 在
+        # .gitignore 里 — CI fresh checkout 时不存在, 直接 frozen-lockfile install 会 ENOENT.
+        # filter 排除 sandbox, root + core + home 的依赖能 frozen 校验并装上;
+        # build job 不需要 sandbox; sandbox-matrix job 之后跑 `pnpm -w run check`,
+        # 内部 build + pack 生成 .pack/ 后再 install (那时 sandbox 也能装上).
+        run: pnpm install --frozen-lockfile --filter '!./packages/sandbox-*'
       - name: Lint
         run: pnpm lint
       - name: Test
@@ -43,8 +48,13 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies (skip sandbox until pack/ tgz is built)
+        # sandbox-* 包用 file:..\..\.pack\react-zmage-X.Y.Z.tgz 引用 core, 但 .pack/ 在
+        # .gitignore 里 — CI fresh checkout 时不存在, 直接 frozen-lockfile install 会 ENOENT.
+        # filter 排除 sandbox, root + core + home 的依赖能 frozen 校验并装上;
+        # build job 不需要 sandbox; sandbox-matrix job 之后跑 `pnpm -w run check`,
+        # 内部 build + pack 生成 .pack/ 后再 install (那时 sandbox 也能装上).
+        run: pnpm install --frozen-lockfile --filter '!./packages/sandbox-*'
       - name: Run check pipeline (build + pack + reinstall)
         run: pnpm -w run check
       - name: Run only matching React sandbox
