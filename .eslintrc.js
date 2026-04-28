@@ -52,6 +52,11 @@ module.exports = {
     // Custom
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-empty-function': 'off',
+    '@typescript-eslint/no-unused-vars': ['warn', {
+      varsIgnorePattern: '^_',
+      argsIgnorePattern: '^_',
+      destructuredArrayIgnorePattern: '^_',
+    }],
     'no-trailing-spaces': ['warn'],
   },
 }
