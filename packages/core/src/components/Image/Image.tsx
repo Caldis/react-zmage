@@ -13,7 +13,6 @@ import Loading from './loading'
 // Utils
 import { Animate } from '../../types/global'
 import { BrowsingParams, Context, ContextType } from '../context'
-import { animationDuration, animationFunctionOnZooming } from '../../config/anim'
 import {
   appendParams,
   checkImageLoadedComplete,
@@ -69,11 +68,6 @@ export default class Image extends React.Component<PropsType, StateType> {
   pendingRafHandles: number[] = []
   browsingTransitionRaf?: number
   suppressBrowsingTransition = false
-  // 本轮 zoom session 的首次 mousemove 已经被 WAAPI 接管 — instance prop 同步设置避免
-  // 同帧多次 mousemove 竞态; 也作为 getStyle 决策"是否输出 transition: 'none'"的依据.
-  zoomFirstFollowStarted = false
-  // 首次 mousemove 跑 WAAPI 用的 Animation 句柄, 后续 mousemove 或退出 zoom 时取消.
-  zoomFollowAnimation?: Animation
   // State
   readonly state = {
     // 加载状态
@@ -110,18 +104,6 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { show: prevShow, zoom: prevZoom, rotate: prevRotate, page: prevPage } = prevProps
     const { show: currShow, zoom: currZoom, rotate: currRotate, page: currPage } = this.props
     const { animate, presetIsMobile } = this.context
-    // zoom 切换时复位 follow 状态: cancel WAAPI + 清 first-follow 标记 + 强制 re-render
-    // 让 getStyle 重新基于新的 zoomFirstFollowStarted=false 输出 transition
-    if (prevZoom !== currZoom) {
-      if (this.zoomFollowAnimation) {
-        this.zoomFollowAnimation.cancel()
-        this.zoomFollowAnimation = undefined
-      }
-      if (this.zoomFirstFollowStarted) {
-        this.zoomFirstFollowStarted = false
-        this.forceUpdate()
-      }
-    }
     // 状态改变时更新样式 (Page 导致的 src 变化的 update 交给图片自身的 onload 调用)
     if (prevShow !== currShow || prevZoom !== currZoom || prevRotate !== currRotate) {
       const updateStyle = () => {
@@ -159,10 +141,6 @@ export default class Image extends React.Component<PropsType, StateType> {
     if (this.browsingTransitionRaf !== undefined) {
       window.cancelAnimationFrame(this.browsingTransitionRaf)
       this.browsingTransitionRaf = undefined
-    }
-    if (this.zoomFollowAnimation) {
-      this.zoomFollowAnimation.cancel()
-      this.zoomFollowAnimation = undefined
     }
     // 取消挂起的 debounce, 避免在已卸载组件上 setState
     this.debounceUpdateCurrentImageStyle.cancel()
@@ -250,36 +228,8 @@ export default class Image extends React.Component<PropsType, StateType> {
   }
   // 鼠标事件
   handleMouseMove = (e: MouseEvent) => {
-    const node = this.imageRef.current
-    if (!node) return
     const zoomingStyle = getZoomingStyle(this.context, this.imageRef, e)
-    const targetTransform = `translate3d(-50%, -50%, 0) translate3d(${zoomingStyle.x}px, ${zoomingStyle.y}px, 0px) scale3d(${zoomingStyle.scale}, ${zoomingStyle.scale}, 1) rotate3d(0, 0, 1, ${zoomingStyle.rotate}deg)`
-
-    if (!this.zoomFirstFollowStarted) {
-      // 首次 mousemove: 用 WAAPI 在 compositor 层独立动画 — 不受 React render / CSS transition
-      // 时序影响, 不会被后续 setState 通过"transition: 'none' 取消 in-flight"的方式吃掉.
-      this.zoomFirstFollowStarted = true
-      const fromTransform = window.getComputedStyle(node).transform
-      this.zoomFollowAnimation = node.animate(
-        [{ transform: fromTransform }, { transform: targetTransform }],
-        { duration: animationDuration, easing: animationFunctionOnZooming, fill: 'forwards' },
-      )
-      // 同步 React state, 让退出 zoom 时 React 渲染拿到正确的 currentStyle
-      this.setCurrentStyle(zoomingStyle)
-    } else {
-      // 后续 mousemove: 取消 WAAPI + 直接 DOM mutation 实现真正的零延迟跟随.
-      // 不能依赖 React state + getStyle, 因为 React 18+ batching 会让多个 mousemove 在同一
-      // paint 帧只 commit 最后一次, 中间 transform 变化都被 vsync 合并丢弃.
-      if (this.zoomFollowAnimation) {
-        this.zoomFollowAnimation.cancel()
-        this.zoomFollowAnimation = undefined
-      }
-      node.style.transition = 'none'
-      node.style.transform = targetTransform
-      // setState 在后, 即使 React render 又写一遍也是同一个 transform + transition: 'none'
-      // (getStyle 在 zoomFirstFollowStarted=true 时输出 transition: 'none'), 不会回退.
-      this.setCurrentStyle(zoomingStyle)
-    }
+    this.setCurrentStyle(zoomingStyle)
   }
   // 加载事件
   handleImageLoadStart = () => {
@@ -398,13 +348,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       cursor: zoom ? 'zoom-out' : 'initial',
       zIndex,
       opacity: invalidate ? 0 : opacity,
-      transition: this.suppressBrowsingTransition
-        || animateParams.flip === false
-        // 进入首次 mousemove 后, getStyle 永远输出 transition: 'none'. 这避免 React render
-        // 把 inline transition 重置为默认 (CSS 类 350ms), 让后续 mousemove 的 DOM mutation
-        // 不被 React 的下一次渲染回退.
-        || (zoom && !isSideImage && this.zoomFirstFollowStarted)
-        ? 'none' : transition,
+      transition: this.suppressBrowsingTransition || animateParams.flip === false ? 'none' : transition,
       pointerEvents,
       ...set[page].style,
     } as CSSProperties

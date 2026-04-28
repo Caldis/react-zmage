@@ -19,11 +19,8 @@
   height: auto;
 
   &.zooming {
-    // enter zoom (cover→centered) 仍走基类 350ms transform transition + zooming 缓动.
-    // 首次 mousemove 由 Image.tsx 用 WAAPI (element.animate) 接管, 后续 mousemove
-    // 由 Image.tsx 直接 DOM mutation (style.transition='none') 实现零延迟跟随.
-    // 任何在 mousemove 期间使用 CSS transition 的方案都会粘滞 — 即使 150ms 也不行.
     transition-timing-function: @animationFunctionOnZooming;
+    // 修复 IE 下位移卡顿问题
     -ms-transition-duration: @animationDurationOnZooming;
   }
 
