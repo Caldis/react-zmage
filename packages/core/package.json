@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "A scalable image container",
   "keywords": [
     "react",
@@ -12,6 +12,9 @@
   ],
   "files": [
     "dist/"
+  ],
+  "sideEffects": [
+    "./dist/index.css"
   ],
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
@@ -41,7 +44,7 @@
   "license": "MIT",
   "homepage": "https://zmage.caldis.me",
   "scripts": {
-    "build": "tsup --config tsup.config.ts && tsc -p tsconfig.declarations.json",
+    "build": "tsup --config tsup.config.ts && tsc -p tsconfig.declarations.json && node scripts/postbuild-cleanup.mjs",
     "build:watch": "tsup --config tsup.config.ts --watch",
     "dev": "tsup --config tsup.config.ts --watch",
     "pack": "pnpm pack --pack-destination ../../.pack",
@@ -50,6 +53,7 @@
     "lint:style": "stylelint \"src/**/*.{css,less}\"",
     "test": "vitest run",
     "test:watch": "vitest watch",
+    "prepack": "node ../../scripts/sync-core-readme.mjs",
     "postpublish": "node ../../scripts/postpublish-llms-reminder.mjs"
   },
   "dependencies": {

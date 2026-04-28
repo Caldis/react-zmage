@@ -1,4 +1,11 @@
 export { default } from './Zmage'
+// NOTE — do NOT add `export { default as browsing } from './Zmage.callee'` etc.
+// Doing so changes the tsup CJS emit from `module.exports = Zmage` to
+// `exports.default = Zmage; exports.browsing = …`, which breaks every
+// `const Zmage = require('react-zmage')` consumer. The `Zmage.browsing` and
+// `Zmage.Wrapper` static accessors already serve the same use case via the
+// default export. Real tree-shaking would require a custom CJS shim that
+// reattaches named exports onto a single `module.exports` value — out of scope.
 export type {
   ReactZmageComponent,
   ForwardedComponent,

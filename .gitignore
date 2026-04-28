@@ -25,3 +25,7 @@ tmp/
 # Defensive: block stray PNGs at repo root. Committed images live under docs/
 # (e.g. docs/logo.png) and are unaffected by this rule.
 /*.png
+
+# Generated at publish time by scripts/sync-core-readme.mjs (prepublishOnly hook).
+# Single source of truth is the root README.md.
+/packages/core/README.md

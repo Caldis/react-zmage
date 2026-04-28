@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.1
+
+- **chore (publish hygiene)**: Dropped IIFE / global bundle from the npm tarball. React component libs aren't realistically consumed via `<script src="…">`, and that format was ~60 % of 1.3.0's tarball (`dist/index.global.js` + map). ESM and CJS entries (`dist/index.{mjs,cjs}`) plus the SSR entries remain — typical bundler-based projects see no behavior change, just a smaller install.
+- **chore**: Removed `dist/ssr/index.css` — it was byte-identical to `dist/index.css` and not referenced through the `exports` field. The documented stylesheet path `react-zmage/style.css` already maps to `dist/index.css`.
+- **chore**: Excluded `src/__tests__/**` from the published `.d.ts` set (`dist/__tests__/setup.d.ts` is no longer shipped).
+- **chore**: `packages/core/README.md` is now generated from the repo root `README.md` at publish time (`prepublishOnly` hook → `scripts/sync-core-readme.mjs`). 1.3.0 shipped a stale 0.x-era README on the npm page; 1.3.1 carries the bilingual EN/CN README that's been in the repo root.
+- **chore**: Declared `sideEffects: ["./dist/index.css"]` in `package.json` so bundlers know the JS modules themselves are pure (only the stylesheet has side effects). Doesn't change current bundle size — the existing `Zmage.browsing` / `Zmage.Wrapper` statics still attach to the default export — but tells bundlers the JS is safe to drop if unreferenced, future-proofing any later tree-shaking refactor.
+
+Net effect on tarball: 626 KB → ~256 KB compressed (≈ 60 % smaller); 3.1 MB → ~1.1 MB uncompressed. No change to the public API — `import Zmage from 'react-zmage'` and `const Zmage = require('react-zmage')` both keep returning the component as before.
+
 ## 1.3.0
 
 - Fixed the viewer overlay layout in mobile viewport emulation when the host page has horizontal overflow. The viewer now uses its own rendered overlay box as the single geometry reference, keeping the backdrop, image, controls, pagination, caption, and loading UI aligned even when browser viewport metrics disagree.

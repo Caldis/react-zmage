@@ -96,20 +96,25 @@ const baseConfig: Options = {
   esbuildPlugins: [lessModulePlugin()],
 }
 
+// Dropped IIFE / global bundle (`format: ['…', 'iife']` + `globalName`):
+// React itself no longer ships UMD/IIFE, so a React component lib has no realistic
+// `<script src="…">` consumer. The IIFE bundle was 60% of the npm tarball.
+//
+// SSR config sets `css: false` because the SSR JS doesn't need its own CSS file —
+// the documented stylesheet path is `react-zmage/style.css` which `exports` maps
+// to `dist/index.css`. `dist/ssr/index.css` was a byte-identical duplicate with no
+// `exports` outlet → dead weight, removed.
 export default defineConfig(() => ([
   {
     ...baseConfig,
-    format: ['esm', 'cjs', 'iife'],
+    format: ['esm', 'cjs'],
     outDir: 'dist',
     dts: false,
     clean: true,
     platform: 'browser',
     css: true,
-    globalName: 'ReactZmage',
     outExtension ({ format }) {
-      if (format === 'cjs') return { js: '.cjs' }
-      if (format === 'esm') return { js: '.mjs' }
-      return { js: '.global.js' }
+      return { js: format === 'cjs' ? '.cjs' : '.mjs' }
     },
   },
   {
@@ -119,10 +124,11 @@ export default defineConfig(() => ([
     dts: false,
     clean: false,
     platform: 'neutral',
+    // `css: false` here is a no-op (the lessModulePlugin emits CSS regardless);
+    // the duplicate `dist/ssr/index.css` is removed by scripts/postbuild-cleanup.mjs.
     css: true,
     outExtension ({ format }) {
-      if (format === 'cjs') return { js: '.cjs' }
-      return { js: '.mjs' }
+      return { js: format === 'cjs' ? '.cjs' : '.mjs' }
     },
   },
 ]))
