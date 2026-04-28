@@ -117,6 +117,23 @@ test('hotKey umbrella + per-side keys wired across types and llms.txt', () => {
   assert.match(hotKeyLine, /\bflipRight\b/, 'llms.txt hotKey row missing flipRight')
 })
 
+test('closeOnDoubleClick + onError prop wired across types, defaults and llms.txt', () => {
+  // global.ts: closeOnDoubleClick on InterfaceAndInteractionParams; onError on LifeCycleParams
+  assert.match(globalTs, /\bcloseOnDoubleClick\?:\s*boolean\b/, 'closeOnDoubleClick missing in types/global.ts')
+  assert.match(globalTs, /\bonError\?:\s*\(e:\s*SyntheticEvent/, 'onError missing in types/global.ts')
+  // default.ts: closeOnDoubleClick has a false default in defProp
+  assert.match(defaultTs, /\bcloseOnDoubleClick:\s*false\b/, 'closeOnDoubleClick default missing in defProp')
+  // llms.txt API rows
+  const dblLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|\s*`closeOnDoubleClick`\s*\|/.test(line)
+  )
+  assert.ok(dblLine, 'no API-table row in llms.txt declares closeOnDoubleClick')
+  const onErrLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|\s*`onError`\s*\|/.test(line)
+  )
+  assert.ok(onErrLine, 'no API-table row in llms.txt declares onError')
+})
+
 test('controller visual keys (backdrop + color) declared in ControllerSet and llms.txt', () => {
   // global.ts: ControllerSet declares the visual keys
   assert.match(globalTs, /export\s+interface\s+ControllerSet\b/, 'ControllerSet interface missing in types/global.ts')

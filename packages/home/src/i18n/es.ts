@@ -177,6 +177,8 @@ export const es: I18nDict = {
   'param.hideOnScroll.desc': 'Cerrar el visor cuando la página se desplaza.',
   'param.coverVisible.label': 'coverVisible',
   'param.coverVisible.desc': 'Mantener la imagen de portada visible durante la navegación.',
+  'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
+  'param.closeOnDoubleClick.desc': 'Cerrar el visor al hacer doble clic en la imagen. Desactivado por defecto.',
   'param.controller.label': 'controller',
   'param.controller.desc': 'Botones de la barra de control. Pasa false para desactivar todo, o un objeto parcial para sobrescribir.',
   'param.hotKey.label': 'hotKey',
@@ -191,6 +193,8 @@ export const es: I18nDict = {
   'param.onSwitching.desc': 'Se dispara al cambiar de página (nuevo índice).',
   'param.onRotating.label': 'onRotating',
   'param.onRotating.desc': 'Se dispara al rotar (grados).',
+  'param.onError.label': 'onError',
+  'param.onError.desc': 'Se dispara cuando una imagen (portada o visor) falla al cargar. Recibe el SyntheticEvent.',
   'param.browsing.label': 'browsing',
   'param.browsing.desc': 'Estado de navegación controlado. Pasarlo cambia al modo controlado; combínalo con onBrowsing.',
 

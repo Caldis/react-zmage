@@ -177,6 +177,8 @@ export const ko: I18nDict = {
   'param.hideOnScroll.desc': '페이지 스크롤 시 뷰어를 닫습니다.',
   'param.coverVisible.label': 'coverVisible',
   'param.coverVisible.desc': '뷰어가 열려 있는 동안에도 커버 이미지를 표시합니다.',
+  'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
+  'param.closeOnDoubleClick.desc': '이미지 더블클릭으로 뷰어를 닫습니다. 기본값은 꺼짐.',
   'param.controller.label': 'controller',
   'param.controller.desc': '컨트롤 바 버튼. false로 전체 비활성화하거나 부분 객체로 기본값을 덮어쓸 수 있습니다.',
   'param.hotKey.label': 'hotKey',
@@ -191,6 +193,8 @@ export const ko: I18nDict = {
   'param.onSwitching.desc': '페이지 변경 시 호출됩니다 (새 페이지 인덱스).',
   'param.onRotating.label': 'onRotating',
   'param.onRotating.desc': '회전 시 호출됩니다 (각도).',
+  'param.onError.label': 'onError',
+  'param.onError.desc': '이미지 로드 실패 시 호출됩니다 (커버/뷰어 공통, SyntheticEvent 전달).',
   'param.browsing.label': 'browsing',
   'param.browsing.desc': '제어된 브라우징 상태. 값을 전달하면 제어 모드로 전환되며 onBrowsing과 함께 사용해야 합니다.',
 

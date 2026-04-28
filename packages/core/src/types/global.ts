@@ -1,4 +1,4 @@
-import { ForwardedRef, HTMLAttributes, ReactNode, RefObject } from 'react'
+import { ForwardedRef, HTMLAttributes, ReactNode, RefObject, SyntheticEvent } from 'react'
 import { GlobalClickMonitor } from '../utils'
 
 /**
@@ -197,6 +197,8 @@ export interface InterfaceAndInteractionParams {
   edge?: number
   // 循环
   loop?: boolean
+  // 双击图片关闭 (浏览态; 默认 false 不破坏现有点击语义)
+  closeOnDoubleClick?: boolean
 }
 
 /**
@@ -207,6 +209,8 @@ export interface LifeCycleParams {
   onZooming?: (isZooming: boolean) => void
   onSwitching?: (paging: number) => void
   onRotating?: (deg: number) => void
+  // 浏览层图片加载失败时触发 (cover 失败仍走原生 HTMLImageElement.onError 透传)
+  onError?: (e: SyntheticEvent<HTMLImageElement, Event>) => void
 }
 
 /**

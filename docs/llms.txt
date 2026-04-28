@@ -70,10 +70,12 @@ const [open, setOpen] = useState(false)
 | `coverVisible` | `boolean` | `false` | Keep the underlying `<img>` visible while the modal is open. |
 | `zIndex` / `radius` / `edge` | `number` | `1000` / `0` / `0` | Modal stacking, image corner radius, viewport padding. |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
+| `closeOnDoubleClick` | `boolean` | `false` | Close the viewer on image double-click. Off by default to preserve current single-click semantics; turn on to dismiss with a double-click. |
 | `onBrowsing` | `(isBrowsing: boolean) => void` | — | Fires on open/close. |
 | `onZooming` | `(isZooming: boolean) => void` | — | Fires on zoom in/out. |
 | `onSwitching` | `(page: number) => void` | — | Fires on page change. |
 | `onRotating` | `(deg: number) => void` | — | Fires on rotation. |
+| `onError` | `(e: SyntheticEvent<HTMLImageElement>) => void` | — | Fires when an image (cover **or** viewer) fails to load. The cover-image case also still flows through native `<img>` `onError` via HTML attribute passthrough; this prop is the only way to observe the **viewer** image's load failure. |
 | `browsing` | `boolean` | — | **Controlled-mode prop**, distinct from the static method `Zmage.browsing()`. Pair with `onBrowsing` to drive open state from outside. |
 
 Standard `<img>` HTML attributes (`className`, `style`, `width`, `height`, `loading`, `id`, etc.) pass through to the cover image.

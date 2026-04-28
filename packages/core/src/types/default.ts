@@ -56,6 +56,8 @@ export const defProp = {
   edge: 0,
   // 是否循环查看
   loop: true,
+  // 双击图片关闭 (浏览态)
+  closeOnDoubleClick: false,
 
   /**
    * 生命周期
@@ -64,6 +66,8 @@ export const defProp = {
   onZooming: () => {},
   onSwitching: () => {},
   onRotating: () => {},
+  // onError 不预置 stub: 用户没传时传给 cover 的 onError 应为 undefined 而不是 noop,
+  // 否则会改变 native HTMLImageElement 的 error 行为 (如把 broken-image fallback 抑制掉)
 
 }
 
@@ -163,9 +167,9 @@ export const getConfigFromProps = (props: BaseType) => {
     // Control
     controller, hotKey, animate,
     // Styles & interactive
-    hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop,
+    hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, closeOnDoubleClick,
     // Life cycle functions
-    onBrowsing, onZooming, onSwitching, onRotating,
+    onBrowsing, onZooming, onSwitching, onRotating, onError,
     // Controlled props
     browsing,
     // rest
@@ -178,6 +182,8 @@ export const getConfigFromProps = (props: BaseType) => {
       className, style, onClick, forwardedRef,
       // Data (cover only consumes src/alt; caption is viewer-only)
       src, alt,
+      // Native error transparently mirrored to cover img (matches docs: "all HTMLAttributes forwarded")
+      onError,
     },
     calleeProps: {
       // Callee
@@ -196,9 +202,9 @@ export const getConfigFromProps = (props: BaseType) => {
       // Control
       controller, hotKey, animate,
       // Styles & interactive
-      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop,
+      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, closeOnDoubleClick,
       // Life cycle functions
-      onBrowsing, onZooming, onSwitching, onRotating,
+      onBrowsing, onZooming, onSwitching, onRotating, onError,
     },
     restProps,
   }

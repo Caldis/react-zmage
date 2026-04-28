@@ -177,6 +177,8 @@ export const en: I18nDict = {
   'param.hideOnScroll.desc': 'Close the viewer when the page scrolls.',
   'param.coverVisible.label': 'coverVisible',
   'param.coverVisible.desc': 'Keep the cover image visible while browsing.',
+  'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
+  'param.closeOnDoubleClick.desc': 'Close the viewer on image double-click. Off by default; turn on to dismiss with a double-click.',
   'param.controller.label': 'controller',
   'param.controller.desc': 'Control-bar buttons. Pass false to disable all, or a partial object to override.',
   'param.hotKey.label': 'hotKey',
@@ -191,6 +193,8 @@ export const en: I18nDict = {
   'param.onSwitching.desc': 'Fired on page change (new page index).',
   'param.onRotating.label': 'onRotating',
   'param.onRotating.desc': 'Fired on rotation (degrees).',
+  'param.onError.label': 'onError',
+  'param.onError.desc': 'Fired when an image (cover or viewer) fails to load. Receives the SyntheticEvent.',
   'param.browsing.label': 'browsing',
   'param.browsing.desc': 'Controlled browsing state. Providing this switches to controlled mode; pair with onBrowsing.',
 

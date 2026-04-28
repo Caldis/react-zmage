@@ -192,6 +192,8 @@ export const zhCN = {
   'param.hideOnScroll.desc': '滚动页面时自动关闭查看器。',
   'param.coverVisible.label': 'coverVisible',
   'param.coverVisible.desc': '查看时保留封面图。',
+  'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
+  'param.closeOnDoubleClick.desc': '双击图片时关闭查看器。默认关闭,启用后浏览态双击图片即退出。',
   'param.controller.label': 'controller',
   'param.controller.desc': '控制器按钮开关;传 false 关闭整组,或传部分对象覆盖默认。',
   'param.hotKey.label': 'hotKey',
@@ -206,6 +208,8 @@ export const zhCN = {
   'param.onSwitching.desc': '翻页时回调,参数为新页索引。',
   'param.onRotating.label': 'onRotating',
   'param.onRotating.desc': '旋转时回调,参数为角度。',
+  'param.onError.label': 'onError',
+  'param.onError.desc': '图片加载失败时回调(封面与浏览态共用),参数为原生 SyntheticEvent。',
   'param.browsing.label': 'browsing',
   'param.browsing.desc': '受控的浏览状态;给值即转为受控模式,需要配套 onBrowsing。',
 

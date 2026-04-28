@@ -91,6 +91,7 @@ class ReactZmage extends React.Component<PropsType, StateType> {
             this.inBrowsing()
             typeof coverProps.onClick === 'function' && coverProps.onClick(e)
           }}
+          onError={coverProps.onError}
           ref={(ref) => {
             if (typeof coverProps.forwardedRef === 'function') {
               coverProps.forwardedRef(ref)

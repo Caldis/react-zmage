@@ -177,6 +177,8 @@ export const fr: I18nDict = {
   'param.hideOnScroll.desc': 'Fermer la visionneuse au défilement de la page.',
   'param.coverVisible.label': 'coverVisible',
   'param.coverVisible.desc': 'Garder l\'image de couverture visible pendant la navigation.',
+  'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
+  'param.closeOnDoubleClick.desc': 'Fermer la visionneuse au double-clic sur l\'image. Désactivé par défaut.',
   'param.controller.label': 'controller',
   'param.controller.desc': 'Boutons de la barre de contrôle. Passez false pour tout désactiver, ou un objet partiel pour surcharger.',
   'param.hotKey.label': 'hotKey',
@@ -191,6 +193,8 @@ export const fr: I18nDict = {
   'param.onSwitching.desc': 'Déclenché lors d\'un changement de page (nouvel index).',
   'param.onRotating.label': 'onRotating',
   'param.onRotating.desc': 'Déclenché lors d\'une rotation (degrés).',
+  'param.onError.label': 'onError',
+  'param.onError.desc': 'Déclenché lorsqu\'une image (couverture ou visionneuse) ne se charge pas. Reçoit le SyntheticEvent.',
   'param.browsing.label': 'browsing',
   'param.browsing.desc': 'État de navigation contrôlé. Le fournir bascule en mode contrôlé ; à coupler avec onBrowsing.',
 

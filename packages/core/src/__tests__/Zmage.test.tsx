@@ -534,6 +534,56 @@ describe('Zmage hotKey 翻页 (umbrella + 单边)', () => {
   })
 })
 
+describe('Zmage onError 透传 (#148)', () => {
+  it('cover 图加载失败触发用户传入的 onError', () => {
+    const onError = vi.fn()
+    render(<Zmage src={SRC} alt="cover-err" onError={onError}/>)
+    const cover = screen.getByAltText('cover-err') as HTMLImageElement
+    fireEvent.error(cover)
+    expect(onError).toHaveBeenCalledTimes(1)
+  })
+
+  it('浏览态图片加载失败触发用户传入的 onError', async () => {
+    const onError = vi.fn()
+    render(<Zmage src={SRC} alt="viewer-err" onError={onError}/>)
+    fireEvent.click(screen.getByAltText('viewer-err'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+    const centerImage = document.getElementById('zmageImage') as HTMLImageElement
+    expect(centerImage).toBeTruthy()
+    // 触发浏览层中心图的 error (cover 已加载, 不会再触发, 仅计中心图)
+    const before = onError.mock.calls.length
+    fireEvent.error(centerImage)
+    expect(onError.mock.calls.length).toBe(before + 1)
+  })
+})
+
+describe('Zmage closeOnDoubleClick (#195)', () => {
+  it('closeOnDoubleClick=true 时, 双击中心图关闭浏览层', async () => {
+    render(<Zmage src={SRC} alt="dbl" closeOnDoubleClick/>)
+    fireEvent.click(screen.getByAltText('dbl'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+    expect(document.getElementById('zmage')).toBeTruthy()
+    const centerImage = document.getElementById('zmageImage') as HTMLImageElement
+    fireEvent.doubleClick(centerImage)
+    // 等待 outBrowsing 的卸载链路
+    await act(async () => { await new Promise(r => setTimeout(r, 600)) })
+    expect(document.getElementById('zmage')).toBeNull()
+  })
+
+  it('默认未启用时, 双击中心图不关闭浏览层', async () => {
+    render(<Zmage src={SRC} alt="no-dbl"/>)
+    fireEvent.click(screen.getByAltText('no-dbl'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+    const centerImage = document.getElementById('zmageImage') as HTMLImageElement
+    fireEvent.doubleClick(centerImage)
+    await act(async () => { await new Promise(r => setTimeout(r, 100)) })
+    expect(document.getElementById('zmage')).toBeTruthy()
+  })
+})
+
 describe('Zmage 命令式调用', () => {
   it('Zmage.browsing 返回 destructor 函数; 调用后 portal 节点移除', async () => {
     const destroy = Zmage.browsing({ src: SRC, alt: 't' })

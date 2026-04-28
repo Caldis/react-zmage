@@ -252,6 +252,12 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { zoom, toggleZoom } = this.context
     zoom && toggleZoom()
   }
+  // 双击关闭 (closeOnDoubleClick=true 时启用)。注: 浏览器在 dblclick 之前会先派发两次 click,
+  // 因此在 zoom 态做 dblclick 会先 zoom-out 再 close, 是有意为之的链式动画 — 不再额外门控。
+  handleDoubleClick = () => {
+    const { closeOnDoubleClick, outBrowsing } = this.context
+    closeOnDoubleClick && outBrowsing()
+  }
   // 触摸事件
   handleTouchStart = (e: TouchEvent) => {
     const { clientX, clientY } = e.touches[0]
@@ -320,8 +326,10 @@ export default class Image extends React.Component<PropsType, StateType> {
     const viewport = getViewportRect(this.context)
     setCanZoom(naturalWidth > viewport.width || naturalHeight > viewport.height)
   }
-  handleImageError = () => {
+  handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     this.handleImageLoadEnd({ invalidate: true })
+    const { onError } = this.context
+    typeof onError === 'function' && onError(e)
   }
   handleImageAbort = () => {
     this.handleImageLoadEnd({ invalidate: true })
@@ -614,6 +622,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       onError: this.handleImageError,
       onAbort: this.handleImageAbort,
       onClick: this.handleClick,
+      onDoubleClick: this.handleDoubleClick,
     }
     // 構建内容
     if (isSideImage) {

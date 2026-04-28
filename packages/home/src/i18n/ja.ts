@@ -177,6 +177,8 @@ export const ja: I18nDict = {
   'param.hideOnScroll.desc': 'ページがスクロールされたらビューアを閉じる。',
   'param.coverVisible.label': 'coverVisible',
   'param.coverVisible.desc': '閲覧中もカバー画像を表示し続ける。',
+  'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
+  'param.closeOnDoubleClick.desc': '画像をダブルクリックでビューアを閉じる。既定はオフ。',
   'param.controller.label': 'controller',
   'param.controller.desc': 'コントロールバーのボタン。false で全無効、部分オブジェクトで個別に上書きできます。',
   'param.hotKey.label': 'hotKey',
@@ -191,6 +193,8 @@ export const ja: I18nDict = {
   'param.onSwitching.desc': 'ページ切り替え時に呼ばれます(新しいページのインデックス)。',
   'param.onRotating.label': 'onRotating',
   'param.onRotating.desc': '回転時に呼ばれます(角度)。',
+  'param.onError.label': 'onError',
+  'param.onError.desc': '画像の読み込み失敗時に呼ばれます(カバー/ビューア共通、SyntheticEvent を受け取る)。',
   'param.browsing.label': 'browsing',
   'param.browsing.desc': '制御された閲覧状態。値を渡すと制御モードになります。onBrowsing と組み合わせて使用してください。',
 

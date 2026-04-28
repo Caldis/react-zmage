@@ -445,7 +445,9 @@ export default class Browser extends React.Component<Props, State> {
       // Control
       controller, hotKey, animate,
       // Styles & interactive
-      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop
+      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, closeOnDoubleClick,
+      // Life cycle
+      onError,
     } = this.getPropsWithEnv()
     const { mounted } = this.state
 
@@ -461,7 +463,9 @@ export default class Browser extends React.Component<Props, State> {
       // Control
       controller, hotKey, animate,
       // Styles & interactive
-      hideOnScroll, coverVisible, backdrop, radius, edge, loop,
+      hideOnScroll, coverVisible, backdrop, radius, edge, loop, closeOnDoubleClick,
+      // Life cycle (only those Image/Caption need from context)
+      onError,
       // Status
       ...statusValue,
       // Action

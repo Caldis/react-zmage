@@ -177,6 +177,8 @@ export const de: I18nDict = {
   'param.hideOnScroll.desc': 'Viewer beim Scrollen der Seite schließen.',
   'param.coverVisible.label': 'coverVisible',
   'param.coverVisible.desc': 'Coverbild beim Browsen sichtbar lassen.',
+  'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
+  'param.closeOnDoubleClick.desc': 'Viewer per Doppelklick auf das Bild schließen. Standardmäßig aus.',
   'param.controller.label': 'controller',
   'param.controller.desc': 'Buttons der Steuerleiste. false deaktiviert alles, ein Teilobjekt überschreibt einzelne Werte.',
   'param.hotKey.label': 'hotKey',
@@ -191,6 +193,8 @@ export const de: I18nDict = {
   'param.onSwitching.desc': 'Wird beim Seitenwechsel ausgelöst (neuer Seitenindex).',
   'param.onRotating.label': 'onRotating',
   'param.onRotating.desc': 'Wird bei Rotation ausgelöst (Grad).',
+  'param.onError.label': 'onError',
+  'param.onError.desc': 'Wird ausgelöst, wenn ein Bild (Cover oder Viewer) nicht geladen werden kann. Erhält das SyntheticEvent.',
   'param.browsing.label': 'browsing',
   'param.browsing.desc': 'Controlled-Browsing-Status. Mit Wert wechselst du in den controlled-Modus; mit onBrowsing kombinieren.',
 

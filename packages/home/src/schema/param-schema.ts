@@ -24,6 +24,7 @@ export const defProp = {
   radius: 0,
   edge: 0,
   loop: true,
+  closeOnDoubleClick: false,
 }
 
 export const defPreset = {
@@ -104,6 +105,8 @@ export const PARAM_SCHEMA: ParamDef[] = [
     i18n: { labelKey: 'param.hideOnScroll.label', descKey: 'param.hideOnScroll.desc' } },
   { name: 'coverVisible', group: 'interface', default: defProp.coverVisible, desktopOnly: true, control: { kind: 'switch' },
     i18n: { labelKey: 'param.coverVisible.label', descKey: 'param.coverVisible.desc' } },
+  { name: 'closeOnDoubleClick', group: 'interface', default: defProp.closeOnDoubleClick, control: { kind: 'switch' },
+    i18n: { labelKey: 'param.closeOnDoubleClick.label', descKey: 'param.closeOnDoubleClick.desc' } },
 
   // Controller
   { name: 'controller', group: 'controller', default: defPreset.desktop.controller, control: { kind: 'object', component: 'controller' },
@@ -126,6 +129,8 @@ export const PARAM_SCHEMA: ParamDef[] = [
     i18n: { labelKey: 'param.onSwitching.label', descKey: 'param.onSwitching.desc' } },
   { name: 'onRotating', group: 'lifecycle', default: undefined, control: { kind: 'callback', events: ['onRotating'] },
     i18n: { labelKey: 'param.onRotating.label', descKey: 'param.onRotating.desc' } },
+  { name: 'onError', group: 'lifecycle', default: undefined, control: { kind: 'callback', events: ['onError'] },
+    i18n: { labelKey: 'param.onError.label', descKey: 'param.onError.desc' } },
 
   // Controlled
   { name: 'browsing', group: 'controlled', default: undefined, control: { kind: 'switch' },

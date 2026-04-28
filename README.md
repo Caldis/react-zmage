@@ -241,6 +241,7 @@ Defaults: desktop = `{ browsing: true, flip: 'crossFade' }`, mobile = `{ browsin
 | `radius` | `number` | `0` | Image corner radius (px). |
 | `edge` | `number` | `0` | Minimum margin between image and viewport (px). |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
+| `closeOnDoubleClick` | `boolean` | `false` | Close the viewer on image double-click. Off by default; turn on to allow dismissing with a double-click. |
 
 ### Lifecycle
 
@@ -250,6 +251,7 @@ Defaults: desktop = `{ browsing: true, flip: 'crossFade' }`, mobile = `{ browsin
 | `onZooming` | `(isZooming: boolean) => void` | 1:1 zoom toggles |
 | `onSwitching` | `(page: number) => void` | page changes |
 | `onRotating` | `(deg: number) => void` | image rotates |
+| `onError` | `(e: SyntheticEvent<HTMLImageElement>) => void` | cover **or** viewer image fails to load (the only hook for the viewer-side failure; cover still also flows via native `<img>` `onError` passthrough) |
 
 ### Controlled
 
@@ -268,8 +270,8 @@ export type BaseType =
   & BaseParams                    // src / alt / caption / set / defaultPage
   & PresetParams                  // preset
   & FunctionalParams              // controller / hotKey / animate
-  & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop
-  & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating
+  & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop / closeOnDoubleClick
+  & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating / onError
   & ControlledParams              // browsing
   & HTMLAttributes<HTMLImageElement>
 ```

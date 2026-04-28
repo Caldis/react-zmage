@@ -236,6 +236,7 @@ interface Animate {
 | `radius` | `number` | `0` | 查看模式下图片圆角 (px)。 |
 | `edge` | `number` | `0` | 图片距屏幕边缘的留白 (px)。 |
 | `loop` | `boolean` | `true` | 多图模式：尾页是否循环回首页。 |
+| `closeOnDoubleClick` | `boolean` | `false` | 双击图片时关闭查看器。默认关闭；启用后浏览态双击图片即退出。 |
 
 ### 生命周期
 
@@ -245,6 +246,7 @@ interface Animate {
 | `onZooming` | `(isZooming: boolean) => void` | 1:1 缩放切换 |
 | `onSwitching` | `(page: number) => void` | 翻页时回传新页码 |
 | `onRotating` | `(deg: number) => void` | 旋转时回传当前角度 |
+| `onError` | `(e: SyntheticEvent<HTMLImageElement>) => void` | 封面 **或** 浏览层图片加载失败（封面仍同步走原生 `<img>` `onError` 透传；本回调是观察浏览层失败的唯一入口） |
 
 ### 受控
 
@@ -263,8 +265,8 @@ export type BaseType =
   & BaseParams                    // src / alt / caption / set / defaultPage
   & PresetParams                  // preset
   & FunctionalParams              // controller / hotKey / animate
-  & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop
-  & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating
+  & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop / closeOnDoubleClick
+  & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating / onError
   & ControlledParams              // browsing
   & HTMLAttributes<HTMLImageElement>
 ```

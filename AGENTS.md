@@ -84,8 +84,8 @@ Single `BaseType` covers all. Grouped here by purpose:
 | Preset | `preset: 'desktop' \| 'mobile' \| 'auto'` | drives default `controller` / `hotKey` / `animate`. `'auto'` resolves via `matchMedia('(pointer: coarse) and (hover: none)')` on the client; SSR falls back to desktop |
 | Controlled | `browsing` | omit for self-managed; pair with `onBrowsing` if set |
 | Functional | `controller`, `hotKey`, `animate` | pass `boolean` to disable, or partial object to override. `controller.flip` and `hotKey.flip` are umbrellas over their per-side counterparts (`flipLeft` / `flipRight`); enabling the umbrella forces both sides on. `controller.backdrop` / `controller.color` decouple the toolbar bg/icon-color from the modal `backdrop` (set both when `backdrop` is solid dark) |
-| Interface | `hideOnScroll`, `coverVisible`, `backdrop`, `zIndex`, `radius`, `edge`, `loop` | desktop-only flags noted in README |
-| Lifecycle | `onBrowsing`, `onZooming`, `onSwitching`, `onRotating` | callback args: `boolean`/`boolean`/`number`/`number` |
+| Interface | `hideOnScroll`, `coverVisible`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `closeOnDoubleClick` | desktop-only flags noted in README. `closeOnDoubleClick` defaults `false`; turn on to dismiss the viewer with a dblclick on the image |
+| Lifecycle | `onBrowsing`, `onZooming`, `onSwitching`, `onRotating`, `onError` | first 4 callback args: `boolean`/`boolean`/`number`/`number`. `onError(e: SyntheticEvent<HTMLImageElement>)` fires for cover **or** viewer img-load failure — the only hook for the viewer-side failure (cover also flows via native `<img>` `onError` passthrough) |
 | Native | All `HTMLAttributes<HTMLImageElement>` | className, style, onClick, etc. transparently forwarded to inner `<img>` |
 
 Defaults & sub-shapes: see [`packages/core/src/types/default.ts`](./packages/core/src/types/default.ts) and [`packages/core/src/types/global.ts`](./packages/core/src/types/global.ts) (single source of truth).
