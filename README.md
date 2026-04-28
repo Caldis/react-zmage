@@ -1,4 +1,4 @@
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md#pull-requests) [![React](https://img.shields.io/badge/react-16.8%20--%2019-61dafb.svg)](#react-版本兼容)
+English | [简体中文](./README.zh-CN.md)
 
 <div align="center">
   <a href="https://github.com/Caldis/react-zmage">
@@ -7,131 +7,76 @@
 
   <h1>react-zmage</h1>
 
-  <p>基于 React 的图片缩放查看器 — 替换 <code>&lt;img&gt;</code> 即可获得放大查看、多图浏览、缩放、旋转、键盘快捷键等能力</p>
+  <p>
+    Turn any <code>&lt;img&gt;</code> into a fullscreen, keyboard-navigable image viewer.<br>
+    Drop-in. Zero config. React 16.8 → 19.
+  </p>
 
   <p>
-    <a href="https://zmage.caldis.me">在线 Demo</a> ·
-    <a href="#api">API</a> ·
-    <a href="./AGENTS.md">AI Agent 速查</a>
+    <a href="https://www.npmjs.com/package/react-zmage"><img alt="npm version" src="https://img.shields.io/npm/v/react-zmage.svg?style=flat-square&color=cb3837"></a>
+    <a href="https://www.npmjs.com/package/react-zmage"><img alt="npm downloads/month" src="https://img.shields.io/npm/dm/react-zmage.svg?style=flat-square"></a>
+    <a href="https://bundlephobia.com/package/react-zmage"><img alt="minzipped size" src="https://img.shields.io/bundlephobia/minzip/react-zmage?style=flat-square"></a>
+    <a href="#react-compatibility"><img alt="React 16.8 — 19" src="https://img.shields.io/badge/react-16.8%E2%80%9319-61dafb?style=flat-square"></a>
+    <a href="./LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
+  </p>
+
+  <p>
+    <a href="https://zmage.caldis.me">Live Demo</a> ·
+    <a href="https://zmage.caldis.me/playground">Playground</a> ·
+    <a href="#api-reference">API</a> ·
+    <a href="./AGENTS.md">AGENTS.md</a>
   </p>
 </div>
 
 ---
 
-## Quick Contract
+## Highlights
 
-```ts
-// 主入口 (浏览器 / 现代 bundler)
+- **Drop-in `<img>` replacement.** Native props (`className`, `style`, `onClick`, …) pass through to the underlying image. No portals to wire up, no state plumbing.
+- **SSR / RSC safe.** A separate `react-zmage/ssr` entry avoids touching `document` at import time. Verified against Next.js 15 App Router, Vite SSR, and Express renderToString.
+- **Three call modes.** Use it as a component, call it imperatively (`Zmage.browsing()`), or wrap any HTML subtree to auto-attach the viewer to every `<img>` inside.
+
+---
+
+## Install
+
+```bash
+pnpm add react-zmage    # or: npm i react-zmage / yarn add react-zmage
+```
+
+```tsx
 import Zmage from 'react-zmage'
 import 'react-zmage/style.css'
 
-// SSR / RSC 入口 (Next.js App Router / Remix Server Components)
-import Zmage from 'react-zmage/ssr'
-
-// 三种使用方式
-<Zmage src="..." />                                // 1. 替换 <img>
-Zmage.browsing({ src: '...' })                     // 2. 命令式调用; 返回 destructor
-<Zmage.wrapper>{htmlWithImgTags}</Zmage.wrapper>   // 3. 自动包裹 children 中的 <img>
+<Zmage src="/photo.jpg" alt="hero" />
 ```
 
-| | |
-|---|---|
-| **默认导出** | `Zmage` — `forwardRef` 组件，ref 转发到内部 `<img>` |
-| **静态方法** | `Zmage.browsing(props)` ｜ `Zmage.wrapper` |
-| **主类型** | `BaseType` (从 `react-zmage` 导出，含全部 props 联合) |
-| **样式入口** | `react-zmage/style.css` (必须显式 import) |
-| **SSR 入口** | `react-zmage/ssr` |
-| **Peer Deps** | `react: >=16.8.0 <20`, `react-dom: >=16.8.0 <20` |
+Peer deps: `react@>=16.8 <20` and `react-dom@>=16.8 <20`. The library auto-detects React 18+ at runtime and uses `react-dom/client` when available — consumers configure nothing.
 
 ---
 
-## 目录
+## Three ways to use it
 
-- [Demo](#demo)
-- [安装](#安装)
-- [React 版本兼容](#react-版本兼容)
-- [使用](#使用)
-  - [1. 作为组件](#1-作为组件)
-  - [2. 命令式调用](#2-命令式调用)
-  - [3. 自动包裹 HTML](#3-自动包裹-html)
-  - [4. TypeScript 用法](#4-typescript-用法)
-  - [5. SSR / RSC](#5-ssr--rsc)
-- [API](#api)
-  - [基础 Props](#基础-props)
-  - [预设 Props](#预设-props)
-  - [受控 Props](#受控-props)
-  - [功能控制 Props](#功能控制-props)
-  - [界面交互 Props](#界面交互-props)
-  - [生命周期回调](#生命周期回调)
-  - [完整类型定义](#完整类型定义)
-- [Props 示例](#props-示例)
-- [贡献](#贡献)
-- [证书](#证书)
+react-zmage exposes the same configuration surface through three call shapes. **Pick based on how much control you have over the rendered HTML.**
 
----
+### Component — the default
 
-## Demo
-
-**在线**: <https://zmage.caldis.me>
-
-**本地**:
-```bash
-git clone https://github.com/Caldis/react-zmage
-cd react-zmage
-pnpm install
-pnpm dev
-```
-
----
-
-## 安装
-
-```bash
-pnpm add react-zmage
-# 或
-npm i react-zmage
-# 或
-yarn add react-zmage
-```
-
-需要预先安装 `react` / `react-dom`（peer dependency）：
-
-```bash
-pnpm add react react-dom
-```
-
----
-
-## React 版本兼容
-
-| React | 状态 | 实现 |
-|---|---|---|
-| 16.8 ~ 17.x | ✅ 完全支持 | 走 `ReactDOM.render` |
-| 18.x | ✅ 完全支持 | 自动检测并使用 `createRoot` |
-| 19.x | ✅ 完全支持 | 必须使用 `createRoot`（已自动适配） |
-
-库内部用运行时 feature detection 选择 mount API，无需消费方做任何配置。具体见 [`Zmage.callee.tsx`](./packages/core/src/Zmage.callee.tsx) 的 `resolveMountAdapter`。
-
----
-
-## 使用
-
-### 1. 作为组件
+**When to use:** you control the JSX you render. This is the cleanest path; reach for it first.
 
 ```tsx
 import Zmage from 'react-zmage'
 import 'react-zmage/style.css'
 
 export default function Gallery() {
-  return <Zmage src="/photo.jpg" alt="风景" />
+  return <Zmage src="/photo.jpg" alt="landscape" />
 }
 ```
 
-> 把 `<img>` 替换成 `<Zmage>` 即可。点击图片进入查看器。
+All native HTML attributes (`className`, `style`, `onClick`, `loading`, …) pass through to the underlying `<img>`.
 
-### 2. 命令式调用
+### Imperative — `Zmage.browsing()`
 
-不依赖封面图，直接弹出查看器：
+**When to use:** you have no good cover `<img>`, or you don't want to mount extra nodes in your component tree. Open the viewer from event handlers, async callbacks, or third-party widgets — anywhere.
 
 ```tsx
 import Zmage from 'react-zmage'
@@ -139,171 +84,179 @@ import Zmage from 'react-zmage'
 function Trigger() {
   return (
     <button onClick={() => Zmage.browsing({ src: '/photo.jpg' })}>
-      打开查看器
+      Open viewer
     </button>
   )
 }
 ```
 
-`Zmage.browsing` 接受与 `<Zmage>` 完全相同的 props，并返回一个 `() => void` 的 destructor 函数（手动关闭用）。
+`Zmage.browsing(opts)` accepts the same props bag as `<Zmage>` and returns a `() => void` destructor for manual close.
 
-### 3. 自动包裹 HTML
+> Guard with `typeof window !== 'undefined'` if it can run on the server. The `react-zmage/ssr` entry provides the same API without touching `document` at import time.
 
-适合渲染 markdown / 富文本输出，自动给所有 `<img>` 加查看功能：
+### Wrapper — `<Zmage.Wrapper>`
+
+**When to use:** you don't control the rendered HTML — markdown output, CMS rich text, `dangerouslySetInnerHTML`. Wrap the subtree and every `<img>` inside automatically gains the viewer, without modifying the source content.
 
 ```tsx
-<Zmage.wrapper>
+<Zmage.Wrapper backdrop="#0a0a0a">
   <article dangerouslySetInnerHTML={{ __html: htmlContent }} />
-</Zmage.wrapper>
+</Zmage.Wrapper>
 ```
 
-### 4. TypeScript 用法
+The wrapper queries `<img>` descendants in `componentDidMount` / `componentDidUpdate`. Imgs injected after the wrapper renders won't get bound until the wrapper re-renders.
 
-完整类型支持，支持泛型 ref 转发：
+<details>
+<summary><strong>TypeScript</strong></summary>
 
 ```tsx
 import Zmage from 'react-zmage'
 import type { BaseType } from 'react-zmage'
-import 'react-zmage/style.css'
 import { useRef } from 'react'
 
-export function App() {
-  const imgRef = useRef<HTMLImageElement>(null)
-
-  const config: BaseType = {
-    src: '/photo.jpg',
-    alt: '示例',
-    onBrowsing: (state) => console.log('browsing:', state),
-  }
-
-  return <Zmage {...config} ref={imgRef} />
+const config: BaseType = {
+  src: '/photo.jpg',
+  alt: 'hero',
+  onBrowsing: (state) => console.log('browsing:', state),
 }
+
+const ref = useRef<HTMLImageElement>(null)
+return <Zmage {...config} ref={ref} />
 ```
 
-### 5. SSR / RSC
+`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `HotKey`, `Animate`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
 
-Next.js App Router / Remix 等 Server Components 环境，使用 SSR 友好入口：
+</details>
+
+<details>
+<summary><strong>SSR / RSC (Next.js, Remix)</strong></summary>
 
 ```tsx
 import Zmage from 'react-zmage/ssr'
 import 'react-zmage/style.css'
 ```
 
-API 完全一致，仅产物为 platform-neutral，避免 SSR 阶段引用浏览器 API。
+API is identical — only the import path changes. The SSR build is platform-neutral and avoids browser APIs at module load. Verified against Next.js 15 App Router (`packages/sandbox-nextjs`) and Express + Vite renderToString (`apps/demo-ssr`).
+
+</details>
 
 ---
 
-## API
+## API reference
 
-> **类型签名约定**：表中的 `类型` 列均为 TypeScript 字面量。`?` 表示可选。
+> All props live on a single `BaseType`. The same options bag works for `<Zmage>` and `Zmage.browsing()`.
 
-### 基础 Props
+### Data
 
-最少了解这 5 个就能用：
-
-| 配置项 | 类型 | 默认 | 说明 |
+| Prop | Type | Default | Notes |
 |---|---|---|---|
-| `src` | `string` | `""` | 图片 URL，等同于 `<img>` 的 `src` |
-| `alt` | `string` | `""` | 图片占位文字，等同于 `<img>` 的 `alt` |
-| `caption` | `string \| { text: string; style?: CSSProperties; className?: string }` | `""` | 大图下方渲染的辅助文案（图说，可选）。string 形式取默认胶囊样式；对象形式可通过 `style` / `className` 覆盖样式或主题化。多图模式下可由 `set[i].caption` 单独覆盖 |
-| `set` | `Set[]` | `[]` | 多图集合，传入后启用浏览模式（左右翻页） |
-| `defaultPage` | `number` | `0` | 多图模式下的初始页码 |
+| `src` | `string` | — | Image URL. Same as `<img src>`. |
+| `alt` | `string` | `''` | Image title; rendered above the viewer in browsing mode. |
+| `caption` | `string \| { text: string; style?: CSSProperties; className?: string }` | `''` | Caption rendered below the viewer. String form uses the default pill style; object form lets you override styling or theme it. Per-page override available via `set[i].caption`. |
+| `set` | `Set[]` | `[]` | Multi-image gallery. When non-empty, arrow keys flip pages. |
+| `defaultPage` | `number` | `0` | Initial index when `set` is non-empty. |
 
-### 预设 Props
+### Preset
 
-| 配置项 | 类型 | 默认 | 说明 |
+| Prop | Type | Default | Notes |
 |---|---|---|---|
-| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'desktop'` | 端预设。决定 `controller` / `hotKey` / `animate` 的默认值集合（[详见预设表](./packages/core/src/types/default.ts)）。`'auto'` 走 CSS media query `(pointer: coarse) and (hover: none)` 判定：满足则取 mobile 默认，否则 desktop；SSR / 无 `matchMedia` 环境 fallback 到 desktop |
+| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'desktop'` | Bundles defaults for `controller`, `hotKey`, and `animate`. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → `mobile`, otherwise `desktop`. SSR / no `matchMedia` falls back to `desktop`. |
 
-### 受控 Props
+### Functional
 
-| 配置项 | 类型 | 默认 | 说明 |
+| Prop | Type | Default | Notes |
 |---|---|---|---|
-| `browsing` | `boolean` | _(uncontrolled)_ | 显式控制查看器开关。设置后由父组件全权管理状态，需配合 `onBrowsing` 接收变更。不传则组件自治。 |
+| `controller` | `boolean \| ControllerSet` | preset-driven | Per-button toggles in the top toolbar. Pass `false` to hide all, or a partial object to override individual buttons. |
+| `hotKey` | `boolean \| HotKey` | preset-driven | Keyboard shortcuts. |
+| `animate` | `boolean \| Animate` | preset-driven | Open/close + page-flip animations. |
 
-### 功能控制 Props
-
-| 配置项 | 类型 | 默认 | 说明 |
-|---|---|---|---|
-| `controller` | `boolean \| ControllerSet` | preset 决定 | 顶部工具栏按钮显隐 |
-| `hotKey` | `boolean \| HotKey` | preset 决定 | 键盘快捷键开关。`HotKey = { close?, zoom?, flip?, flipLeft?, flipRight? }`；`flip` 为左右键 umbrella，启用时同时控制 `flipLeft` / `flipRight`（与 `controller` 的 umbrella 模式一致） |
-| `animate` | `boolean \| Animate` | preset 决定 | 动画行为 |
-
-#### `ControllerSet` 全字段
+#### `ControllerSet`
 
 ```ts
 interface ControllerSet {
-  pagination?: boolean | ReactNode  // 多页指示器
-  zoom?: boolean | string | ReactNode  // 缩放按钮
-  download?: boolean | string | ReactNode  // 下载按钮
-  close?: boolean | string | ReactNode  // 关闭按钮
-  rotate?: boolean | string | ReactNode  // 旋转组合开关 (启用时同时显示左旋+右旋按钮, 覆盖下方两项)
-  rotateLeft?: boolean | string | ReactNode  // 仅左旋 (rotate 启用时被覆盖)
-  rotateRight?: boolean | string | ReactNode  // 仅右旋 (rotate 启用时被覆盖)
-  flip?: boolean | string | ReactNode  // 翻页组合开关 (启用时同时显示上+下一张按钮, 覆盖下方两项)
-  flipLeft?: boolean | string | ReactNode  // 仅上一页 (flip 启用时被覆盖)
-  flipRight?: boolean | string | ReactNode  // 仅下一页 (flip 启用时被覆盖)
+  pagination?:  boolean | ReactNode             // page indicator
+  zoom?:        boolean | string | ReactNode    // zoom button
+  download?:    boolean | string | ReactNode
+  close?:       boolean | string | ReactNode
+  rotate?:      boolean | string | ReactNode    // umbrella over rotateLeft + rotateRight
+  rotateLeft?:  boolean | string | ReactNode
+  rotateRight?: boolean | string | ReactNode
+  flip?:        boolean | string | ReactNode    // umbrella over flipLeft + flipRight
+  flipLeft?:    boolean | string | ReactNode
+  flipRight?:   boolean | string | ReactNode
 }
 ```
 
-#### 预设的默认 `ControllerSet`
+> `rotate` and `flip` are umbrella switches — enabling either forces both per-side counterparts on, regardless of those flags.
 
-| 字段 | desktop | mobile |
+#### Preset defaults
+
+| Field | desktop | mobile |
 |---|---|---|
-| `pagination` | `true` | `true` |
-| `rotate` | `true` | `false` |
-| `zoom` | `true` | `false` |
-| `download` | `false` | `false` |
-| `close` | `true` | `true` |
-| `flip` | `true` | `false` |
+| `pagination` | ✅ | ✅ |
+| `rotate` | ✅ | — |
+| `zoom` | ✅ | — |
+| `download` | — | — |
+| `close` | ✅ | ✅ |
+| `flip` | ✅ | — |
 
-#### `HotKey` 字段
+#### `HotKey`
 
 ```ts
 interface HotKey {
-  close?: boolean  // ESC 关闭
-  zoom?: boolean   // 空格缩放
-  flip?: boolean   // 左右键翻页
+  close?:     boolean   // ESC closes the viewer
+  zoom?:     boolean   // Space toggles 1:1 zoom
+  flip?:     boolean   // ←/→ flip pages (umbrella)
+  flipLeft?: boolean
+  flipRight?: boolean
 }
 ```
 
-桌面端默认全开；移动端默认全关。
+Desktop default: all on. Mobile default: all off.
 
-#### `Animate` 字段
+#### `Animate`
 
 ```ts
 interface Animate {
-  browsing?: boolean              // 进入/退出动画; false 时背景、图片、控制器、caption 直接切换
-  flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'  // 翻页动画 ('none' 跳过相邻页渲染, 翻页瞬间替换)
+  browsing?: boolean
+  flip?:     'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'
 }
 ```
 
-> 默认值：desktop = `{ browsing: true, flip: 'crossFade' }`，mobile = `{ browsing: true, flip: 'swipe' }`。
+Defaults: desktop = `{ browsing: true, flip: 'crossFade' }`, mobile = `{ browsing: true, flip: 'swipe' }`. `flip: 'none'` skips adjacent-page rendering — page change is an instant swap with no transition.
 
-### 界面交互 Props
+### Interface & interaction
 
-| 配置项 | 类型 | 默认 | 说明 |
+| Prop | Type | Default | Notes |
 |---|---|---|---|
-| `hideOnScroll` | `boolean` | `true` | 桌面端：滚动时是否自动关闭查看器（移动端无效） |
-| `coverVisible` | `boolean` | `false` | 桌面端：放大期间是否保留封面图占位（默认会隐藏避免动画穿帮） |
-| `backdrop` | `string` | `"#FFFFFF"` | 查看器背景色（接受任何合法 CSS color / gradient） |
-| `zIndex` | `number` | `1000` | Portal 容器的 `z-index` |
-| `radius` | `number` | desktop:`0` / mobile:`0` | 查看模式下图片圆角 (px) |
-| `edge` | `number` | desktop:`0` / mobile:`0` | 图片距屏幕边缘的留白 (px) |
-| `loop` | `boolean` | `true` | 多图模式：尾页是否循环回首页 |
+| `hideOnScroll` | `boolean` | `true` | Auto-close when the page scrolls (desktop only). |
+| `coverVisible` | `boolean` | `false` | Keep the cover `<img>` visible while the modal is open. |
+| `backdrop` | `string` | `'#FFFFFF'` | Viewer backdrop. Any valid CSS color or gradient. **Default is white** — override (`'#111'`, etc.) for dark UIs. |
+| `zIndex` | `number` | `1000` | Portal stacking. |
+| `radius` | `number` | `0` | Image corner radius (px). |
+| `edge` | `number` | `0` | Minimum margin between image and viewport (px). |
+| `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
 
-### 生命周期回调
+### Lifecycle
 
-| 配置项 | 签名 | 触发时机 |
+| Prop | Signature | Triggered when |
 |---|---|---|
-| `onBrowsing` | `(isBrowsing: boolean) => void` | 进入/退出查看模式 |
-| `onZooming` | `(isZooming: boolean) => void` | 放大/缩小切换 |
-| `onSwitching` | `(page: number) => void` | 翻页时回传新页码 |
-| `onRotating` | `(deg: number) => void` | 旋转时回传当前角度 |
+| `onBrowsing` | `(isBrowsing: boolean) => void` | viewer opens / closes |
+| `onZooming` | `(isZooming: boolean) => void` | 1:1 zoom toggles |
+| `onSwitching` | `(page: number) => void` | page changes |
+| `onRotating` | `(deg: number) => void` | image rotates |
 
-### 完整类型定义
+### Controlled
 
-所有 props 通过单一交叉类型 `BaseType` 暴露：
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `browsing` | `boolean` | _(uncontrolled)_ | Controlled-mode prop, distinct from the static method `Zmage.browsing()`. Pair with `onBrowsing` so external state stays in sync. Omit for self-managed open/close. |
+
+### Native passthrough
+
+Every `HTMLAttributes<HTMLImageElement>` (`className`, `style`, `width`, `height`, `loading`, `id`, `data-*`, …) is forwarded to the cover `<img>`.
+
+### Full type
 
 ```ts
 export type BaseType =
@@ -313,129 +266,117 @@ export type BaseType =
   & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop
   & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating
   & ControlledParams              // browsing
-  & HTMLAttributes<HTMLImageElement>  // 透传给底层 <img> 的全部原生属性 (className, style, onClick, ...)
+  & HTMLAttributes<HTMLImageElement>
 ```
 
-子类型完整定义见 [`packages/core/src/types/global.ts`](./packages/core/src/types/global.ts)。
+Canonical sources of truth:
+- [`packages/core/src/types/global.ts`](./packages/core/src/types/global.ts) — prop types
+- [`packages/core/src/types/default.ts`](./packages/core/src/types/default.ts) — preset defaults
 
 ---
 
-## Props 示例
+## React compatibility
 
-### `set`
+| React | Status | Mount API |
+|---|---|---|
+| 16.8 — 17.x | ✅ Supported | `ReactDOM.render` |
+| 18.x | ✅ Supported | `createRoot` (auto-detected) |
+| 19.x | ✅ Supported | `createRoot` (required, auto-adapted) |
+
+Runtime feature detection picks the right mount API; consumers configure nothing. See `resolveMountAdapter` in [`Zmage.callee.tsx`](./packages/core/src/Zmage.callee.tsx).
+
+---
+
+## Recipes
+
+### Multi-image gallery
 
 ```tsx
 <Zmage
   src="/cover.jpg"
   set={[
-    { src: '/01.jpg', alt: '页 1', style: { borderRadius: 30 }, className: 'custom' },
-    { src: '/02.jpg', alt: '页 2' },
+    { src: '/01.jpg', alt: 'page 1', style: { borderRadius: 30 } },
+    { src: '/02.jpg', alt: 'page 2' },
   ]}
 />
 ```
 
-> 设置 `set` 后，进入查看模式的首图来自 `set[defaultPage]`，不再是 `src`。如果需要让封面与查看模式共享一张图，把它放进 `set[0]` 并保留 `src`。
+When `set` is non-empty, the first image you see in browsing mode is `set[defaultPage]`, not `src`. To keep the cover and the first viewer page in sync, put the cover in `set[0]` and pass it to `src` as well.
 
-### `controller`
-
-按需关闭部分按钮：
+### Selectively disable controls
 
 ```tsx
 <Zmage
   src="/x.jpg"
-  controller={{
-    download: true,    // 启用下载
-    rotate: false,     // 关闭旋转
-  }}
+  controller={{ download: true, rotate: false }}
 />
 ```
 
-### `hotKey`
-
-```tsx
-<Zmage src="/x.jpg" hotKey={{ flip: false }} />  // 禁用左右键翻页
-```
-
-### `animate`
-
-```tsx
-<Zmage src="/x.jpg" set={[...]} animate={{ flip: 'crossFade' }} />
-```
-
-### `backdrop`
-
-```tsx
-<Zmage src="/x.jpg" backdrop="linear-gradient(90deg, #00d4ff 0%, #1a5ed7 100%)" />
-```
-
-### `browsing` (受控)
+### Controlled state
 
 ```tsx
 const [open, setOpen] = useState(false)
 
 return (
   <>
-    <button onClick={() => setOpen(true)}>查看</button>
-    <Zmage
-      src="/x.jpg"
-      browsing={open}
-      onBrowsing={setOpen}
-    />
+    <button onClick={() => setOpen(true)}>View</button>
+    <Zmage src="/x.jpg" browsing={open} onBrowsing={setOpen} />
   </>
 )
 ```
 
-### 生命周期
+### Theme-aware backdrop
 
 ```tsx
-<Zmage
-  src="/x.jpg"
-  onBrowsing={(state) => console.info('Browsing:', state)}
-  onZooming={(state) => console.info('Zooming:', state)}
-  onSwitching={(page) => console.info('Switching to page:', page)}
-  onRotating={(deg) => console.info('Rotating:', deg, 'deg')}
-/>
+<Zmage src="/x.jpg" backdrop="linear-gradient(90deg, #00d4ff, #1a5ed7)" />
 ```
+
+For more recipes, see the live [Playground](https://zmage.caldis.me/playground) — every prop is controllable and the URL is shareable.
 
 ---
 
-## 贡献
+## Contributing
 
-欢迎发起 [PR](https://github.com/Caldis/react-zmage/pulls) 改进代码，或通过 [Issues](https://github.com/Caldis/react-zmage/issues) 反馈问题。
+PRs welcome — see [`AGENTS.md`](./AGENTS.md) for an at-a-glance project map and the architectural invariants to respect.
 
-仓库布局是 pnpm + turbo 单仓多包：
-- `packages/core` — 发布到 npm 的 `react-zmage` 库
-- `packages/home` — CSR 演示站源码（生产产物在 `docs/`，可切换 React 版本）
-- `packages/sandbox-r{17,18,19}` — 真实 npm 消费者类型 + SSR runtime smoke
-- `packages/sandbox-nextjs` — Next.js 15 + RSC 真实消费者 build smoke
-- `apps/demo-ssr` — Express + Vite SSR 演示（R19）
-- `apps/demo-nextjs` — Next.js 15 App Router 演示
+This is a pnpm + turbo monorepo:
 
-常用命令：
+```
+packages/
+  core/                    # the published react-zmage package
+  home/                    # CSR demo (Vite SPA, switchable React via env)
+  sandbox-r{17,18,19}/     # real-npm-consumer integration tests
+  sandbox-nextjs/          # Next.js 15 + RSC consumer build smoke
+apps/
+  demo-ssr/                # Express + Vite SSR demo (R19)
+  demo-nextjs/             # Next.js 15 App Router demo
+```
+
+Common commands:
+
 ```bash
-pnpm install         # 安装所有 workspace 依赖
-pnpm build           # 构建 core 与 home
-pnpm test            # 跑单元测试
-pnpm -w run check    # 完整跨版本兼容性: build → pack → reinstall → 4 sandbox tsc + ssr-smoke
+pnpm install
+pnpm build               # build core + home
+pnpm test                # vitest in jsdom
+pnpm -w run check        # full cross-version: build → pack → reinstall → 4 sandboxes tsc + ssr-smoke
 
-# 交互式 demo (用于人工验收 GUI / 动画 / 交互)
-pnpm dev:csr-r17     # CSR · Vite SPA · React 17
-pnpm dev:csr-r18     # CSR · Vite SPA · React 18
-pnpm dev:csr-r19     # CSR · Vite SPA · React 19
-pnpm dev:ssr-r19     # SSR · Express + renderToString · React 19  (:8090)
-pnpm dev:nextjs      # RSC · Next.js App Router · React 19         (:8095)
+# Interactive demos for human verification
+pnpm dev:csr-r17 / r18 / r19   # CSR · Vite SPA
+pnpm dev:ssr-r19                # SSR · Express        (:8090)
+pnpm dev:nextjs                 # RSC · Next.js        (:8095)
 ```
 
-每个 demo 顶部会显示 ContextBanner，标明当前实际加载的 React 版本与渲染模式，便于在切换不同环境时确认上下文。
+Each demo shows a top-bar `ContextBanner` with the actual loaded React version and render mode, so you can confirm context when switching environments.
 
 ---
 
-## 引用
-
-- 图标来源：[Material Icons](https://material.io/tools/icons/)
-
----
-
-## 证书
+## License
 
 [MIT](./LICENSE)
+
+---
+
+## Acknowledgements
+
+- Icons — [Material Icons](https://material.io/tools/icons/)
+- AI-friendly install instruction available at [`zmage.caldis.me/llms.txt`](https://zmage.caldis.me/llms.txt) — paste the URL to your AI agent.
