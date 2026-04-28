@@ -17,3 +17,11 @@ next-env.d.ts
 
 # Playwright MCP test artifacts (screenshots / console logs / DOM snapshots)
 .playwright-mcp/
+
+# Ephemeral agent / debug artifacts. Screenshots from the playwright MCP plugin,
+# scratch outputs, etc. Anything truly ephemeral lives here; never tracked.
+tmp/
+
+# Defensive: block stray PNGs at repo root. Committed images live under docs/
+# (e.g. docs/logo.png) and are unaffected by this rule.
+/*.png
