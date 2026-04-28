@@ -584,6 +584,66 @@ describe('Zmage closeOnDoubleClick (#195)', () => {
   })
 })
 
+describe('Zmage ESC 与外层 modal/dialog 隔离 (#184)', () => {
+  // 模拟挂在 window bubble 阶段的外层 modal keydown 监听器 (类似 react-modal / radix 等常见做法)
+  const installOuterListener = () => {
+    const onOuterKey = vi.fn()
+    window.addEventListener('keydown', onOuterKey)
+    return {
+      onOuterKey,
+      uninstall: () => window.removeEventListener('keydown', onOuterKey),
+    }
+  }
+
+  const dispatchEsc = async () => {
+    await act(async () => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27 } as KeyboardEventInit))
+      await new Promise(r => setTimeout(r, 50))
+    })
+  }
+
+  it('hotKey.close 开 (默认) 时, ESC 关闭 zmage 且外层 keydown 监听不被触发', async () => {
+    const { onOuterKey, uninstall } = installOuterListener()
+    try {
+      render(<Zmage src={SRC} alt="esc-modal" preset="desktop"/>)
+      fireEvent.click(screen.getByAltText('esc-modal'))
+      await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+      expect(document.getElementById('zmage')).toBeTruthy()
+
+      // 确认 zmage 监听器已挂载之后再派发 — 派发的事件应被 zmage capture 吃掉, 不冒泡到外层
+      onOuterKey.mockClear()
+      await dispatchEsc()
+
+      // zmage 关闭走动画再卸载
+      await act(async () => { await new Promise(r => setTimeout(r, 600)) })
+      expect(document.getElementById('zmage')).toBeNull()
+      expect(onOuterKey).not.toHaveBeenCalled()
+    } finally {
+      uninstall()
+    }
+  })
+
+  it('hotKey.close=false 时, ESC 不关 zmage 也不阻断外层监听', async () => {
+    const { onOuterKey, uninstall } = installOuterListener()
+    try {
+      render(<Zmage src={SRC} alt="esc-passthrough" preset="desktop" hotKey={{ close: false, zoom: true, flip: true }}/>)
+      fireEvent.click(screen.getByAltText('esc-passthrough'))
+      await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+      expect(document.getElementById('zmage')).toBeTruthy()
+
+      onOuterKey.mockClear()
+      await dispatchEsc()
+
+      // zmage 仍开
+      expect(document.getElementById('zmage')).toBeTruthy()
+      // 外层 modal 收到 ESC (用户期望由其处理)
+      expect(onOuterKey).toHaveBeenCalledTimes(1)
+    } finally {
+      uninstall()
+    }
+  })
+})
+
 describe('Zmage 命令式调用', () => {
   it('Zmage.browsing 返回 destructor 函数; 调用后 portal 节点移除', async () => {
     const destroy = Zmage.browsing({ src: SRC, alt: 't' })

@@ -203,7 +203,10 @@ export default class Browser extends React.Component<Props, State> {
     if (!show) {
       // Only desktop should handle the keydown & scroll events
       if (presetIsDesktop) {
-        window.addEventListener('keydown', this.handleKeyDown)
+        // Capture phase + stopImmediatePropagation in handler — 阻止外层 modal/dialog
+        // 在 zmage 处于浏览态时被同一次 ESC/方向键关掉。避免 #184 中"按 ESC 退查看器
+        // 顺手把承载 zmage 的 modal 也一起关了"的事件流串扰。
+        window.addEventListener('keydown', this.handleKeyDown, true)
         this.startMouseMoveListener()
         // Handle scroll from hide to prevent
         if (hideOnScroll) {
@@ -241,7 +244,7 @@ export default class Browser extends React.Component<Props, State> {
       // === 同步清理: 不依赖动画时间, 不依赖 setState 回调 ===
       // 这部分必须立即执行, 否则卸载或快速重渲染时会留下监听器/滚动锁
       if (presetIsDesktop) {
-        window.removeEventListener('keydown', this.handleKeyDown)
+        window.removeEventListener('keydown', this.handleKeyDown, true)
         this.stopMouseMoveListener()
         if (hideOnScroll) {
           window.removeEventListener('scroll', this.handleScroll)
@@ -291,17 +294,24 @@ export default class Browser extends React.Component<Props, State> {
   handleKeyDown = (e: KeyboardEvent) => {
     const { set, hotKey, loop, outBrowsing } = this.getPropsWithEnv()
     const { zoom, page, canZoom } = this.state
+    // 仅在 zmage 真正消费按键时阻断后续 listeners (#184: 浏览态下 ESC 不再
+    // 顺手关掉外层 modal). 不消费时让事件自由冒泡, 由外层处理.
+    const consume = () => {
+      e.preventDefault()
+      e.stopImmediatePropagation()
+    }
     // 判斷按鍵編碼
     switch (e.keyCode) {
     case 27: // Escape
-      // 退出
-      e.preventDefault()
-      hotKey.close && (zoom ? this.handleToggleZoom() : outBrowsing())
+      // 退出 — 仅在 hotKey.close 为 true 时消费, 否则交给外层 (modal/dialog)
+      if (!hotKey.close) return
+      consume()
+      zoom ? this.handleToggleZoom() : outBrowsing()
       break
     case 32: // SpaceBar
-      // 缩放
-      e.preventDefault()
-      if (!hotKey.zoom) break
+      // 缩放 — 仅在 hotKey.zoom 为 true 时消费
+      if (!hotKey.zoom) return
+      consume()
       // 图片已是原始尺寸: 不进入 zoom 状态(否则 ESC 会被多消耗一次), 仅重放放大按钮 shake
       if (!zoom && !canZoom) {
         this.handleTriggerZoomShake()
@@ -310,14 +320,17 @@ export default class Browser extends React.Component<Props, State> {
       this.handleToggleZoom('keyboard')
       break
     case 37: // ArrowLeft
-      // 上一张
-      e.preventDefault()
-      !(!loop && page === 0) && !zoom && (hotKey.flipLeft || hotKey.flip) && this.handleToPrevPage()
+      // 上一张 — hotKey 开关决定是否拦截; 边界/zoom 态拦截但不翻页 (避免页面滚动)
+      if (!(hotKey.flipLeft || hotKey.flip)) return
+      consume()
+      if (zoom || (!loop && page === 0)) break
+      this.handleToPrevPage()
       break
-    case 39: // ArrowRight
-      // 下一张
-      e.preventDefault()
-      !(!loop && page === set.length - 1) && !zoom && (hotKey.flipRight || hotKey.flip) && this.handleToNextPage()
+    case 39: // ArrowRight — 同 ArrowLeft 语义
+      if (!(hotKey.flipRight || hotKey.flip)) return
+      consume()
+      if (zoom || (!loop && page === set.length - 1)) break
+      this.handleToNextPage()
       break
     default:
       return
