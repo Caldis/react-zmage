@@ -238,6 +238,14 @@ export const en: I18nDict = {
   'docs.section.props.controller.keyHeader': 'Key',
   'docs.section.props.controller.descHeader': 'Description',
   'docs.section.props.controller.umbrella': 'rotate is the umbrella for rotateLeft / rotateRight — enabling it shows both buttons. flip works the same way over flipLeft / flipRight.',
+  'docs.section.props.hotkey.umbrella': 'flip is the umbrella for flipLeft / flipRight — enabling it binds both ← and → arrow keys. The two arrow keys can also be toggled individually.',
+  'docs.section.props.animate.typeHeader': 'Type',
+  'docs.section.props.set.title': 'Set entry fields',
+  'set.src.desc': 'Image URL — required',
+  'set.alt.desc': 'Image title for this entry',
+  'set.caption.desc': 'Caption below this entry; overrides the outer caption when provided',
+  'set.className.desc': 'Custom class applied to this entry',
+  'set.style.desc': 'Custom inline style applied to this entry',
   'docs.section.props.preset.title': 'Preset bundles',
   'docs.section.props.preset.intro': 'preset is a bundle of defaults applied to the controller / hotKey / animate sub-objects. auto is resolved at runtime via matchMedia(\'(pointer: coarse) and (hover: none)\') to either desktop or mobile, falling back to desktop under SSR or when matchMedia is unavailable.',
   'docs.section.props.preset.subParamHeader': 'Sub-param',
@@ -254,9 +262,8 @@ export const en: I18nDict = {
 
   'docs.section.migration.title': 'Migration',
   'docs.section.migration.fromV2': 'From v2:',
-  'docs.section.migration.bullet1': "preset: 'auto' is deprecated — use 'desktop' or 'mobile'.",
-  'docs.section.migration.bullet2': 'Component is a forwardRef exotic; do not new Zmage().',
-  'docs.section.migration.bullet3': 'If you import the SSR entry, switch to react-zmage/ssr.',
+  'docs.section.migration.bullet1': 'Component is a forwardRef exotic; do not new Zmage().',
+  'docs.section.migration.bullet2': 'If you import the SSR entry, switch to react-zmage/ssr.',
 
   // FAQ
   'docs.section.faq.title': 'FAQ',

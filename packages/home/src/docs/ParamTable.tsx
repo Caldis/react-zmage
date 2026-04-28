@@ -2,6 +2,13 @@ import { PARAM_SCHEMA, type ParamGroup } from '@/schema/param-schema'
 import { Badge } from '@/components/ui/badge'
 import { useT } from '@/i18n/useT'
 
+const OBJECT_TYPE_NAME: Record<'controller' | 'hotkey' | 'animate' | 'set', string> = {
+  controller: 'ControllerSet',
+  hotkey: 'HotKey',
+  animate: 'Animate',
+  set: 'Set',
+}
+
 function inferType (def: typeof PARAM_SCHEMA[number]): string {
   switch (def.control.kind) {
     case 'switch': return 'boolean'
@@ -11,7 +18,10 @@ function inferType (def: typeof PARAM_SCHEMA[number]): string {
     case 'color': return 'string'
     case 'select':
     case 'segmented': return def.control.options.map(o => `'${o.value}'`).join(' | ')
-    case 'object': return def.control.component === 'set' ? 'Set[]' : `${def.control.component[0].toUpperCase()}${def.control.component.slice(1)}Set | boolean`
+    case 'object': {
+      const name = OBJECT_TYPE_NAME[def.control.component]
+      return def.control.component === 'set' ? `${name}[]` : `${name} | boolean`
+    }
     case 'callback': return '(arg) => void'
   }
 }

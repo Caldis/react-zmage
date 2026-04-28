@@ -4,17 +4,38 @@ import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
 import { defPreset } from '@/schema/param-schema'
 
-const CONTROLLER_KEYS: { k: string; labelKey: I18nKey }[] = [
-  { k: 'pagination', labelKey: 'controller.pagination' },
-  { k: 'rotate', labelKey: 'controller.rotate' },
-  { k: 'rotateLeft', labelKey: 'controller.rotateLeft' },
-  { k: 'rotateRight', labelKey: 'controller.rotateRight' },
-  { k: 'zoom', labelKey: 'controller.zoom' },
-  { k: 'download', labelKey: 'controller.download' },
-  { k: 'close', labelKey: 'controller.close' },
-  { k: 'flip', labelKey: 'controller.flip' },
-  { k: 'flipLeft', labelKey: 'controller.flipLeft' },
-  { k: 'flipRight', labelKey: 'controller.flipRight' },
+const CONTROLLER_KEYS: { k: string; descKey: I18nKey }[] = [
+  { k: 'pagination', descKey: 'controller.pagination.desc' },
+  { k: 'rotate', descKey: 'controller.rotate.desc' },
+  { k: 'rotateLeft', descKey: 'controller.rotateLeft.desc' },
+  { k: 'rotateRight', descKey: 'controller.rotateRight.desc' },
+  { k: 'zoom', descKey: 'controller.zoom.desc' },
+  { k: 'download', descKey: 'controller.download.desc' },
+  { k: 'close', descKey: 'controller.close.desc' },
+  { k: 'flip', descKey: 'controller.flip.desc' },
+  { k: 'flipLeft', descKey: 'controller.flipLeft.desc' },
+  { k: 'flipRight', descKey: 'controller.flipRight.desc' },
+]
+
+const HOTKEY_KEYS: { k: string; descKey: I18nKey }[] = [
+  { k: 'close', descKey: 'hotkey.close.desc' },
+  { k: 'zoom', descKey: 'hotkey.zoom.desc' },
+  { k: 'flip', descKey: 'hotkey.flip.desc' },
+  { k: 'flipLeft', descKey: 'hotkey.flipLeft.desc' },
+  { k: 'flipRight', descKey: 'hotkey.flipRight.desc' },
+]
+
+const ANIMATE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
+  { k: 'browsing', type: 'boolean', descKey: 'animate.browsing.desc' },
+  { k: 'flip', type: "'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'", descKey: 'animate.flip.desc' },
+]
+
+const SET_FIELDS: { k: string; type: string; required?: boolean; descKey: I18nKey }[] = [
+  { k: 'src', type: 'string', required: true, descKey: 'set.src.desc' },
+  { k: 'alt', type: 'string', descKey: 'set.alt.desc' },
+  { k: 'caption', type: "string | { text, style?, className? }", descKey: 'set.caption.desc' },
+  { k: 'className', type: 'string', descKey: 'set.className.desc' },
+  { k: 'style', type: 'CSSStyleDeclaration', descKey: 'set.style.desc' },
 ]
 
 type PresetRow = { path: string; label: I18nKey }
@@ -81,32 +102,117 @@ function PresetDetail () {
   )
 }
 
+function SetDetail () {
+  const { t } = useT()
+  return (
+    <div className="my-6 overflow-hidden rounded-lg border border-border">
+      <TypeCaption name="Set" />
+      <table className="w-full text-sm">
+        <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+          <tr>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.keyHeader')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.animate.typeHeader')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.descHeader')}</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {SET_FIELDS.map(({ k, type, required, descKey }) => (
+            <tr key={k}>
+              <td className="px-4 py-2.5 font-mono align-top">
+                {k}
+                {required && <span className="ml-1.5 text-[9px] text-destructive">{t('common.required')}</span>}
+              </td>
+              <td className="px-4 py-2.5 align-top font-mono text-xs text-muted-foreground">{type}</td>
+              <td className="px-4 py-2.5 text-muted-foreground">{t(descKey)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function TypeCaption ({ name }: { name: string }) {
+  return (
+    <div className="border-b border-border px-4 py-2 font-mono text-xs text-muted-foreground">
+      {name}
+    </div>
+  )
+}
+
+function SubKeyTable ({ typeName, rows }: { typeName: string; rows: { k: string; descKey: I18nKey }[] }) {
+  const { t } = useT()
+  return (
+    <div className="my-6 overflow-hidden rounded-lg border border-border">
+      <TypeCaption name={typeName} />
+      <table className="w-full text-sm">
+        <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+          <tr>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.keyHeader')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.descHeader')}</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {rows.map(({ k, descKey }) => (
+            <tr key={k}>
+              <td className="px-4 py-2.5 font-mono align-top">{k}</td>
+              <td className="px-4 py-2.5 text-muted-foreground">{t(descKey)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 function ControllerDetail () {
   const { t } = useT()
   return (
     <>
-      <div className="my-6 overflow-hidden rounded-lg border border-border">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
-            <tr>
-              <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.keyHeader')}</th>
-              <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.descHeader')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {CONTROLLER_KEYS.map(({ k, labelKey }) => (
-              <tr key={k}>
-                <td className="px-4 py-2.5 font-mono">{k}</td>
-                <td className="px-4 py-2.5 text-muted-foreground">{t(labelKey)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <SubKeyTable typeName="ControllerSet" rows={CONTROLLER_KEYS} />
       <p className="-mt-4 mb-6 text-xs text-muted-foreground">
         {t('docs.section.props.controller.umbrella')}
       </p>
     </>
+  )
+}
+
+function HotKeyDetail () {
+  const { t } = useT()
+  return (
+    <>
+      <SubKeyTable typeName="HotKey" rows={HOTKEY_KEYS} />
+      <p className="-mt-4 mb-6 text-xs text-muted-foreground">
+        {t('docs.section.props.hotkey.umbrella')}
+      </p>
+    </>
+  )
+}
+
+function AnimateDetail () {
+  const { t } = useT()
+  return (
+    <div className="my-6 overflow-hidden rounded-lg border border-border">
+      <TypeCaption name="Animate" />
+      <table className="w-full text-sm">
+        <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+          <tr>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.keyHeader')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.animate.typeHeader')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.descHeader')}</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {ANIMATE_KEYS.map(({ k, type, descKey }) => (
+            <tr key={k}>
+              <td className="px-4 py-2.5 font-mono align-top">{k}</td>
+              <td className="px-4 py-2.5 align-top font-mono text-xs text-muted-foreground">{type}</td>
+              <td className="px-4 py-2.5 text-muted-foreground">{t(descKey)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 
@@ -118,6 +224,8 @@ export function Props () {
       <p>{t('docs.section.props.intro')}</p>
       <Heading id="props-data" level={3}>{t('group.data')}</Heading>
       <ParamTable group="data" />
+      <Heading id="props-set" level={3}>{t('docs.section.props.set.title')}</Heading>
+      <SetDetail />
       <Heading id="props-preset" level={3}>{t('group.preset')}</Heading>
       <ParamTable group="preset" />
       <Heading id="props-preset-bundles" level={3}>{t('docs.section.props.preset.title')}</Heading>
@@ -129,8 +237,10 @@ export function Props () {
       <ControllerDetail />
       <Heading id="props-hotkey" level={3}>{t('group.hotkey')}</Heading>
       <ParamTable group="hotkey" />
+      <HotKeyDetail />
       <Heading id="props-animate" level={3}>{t('group.animate')}</Heading>
       <ParamTable group="animate" />
+      <AnimateDetail />
       <Heading id="props-lifecycle" level={3}>{t('group.lifecycle')}</Heading>
       <ParamTable group="lifecycle" />
       <Heading id="props-controlled" level={3}>{t('group.controlled')}</Heading>

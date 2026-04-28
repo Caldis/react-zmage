@@ -253,6 +253,14 @@ export const zhCN = {
   'docs.section.props.controller.keyHeader': '名称',
   'docs.section.props.controller.descHeader': '说明',
   'docs.section.props.controller.umbrella': 'rotate 是 rotateLeft / rotateRight 的组合开关 — 启用时同时显示左右两个旋转按钮;flip 与 flipLeft / flipRight 同理。',
+  'docs.section.props.hotkey.umbrella': 'flip 是 flipLeft / flipRight 的组合开关 — 启用时同时绑定 ← 与 → 两个方向键;两个方向键也可单独控制。',
+  'docs.section.props.animate.typeHeader': '类型',
+  'docs.section.props.set.title': 'set 子字段',
+  'set.src.desc': '图片地址,必填项',
+  'set.alt.desc': '该张图片的标题',
+  'set.caption.desc': '该张图片下方的辅助文案;若提供则覆盖外层 caption',
+  'set.className.desc': '应用到该张图片的自定义类名',
+  'set.style.desc': '应用到该张图片的自定义内联样式',
   'docs.section.props.preset.title': '预设默认值表',
   'docs.section.props.preset.intro': 'preset 是一组打包好的默认值,会作用于 controller / hotKey / animate 三组子参数。auto 在运行时根据 matchMedia(\'(pointer: coarse) and (hover: none)\') 解析为 desktop 或 mobile;SSR 与无 matchMedia 环境下回退到 desktop。',
   'docs.section.props.preset.subParamHeader': '子参数',
@@ -269,9 +277,8 @@ export const zhCN = {
 
   'docs.section.migration.title': '迁移指南',
   'docs.section.migration.fromV2': '从 v2 升级:',
-  'docs.section.migration.bullet1': "preset: 'auto' 已废弃 — 请改用 'desktop' 或 'mobile'。",
-  'docs.section.migration.bullet2': '组件是 forwardRef exotic;请勿使用 new Zmage()。',
-  'docs.section.migration.bullet3': '如果你引用的是 SSR 入口,请改为 react-zmage/ssr。',
+  'docs.section.migration.bullet1': '组件是 forwardRef exotic;请勿使用 new Zmage()。',
+  'docs.section.migration.bullet2': '如果你引用的是 SSR 入口,请改为 react-zmage/ssr。',
 
   // FAQ
   'docs.section.faq.title': '常见问题',

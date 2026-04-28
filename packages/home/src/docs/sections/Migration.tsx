@@ -10,7 +10,6 @@ export function Migration () {
       <ul className="list-disc space-y-2 pl-6 text-muted-foreground">
         <li>{t('docs.section.migration.bullet1')}</li>
         <li>{t('docs.section.migration.bullet2')}</li>
-        <li>{t('docs.section.migration.bullet3')}</li>
       </ul>
     </section>
   )
