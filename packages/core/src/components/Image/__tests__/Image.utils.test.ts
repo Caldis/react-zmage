@@ -13,7 +13,6 @@ import {
   getCoverStyle,
   getImageTransition,
   ImageStyleType,
-  isFlipAnimated,
   lerpCoverStyle,
   makeCubicBezierEase,
   selectFlipKind,
@@ -356,6 +355,9 @@ describe('selectFlipKind (flipKind 派生 selector)', () => {
   it('animate=false → false', () => {
     expect(selectFlipKind(false)).toBe(false)
   })
+  it('animate={flip:false} → false (Browser normalizes animate=false to this object form)', () => {
+    expect(selectFlipKind({ flip: false } as unknown as { flip: false })).toBe(false)
+  })
   it('animate={flip:"swipe"} → "swipe"', () => {
     expect(selectFlipKind({ flip: 'swipe' })).toBe('swipe')
   })
@@ -370,21 +372,5 @@ describe('selectFlipKind (flipKind 派生 selector)', () => {
   })
   it('animate=true → undefined (boolean true 等同未配置)', () => {
     expect(selectFlipKind(true as unknown as boolean)).toBeUndefined()
-  })
-})
-
-describe('isFlipAnimated (是否有动画过渡的判定)', () => {
-  it('"fade"/"crossFade"/"swipe"/"zoom" → true', () => {
-    expect(isFlipAnimated('fade')).toBe(true)
-    expect(isFlipAnimated('crossFade')).toBe(true)
-    expect(isFlipAnimated('swipe')).toBe(true)
-    expect(isFlipAnimated('zoom')).toBe(true)
-  })
-  it('"none" → false (有 flip 配置但无过渡)', () => {
-    expect(isFlipAnimated('none')).toBe(false)
-  })
-  it('false / undefined → false', () => {
-    expect(isFlipAnimated(false)).toBe(false)
-    expect(isFlipAnimated(undefined)).toBe(false)
   })
 })

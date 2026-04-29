@@ -465,7 +465,3 @@ export const selectFlipKind = (
   }
   return undefined
 }
-
-export const isFlipAnimated = (
-  kind: AnimateFlip | false | undefined
-): kind is Exclude<AnimateFlip, 'none'> => !!kind && kind !== 'none'
