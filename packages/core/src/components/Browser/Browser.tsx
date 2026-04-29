@@ -16,7 +16,7 @@ import Background from '../Background'
 // Utils
 import { Context } from '../context'
 import type { ContextType, ZoomTrigger } from '../context'
-import { disableScroll, enableScroll, getTargetPage, unlockTouchInteraction } from '../../utils'
+import { disableScroll, enableScroll, getTargetPage, resolveShortestStep, unlockTouchInteraction } from '../../utils'
 import { defPropsWithEnv, resolvePreset } from '../../types/default'
 import { getBrowsingAnimationDuration } from '../../config/anim'
 import { probeStylesheet } from '../../utils/styleProbe'
@@ -367,7 +367,11 @@ export default class Browser extends React.Component<Props, State> {
    */
   handleToPage = (targetPage: number) => {
     const { page } = this.state
-    this.handleSwitchPages(targetPage - page)()
+    const { set, loop = false } = this.props
+    // loop 场景下用最短路径解析 step (如 N=6, 0→5: raw=+5 → -1, 让分页器走 ±2 预取环, 与左方向键路径合流)
+    const raw = targetPage - page
+    const step = (loop && set.length > 1) ? resolveShortestStep(raw, set.length) : raw
+    this.handleSwitchPages(step)()
   }
   handleSwitchPages = (step: number) => {
     const { coverRef, onSwitching, loop = false } = this.props
@@ -377,10 +381,14 @@ export default class Browser extends React.Component<Props, State> {
         const { page, pageWithStep } = this.state
         const targetPage = getTargetPage(page, set.length, step, { loop })
         if (typeof targetPage === 'number') {
+          // 跳页 (|step|>2 = 超出 ±2 预取环) 时把 pageWithStep 推进量 cap 到 ±1, 强制让所有新 React key
+          // 与旧 key 不对齐 → 全部 fresh mount, 既消灭"错向 reuse 扫掠" (#issue-0), 也给 Image cdU 留出
+          // 干净的新 center 节点用于 jumpFadeIn class 视觉过渡.
+          const advance = Math.abs(step) > 2 ? Math.sign(step) : step
           this.setState({
             page: targetPage,
             pageIsCover: pageIsCover(coverRef, set, targetPage),
-            pageWithStep: pageWithStep + step,
+            pageWithStep: pageWithStep + advance,
             zoom: false,
             zoomTrigger: undefined,
             zoomPosition: undefined,

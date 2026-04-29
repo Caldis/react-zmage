@@ -1171,6 +1171,187 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
   })
 })
 
+describe('Zmage 跳页与 fade 降级 (Issue 1 / Issue 2)', () => {
+  // 共享根因: Browser.handleToPage 此前用 raw step (= targetPage - currentPage), 让 loop 场景下
+  // 分页器跳页路径与方向键路径分裂. 两个新行为:
+  //   (a) handleToPage 用 resolveShortestStep → loop=true 时 N=6 dot 0→5 走 step=-1 路径, 与左方向键合流
+  //       → 命中预取环 step-1 节点 → React 复用 + slide-in (Issue 2 修复)
+  //   (b) handleSwitchPages |step|>2 时 cap pageWithStep 推进量到 ±1 → 强制无 React key 复用 →
+  //       新 center fresh mount → Image.cdU 加 jumpFadeIn class 触发 CSS @keyframes opacity 0→1 (Issue 1)
+
+  type Dim = { w: number, h: number }
+  const stripQuery = (s: string) => s.split('?')[0]
+  const mockImageDimensionsBySrc = (mapping: Record<string, Dim>) => {
+    const origW = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
+    const origH = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
+    const origC = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'complete')
+    const lookup = (img: HTMLImageElement) => mapping[stripQuery(img.getAttribute('src') || img.src || '')]
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement)?.w ?? 0 },
+    })
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement)?.h ?? 0 },
+    })
+    Object.defineProperty(HTMLImageElement.prototype, 'complete', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement) !== undefined },
+    })
+    return () => {
+      if (origW) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', origW)
+      else delete (HTMLImageElement.prototype as any).naturalWidth
+      if (origH) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', origH)
+      else delete (HTMLImageElement.prototype as any).naturalHeight
+      if (origC) Object.defineProperty(HTMLImageElement.prototype, 'complete', origC)
+      else delete (HTMLImageElement.prototype as any).complete
+    }
+  }
+  const wait = async (ms: number) => {
+    await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+  const buildSixSet = () => {
+    const SRCS = Array.from({ length: 6 }, (_, i) => `https://example.com/img${i}.jpg`)
+    return {
+      SRCS,
+      restore: mockImageDimensionsBySrc(Object.fromEntries(SRCS.map((src, i) => [
+        src, i % 2 === 0 ? { w: 2000, h: 1000 } : { w: 1000, h: 2000 },
+      ]))),
+    }
+  }
+  const clickPaginationDot = (idx: number) => {
+    const dots = document.querySelectorAll<HTMLElement>('#zmageControlPagination > span')
+    const dot = dots[idx]
+    if (!dot) throw new Error(`expected pagination dot ${idx} in DOM`)
+    fireEvent.click(dot)
+  }
+
+  it("Issue 2: N=6 loop=true 分页器 0→5 走 shortest-path step=-1, 复用预取环 step-1 节点", async () => {
+    const { SRCS, restore } = buildSixSet()
+    try {
+      render(
+        <Zmage src={SRCS[0]} alt="issue2" preset="desktop" animate={{ flip: 'crossFade' }}
+          set={SRCS.map((src, i) => ({ src, alt: `p${i}` }))}/>
+      )
+      fireEvent.click(screen.getByAltText('issue2'))
+      await wait(50)
+
+      // page 0 时 step-1 (loop wrap) 是 page 5 / image 6 (= SRCS[5])
+      const sideStepMinus1 = Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+        .find(img => img.id !== 'zmageImage' && img.src.includes('img5.jpg'))
+      expect(sideStepMinus1).toBeTruthy()
+
+      // 分页器跳到 page 5. 修复前 step=+5, pageWithStep+=5, 新 key 与旧 step-1 不对齐 → fresh mount, 无动画 (Issue 2 bug).
+      // 修复后 resolveShortestStep(+5,6)=-1, pageWithStep+=-1, 新 center key=(X-1)-img5.jpg 命中旧 step-1 → React 复用.
+      await act(async () => { clickPaginationDot(5); await new Promise(r => setTimeout(r, 30)) })
+
+      const newCenter = document.getElementById('zmageImage') as HTMLImageElement
+      expect(newCenter.src).toContain('img5.jpg')
+      // 关键断言: 新 center 是旧 step-1 同一个 DOM 节点 (= 等同左方向键路径)
+      expect(newCenter).toBe(sideStepMinus1)
+    } finally {
+      restore()
+    }
+  })
+
+  it("Issue 1: N=6 loop=true 分页器 0→3 (跳页 |step|=3>2) 给新 center 加 jumpFadeIn class", async () => {
+    const { SRCS, restore } = buildSixSet()
+    try {
+      render(
+        <Zmage src={SRCS[0]} alt="issue1" preset="desktop" animate={{ flip: 'swipe' }}
+          set={SRCS.map((src, i) => ({ src, alt: `p${i}` }))}/>
+      )
+      fireEvent.click(screen.getByAltText('issue1'))
+      await wait(50)
+
+      await act(async () => { clickPaginationDot(3); await new Promise(r => setTimeout(r, 5)) })
+
+      const newCenter = document.getElementById('zmageImage') as HTMLImageElement
+      expect(newCenter.src).toContain('img3.jpg')
+      expect(newCenter.className).toContain('jumpFadeIn')
+
+      // animationDuration (350ms) + 10ms 后 timer 移除 class
+      await wait(380)
+      expect(newCenter.className).not.toContain('jumpFadeIn')
+    } finally {
+      restore()
+    }
+  })
+
+  it("Issue 1 Exception: flip='none' 跳页不加 jumpFadeIn class", async () => {
+    const { SRCS, restore } = buildSixSet()
+    try {
+      render(
+        <Zmage src={SRCS[0]} alt="none-jump" preset="desktop" animate={{ flip: 'none' }}
+          set={SRCS.map((src, i) => ({ src, alt: `p${i}` }))}/>
+      )
+      fireEvent.click(screen.getByAltText('none-jump'))
+      await wait(50)
+
+      await act(async () => { clickPaginationDot(3); await new Promise(r => setTimeout(r, 5)) })
+
+      const newCenter = document.getElementById('zmageImage') as HTMLImageElement
+      expect(newCenter.src).toContain('img3.jpg')
+      // flip='none' 是显式 instant-cut 语义, 不应叠加 fade
+      expect(newCenter.className).not.toContain('jumpFadeIn')
+    } finally {
+      restore()
+    }
+  })
+
+  it("In-range 不退化: N=6 分页器 0→2 (|step|=2 ≤ 2) 走预取环正常 slide", async () => {
+    const { SRCS, restore } = buildSixSet()
+    try {
+      render(
+        <Zmage src={SRCS[0]} alt="in-range" preset="desktop" animate={{ flip: 'swipe' }}
+          set={SRCS.map((src, i) => ({ src, alt: `p${i}` }))}/>
+      )
+      fireEvent.click(screen.getByAltText('in-range'))
+      await wait(50)
+
+      const sideStepPlus2 = Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+        .find(img => img.id !== 'zmageImage' && img.src.includes('img2.jpg'))
+      expect(sideStepPlus2).toBeTruthy()
+
+      await act(async () => { clickPaginationDot(2); await new Promise(r => setTimeout(r, 5)) })
+
+      const newCenter = document.getElementById('zmageImage') as HTMLImageElement
+      expect(newCenter.src).toContain('img2.jpg')
+      // 应该 React 复用旧 step+2 节点
+      expect(newCenter).toBe(sideStepPlus2)
+      // 不应该 fade
+      expect(newCenter.className).not.toContain('jumpFadeIn')
+    } finally {
+      restore()
+    }
+  })
+
+  it("StrictMode unmount: jumpFadeTimer 被 clearTimeout 不泄漏", async () => {
+    const { SRCS, restore } = buildSixSet()
+    try {
+      const { unmount } = render(
+        <Zmage src={SRCS[0]} alt="cleanup" preset="desktop" animate={{ flip: 'swipe' }}
+          set={SRCS.map((src, i) => ({ src, alt: `p${i}` }))}/>
+      )
+      fireEvent.click(screen.getByAltText('cleanup'))
+      await wait(50)
+
+      await act(async () => { clickPaginationDot(3); await new Promise(r => setTimeout(r, 5)) })
+      const newCenter = document.getElementById('zmageImage') as HTMLImageElement
+      expect(newCenter.className).toContain('jumpFadeIn')
+
+      // unmount 在 360ms timer 触发之前
+      unmount()
+      // 等更久, timer 不应再触发任何残留副作用 (无报错即通过)
+      await wait(400)
+      // 节点已脱离 DOM, classList 操作即便发生也不报错
+      expect(document.getElementById('zmageImage')).toBeNull()
+    } finally {
+      restore()
+    }
+  })
+})
+
 describe('Zmage 命令式调用', () => {
   it('Zmage.browsing 返回 destructor 函数; 调用后 portal 节点移除', async () => {
     const destroy = Zmage.browsing({ src: SRC, alt: 't' })

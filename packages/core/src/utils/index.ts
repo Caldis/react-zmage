@@ -200,6 +200,35 @@ const RANGE = { 0: [0], 1: [-1, 0, 1], 2: [-2, -1, 0, 1, 2], 3: [-3, -2, -1, 0, 
 export const mirrorRange = (edge: 0 | 1 | 2 | 3) => RANGE[edge]
 
 /**
+ * loop 语义下解析最短路径 step.
+ *
+ * 用于把 raw "目标页 - 当前页" 转成 ±|step| ≤ N/2 的等价 step.
+ * 例如 N=6, raw=+5 → -1 (走 loop wrap 反向更短).
+ *
+ * 不传 loop / loop=false 场景由调用方自行处理 (一般直接用 raw).
+ */
+export const resolveShortestStep = (raw: number, length: number): number => {
+  if (length <= 1) return raw
+  // 把 raw 归一到 [0, length-1] 区间得 forward
+  const forward = ((raw % length) + length) % length
+  // backward 永远是 forward - length, 落在 [-length, -1]
+  const backward = forward - length
+  // |forward| ≤ |backward| 时取 forward, 否则 backward
+  return Math.abs(forward) <= Math.abs(backward) ? forward : backward
+}
+
+/**
+ * 两页之间的最短逻辑距离 (考虑 loop wrap).
+ *
+ * 用于判定页面切换是否"超过预取 ±2 范围" — 跳页 fade 触发条件.
+ */
+export const computeMinPageDistance = (prevPage: number, currPage: number, length: number, loop: boolean): number => {
+  const raw = currPage - prevPage
+  if (!loop || length <= 1) return Math.abs(raw)
+  return Math.abs(resolveShortestStep(raw, length))
+}
+
+/**
  * 防抖 — 返回值带 .cancel() 方法, 用于在组件卸载时取消挂起调用
  */
 export interface Debounced<Args extends unknown[]> {

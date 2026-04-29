@@ -16,6 +16,7 @@ import { animationDuration, getBrowsingAnimationDuration } from '../../config/an
 import {
   appendParams,
   checkImageLoadedComplete,
+  computeMinPageDistance,
   debounce,
   getTargetPage,
   isInteger,
@@ -101,6 +102,10 @@ export default class Image extends React.Component<PropsType, StateType> {
   // 通过 cdU 检测此 dim 到达, 主动 setNodeTransitionNone 中断这条 transition.
   pendingDimCalibration: number | null = null
   calibrationRestoreRaf?: number
+  // 跳页 fade Timer: 当 |minDist|>2 时 (超出 ±2 预取环), 给新 center 加 jumpFadeIn class 触发 CSS
+  // @keyframes (opacity 0→1) 作为降级过渡. CSS animation 与 transition 是独立子系统, 不会被
+  // setNodeTransitionNone 中断, 所以与 scale 校准 interrupt 完全解耦.
+  jumpFadeTimer?: ReturnType<typeof setTimeout>
   // State
   readonly state = {
     // 加载状态
@@ -204,6 +209,18 @@ export default class Image extends React.Component<PropsType, StateType> {
       this.pendingDimCalibration = null
       this.cancelScaleCalibrationAnimation()
     }
+    // ③ 跳页 fade: 当 page 真正变化, 且最短逻辑距离 > 2 (超出 ±2 预取环) 且非 flip='none' 时,
+    // 给新 center 加 jumpFadeIn class 触发 CSS @keyframes (opacity 0→1). loop=true 时通过
+    // resolveShortestStep 计算最短距离, 让 N=6 page 0→5 (= -1 wrap) 仍走 in-range 路径不进 fade.
+    if (prevPage !== currPage && this.props.show) {
+      const flipKind = selectFlipKind(this.context.animate)
+      const set = this.context.set
+      const loop = this.context.loop ?? false
+      const minDist = computeMinPageDistance(prevPage, currPage, set.length, loop)
+      if (minDist > 2 && flipKind !== 'none') {
+        this.applyJumpFadeIn()
+      }
+    }
   }
 
   componentWillUnmount () {
@@ -218,6 +235,10 @@ export default class Image extends React.Component<PropsType, StateType> {
     if (this.calibrationRestoreRaf !== undefined) {
       window.cancelAnimationFrame(this.calibrationRestoreRaf)
       this.calibrationRestoreRaf = undefined
+    }
+    if (this.jumpFadeTimer !== undefined) {
+      clearTimeout(this.jumpFadeTimer)
+      this.jumpFadeTimer = undefined
     }
     this.cancelClosingFollow()
     this.resetZoomMotionState()
@@ -685,6 +706,37 @@ export default class Image extends React.Component<PropsType, StateType> {
         node.style.removeProperty('-webkit-transition')
       }
     })
+  }
+  /**
+   * 跳页 fade 应用
+   *
+   * 触发场景: 用户通过分页器跳到 ±2 预取环之外的页 (如 N=6 dot 0→3, 或 loop=false N=6 dot 0→5).
+   * 此时所有旧 React key 与新 key 不对齐 (Browser cap pageWithStep 强制), 新 center 干净 fresh mount.
+   * 给该节点加 `jumpFadeIn` class → 触发 CSS @keyframes 让 opacity 0→1 渐入.
+   *
+   * CSS animation 与 transition 是独立子系统, 与 setNodeTransitionNone 完全解耦, 慢网下 dim 到达
+   * 触发的 scale 校准 interrupt 不会中断这段 fade.
+   *
+   * 闭包捕获节点是为了快速连续跳页时 timer 仍清理之前那个节点的 class (避免类残留).
+   */
+  applyJumpFadeIn = () => {
+    const node = this.imageRef.current
+    if (!node) return
+    // CSS modules 会把 .jumpFadeIn 哈希成例如 _jumpFadeIn_xxx, 走 style.jumpFadeIn 取真实类名;
+    // 测试环境 (vitest classNameStrategy='non-scoped') 下 style.jumpFadeIn === 'jumpFadeIn'.
+    const jumpClass = style.jumpFadeIn
+    if (!jumpClass) return
+    // 强制 reflow 让 class 再次添加时 keyframe 重启 (避免连续跳页时第二次 class 不重新触发动画)
+    node.classList.remove(jumpClass)
+    void node.offsetWidth
+    node.classList.add(jumpClass)
+    if (this.jumpFadeTimer !== undefined) {
+      clearTimeout(this.jumpFadeTimer)
+    }
+    this.jumpFadeTimer = setTimeout(() => {
+      this.jumpFadeTimer = undefined
+      if (node) node.classList.remove(jumpClass)
+    }, animationDuration + 10)
   }
   consumePendingZoomMousePosition = () => {
     const pending = this.pendingZoomMousePosition

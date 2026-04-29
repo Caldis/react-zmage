@@ -29,3 +29,18 @@
     pointer-events: none;
   }
 }
+
+// 跳页 fade: 当用户通过分页器跳到 ±2 预取环之外的页 (如 N=6 dot 0→3) 时, Browser 通过 cap pageWithStep
+// 强制让所有新 React key 与旧 key 不对齐 → 新 center 是干净 fresh mount, 没有 transform 滑入动画.
+// 由 Image.tsx applyJumpFadeIn 命令式给中心节点加此 class, 触发 CSS @keyframes 让 opacity 0→1 渐入.
+//
+// 关键点: @keyframes animation 与 transition 是 CSS 独立子系统, setNodeTransitionNone 不影响它,
+// 所以慢网下 dim 到达触发 scale 校准 interrupt 时这段 fade 不会被卡断.
+@keyframes zmageJumpFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.jumpFadeIn {
+  animation: zmageJumpFadeIn @animationDuration @animationFunction both;
+}
