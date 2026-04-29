@@ -12,6 +12,7 @@ import {
   getBrowsingStyle,
   getCoverStyle,
   getImageTransition,
+  getSwipeOffset,
   ImageStyleType,
   lerpCoverStyle,
   makeCubicBezierEase,
@@ -372,5 +373,18 @@ describe('selectFlipKind (flipKind 派生 selector)', () => {
   })
   it('animate=true → undefined (boolean true 等同未配置)', () => {
     expect(selectFlipKind(true as unknown as boolean)).toBeUndefined()
+  })
+})
+
+describe('getSwipeOffset (swipe 模式 viewport 依赖的 offset)', () => {
+  it('返回 viewport.width + SWIPE_GAP (10)', () => {
+    const originalClientWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { value: 800, configurable: true })
+
+    try {
+      expect(getSwipeOffset()).toBe(810)
+    } finally {
+      if (originalClientWidthDescriptor) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidthDescriptor)
+    }
   })
 })

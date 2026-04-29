@@ -286,34 +286,44 @@ export interface ImageAnimateType {
   opacity: number
 }
 
+/**
+ * 静态 flip 视觉参数表 — 单一来源.
+ *
+ * swipe 的 offset 在这里给 0, 真实 offset 由 getSwipeOffset(context) 在调用点叠加,
+ * 避免 getAnimateConfig 因 viewport 依赖而需要 context 重载.
+ */
+const FLIP_VISUAL: Record<AnimateFlip, ImageAnimateType> = {
+  fade:      { offset: 0,                 overflow: 0,             opacity: 0 },
+  crossFade: { offset: CROSS_FADE_OFFSET, overflow: 0,             opacity: 0 },
+  swipe:     { offset: 0,                 overflow: 0,             opacity: 1 },
+  zoom:      { offset: 0,                 overflow: ZOOM_OVERFLOW, opacity: 0 },
+  none:      { offset: 0,                 overflow: 0,             opacity: 0 },
+}
+
+const FLIP_VISUAL_FALLBACK: ImageAnimateType = { offset: 0, overflow: 0, opacity: 0 }
+
+/**
+ * swipe 模式 side image 的视口宽度依赖 offset.
+ * 与 FLIP_VISUAL.swipe.offset (=0) 在调用点求和: 让 swipe 配置在 Record 内静态可视,
+ * viewport 依赖单独一条纯函数, 互不污染.
+ */
+export const getSwipeOffset = (context?: Pick<ContextType, 'viewportRef'>): number =>
+  getViewportRect(context).width + SWIPE_GAP
+
 export function getAnimateConfig(type?: AnimateFlip | false): ImageAnimateType
 export function getAnimateConfig(context: ContextType, type?: AnimateFlip | false): ImageAnimateType
-export function getAnimateConfig(contextOrType?: ContextType | AnimateFlip | false, maybeType?: AnimateFlip | false): ImageAnimateType {
+export function getAnimateConfig(
+  contextOrType?: ContextType | AnimateFlip | false,
+  maybeType?: AnimateFlip | false
+): ImageAnimateType {
   const context = typeof contextOrType === 'object' && contextOrType !== null ? contextOrType : undefined
-  const type = context ? maybeType : contextOrType as AnimateFlip | false | undefined
-  let offset = 0, overflow = 0, opacity = 0
-  switch (type) {
-  case 'fade':
-    opacity = 0
-    break
-  case 'crossFade':
-    offset = CROSS_FADE_OFFSET
-    opacity = 0
-    break
-  case 'swipe':
-    offset = getViewportRect(context).width + SWIPE_GAP
-    opacity = 1
-    break
-  case 'zoom':
-    overflow = ZOOM_OVERFLOW
-    opacity = 0
-    break
-  case 'none':
-    // 无动画: 相邻页不参与渲染 (在 Image.tsx 的 buildImageSeries 里直接 short-circuit),
-    // 这里返回的零值仅作 fallback, 实际不会被消费.
-    break
+  const type = context ? maybeType : (contextOrType as AnimateFlip | false | undefined)
+  if (!type) return FLIP_VISUAL_FALLBACK
+  const base = FLIP_VISUAL[type]
+  if (type === 'swipe') {
+    return { ...base, offset: getSwipeOffset(context) }
   }
-  return { offset, overflow, opacity }
+  return base
 }
 
 /**
