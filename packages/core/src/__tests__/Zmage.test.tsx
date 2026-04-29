@@ -358,6 +358,53 @@ describe('Zmage 动画行为', () => {
     expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
   })
 
+  it("animate.flip='none' 不渲染 side image, 翻页瞬间替换", async () => {
+    render(
+      <Zmage
+        src="https://example.com/01.jpg"
+        alt="cover"
+        preset="desktop"
+        animate={{ flip: 'none' }}
+        set={[
+          { src: 'https://example.com/01.jpg', alt: 'p1', caption: 'first' },
+          { src: 'https://example.com/02.jpg', alt: 'p2', caption: 'second' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('cover'))
+    await wait(50)
+
+    // flip='none' 时 buildImageSeries 走单图分支, 仅渲染 center
+    const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+    expect(imgs.length).toBe(1)
+    expect(imgs[0].id).toBe('zmageImage')
+  })
+
+  it("animate.flip='none' 翻页时 caption 不进入 switching 类 (无过渡)", async () => {
+    render(
+      <Zmage
+        src="https://example.com/01.jpg"
+        alt="cover"
+        preset="desktop"
+        animate={{ flip: 'none' }}
+        set={[
+          { src: 'https://example.com/01.jpg', alt: 'p1', caption: 'first' },
+          { src: 'https://example.com/02.jpg', alt: 'p2', caption: 'second' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('cover'))
+    await wait(50)
+
+    clickById('zmageControlFlipRight')
+    await wait(20)
+
+    const cap = document.getElementById('zmageCaption')
+    expect(cap?.textContent).toBe('second')
+    // switchFade/CrossFade/Swipe/Zoom 类全部不应出现
+    expect(cap?.className).not.toMatch(/switch(Fade|CrossFade|Swipe|Zoom)/)
+  })
+
   it('Space 触发 zoom 时直接放大到当前鼠标位置', async () => {
     const originalNaturalWidth = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
     const originalNaturalHeight = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
