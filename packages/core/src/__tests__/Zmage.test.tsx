@@ -413,6 +413,83 @@ describe('Zmage 动画行为', () => {
     expect(cap?.className).not.toMatch(/switch(Fade|CrossFade|Swipe|Zoom)/)
   })
 
+  it("animate.flip='fade' 边图初始 opacity=0, transform 不带 offset", async () => {
+    render(
+      <Zmage
+        src="https://example.com/01.jpg"
+        alt="cover"
+        preset="desktop"
+        animate={{ flip: 'fade' }}
+        set={[
+          { src: 'https://example.com/01.jpg', alt: 'p1' },
+          { src: 'https://example.com/02.jpg', alt: 'p2' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('cover'))
+    await wait(50)
+
+    const sideImage = Array
+      .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg'))
+    expect(sideImage).toBeTruthy()
+    // fade 配置: { offset: 0, overflow: 0, opacity: 0 }
+    expect(sideImage!.style.opacity).toBe('0')
+  })
+
+  it("animate.flip='crossFade' 边图初始带 30px 横向 offset 且 opacity=0", async () => {
+    render(
+      <Zmage
+        src="https://example.com/01.jpg"
+        alt="cover"
+        preset="desktop"
+        animate={{ flip: 'crossFade' }}
+        set={[
+          { src: 'https://example.com/01.jpg', alt: 'p1' },
+          { src: 'https://example.com/02.jpg', alt: 'p2' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('cover'))
+    await wait(50)
+
+    const sideImage = Array
+      .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg'))
+    expect(sideImage).toBeTruthy()
+    // crossFade 配置: { offset: 30, overflow: 0, opacity: 0 }, 右边图 step=-1 时 transform 含 -30px
+    expect(sideImage!.style.opacity).toBe('0')
+    expect(sideImage!.style.transform).toMatch(/translate3d\(-?30px,/)
+  })
+
+  it("animate.flip='zoom' 边图初始 overflow=0.08 (scale 比 center 多 8%)", async () => {
+    render(
+      <Zmage
+        src="https://example.com/01.jpg"
+        alt="cover"
+        preset="desktop"
+        animate={{ flip: 'zoom' }}
+        set={[
+          { src: 'https://example.com/01.jpg', alt: 'p1' },
+          { src: 'https://example.com/02.jpg', alt: 'p2' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('cover'))
+    await wait(50)
+
+    const sideImage = Array
+      .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg'))
+    expect(sideImage).toBeTruthy()
+    // zoom 配置: { offset: 0, overflow: 0.08, opacity: 0 }
+    expect(sideImage!.style.opacity).toBe('0')
+    // sideScale = ownScale + 0.08 → transform 中 scale3d 第一参 > 1 (jsdom 默认 fit 后是 1.x)
+    const m = sideImage!.style.transform.match(/scale3d\(([\d.]+),/)
+    expect(m).not.toBeNull()
+    expect(Number(m![1])).toBeGreaterThan(1)
+  })
+
   it('Space 触发 zoom 时直接放大到当前鼠标位置', async () => {
     const originalNaturalWidth = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
     const originalNaturalHeight = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
