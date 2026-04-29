@@ -435,6 +435,8 @@ describe('Zmage 动画行为', () => {
     expect(sideImage).toBeTruthy()
     // fade 配置: { offset: 0, overflow: 0, opacity: 0 }
     expect(sideImage!.style.opacity).toBe('0')
+    // fade.offset = 0: transform 中横向位移恒为 0px (与 crossFade 区分)
+    expect(sideImage!.style.transform).toMatch(/translate3d\(0px,/)
   })
 
   it("animate.flip='crossFade' 边图初始带 30px 横向 offset 且 opacity=0", async () => {
@@ -484,10 +486,11 @@ describe('Zmage 动画行为', () => {
     expect(sideImage).toBeTruthy()
     // zoom 配置: { offset: 0, overflow: 0.08, opacity: 0 }
     expect(sideImage!.style.opacity).toBe('0')
-    // sideScale = ownScale + 0.08 → transform 中 scale3d 第一参 > 1 (jsdom 默认 fit 后是 1.x)
+    // jsdom 下 naturalWidth=0 → calcFitScale 返回 1.002 (epsilon), overflow=0.08 应让 scale3d 大于 1.05 (实测 1.082).
+    // 阈值 > 1.05 隔离 epsilon, 让 overflow 漂移到 0 时立即失败.
     const m = sideImage!.style.transform.match(/scale3d\(([\d.]+),/)
     expect(m).not.toBeNull()
-    expect(Number(m![1])).toBeGreaterThan(1)
+    expect(Number(m![1])).toBeGreaterThan(1.05)
   })
 
   it('Space 触发 zoom 时直接放大到当前鼠标位置', async () => {
