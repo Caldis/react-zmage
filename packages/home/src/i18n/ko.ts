@@ -301,4 +301,11 @@ export const ko: I18nDict = {
   'docs.section.faq.ssr.a': '`react-zmage/ssr` 엔트리를 사용하세요 — import 시 `document`에 접근하지 않습니다. 명령형 `Zmage.browsing()`이 렌더 도중이나 서버 전용 경로에서 실행될 가능성이 있다면 `typeof window !== \'undefined\'` 가드가 필요합니다.',
   'docs.section.faq.theme.q': '뷰어를 다크 / 라이트 테마에 맞추려면?',
   'docs.section.faq.theme.a': '위의 「테마 통합」 섹션에 따라 `backdrop`을 전달하세요. 라이브러리는 설계상 테마에 비종속적이며 prefers-color-scheme도 읽지 않습니다 — 매핑은 앱 측의 책임입니다.',
+
+  // Playground data preset toggle
+  'playground.preset.aria': '데이터 프리셋 전환',
+  'playground.preset.default.label': '기본',
+  'playground.preset.default.hint': '童夢 · 2 장',
+  'playground.preset.testset.label': '테스트 집',
+  'playground.preset.testset.hint': '6 장 · 비율 + 포맷',
 }

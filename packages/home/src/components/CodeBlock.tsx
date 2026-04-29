@@ -24,7 +24,7 @@ export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true
   }
   const theme = resolved === 'dark' ? themes.vsDark : themes.vsLight
   return (
-    <div className={cn('relative rounded-lg border border-border bg-muted/40 overflow-hidden flex flex-col', className)}>
+    <div className={cn('relative flex min-w-0 max-w-full flex-col overflow-hidden rounded-lg border border-border bg-muted/40', className)}>
       {(actions || showCopy) && (
         <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
           {actions}
@@ -44,7 +44,7 @@ export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true
       <Highlight code={code.trim()} language={language} theme={theme}>
         {({ className: cls, style, tokens, getLineProps, getTokenProps }) => (
           <pre
-            className={cn(cls, 'code-block-scroll flex-1 overflow-x-auto p-4 text-sm font-mono leading-6 m-0')}
+            className={cn(cls, 'code-block-scroll m-0 min-w-0 max-w-full flex-1 overflow-x-auto p-4 font-mono text-sm leading-6')}
             style={{ ...style, backgroundColor: 'transparent', background: 'transparent' }}
           >
             {tokens.map((line, i) => (

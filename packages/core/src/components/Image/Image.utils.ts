@@ -58,7 +58,7 @@ export const getViewportRect = (context?: Pick<ContextType, 'viewportRef'>): Vie
   }
 }
 
-const calcFitScale = (naturalWidth: number, naturalHeight: number, edge = 0, viewport = getViewportRect()) => {
+export const calcFitScale = (naturalWidth: number, naturalHeight: number, edge = 0, viewport = getViewportRect()) => {
   const figureWidth = naturalWidth + 2 * edge
   const figureHeight = naturalHeight + 2 * edge
   const scaleX = figureWidth > viewport.width ? viewport.width / figureWidth : 1
@@ -277,7 +277,7 @@ export const getZoomingStyle = (
 
 /* 动画属性 */
 const CROSS_FADE_OFFSET = 30
-const SWIPE_GAP = 10
+export const SWIPE_GAP = 10
 const ZOOM_OVERFLOW = 0.08
 
 export interface ImageAnimateType {

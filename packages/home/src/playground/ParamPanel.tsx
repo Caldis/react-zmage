@@ -13,6 +13,7 @@ import { HotKeyControl } from './controls/HotKeyControl'
 import { AnimateControl } from './controls/AnimateControl'
 import { SetControl } from './controls/SetControl'
 import { CallbackControl } from './controls/CallbackControl'
+import { DataPresetToggle } from './DataPresetToggle'
 
 // Map each ParamGroup to the corresponding docs anchor in
 // packages/home/src/docs/sections/Props.tsx (keep in sync with <Heading id="props-*"> there).
@@ -83,6 +84,9 @@ export function ParamPanel ({ values, onChange }: Props) {
                 {t(GROUP_LABELS[group])}
               </AccordionTrigger>
               <AccordionContent className="space-y-3 px-3 pb-3 pt-1">
+                {group === 'data' && (
+                  <DataPresetToggle values={values} onChange={onChange} />
+                )}
                 {items.map(def => (
                   <div key={def.name} className="grid grid-cols-[120px_1fr] items-center gap-3">
                     <div className="flex items-center gap-1.5">

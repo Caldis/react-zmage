@@ -2407,8 +2407,8 @@ packages:
   balanced-match@2.0.0:
     resolution: {integrity: sha512-1ugUSr8BHXRnK23KfuYS+gVMC3LB8QGH9W1iGtDPsNWoQbgtXSExkBu2aDR4epiGWZOjZsj6lDl/N/AqqTC3UA==}
 
-  baseline-browser-mapping@2.10.23:
-    resolution: {integrity: sha512-xwVXGqevyKPsiuQdLj+dZMVjidjJV508TBqexND5HrF89cGdCYCJFB3qhcxRHSeMctdCfbR1jrxBajhDy7o29g==}
+  baseline-browser-mapping@2.10.24:
+    resolution: {integrity: sha512-I2NkZOOrj2XuguvWCK6OVh9GavsNjZjK908Rq3mIBK25+GD8vPX5w2WdxVqnQ7xx3SrZJiCiZFu+/Oz50oSYSA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -4209,7 +4209,7 @@ packages:
       react-dom: '*'
 
   react-zmage@file:.pack/react-zmage-1.4.1.tgz:
-    resolution: {integrity: sha512-tmgY6HCj2bty48O5Nkio8DN1d9ZNKbBiywo+mF2fJWiL0cROEQ4BaAJsTzP6M5oMUBRal/x0GFf8H8IQp5b9qw==, tarball: file:.pack/react-zmage-1.4.1.tgz}
+    resolution: {integrity: sha512-ll+9MKDC/idMzWnXbQ4FwRDCjMDmT0x4n2Pe4T5eSWw5ilhs6PMKrciUAwNgy7ZWqFubl7J4X1i+q2q0+59azA==, tarball: file:.pack/react-zmage-1.4.1.tgz}
     version: 1.4.1
     peerDependencies:
       react: '>=16.8.0 <20'
@@ -7011,7 +7011,7 @@ snapshots:
 
   balanced-match@2.0.0: {}
 
-  baseline-browser-mapping@2.10.23: {}
+  baseline-browser-mapping@2.10.24: {}
 
   body-parser@1.20.5:
     dependencies:
@@ -7045,7 +7045,7 @@ snapshots:
 
   browserslist@4.28.2:
     dependencies:
-      baseline-browser-mapping: 2.10.23
+      baseline-browser-mapping: 2.10.24
       caniuse-lite: 1.0.30001791
       electron-to-chromium: 1.5.344
       node-releases: 2.0.38

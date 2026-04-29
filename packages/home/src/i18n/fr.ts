@@ -301,4 +301,11 @@ export const fr: I18nDict = {
   'docs.section.faq.ssr.a': 'Utilisez l\'entrée `react-zmage/ssr` — elle évite de toucher à `document` à l\'import. L\'API impérative `Zmage.browsing()` doit être protégée par `typeof window !== \'undefined\'` si elle peut s\'exécuter pendant le rendu ou côté serveur.',
   'docs.section.faq.theme.q': 'Comment faire suivre le thème clair/sombre à la visionneuse ?',
   'docs.section.faq.theme.a': 'Passez `backdrop` comme expliqué dans la section Thèmes. La bibliothèque est volontairement agnostique au thème et ne lit pas prefers-color-scheme — c\'est à votre application de gérer le mapping.',
+
+  // Playground data preset toggle
+  'playground.preset.aria': 'Changer le preset de données',
+  'playground.preset.default.label': 'Par défaut',
+  'playground.preset.default.hint': 'Childs Dream · 2 img',
+  'playground.preset.testset.label': 'Jeu de test',
+  'playground.preset.testset.hint': '6 imgs · ratios + formats',
 }

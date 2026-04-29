@@ -653,6 +653,107 @@ describe('Zmage ESC 与外层 modal/dialog 隔离 (#184)', () => {
   })
 })
 
+describe('Zmage 翻页 fit-scale 跟随当前页比例 (#167)', () => {
+  // 真实回归: 多图模式下不同长宽比的 set, 翻页后 currentStyle.scale 必须按当前页 naturalWidth/Height 重算,
+  // 不能保留 defaultPage 的 scale. 现有测试套全用同一张测试图, naturalWidth=0, scale 始终落到 1, 巧合掩盖 bug.
+
+  type Dim = { w: number, h: number }
+  const stripQuery = (s: string) => s.split('?')[0]
+
+  // src 维度的 prototype 级 mock — 比 prototype 全局 mock 多了"按 src 查"的语义,
+  // 让多图测试场景下每张图自带独立 naturalWidth/Height/complete.
+  const mockImageDimensionsBySrc = (mapping: Record<string, Dim>) => {
+    const origW = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
+    const origH = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
+    const origC = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'complete')
+    const lookup = (img: HTMLImageElement) => mapping[stripQuery(img.getAttribute('src') || img.src || '')]
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement)?.w ?? 0 },
+    })
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement)?.h ?? 0 },
+    })
+    Object.defineProperty(HTMLImageElement.prototype, 'complete', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement) !== undefined },
+    })
+    return () => {
+      if (origW) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', origW)
+      else delete (HTMLImageElement.prototype as any).naturalWidth
+      if (origH) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', origH)
+      else delete (HTMLImageElement.prototype as any).naturalHeight
+      if (origC) Object.defineProperty(HTMLImageElement.prototype, 'complete', origC)
+      else delete (HTMLImageElement.prototype as any).complete
+    }
+  }
+
+  const parseScale = (transform: string): number | null => {
+    const m = transform.match(/scale3d\(([\d.]+),/)
+    return m ? Number(m[1]) : null
+  }
+
+  const wait = async (ms: number) => {
+    await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+
+  it('从 2:1 wide 翻到 1:2 tall 后, scale 必须重算 (现有 bug: 保留前一页 scale)', async () => {
+    const WIDE = 'https://example.com/wide.jpg'   // 2000x1000 → 2:1
+    const TALL = 'https://example.com/tall.jpg'   // 1000x2000 → 1:2
+    const restore = mockImageDimensionsBySrc({
+      [WIDE]: { w: 2000, h: 1000 },
+      [TALL]: { w: 1000, h: 2000 },
+    })
+    const origCW = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const origCH = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1024 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 768 })
+
+    try {
+      render(
+        <Zmage
+          src={WIDE}
+          alt="aspect-flip"
+          preset="desktop"
+          set={[
+            { src: WIDE, alt: 'wide' },
+            { src: TALL, alt: 'tall' },
+          ]}
+        />
+      )
+      fireEvent.click(screen.getByAltText('aspect-flip'))
+      await wait(50)
+
+      // 第一页 (wide 2000x1000): fit-scale = min(1024/2000, 768/1000) = min(0.512, 0.768) = 0.512
+      const center0 = document.getElementById('zmageImage') as HTMLImageElement
+      expect(center0).toBeTruthy()
+      // 触发 load 让 currentStyle 计算 (jsdom 不会自动派发)
+      await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 80)) })
+      const scale0 = parseScale(center0.style.transform)
+      expect(scale0).toBeCloseTo(0.512, 2)
+
+      // 翻页到第二页 (tall 1000x2000): 期望 fit-scale = min(1024/1000, 768/2000) = min(1.024, 0.384) = 0.384
+      const flipRight = document.getElementById('zmageControlFlipRight')
+      if (!flipRight) throw new Error('expected #zmageControlFlipRight')
+      await act(async () => { fireEvent.click(flipRight); await new Promise(r => setTimeout(r, 80)) })
+
+      const center1 = document.getElementById('zmageImage') as HTMLImageElement
+      expect(center1.getAttribute('src')).toContain('tall.jpg')
+      // 现有 bug: side image 节点被复用为新 center, src 已就位但浏览器不再触发 load,
+      // → currentStyle 保留 0.512. 修复后应该重算到 0.384.
+      const scale1 = parseScale(center1.style.transform)
+      expect(scale1).toBeCloseTo(0.384, 2)
+      // 关键回归断言: 翻页前后 scale 必须发生变化
+      expect(scale1).not.toBeCloseTo(scale0!, 2)
+    } finally {
+      restore()
+      if (origCW) Object.defineProperty(HTMLElement.prototype, 'clientWidth', origCW)
+      if (origCH) Object.defineProperty(HTMLElement.prototype, 'clientHeight', origCH)
+    }
+  })
+})
+
 describe('Zmage 命令式调用', () => {
   it('Zmage.browsing 返回 destructor 函数; 调用后 portal 节点移除', async () => {
     const destroy = Zmage.browsing({ src: SRC, alt: 't' })

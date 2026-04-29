@@ -301,4 +301,11 @@ export const de: I18nDict = {
   'docs.section.faq.ssr.a': 'Verwende den `react-zmage/ssr`-Eintrag — er berührt `document` beim Import nicht. Das imperative `Zmage.browsing()` braucht einen `typeof window !== \'undefined\'`-Guard, falls es während des Renderings oder in einem Server-only-Pfad ausgeführt werden könnte.',
   'docs.section.faq.theme.q': 'Wie folgt der Viewer meinem Hell-/Dunkel-Theme?',
   'docs.section.faq.theme.a': 'Übergib `backdrop` wie im Theming-Abschnitt oben beschrieben. Die Bibliothek ist bewusst theme-agnostisch und liest prefers-color-scheme nicht — dein App regelt das Mapping.',
+
+  // Playground data preset toggle
+  'playground.preset.aria': 'Datenvoreinstellung wechseln',
+  'playground.preset.default.label': 'Standard',
+  'playground.preset.default.hint': 'Childs Dream · 2 Bilder',
+  'playground.preset.testset.label': 'Testset',
+  'playground.preset.testset.hint': '6 Bilder · Verh. + Format',
 }

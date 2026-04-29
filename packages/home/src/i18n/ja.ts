@@ -301,4 +301,11 @@ export const ja: I18nDict = {
   'docs.section.faq.ssr.a': '`react-zmage/ssr` エントリを使ってください — import 時に `document` に触れません。命令的な `Zmage.browsing()` は、レンダリング中やサーバー専用パスで実行され得る場合、`typeof window !== \'undefined\'` のガードが必要です。',
   'docs.section.faq.theme.q': 'ビューアをダーク / ライトテーマに追従させるには?',
   'docs.section.faq.theme.a': '上の「テーマ統合」セクションに従って `backdrop` を渡してください。本ライブラリは設計上テーマ非依存で、prefers-color-scheme も読みません — テーママッピングはアプリ側の責任です。',
+
+  // Playground data preset toggle
+  'playground.preset.aria': 'データプリセット切替',
+  'playground.preset.default.label': 'デフォルト',
+  'playground.preset.default.hint': '童夢 · 2 枚',
+  'playground.preset.testset.label': 'テスト集',
+  'playground.preset.testset.hint': '6 枚 · 比率と形式',
 }

@@ -37,9 +37,9 @@ function NpmChip () {
   return (
     <button
       onClick={() => copy(cmd)}
-      className="group inline-flex cursor-pointer items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      className="group inline-flex max-w-full cursor-pointer items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
-      <span>$ {cmd}</span>
+      <span className="min-w-0 truncate">$ {cmd}</span>
       {copied
         ? <Check className="h-3.5 w-3.5 text-foreground" />
         : <Copy className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100" />}
@@ -66,7 +66,7 @@ function Hero () {
         }}
       />
       {/* Radial glow centered */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,hsl(var(--foreground)/0.08),transparent)]" aria-hidden />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[min(600px,150vw)] w-[min(900px,190vw)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,hsl(var(--foreground)/0.08),transparent)]" aria-hidden />
       {/* Corner crosshair markers (4) */}
       <Plus aria-hidden className="absolute top-3 left-3 h-3.5 w-3.5 text-foreground/40" />
       <Plus aria-hidden className="absolute top-3 right-3 h-3.5 w-3.5 text-foreground/40" />
@@ -74,7 +74,7 @@ function Hero () {
       <Plus aria-hidden className="absolute bottom-3 right-3 h-3.5 w-3.5 text-foreground/40" />
 
       {/* Content stack */}
-      <div className="relative flex max-w-5xl flex-col items-center gap-8 px-4 text-center sm:px-6">
+      <div className="relative flex w-full max-w-5xl min-w-0 flex-col items-center gap-8 px-4 text-center sm:px-6">
         <img
           src="/logo.png"
           alt="react-zmage"
@@ -104,7 +104,7 @@ function Hero () {
         <p className="max-w-2xl text-base text-muted-foreground sm:text-lg">
           {t('hero.subtitle')}
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="flex max-w-full flex-wrap items-center justify-center gap-3">
           <Button size="lg" asChild>
             <Link to="/docs" className="group">
               {t('hero.cta.start')}
@@ -143,10 +143,10 @@ function AIDirective () {
         <button
           onClick={() => copy(directive)}
           aria-label="Copy AI assistant directive"
-          className="group inline-flex cursor-pointer items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-3 py-1.5 font-mono text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="group inline-flex max-w-full cursor-pointer items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-3 py-1.5 font-mono text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <Bot aria-hidden className="h-3.5 w-3.5 opacity-70" />
-          <span>{directive}</span>
+          <span className="min-w-0 break-words text-left">{directive}</span>
           {copied
             ? <Check className="h-3.5 w-3.5 text-foreground" />
             : <Copy className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100" />}
@@ -212,7 +212,7 @@ function FeatureGrid () {
     <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
       <div className="grid gap-4 md:grid-cols-2">
         {FEATURES.map(({ icon: I, titleKey, hintKey, code }) => (
-          <Card key={titleKey} className="group relative overflow-hidden border-border/60 bg-card/40 p-6 transition-colors hover:bg-card/70">
+          <Card key={titleKey} className="group relative min-w-0 overflow-hidden border-border/60 bg-card/40 p-6 transition-colors hover:bg-card/70">
             <I className="h-5 w-5 text-muted-foreground" />
             <h3 className="mt-4 text-lg font-medium">{t(titleKey)}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{t(hintKey)}</p>
@@ -248,9 +248,9 @@ function ThreeModes () {
   return (
     <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
       <h2 className="text-3xl font-semibold tracking-tight">{t('modes.title')}</h2>
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
+      <div className="mt-10 grid min-w-0 gap-6 md:grid-cols-3">
         {cards.map(c => (
-          <div key={c.labelKey} className="flex flex-col">
+          <div key={c.labelKey} className="flex min-w-0 flex-col">
             <span className="text-xs font-mono text-muted-foreground">{t(c.labelKey)}</span>
             <CodeBlock code={c.code} className="mt-2 flex-1" />
             <p className="mt-4 text-sm text-muted-foreground">{t(c.descKey)}</p>

@@ -301,4 +301,11 @@ export const es: I18nDict = {
   'docs.section.faq.ssr.a': 'Usa la entrada `react-zmage/ssr`: evita tocar `document` al importar. La `Zmage.browsing()` imperativa necesita una guarda `typeof window !== \'undefined\'` si puede ejecutarse durante el render o en una ruta solo de servidor.',
   'docs.section.faq.theme.q': '¿Cómo hago que el visor siga mi tema claro/oscuro?',
   'docs.section.faq.theme.a': 'Pasa `backdrop` siguiendo la sección de Tematización de arriba. La biblioteca es deliberadamente agnóstica al tema y no lee prefers-color-scheme: tu app es la que controla el mapeo.',
+
+  // Playground data preset toggle
+  'playground.preset.aria': 'Cambiar preset de datos',
+  'playground.preset.default.label': 'Predeterminado',
+  'playground.preset.default.hint': 'Childs Dream · 2 img',
+  'playground.preset.testset.label': 'Set de prueba',
+  'playground.preset.testset.hint': '6 imgs · ratios + formatos',
 }

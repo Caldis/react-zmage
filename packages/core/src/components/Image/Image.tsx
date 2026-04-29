@@ -25,6 +25,7 @@ import {
   withVendorPrefix,
 } from '../../utils'
 import {
+  calcFitScale,
   closingEase,
   getAnimateConfig,
   getCoverStyle,
@@ -37,6 +38,7 @@ import {
   isZoomMotionPhase,
   lerpCoverStyle,
   MotionPhase,
+  SWIPE_GAP,
   TOUCH_BEHAVIOR_PHASE,
   TOUCH_BEHAVIOR_TYPE,
   TouchProfile,
@@ -58,6 +60,11 @@ interface StateType {
   touchProfile: TouchProfile
   // 时间戳 Flag
   timestamp: { [ImageUrl: string]: number },
+  // 各 set 索引对应图片的 natural 尺寸 — 由 onLoad 收集.
+  // side image 用自己 fit-scale 渲染 (而不是共用 center 的 scale), 修复 #167:
+  //   1. 翻页时 side→center 的 scale 突变 (= 看起来是"附赠缩放动画") 消失
+  //   2. swipe 模式下 side 物理宽度 ≤ viewport, 不再"探头进镜头"
+  imageDimensions: { [imageIndex: number]: { w: number, h: number } },
 }
 
 export default class Image extends React.Component<PropsType, StateType> {
@@ -101,6 +108,8 @@ export default class Image extends React.Component<PropsType, StateType> {
     touchProfile: new TouchProfile(),
     // 时间戳 Flag
     timestamp: {},
+    // 各 set 索引对应图片的 natural 尺寸
+    imageDimensions: {},
   } as StateType
 
   componentDidMount () {
@@ -166,6 +175,15 @@ export default class Image extends React.Component<PropsType, StateType> {
     if (prevPage !== currPage) {
       // 显示加载
       this.handleImageLoadStart()
+      // #167: 翻页动画下 (fade/crossFade/swipe) side image 节点会被复用为新 center,
+      // 它的 src 不变 → 浏览器不再派发 load 事件 → handleImageLoad 不会触发 →
+      // currentStyle.scale 会保留前一页的 fit-scale. 这里在新 center 节点已 complete
+      // 时显式重算 currentStyle, 让 center 拿到当前页正确的 fit-scale.
+      // 注: side image 自己有 fit-scale (走 imageDimensions, 见 getStyle), 这里只补 center.
+      const node = this.imageRef.current
+      if (node && node.complete && node.naturalWidth > 0) {
+        this.debounceUpdateCurrentImageStyle()
+      }
     }
   }
 
@@ -271,6 +289,19 @@ export default class Image extends React.Component<PropsType, StateType> {
   handleClick = () => {
     const { zoom, toggleZoom } = this.context
     zoom && toggleZoom()
+  }
+  // 收集任意 set 索引图片的 natural 尺寸 (center + side 共用) — getStyle 给 side image
+  // 计算自己的 fit-scale 用. 没拿到 dimensions 的索引会 fallback 到 currentStyle.scale.
+  handleRecordImageDimensions = (imageIndex: number, e: React.SyntheticEvent<HTMLImageElement>) => {
+    const node = e.currentTarget
+    const w = node.naturalWidth
+    const h = node.naturalHeight
+    if (!w || !h) return
+    this.setState(prev => {
+      const cur = prev.imageDimensions[imageIndex]
+      if (cur && cur.w === w && cur.h === h) return null
+      return { imageDimensions: { ...prev.imageDimensions, [imageIndex]: { w, h } } }
+    })
   }
   // 双击关闭 (closeOnDoubleClick=true 时启用)。注: 浏览器在 dblclick 之前会先派发两次 click,
   // 因此在 zoom 态做 dblclick 会先 zoom-out 再 close, 是有意为之的链式动画 — 不再额外门控。
@@ -629,7 +660,16 @@ export default class Image extends React.Component<PropsType, StateType> {
       })
     }
   }
-  getStyle = (step: number, distance: number, isSideImage: boolean): CSSProperties => {
+  // 给定 set 索引算它自己的 fit-scale (browsing 态用); 没收集到 dimensions 返回 null,
+  // 调用方 fallback 到 currentStyle.scale (老行为) 兼容首次渲染前的状态.
+  getOwnFitScale = (imageIndex: number): number | null => {
+    const dims = this.state.imageDimensions[imageIndex]
+    if (!dims) return null
+    const { edge } = this.context
+    return calcFitScale(dims.w, dims.h, edge ?? 0, getViewportRect(this.context))
+  }
+
+  getStyle = (step: number, distance: number, isSideImage: boolean, imageIndex: number): CSSProperties => {
     const { animate, set, zoom, page } = this.context
     const { invalidate, currentStyle, touchProfile, animateConfig } = this.state
     const animateParams = (animate || {}) as Animate & { flip?: false }
@@ -641,19 +681,42 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { touch, transition } = touchProfile.getTouchConfig({ enableSwiping: set.length > 1, enableLiving: true })
     // 计算样式
     if (isSideImage) {
+      // side image 用自己的 fit-scale (而不是 center 的) — 修复 #167:
+      //  · 翻页变 center 时 scale 已经是新页正确值, 没有突变 = 没有"附赠缩放动画"
+      //  · swipe 模式下, side 自己物理宽度 + 自己半宽 + gap 决定 offset, 不会"探头进镜头"
+      // browsing 态以外 (cover/zoom) side 不会渲染, 不用考虑.
+      const ownScale = currentStyle._type === 'browsing' ? this.getOwnFitScale(imageIndex) : null
+      const sideScale = (ownScale ?? (currentStyle.scale || 0)) + overflow
+      // swipe 模式: 默认 offset 用 center 视口宽度估算, 但 side image 自己 own physical width
+      // 可能更宽 (如 1000x500 的 wide 在窄 center 旁), 用动态 max 把 side 完全推到视口外.
+      // 其他模式 (fade/crossFade) offset 是固定的小位移 (30px), 不动.
+      let effectiveOffset = offset
+      if (animateParams.flip === 'swipe' && ownScale != null) {
+        const dims = this.state.imageDimensions[imageIndex]
+        if (dims) {
+          const viewport = getViewportRect(this.context)
+          const ownPhysicalHalfWidth = (dims.w * sideScale) / 2
+          // viewport 中心到 side 中心至少 = viewport半宽 + side半宽 + gap, 让 side 左/右缘刚好出视口
+          effectiveOffset = Math.max(offset, viewport.width / 2 + ownPhysicalHalfWidth + SWIPE_GAP)
+        }
+      }
       // 仅对左右两张图做滑动跟踪
-      const x = distance === 1 ? (currentStyle.x || 0) + touch.x + offset * step : (currentStyle.x || 0) + offset * step
+      const x = distance === 1 ? (currentStyle.x || 0) + touch.x + effectiveOffset * step : (currentStyle.x || 0) + effectiveOffset * step
       const y = currentStyle.y
-      transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${(currentStyle.scale || 0) + overflow}, ${(currentStyle.scale || 0) + overflow}, 1) rotate3d(0, 0, 1, 0deg)`
+      transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${sideScale}, ${sideScale}, 1) rotate3d(0, 0, 1, 0deg)`
       zIndex = 10 * distance
       pointerEvents = 'none'
     } else {
+      // center: browsing 态优先用 set[page] 自己的 fit-scale (跟 side 同源), 翻页瞬间
+      // 不出现 scale transition — currentStyle.scale 由 debounce 异步更新, 没赶上当前帧.
+      // cover / zoom 态仍用 currentStyle.scale (那时 currentStyle 含 cover-anim / zoom scale 几何).
+      const ownScale = currentStyle._type === 'browsing' ? this.getOwnFitScale(page) : null
+      const centerScale = ownScale ?? (currentStyle.scale ?? 0)
       const x = (currentStyle.x || 0) + touch.x
       const y = currentStyle.y + touch.y
-      transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${currentStyle.scale}, ${currentStyle.scale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
+      transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${centerScale}, ${centerScale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
       zIndex = 10
       opacity = currentStyle.opacity || 1
-      // clipPath = currentStyle.radius ? `inset(0% 0% 0% 0% round ${currentStyle.radius/currentStyle.scale}px)` : `inset(0% 0% 0% 0% round 0)`
     }
     return {
       ...withVendorPrefix({ transform }),
@@ -703,23 +766,31 @@ export default class Image extends React.Component<PropsType, StateType> {
     // 计算真实索引
     const imageIndexWithStep = pageWithStep + step
     // 計算樣式
-    const imageStyle = this.getStyle(step, distance, isSideImage)
+    const imageStyle = this.getStyle(step, distance, isSideImage, imageIndex)
     const imageClass = classnames(style.imageLayer, set[imageIndex].className, {
       [style.zooming]: zoom,
       [style.invalidate]: invalidate,
     })
     // 組裝屬性
     const key = `${imageIndexWithStep}-${set[imageIndex].src}`
+    // side / center 共用同一个 onLoad 收集 dimensions, 让 side image 拿到自己的 fit-scale (#167).
+    // center 在收集后还要走 handleImageLoad 维护 currentStyle.
+    const sideOnLoad = (e: React.SyntheticEvent<HTMLImageElement>) => this.handleRecordImageDimensions(imageIndex, e)
+    const centerOnLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+      this.handleRecordImageDimensions(imageIndex, e)
+      this.handleImageLoad()
+    }
     const commonProps = {
       style: imageStyle,
       className: imageClass,
       src: appendParams(set[imageIndex].src, { t: this.handleGetTimestamp(page) }),
       alt: set[imageIndex].alt,
+      onLoad: sideOnLoad,
     }
     const centerProps = {
       id: 'zmageImage',
       ref: this.imageRef,
-      onLoad: this.handleImageLoad,
+      onLoad: centerOnLoad,
       onError: this.handleImageError,
       onAbort: this.handleImageAbort,
       onClick: this.handleClick,

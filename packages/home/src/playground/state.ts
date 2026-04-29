@@ -11,13 +11,70 @@ import { PARAM_SCHEMA } from '@/schema/param-schema'
  * 新增参数：仅改 PARAM_SCHEMA。若 lib 默认为空且需 WYSIWYG 兜底，再加进 PLAYGROUND_SEED。
  */
 
+/**
+ * Data presets — 调试台数据切换器消费。
+ * 默认: 既有童夢示例 (2 张同比例同尺寸)
+ * 测试集: 多比例 / 多格式, 用于验证翻页 fit-scale / 不同 aspect ratio 等回归场景
+ *
+ * `ratio` 是 toggle 上的 mini-swatch 用的 (CSS aspect-ratio); 必须等于实际 src 图的比例
+ * 否则 toggle 视觉与实际渲染脱钩, 反而误导用户.
+ */
+export type DataPresetItem = {
+  src: string
+  alt: string
+  caption?: string
+  ratio: string  // CSS aspect-ratio 表达式, e.g. '2/1', '1/6'
+}
+export type DataPreset = {
+  id: 'default' | 'testset'
+  src: string
+  alt: string
+  set: DataPresetItem[]
+}
+
+export const DATA_PRESETS: DataPreset[] = [
+  {
+    id: 'default',
+    src: '/imgSet/childsDream/1.jpg',
+    alt: '童夢 · ONE',
+    set: [
+      { src: '/imgSet/childsDream/1.jpg', alt: '童夢 · ONE', ratio: '3/2' },
+      { src: '/imgSet/childsDream/2.jpg', alt: '童夢 · TWO', ratio: '3/2' },
+    ],
+  },
+  {
+    id: 'testset',
+    src: 'https://picsum.photos/seed/zmage-wide/2000/1000',
+    alt: '横屏 2:1 · JPEG',
+    set: [
+      { src: 'https://picsum.photos/seed/zmage-wide/2000/1000',  alt: '横屏 2:1 · JPEG',     ratio: '2/1' },
+      { src: 'https://picsum.photos/seed/zmage-tall/1000/2000',  alt: '竖屏 1:2 · JPEG',     ratio: '1/2' },
+      { src: 'https://picsum.photos/seed/zmage-sq/1500/1500.webp', alt: '方图 1:1 · WebP',   ratio: '1/1' },
+      { src: 'https://picsum.photos/seed/zmage-pano/3000/500',   alt: '全景 6:1 · JPEG',     ratio: '6/1' },
+      { src: 'https://picsum.photos/seed/zmage-tower/500/3000',  alt: '高塔 1:6 · JPEG',     ratio: '1/6' },
+      { src: 'https://picsum.photos/seed/zmage-small/240/180',   alt: '小图 4:3 · 不放大',    ratio: '4/3' },
+    ],
+  },
+]
+
 export const PLAYGROUND_SEED: Record<string, any> = {
-  src: '/imgSet/childsDream/1.jpg',
-  alt: '童夢 · ONE',
-  set: [
-    { src: '/imgSet/childsDream/1.jpg', alt: '童夢 · ONE' },
-    { src: '/imgSet/childsDream/2.jpg', alt: '童夢 · TWO' },
-  ],
+  src: DATA_PRESETS[0].src,
+  alt: DATA_PRESETS[0].alt,
+  set: DATA_PRESETS[0].set.map(({ ratio: _ratio, ...rest }) => rest),
+}
+
+/** 检测 values 当前的 src/set 是否完全匹配某个预设 — 用于 toggle 显示 active 态 */
+export function detectActivePreset (values: Record<string, any>): DataPreset['id'] | null {
+  for (const preset of DATA_PRESETS) {
+    if (values.src !== preset.src) continue
+    const cur = Array.isArray(values.set) ? values.set : []
+    if (cur.length !== preset.set.length) continue
+    const same = preset.set.every((item, i) =>
+      cur[i]?.src === item.src && (cur[i]?.alt ?? '') === (item.alt ?? '')
+    )
+    if (same) return preset.id
+  }
+  return null
 }
 
 export function getInitialValues (): Record<string, any> {

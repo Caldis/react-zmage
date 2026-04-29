@@ -213,6 +213,13 @@ export const zhCN = {
   'param.browsing.label': 'browsing',
   'param.browsing.desc': '受控的浏览状态;给值即转为受控模式,需要配套 onBrowsing。',
 
+  // Playground 数据预设切换器
+  'playground.preset.aria': '切换数据预设',
+  'playground.preset.default.label': '默认',
+  'playground.preset.default.hint': '童夢 · 2 张',
+  'playground.preset.testset.label': '测试集',
+  'playground.preset.testset.hint': '6 张 · 多比例多格式',
+
   // Docs sections
   'docs.section.installation.title': '安装',
   'docs.section.installation.intro': '通过包管理器安装:',

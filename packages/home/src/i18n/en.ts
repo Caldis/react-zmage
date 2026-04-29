@@ -198,6 +198,13 @@ export const en: I18nDict = {
   'param.browsing.label': 'browsing',
   'param.browsing.desc': 'Controlled browsing state. Providing this switches to controlled mode; pair with onBrowsing.',
 
+  // Playground data preset toggle
+  'playground.preset.aria': 'Switch data preset',
+  'playground.preset.default.label': 'Default',
+  'playground.preset.default.hint': 'Childs Dream · 2 imgs',
+  'playground.preset.testset.label': 'Test set',
+  'playground.preset.testset.hint': '6 imgs · ratios + formats',
+
   'docs.section.installation.title': 'Installation',
   'docs.section.installation.intro': 'Install via your package manager:',
   'docs.section.installation.then': 'Then import the component and its stylesheet:',
