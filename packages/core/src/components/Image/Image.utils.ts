@@ -446,12 +446,7 @@ export class TouchProfile {
 }
 
 /**
- * Flip selectors
- * 把 props.animate 上的 flip 派生收敛成单一来源。
- *
- * 调用方语义:
- * - selectFlipKind: 取出 flip 类型的 raw 值 (含 'none' 与 false)
- * - isFlipAnimated: 是否需要 transition (只有真正的动画类型返回 true)
+ * 把 props.animate 上的 flip 派生收敛成单一来源, 取出 flip 类型的 raw 值 (含 'none' 与 false).
  *
  * 历史: animate=false 在 Browser 标准化时塞入 { flip: false },
  * 但 Animate.flip 类型不允许 false; 这里用一个 cast 收敛, 不在调用点重复.
