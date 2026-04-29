@@ -393,21 +393,15 @@ describe('getSwipeOffset (swipe 模式 viewport 依赖的 offset)', () => {
 describe('getSideImageOffset (side image 横向 offset)', () => {
   const viewport = { left: 0, top: 0, width: 1000, height: 800 }
 
-  it("非 swipe 模式: 返回 baseOffset 不变 (fade/crossFade/zoom)", () => {
-    expect(getSideImageOffset({
-      flipKind: 'crossFade',
-      baseOffset: 30,
-      ownScale: 1,
-      dims: { w: 500, h: 500 },
-      viewport,
-    })).toBe(30)
-    expect(getSideImageOffset({
-      flipKind: 'fade',
-      baseOffset: 0,
-      ownScale: 1,
-      dims: { w: 500, h: 500 },
-      viewport,
-    })).toBe(0)
+  it("非 swipe 模式: 返回 baseOffset 不变 (fade/crossFade/zoom/none/false/undefined)", () => {
+    // 类型签名允许的所有非 swipe 值都应早返回 baseOffset, 文档化"任意 non-swipe 输入安全"契约
+    const dims = { w: 500, h: 500 }
+    expect(getSideImageOffset({ flipKind: 'crossFade', baseOffset: 30, ownScale: 1, dims, viewport })).toBe(30)
+    expect(getSideImageOffset({ flipKind: 'fade',      baseOffset: 0,  ownScale: 1, dims, viewport })).toBe(0)
+    expect(getSideImageOffset({ flipKind: 'zoom',      baseOffset: 0,  ownScale: 1, dims, viewport })).toBe(0)
+    expect(getSideImageOffset({ flipKind: 'none',      baseOffset: 0,  ownScale: 1, dims, viewport })).toBe(0)
+    expect(getSideImageOffset({ flipKind: false,       baseOffset: 0,  ownScale: 1, dims, viewport })).toBe(0)
+    expect(getSideImageOffset({ flipKind: undefined,   baseOffset: 0,  ownScale: 1, dims, viewport })).toBe(0)
   })
 
   it('swipe 模式: 窄 side (物理宽 < viewport) 仍用 baseOffset', () => {
