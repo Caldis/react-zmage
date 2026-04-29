@@ -12,6 +12,7 @@ import {
   getBrowsingStyle,
   getCoverStyle,
   getImageTransition,
+  getSideImageOffset,
   getSwipeOffset,
   ImageStyleType,
   lerpCoverStyle,
@@ -386,5 +387,70 @@ describe('getSwipeOffset (swipe 模式 viewport 依赖的 offset)', () => {
     } finally {
       if (originalClientWidthDescriptor) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidthDescriptor)
     }
+  })
+})
+
+describe('getSideImageOffset (side image 横向 offset)', () => {
+  const viewport = { left: 0, top: 0, width: 1000, height: 800 }
+
+  it("非 swipe 模式: 返回 baseOffset 不变 (fade/crossFade/zoom)", () => {
+    expect(getSideImageOffset({
+      flipKind: 'crossFade',
+      baseOffset: 30,
+      ownScale: 1,
+      dims: { w: 500, h: 500 },
+      viewport,
+    })).toBe(30)
+    expect(getSideImageOffset({
+      flipKind: 'fade',
+      baseOffset: 0,
+      ownScale: 1,
+      dims: { w: 500, h: 500 },
+      viewport,
+    })).toBe(0)
+  })
+
+  it('swipe 模式: 窄 side (物理宽 < viewport) 仍用 baseOffset', () => {
+    // viewport=1000, dims.w*scale/2 = 250*1/2 = 125, base=1010
+    // viewport半宽 + side半宽 + gap = 500 + 125 + 10 = 635 < 1010 → 用 baseOffset
+    expect(getSideImageOffset({
+      flipKind: 'swipe',
+      baseOffset: 1010,
+      ownScale: 1,
+      dims: { w: 250, h: 250 },
+      viewport,
+    })).toBe(1010)
+  })
+
+  it('swipe 模式: 宽 side (1000x500 在窄 center 旁) 用动态 max', () => {
+    // ownScale=1.5, dims.w=1000 → ownPhysicalHalfWidth = 1000*1.5/2 = 750
+    // viewport半宽 + side半宽 + gap = 500 + 750 + 10 = 1260 > base=1010 → 用 1260
+    expect(getSideImageOffset({
+      flipKind: 'swipe',
+      baseOffset: 1010,
+      ownScale: 1.5,
+      dims: { w: 1000, h: 500 },
+      viewport,
+    })).toBe(1260)
+  })
+
+  it('swipe 模式: ownScale 为 null (尚未拿到 dimensions) → 跳过修正, 用 baseOffset', () => {
+    expect(getSideImageOffset({
+      flipKind: 'swipe',
+      baseOffset: 1010,
+      ownScale: null,
+      dims: { w: 1000, h: 500 },
+      viewport,
+    })).toBe(1010)
+  })
+
+  it('swipe 模式: dims 为 null → 跳过修正', () => {
+    expect(getSideImageOffset({
+      flipKind: 'swipe',
+      baseOffset: 1010,
+      ownScale: 1,
+      dims: null,
+      viewport,
+    })).toBe(1010)
   })
 })

@@ -311,6 +311,34 @@ const FLIP_VISUAL_FALLBACK: ImageAnimateType = { offset: 0, overflow: 0, opacity
 export const getSwipeOffset = (context?: Pick<ContextType, 'viewportRef'>): number =>
   getViewportRect(context).width + SWIPE_GAP
 
+/**
+ * side image 的实际横向 offset (考虑 swipe 模式宽边图修正).
+ *
+ * swipe 模式默认 baseOffset 用 center viewport.width 估算, 但 side image 自己
+ * 物理宽度可能更宽 (如 1000x500 wide 在窄 center 旁), 用动态 max 把 side 完全推到
+ * 视口外, 避免 "探头进镜头" (Issue #167 配套修复).
+ *
+ * 其他模式 (fade/crossFade/zoom/none) baseOffset 是 Record 内静态值, 直接返回.
+ */
+export const getSideImageOffset = ({
+  flipKind,
+  baseOffset,
+  ownScale,
+  dims,
+  viewport,
+}: {
+  flipKind: AnimateFlip | false | undefined
+  baseOffset: number
+  ownScale: number | null
+  dims: { w: number, h: number } | null | undefined
+  viewport: ViewportRect
+}): number => {
+  if (flipKind !== 'swipe' || ownScale == null || !dims) return baseOffset
+  const sideScale = ownScale + FLIP_VISUAL.swipe.overflow
+  const ownPhysicalHalfWidth = (dims.w * sideScale) / 2
+  return Math.max(baseOffset, viewport.width / 2 + ownPhysicalHalfWidth + SWIPE_GAP)
+}
+
 export function getAnimateConfig(type?: AnimateFlip | false): ImageAnimateType
 export function getAnimateConfig(context: ContextType, type?: AnimateFlip | false): ImageAnimateType
 export function getAnimateConfig(

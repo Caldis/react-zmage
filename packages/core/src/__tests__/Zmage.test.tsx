@@ -358,6 +358,57 @@ describe('Zmage 动画行为', () => {
     expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
   })
 
+  it('swipe 模式: side image 物理宽超过 viewport 时 effectiveOffset 动态扩张', async () => {
+    // 让所有 img 的 natural 尺寸为 2000x800 (远超 1000 视口宽), ownScale=0.5 fit;
+    // sideScale ≈ 0.5 + 0 = 0.5, ownPhysicalHalfWidth = 2000*0.5/2 = 500;
+    // viewport.width(1000)/2 + 500 + 10 = 1010, baseOffset = viewport.width + SWIPE_GAP = 1010 → max=1010 (恰相等).
+    // 这条测试主要回归: 即使在 baseOffset 与动态 max 相等的临界, 不应 < baseOffset.
+    const originalNaturalWidth = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
+    const originalNaturalHeight = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', { configurable: true, get: () => 2000 })
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', { configurable: true, get: () => 800 })
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+
+    try {
+      render(
+        <Zmage
+          src="https://example.com/01.jpg"
+          alt="cover"
+          preset="desktop"
+          animate={{ flip: 'swipe' }}
+          set={[
+            { src: 'https://example.com/01.jpg', alt: 'p1' },
+            { src: 'https://example.com/02.jpg', alt: 'p2' },
+          ]}
+        />
+      )
+      fireEvent.click(screen.getByAltText('cover'))
+      await wait(60)
+
+      const sideImage = Array
+        .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+        .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg'))
+      expect(sideImage).toBeTruthy()
+      // step=1 (右侧 side), x = effectiveOffset * 1 ≥ 1010 (= viewport+gap 起步)
+      const m = sideImage!.style.transform.match(/translate3d\((-?[\d.]+)px,/g)
+      expect(m).not.toBeNull()
+      // 第二个 translate3d 是 (x, y, 0); x 从中提取
+      const second = m!.find(s => !s.includes('-50%'))
+      expect(second).toBeDefined()
+      const x = Number(second!.match(/translate3d\(([-\d.]+)px,/)![1])
+      expect(Math.abs(x)).toBeGreaterThanOrEqual(1010)
+    } finally {
+      if (originalNaturalWidth) { Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', originalNaturalWidth) } else { delete (HTMLImageElement.prototype as any).naturalWidth }
+      if (originalNaturalHeight) { Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', originalNaturalHeight) } else { delete (HTMLImageElement.prototype as any).naturalHeight }
+      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
+      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+    }
+  })
+
   it("animate.flip='none' 不渲染 side image, 翻页瞬间替换", async () => {
     render(
       <Zmage

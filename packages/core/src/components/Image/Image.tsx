@@ -30,6 +30,7 @@ import {
   getCoverStyle,
   getCurrentImageStyle,
   getImageTransition,
+  getSideImageOffset,
   getViewportRect,
   getZoomingStyle,
   ImageAnimateType,
@@ -38,7 +39,6 @@ import {
   lerpCoverStyle,
   MotionPhase,
   selectFlipKind,
-  SWIPE_GAP,
   TOUCH_BEHAVIOR_PHASE,
   TOUCH_BEHAVIOR_TYPE,
   TouchProfile,
@@ -686,19 +686,13 @@ export default class Image extends React.Component<PropsType, StateType> {
       // browsing 态以外 (cover/zoom) side 不会渲染, 不用考虑.
       const ownScale = currentStyle._type === 'browsing' ? this.getOwnFitScale(imageIndex) : null
       const sideScale = (ownScale ?? (currentStyle.scale || 0)) + overflow
-      // swipe 模式: 默认 offset 用 center 视口宽度估算, 但 side image 自己 own physical width
-      // 可能更宽 (如 1000x500 的 wide 在窄 center 旁), 用动态 max 把 side 完全推到视口外.
-      // 其他模式 (fade/crossFade) offset 是固定的小位移 (30px), 不动.
-      let effectiveOffset = offset
-      if (flipKind === 'swipe' && ownScale != null) {
-        const dims = this.state.imageDimensions[imageIndex]
-        if (dims) {
-          const viewport = getViewportRect(this.context)
-          const ownPhysicalHalfWidth = (dims.w * sideScale) / 2
-          // viewport 中心到 side 中心至少 = viewport半宽 + side半宽 + gap, 让 side 左/右缘刚好出视口
-          effectiveOffset = Math.max(offset, viewport.width / 2 + ownPhysicalHalfWidth + SWIPE_GAP)
-        }
-      }
+      const effectiveOffset = getSideImageOffset({
+        flipKind,
+        baseOffset: offset,
+        ownScale,
+        dims: this.state.imageDimensions[imageIndex],
+        viewport: getViewportRect(this.context),
+      })
       // 仅对左右两张图做滑动跟踪
       const x = distance === 1 ? (currentStyle.x || 0) + touch.x + effectiveOffset * step : (currentStyle.x || 0) + effectiveOffset * step
       const y = currentStyle.y
