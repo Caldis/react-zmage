@@ -378,6 +378,14 @@ describe('Zmage 动画行为', () => {
     const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
     expect(imgs.length).toBe(1)
     expect(imgs[0].id).toBe('zmageImage')
+
+    // 翻页后仍只渲染 center, 且 src 已切到下一页
+    clickById('zmageControlFlipRight')
+    await wait(50)
+    const imgsAfterFlip = Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+    expect(imgsAfterFlip.length).toBe(1)
+    expect(imgsAfterFlip[0].id).toBe('zmageImage')
+    expect(imgsAfterFlip[0].src).toContain('02.jpg')
   })
 
   it("animate.flip='none' 翻页时 caption 不进入 switching 类 (无过渡)", async () => {
