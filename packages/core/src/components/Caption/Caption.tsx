@@ -12,6 +12,7 @@ import style from './Caption.module.less'
 import { Context } from '../context'
 import { AnimateFlip, CaptionObject, CaptionProp } from '../../types/global'
 import { animationDuration } from '../../config/anim'
+import { selectFlipKind } from '../Image/Image.utils'
 
 const SWITCH_CLASS_BY_FLIP: Record<Exclude<AnimateFlip, 'none'>, string> = {
   fade: 'switchFade',
@@ -41,8 +42,8 @@ export default function Caption () {
   const switchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const [switching, setSwitching] = useState(false)
   // 当前 flip 类型, caption 切换时跟随它的过渡形态 (而非固定 bottom fadein)
-  const flipKind: AnimateFlip | undefined =
-    typeof animate === 'object' && animate?.flip ? (animate.flip as AnimateFlip) : undefined
+  const rawFlipKind = selectFlipKind(animate)
+  const flipKind: AnimateFlip | undefined = rawFlipKind !== false ? rawFlipKind : undefined
 
   useEffect(() => {
     if (lastCaptionKey.current !== captionKey) {

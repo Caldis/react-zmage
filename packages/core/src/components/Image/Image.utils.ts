@@ -8,7 +8,7 @@ import { RefObject } from 'react'
 import { getClientHeight, getClientWidth, numberOfStyleUnits } from '../../utils'
 import { animationCurve, animationDuration, animationFunctionOnZooming, animationTransition } from '../../config/anim'
 import { ContextType } from '../context'
-import { AnimateFlip } from '../../types/global'
+import { Animate, AnimateFlip } from '../../types/global'
 
 export interface ImageStyleType {
   _type: 'cover' | 'browsing' | 'zooming'
@@ -444,3 +444,28 @@ export class TouchProfile {
     return this
   }
 }
+
+/**
+ * Flip selectors
+ * 把 props.animate 上的 flip 派生收敛成单一来源。
+ *
+ * 调用方语义:
+ * - selectFlipKind: 取出 flip 类型的 raw 值 (含 'none' 与 false)
+ * - isFlipAnimated: 是否需要 transition (只有真正的动画类型返回 true)
+ *
+ * 历史: animate=false 在 Browser 标准化时塞入 { flip: false },
+ * 但 Animate.flip 类型不允许 false; 这里用一个 cast 收敛, 不在调用点重复.
+ */
+export const selectFlipKind = (
+  animate: Animate | boolean | undefined
+): AnimateFlip | false | undefined => {
+  if (animate === false) return false
+  if (animate && typeof animate === 'object') {
+    return (animate as Animate & { flip?: AnimateFlip | false }).flip
+  }
+  return undefined
+}
+
+export const isFlipAnimated = (
+  kind: AnimateFlip | false | undefined
+): kind is Exclude<AnimateFlip, 'none'> => !!kind && kind !== 'none'

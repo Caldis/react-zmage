@@ -11,7 +11,6 @@ import style from './Image.module.less'
 // Components
 import Loading from './loading'
 // Utils
-import { Animate } from '../../types/global'
 import { BrowsingParams, Context, ContextType } from '../context'
 import { animationDuration, getBrowsingAnimationDuration } from '../../config/anim'
 import {
@@ -38,6 +37,7 @@ import {
   isZoomMotionPhase,
   lerpCoverStyle,
   MotionPhase,
+  selectFlipKind,
   SWIPE_GAP,
   TOUCH_BEHAVIOR_PHASE,
   TOUCH_BEHAVIOR_TYPE,
@@ -103,7 +103,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     // 样式
     currentStyle: getCoverStyle(this.context),
     // 动画
-    animateConfig: getAnimateConfig(this.context, this.context.animate?.flip),
+    animateConfig: getAnimateConfig(this.context, selectFlipKind(this.context.animate)),
     // 触控
     touchProfile: new TouchProfile(),
     // 时间戳 Flag
@@ -414,11 +414,10 @@ export default class Image extends React.Component<PropsType, StateType> {
    **/
   setCurrentStyle = (nextStyle: ImageStyleType, callback?: () => void) => {
     const { animate } = this.context
-    const animateParams = (animate || {}) as Animate & { flip?: false }
     const { currentStyle } = this.state
     this.setState({
       currentStyle: nextStyle._behavior === 'merge' ? { ...currentStyle, ...nextStyle } : nextStyle,
-      animateConfig: getAnimateConfig(this.context, animateParams.flip),
+      animateConfig: getAnimateConfig(this.context, selectFlipKind(animate)),
     }, callback)
   }
   startZoomEnter = () => {
@@ -672,7 +671,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   getStyle = (step: number, distance: number, isSideImage: boolean, imageIndex: number): CSSProperties => {
     const { animate, set, zoom, page } = this.context
     const { invalidate, currentStyle, touchProfile, animateConfig } = this.state
-    const animateParams = (animate || {}) as Animate & { flip?: false }
+    const flipKind = selectFlipKind(animate)
     let transform, zIndex, pointerEvents
     // 获取动画配置
     // eslint-disable-next-line prefer-const
@@ -691,7 +690,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       // 可能更宽 (如 1000x500 的 wide 在窄 center 旁), 用动态 max 把 side 完全推到视口外.
       // 其他模式 (fade/crossFade) offset 是固定的小位移 (30px), 不动.
       let effectiveOffset = offset
-      if (animateParams.flip === 'swipe' && ownScale != null) {
+      if (flipKind === 'swipe' && ownScale != null) {
         const dims = this.state.imageDimensions[imageIndex]
         if (dims) {
           const viewport = getViewportRect(this.context)
@@ -727,7 +726,7 @@ export default class Image extends React.Component<PropsType, StateType> {
         role: isSideImage ? 'side' : 'center',
         motionPhase: this.motionPhase,
         touchTransition: transition,
-        flip: animateParams.flip,
+        flip: flipKind,
         imageType: currentStyle._type,
       }),
       pointerEvents,
@@ -741,7 +740,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   buildImageSeries = (edge: 0 | 1 | 2 | 3) => {
     const { loop = false, set, page, animate } = this.context
     // animate.flip === 'none' 时跳过相邻页渲染, 翻页通过中心图 key 变化触发瞬间替换 (无 transition).
-    const flipKind = (typeof animate === 'object' && animate?.flip) ? animate.flip : undefined
+    const flipKind = selectFlipKind(animate)
     if (set.length > 1 && flipKind !== 'none') {
       const rangeList = mirrorRange(edge)
       return rangeList.reduce((acc, step) => {
