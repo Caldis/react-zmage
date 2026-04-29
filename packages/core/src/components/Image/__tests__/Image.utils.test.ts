@@ -251,6 +251,18 @@ describe('getImageTransition 动画边界', () => {
       imageType: 'zooming',
     })).toBeUndefined()
   })
+
+  it("flip='none' 走 fall-through, 不进入 false 短路 (保证 rotate / zoom-toggle / resize 等非翻页 transition 仍生效)", () => {
+    // 防御 "Bonus B" 草案 (`flip === false || flip === 'none'`) 复活: 此变更会让
+    // animate.flip='none' 模式下的旋转 / 窗口 resize / zoom 切换全部变瞬移, 与
+    // "flip='none' = 仅页面切换无过渡" 的语义不符.
+    expect(getImageTransition({
+      role: 'center',
+      motionPhase: 'idle',
+      flip: 'none',
+      imageType: 'browsing',
+    })).toBeUndefined()
+  })
 })
 
 /**

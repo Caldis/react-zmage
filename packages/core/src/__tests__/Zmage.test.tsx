@@ -940,6 +940,237 @@ describe('Zmage 翻页 fit-scale 跟随当前页比例 (#167)', () => {
   })
 })
 
+describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
+  // 真实回归: 翻页后目标页 dims (naturalWidth/Height) 通过 onLoad 异步落地, React 据此
+  // 把 transform 从"错误回退 scale (前一页 fit)" 重新计算为"正确 ownFit", 触发 350ms
+  // CSS scale transition. flip='none' 永不渲染 side, swipe 在 ±2 出环跳页时也会撞上.
+  // 本套用例锁定: cdU 检测到 dim 到达 → setNodeTransitionNone 中断这条 transition.
+
+  type Dim = { w: number, h: number }
+  const stripQuery = (s: string) => s.split('?')[0]
+  const mockImageDimensionsBySrc = (mapping: Record<string, Dim>) => {
+    const origW = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
+    const origH = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
+    const origC = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'complete')
+    const lookup = (img: HTMLImageElement) => mapping[stripQuery(img.getAttribute('src') || img.src || '')]
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement)?.w ?? 0 },
+    })
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement)?.h ?? 0 },
+    })
+    Object.defineProperty(HTMLImageElement.prototype, 'complete', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement) !== undefined },
+    })
+    return () => {
+      if (origW) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', origW)
+      else delete (HTMLImageElement.prototype as any).naturalWidth
+      if (origH) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', origH)
+      else delete (HTMLImageElement.prototype as any).naturalHeight
+      if (origC) Object.defineProperty(HTMLImageElement.prototype, 'complete', origC)
+      else delete (HTMLImageElement.prototype as any).complete
+    }
+  }
+  const parseScale = (transform: string): number | null => {
+    const m = transform.match(/scale3d\(([\d.]+),/)
+    return m ? Number(m[1]) : null
+  }
+  const wait = async (ms: number) => {
+    await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+
+  it("flip='none' 切换 AR 不一致图片 → onLoad 触发 interrupt, 无 350ms scale 动画 (Bug 1)", async () => {
+    const WIDE = 'https://example.com/wide.jpg'
+    const TALL = 'https://example.com/tall.jpg'
+    const restore = mockImageDimensionsBySrc({
+      [WIDE]: { w: 2000, h: 1000 },
+      [TALL]: { w: 1000, h: 2000 },
+    })
+    const origCW = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const origCH = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1024 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 768 })
+
+    try {
+      render(
+        <Zmage
+          src={WIDE}
+          alt="bug1"
+          preset="desktop"
+          animate={{ flip: 'none' }}
+          set={[
+            { src: WIDE, alt: 'wide' },
+            { src: TALL, alt: 'tall' },
+          ]}
+        />
+      )
+      fireEvent.click(screen.getByAltText('bug1'))
+      await wait(50)
+
+      // 让 page 0 dims 落地
+      const center0 = document.getElementById('zmageImage') as HTMLImageElement
+      await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 80)) })
+
+      // 切到 page 1. flip='none' 不渲染 side → dims[1] 此前从未记录过.
+      clickById('zmageControlFlipRight')
+      await wait(20)
+
+      const center1 = document.getElementById('zmageImage') as HTMLImageElement
+      expect(center1.src).toContain('tall.jpg')
+
+      // 模拟 onLoad: 触发 handleRecordImageDimensions(1) → cdU ② 检测 dim 到达 → cancelScaleCalibrationAnimation
+      await act(async () => {
+        fireEvent.load(center1)
+        await new Promise(r => setTimeout(r, 5))  // cdU 已跑, RAF (~16ms) 尚未触发
+      })
+
+      // 关键断言: interrupt 把 inline transition 写为 'none', 取消即将触发的 350ms 动画
+      expect(center1.style.transition).toBe('none')
+      // transform 已 snap 到 ownFit(TALL) = min(1024/1000, 768/2000) = 0.384
+      expect(parseScale(center1.style.transform)).toBeCloseTo(0.384, 2)
+
+      // RAF 一帧后恢复 inline transition = '', React 重新接管 transition
+      await wait(30)
+      expect(center1.style.transition).toBe('')
+    } finally {
+      restore()
+      if (origCW) Object.defineProperty(HTMLElement.prototype, 'clientWidth', origCW)
+      if (origCH) Object.defineProperty(HTMLElement.prototype, 'clientHeight', origCH)
+    }
+  })
+
+  it("flip='swipe' pagination 1→4 跳转 (out-of-ring) 不出现 scale 校准动画 (Bug 2)", async () => {
+    const SRCS = Array.from({ length: 6 }, (_, i) => `https://example.com/img${i}.jpg`)
+    const dimsMap: Record<string, Dim> = {}
+    SRCS.forEach((src, i) => { dimsMap[src] = i % 2 === 0 ? { w: 2000, h: 1000 } : { w: 1000, h: 2000 } })
+    const restore = mockImageDimensionsBySrc(dimsMap)
+    const origCW = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const origCH = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1024 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 768 })
+
+    try {
+      render(
+        <Zmage
+          src={SRCS[0]}
+          alt="bug2"
+          preset="desktop"
+          animate={{ flip: 'swipe' }}
+          set={SRCS.map((src, i) => ({ src, alt: `p${i}` }))}
+        />
+      )
+      fireEvent.click(screen.getByAltText('bug2'))
+      await wait(50)
+
+      // 用 pagination dot 跳转: page 0 → page 3 (= 用户描述的 1 → 4, 步长 +3 在 ±2 预渲染环外)
+      const dots = document.querySelectorAll<HTMLElement>('#zmageControlPagination > span')
+      expect(dots.length).toBe(6)
+      const dot3 = dots[3]
+      expect(dot3).toBeTruthy()
+      await act(async () => {
+        fireEvent.click(dot3)
+        await new Promise(r => setTimeout(r, 20))
+      })
+
+      const center3 = document.getElementById('zmageImage') as HTMLImageElement
+      expect(center3.src).toContain('img3.jpg')
+
+      // dims[3] 从未记录 (P=0 的 sides ring = {1,2,4,5} via ±2 wrap, 唯一漏的就是 page 3)
+      await act(async () => {
+        fireEvent.load(center3)
+        await new Promise(r => setTimeout(r, 5))
+      })
+
+      expect(center3.style.transition).toBe('none')
+
+      await wait(30)
+      expect(center3.style.transition).toBe('')
+    } finally {
+      restore()
+      if (origCW) Object.defineProperty(HTMLElement.prototype, 'clientWidth', origCW)
+      if (origCH) Object.defineProperty(HTMLElement.prototype, 'clientHeight', origCH)
+    }
+  })
+
+  it("flip='crossFade' in-ring 翻页 (dims 已知) 不触发 interrupt, 留 flip transition 正常播放", async () => {
+    // 红队关注的关键负向用例: in-ring 翻页时 side 节点已被复用为 center, 此时 dims 已通过
+    // side 的 onLoad 落地. 此场景不应进 interrupt 路径, 否则会杀掉合法 crossFade 动画
+    // (= 上一次修复"首次切换无动画"反向 bug 的根因).
+    const A = 'https://example.com/a.jpg'
+    const B = 'https://example.com/b.jpg'
+    const restore = mockImageDimensionsBySrc({
+      [A]: { w: 1000, h: 1000 },
+      [B]: { w: 1500, h: 1500 },
+    })
+    const origCW = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1024 })
+
+    try {
+      render(
+        <Zmage
+          src={A}
+          alt="inring"
+          preset="desktop"
+          animate={{ flip: 'crossFade' }}
+          set={[{ src: A }, { src: B }]}
+        />
+      )
+      fireEvent.click(screen.getByAltText('inring'))
+      await wait(50)
+
+      // 预先让 page 0 (cover) 与 page 1 (side) dims 都落地
+      const center0 = document.getElementById('zmageImage') as HTMLImageElement
+      await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 50)) })
+      const sideB = Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+        .find(img => img.id !== 'zmageImage' && img.src.includes('b.jpg'))
+      expect(sideB).toBeTruthy()
+      await act(async () => { fireEvent.load(sideB!); await new Promise(r => setTimeout(r, 5)) })
+
+      // 翻页. dims[1] 已知 → cdU ① 把 pendingDimCalibration 设成 null → ② 永不触发.
+      clickById('zmageControlFlipRight')
+      await wait(5)  // 5ms < 16ms RAF, 若 interrupt 误触, transition 会停在 'none'
+
+      const center1 = document.getElementById('zmageImage') as HTMLImageElement
+      expect(center1.src).toContain('b.jpg')
+      // 关键断言: interrupt 不应触发 (旧方案"切页就 setNodeTransitionNone"在此处会失败)
+      expect(center1.style.transition).not.toBe('none')
+    } finally {
+      restore()
+      if (origCW) Object.defineProperty(HTMLElement.prototype, 'clientWidth', origCW)
+    }
+  })
+
+  it("Cover→browsing 动画期间 dims 到达 (慢网首开) 不被 interrupt 误中断", async () => {
+    // 验证 pendingDimCalibration 守门正确: 首次开 viewer 没有 page change, 即便 onLoad
+    // 在 cover→browsing 350ms 动画 (50-400ms 窗口) 期间触发, interrupt 不应触发.
+    // (validator 早期方案的 _type === 'browsing' 守门会在此处误中断 cover→browsing 动画.)
+    const A = 'https://example.com/a.jpg'
+    const restore = mockImageDimensionsBySrc({ [A]: { w: 1000, h: 1000 } })
+
+    try {
+      render(<Zmage src={A} alt="cover-b" preset="desktop" set={[{ src: A }]}/>)
+      fireEvent.click(screen.getByAltText('cover-b'))
+      // 等 100ms: debounce(50ms) 已 fire → _type 切到 'browsing', cover→browsing 动画在跑.
+      await wait(100)
+
+      const center = document.getElementById('zmageImage') as HTMLImageElement
+      // 模拟慢网下 onLoad 现在才到 (在动画窗口内). 此时没有 page change → pending 仍 null.
+      await act(async () => {
+        fireEvent.load(center)
+        await new Promise(r => setTimeout(r, 5))
+      })
+
+      // 关键断言: interrupt 不应触发, cover→browsing 动画继续
+      expect(center.style.transition).not.toBe('none')
+    } finally {
+      restore()
+    }
+  })
+})
+
 describe('Zmage 命令式调用', () => {
   it('Zmage.browsing 返回 destructor 函数; 调用后 portal 节点移除', async () => {
     const destroy = Zmage.browsing({ src: SRC, alt: 't' })

@@ -95,6 +95,12 @@ export default class Image extends React.Component<PropsType, StateType> {
   motionPhase: MotionPhase = 'idle'
   pendingZoomMousePosition?: Coordinate
   zoomPointerPosition?: Coordinate
+  // Dim 校准 RAF: 切到未渲染过 side 的页面时, 目标页 dims 由 onLoad 才落地, dims 一旦记录,
+  // React 会用 ownFitScale 重新计算 transform, CSS transition rule 触发"错误回退 scale → 正确 ownFit"
+  // 350ms 动画 (= 用户在 flip='none' 或 swipe 出环跳转下看到的 scale 抖动 bug).
+  // 通过 cdU 检测此 dim 到达, 主动 setNodeTransitionNone 中断这条 transition.
+  pendingDimCalibration: number | null = null
+  calibrationRestoreRaf?: number
   // State
   readonly state = {
     // 加载状态
@@ -129,7 +135,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     }
   }
 
-  componentDidUpdate (prevProps: BrowsingParams) {
+  componentDidUpdate (prevProps: BrowsingParams, prevState: StateType) {
     const { show: prevShow, zoom: prevZoom, rotate: prevRotate, page: prevPage } = prevProps
     const { show: currShow, zoom: currZoom, rotate: currRotate, page: currPage } = this.props
     const { animate, presetIsMobile } = this.context
@@ -184,6 +190,19 @@ export default class Image extends React.Component<PropsType, StateType> {
       if (node && node.complete && node.naturalWidth > 0) {
         this.debounceUpdateCurrentImageStyle()
       }
+      // ① 切页时若目标页 dims 缺失 → 标记 dim 校准债务. 仅在 page 真正改变时设置, 保证
+      // 首次开场的 cover→browsing 动画 (无 page 变化) 不会被后续 dim 到达误中断.
+      this.pendingDimCalibration =
+        this.state.imageDimensions[currPage] == null ? currPage : null
+    }
+    // ② 检测目标页 dims 到达 → 中断 React 即将触发的 scale 校准 transition. 必须在
+    // page change 块外检查, 因为 dim 到达通过 onLoad 异步发生, 与 page change 不在同一个 cdU.
+    if (this.pendingDimCalibration === currPage &&
+        prevState.imageDimensions[currPage] == null &&
+        this.state.imageDimensions[currPage] != null &&
+        this.props.show) {
+      this.pendingDimCalibration = null
+      this.cancelScaleCalibrationAnimation()
     }
   }
 
@@ -195,6 +214,10 @@ export default class Image extends React.Component<PropsType, StateType> {
     if (this.browsingTransitionRaf !== undefined) {
       window.cancelAnimationFrame(this.browsingTransitionRaf)
       this.browsingTransitionRaf = undefined
+    }
+    if (this.calibrationRestoreRaf !== undefined) {
+      window.cancelAnimationFrame(this.calibrationRestoreRaf)
+      this.calibrationRestoreRaf = undefined
     }
     this.cancelClosingFollow()
     this.resetZoomMotionState()
@@ -628,6 +651,40 @@ export default class Image extends React.Component<PropsType, StateType> {
     if (this.motionPhase === 'closing-follow') {
       this.motionPhase = 'idle'
     }
+  }
+  /**
+   * Scale 校准 transition 中断
+   *
+   * 触发时机: 页变化后, 目标页 dims 通过 onLoad 首次落地 (cdU 检测到 imageDimensions
+   * 由 absent → present). 此刻 React 已在同一 commit 中把新 transform (= ownFitScale)
+   * 写入 inline style, 浏览器即将根据 CSS rule 启动 350ms transform transition (从错误
+   * 回退 scale 滑到正确 scale = 用户看到的"尺寸变化"动画).
+   *
+   * 在 cdU 中 (React commit 之后, 浏览器 paint 之前) 同步把 inline transition 改成 'none',
+   * 浏览器看到 transition-property=none → 取消刚 schedule 的 transition → transform
+   * 直接 snap 到正确值. 一帧后 RAF 把 inline transition 清空, React 重新 govern.
+   *
+   * 闭包捕获节点是为了快速翻页场景: imageRef 可能在 RAF 触发前指向新节点, 我们仍要
+   * 恢复**之前被我们改过的那个节点**的 transition (以及对应的 -webkit-transition).
+   */
+  cancelScaleCalibrationAnimation = () => {
+    const node = this.imageRef.current
+    if (!node) return
+    // 取消可能挂起的 debounce — line 184-186 路径或 handleImageLoad 都可能 schedule 过.
+    // 即便它们 50ms 后用 setCurrentStyle 重写 transform 值是一致的 (React 不会变更 DOM),
+    // 主动 cancel 让生命周期边界显式.
+    this.debounceUpdateCurrentImageStyle.cancel()
+    this.setNodeTransitionNone(node)
+    if (this.calibrationRestoreRaf !== undefined) {
+      window.cancelAnimationFrame(this.calibrationRestoreRaf)
+    }
+    this.calibrationRestoreRaf = window.requestAnimationFrame(() => {
+      this.calibrationRestoreRaf = undefined
+      if (node) {
+        node.style.transition = ''
+        node.style.removeProperty('-webkit-transition')
+      }
+    })
   }
   consumePendingZoomMousePosition = () => {
     const pending = this.pendingZoomMousePosition
