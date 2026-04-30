@@ -208,16 +208,43 @@ interface ControllerSet {
 #### `HotKey`
 
 ```ts
+type HotKeyValue = boolean | string | string[]
+//  true     — use default binding
+//  false    — disabled, event passes to outer listeners
+//  string   — descriptor: 'Escape' / 'BracketLeft' / 'S' / 'Mod+S'
+//             (e.code names — layout-independent;
+//              Mod = ⌘ on macOS, Ctrl on Windows/Linux)
+//  string[] — multiple bindings, any matches triggers
+
 interface HotKey {
-  close?:     boolean   // ESC closes the viewer
-  zoom?:     boolean   // Space toggles 1:1 zoom
-  flip?:     boolean   // ←/→ flip pages (umbrella)
-  flipLeft?: boolean
-  flipRight?: boolean
+  close?:        HotKeyValue   // default 'Escape'
+  zoom?:         HotKeyValue   // default 'Space'
+  flip?:         boolean       // umbrella for flipLeft / flipRight
+  flipLeft?:     HotKeyValue   // default 'ArrowLeft'
+  flipRight?:    HotKeyValue   // default 'ArrowRight'
+  rotate?:       boolean       // umbrella for rotateLeft / rotateRight
+  rotateLeft?:   HotKeyValue   // default 'BracketLeft'  ([)
+  rotateRight?:  HotKeyValue   // default 'BracketRight' (])
+  download?:     HotKeyValue   // default 'Mod+S' (when enabled)
 }
 ```
 
-Desktop default: all on. Mobile default: all off.
+Desktop default: `close` / `zoom` / `flip` / `rotate` on; `download` off (opt-in — turning it on hijacks the browser's `Cmd`/`Ctrl+S` shortcut). Mobile default: all off.
+
+Strict modifier matching: `'Space'` is never matched by `Cmd+Space` (macOS input-method switch); undeclared modifiers must NOT be pressed. Per-side string descriptor wins over the umbrella (e.g. `{ rotate: true, rotateLeft: 'KeyA' }` rebinds left to `A` while keeping `]` for right).
+
+Examples:
+
+```tsx
+// Enable Cmd/Ctrl+S to download the current image
+<Zmage src="..." hotKey={{ download: true }} />
+
+// Rebind rotate to A / D, keep download default
+<Zmage src="..." hotKey={{ rotate: false, rotateLeft: 'KeyA', rotateRight: 'KeyD' }} />
+
+// Add Q as a second close key alongside Escape
+<Zmage src="..." hotKey={{ close: ['Escape', 'KeyQ'] }} />
+```
 
 #### `Animate`
 

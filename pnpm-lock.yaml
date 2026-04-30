@@ -135,7 +135,7 @@ importers:
         specifier: ^4.6.4
         version: 4.6.4
       postcss:
-        specifier: ^8.5.10
+        specifier: ^8.5.12
         version: 8.5.12
       postcss-less:
         specifier: ^6.0.0
@@ -2730,8 +2730,8 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
-  electron-to-chromium@1.5.344:
-    resolution: {integrity: sha512-4MxfbmNDm+KPh066EZy+eUnkcDPcZ35wNmOWzFuh/ijvHsve6kbLTLURy88uCNK5FbpN+yk2nQY6BYh1GEt+wg==}
+  electron-to-chromium@1.5.345:
+    resolution: {integrity: sha512-F9JXQGiMrz6yVNPI2qOVPvB9HzjH5cGzhs8oJ6A28V5L/YnzN/0KsuiibqF+F1Fd9qxFzD1BUnYSd8JfULxTwg==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -4209,7 +4209,7 @@ packages:
       react-dom: '*'
 
   react-zmage@file:.pack/react-zmage-1.4.1.tgz:
-    resolution: {integrity: sha512-ll+9MKDC/idMzWnXbQ4FwRDCjMDmT0x4n2Pe4T5eSWw5ilhs6PMKrciUAwNgy7ZWqFubl7J4X1i+q2q0+59azA==, tarball: file:.pack/react-zmage-1.4.1.tgz}
+    resolution: {integrity: sha512-S9wKZgcoiuQvILYns95mp05KlPoghhLdOET487iTMUfs4UIpTpy+8XudusqatsJWuVtUwKp9TdBdFfKuZWzKJg==, tarball: file:.pack/react-zmage-1.4.1.tgz}
     version: 1.4.1
     peerDependencies:
       react: '>=16.8.0 <20'
@@ -4778,8 +4778,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  ufo@1.6.3:
-    resolution: {integrity: sha512-yDJTmhydvl5lJzBmy/hyOAA0d+aqCBuwl818haVdYCRrWV84o7YyeVm4QlVHStqNrrJSTb6jKuFAVqAFsr+K3Q==}
+  ufo@1.6.4:
+    resolution: {integrity: sha512-JFNbkD1Svwe0KvGi8GOeLcP4kAWQ609twvCdcHxq1oSL8svv39ZuSvajcD8B+5D0eL4+s1Is2D/O6KN3qcTeRA==}
 
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
@@ -7047,7 +7047,7 @@ snapshots:
     dependencies:
       baseline-browser-mapping: 2.10.24
       caniuse-lite: 1.0.30001791
-      electron-to-chromium: 1.5.344
+      electron-to-chromium: 1.5.345
       node-releases: 2.0.38
       update-browserslist-db: 1.2.3(browserslist@4.28.2)
 
@@ -7316,7 +7316,7 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  electron-to-chromium@1.5.344: {}
+  electron-to-chromium@1.5.345: {}
 
   emoji-regex@8.0.0: {}
 
@@ -8378,7 +8378,7 @@ snapshots:
       acorn: 8.16.0
       pathe: 2.0.3
       pkg-types: 1.3.1
-      ufo: 1.6.3
+      ufo: 1.6.4
 
   ms@2.0.0: {}
 
@@ -9845,7 +9845,7 @@ snapshots:
 
   typescript@5.9.3: {}
 
-  ufo@1.6.3: {}
+  ufo@1.6.4: {}
 
   unbox-primitive@1.1.0:
     dependencies:

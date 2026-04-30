@@ -562,7 +562,7 @@ describe('Zmage 动画行为', () => {
 
       await act(async () => {
         fireEvent.mouseMove(document.body, { clientX: 900, clientY: 700 })
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', keyCode: 32 } as KeyboardEventInit))
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', keyCode: 32 } as KeyboardEventInit))
         await new Promise(r => setTimeout(r, 80))
       })
 
@@ -624,7 +624,7 @@ describe('Zmage 动画行为', () => {
       await wait(50)
 
       await act(async () => {
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', keyCode: 32 } as KeyboardEventInit))
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', keyCode: 32 } as KeyboardEventInit))
         await new Promise(r => setTimeout(r, 80))
       })
 
@@ -663,12 +663,12 @@ describe('Zmage 动画行为', () => {
 })
 
 describe('Zmage hotKey 翻页 (umbrella + 单边)', () => {
-  // 工具: 直接向 window 派发 keydown (lib 的监听器挂在 window 上, 用 e.keyCode 判断)
+  // 工具: 直接向 window 派发 keydown (lib 的监听器挂在 window 上, 通过 e.code 匹配)
   const dispatchArrow = async (which: 'left' | 'right') => {
     await act(async () => {
       const keyCode = which === 'left' ? 37 : 39
-      const key = which === 'left' ? 'ArrowLeft' : 'ArrowRight'
-      window.dispatchEvent(new KeyboardEvent('keydown', { key, keyCode } as KeyboardEventInit))
+      const code = which === 'left' ? 'ArrowLeft' : 'ArrowRight'
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: code, code, keyCode } as KeyboardEventInit))
       await new Promise(r => setTimeout(r, 50))
     })
   }
@@ -726,6 +726,156 @@ describe('Zmage hotKey 翻页 (umbrella + 单边)', () => {
     // → 翻到 second
     await dispatchArrow('right')
     expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
+  })
+})
+
+describe('Zmage hotKey 旋转 ([ / ]) — desktop preset 默认开启', () => {
+  const dispatchKey = async (init: KeyboardEventInit & { code: string }) => {
+    await act(async () => {
+      window.dispatchEvent(new KeyboardEvent('keydown', init))
+      await new Promise(r => setTimeout(r, 50))
+    })
+  }
+
+  it('默认 desktop preset: [ 触发 onRotating(-90)', async () => {
+    const onRotating = vi.fn()
+    render(<Zmage src={SRC} alt="rot-l" preset="desktop" onRotating={onRotating}/>)
+    fireEvent.click(screen.getByAltText('rot-l'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+    await dispatchKey({ code: 'BracketLeft', key: '[' })
+    expect(onRotating).toHaveBeenLastCalledWith(-90)
+  })
+
+  it('默认 desktop preset: ] 触发 onRotating(+90)', async () => {
+    const onRotating = vi.fn()
+    render(<Zmage src={SRC} alt="rot-r" preset="desktop" onRotating={onRotating}/>)
+    fireEvent.click(screen.getByAltText('rot-r'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+    await dispatchKey({ code: 'BracketRight', key: ']' })
+    expect(onRotating).toHaveBeenLastCalledWith(90)
+  })
+
+  it('hotKey={{ rotate: false }} → [ / ] 不触发 (umbrella 关闭)', async () => {
+    const onRotating = vi.fn()
+    render(<Zmage src={SRC} alt="rot-off" preset="desktop" hotKey={{ rotate: false }} onRotating={onRotating}/>)
+    fireEvent.click(screen.getByAltText('rot-off'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+    await dispatchKey({ code: 'BracketLeft', key: '[' })
+    await dispatchKey({ code: 'BracketRight', key: ']' })
+    expect(onRotating).not.toHaveBeenCalled()
+  })
+
+  it('自定义按键: hotKey={{ rotateLeft: "KeyA" }} → A 触发, [ 不再触发', async () => {
+    const onRotating = vi.fn()
+    render(
+      <Zmage src={SRC} alt="rot-custom" preset="desktop"
+             hotKey={{ rotate: false, rotateLeft: 'KeyA' }} onRotating={onRotating}/>
+    )
+    fireEvent.click(screen.getByAltText('rot-custom'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+    // 默认键不再生效 (per-side 自定义胜出, umbrella 也关闭)
+    await dispatchKey({ code: 'BracketLeft', key: '[' })
+    expect(onRotating).not.toHaveBeenCalled()
+
+    // 自定义 KeyA 生效
+    await dispatchKey({ code: 'KeyA', key: 'a' })
+    expect(onRotating).toHaveBeenLastCalledWith(-90)
+  })
+})
+
+describe('Zmage hotKey 下载 (Mod+S) — desktop preset 默认关闭, 跨平台', () => {
+  const dispatchKey = async (init: KeyboardEventInit & { code: string }) => {
+    await act(async () => {
+      window.dispatchEvent(new KeyboardEvent('keydown', init))
+      await new Promise(r => setTimeout(r, 50))
+    })
+  }
+
+  // 下载实现是创建 <a> 调用 .click(), 用 spy 截获 anchor click 验证 src
+  const installAnchorSpy = () => {
+    const clicks: string[] = []
+    const orig = HTMLAnchorElement.prototype.click
+    HTMLAnchorElement.prototype.click = function () { clicks.push(this.href) }
+    return { clicks, restore: () => { HTMLAnchorElement.prototype.click = orig } }
+  }
+
+  it('默认 desktop preset 不启用下载: Cmd+S / Ctrl+S 都不触发', async () => {
+    const { clicks, restore } = installAnchorSpy()
+    try {
+      render(<Zmage src={SRC} alt="dl-default"/>)
+      fireEvent.click(screen.getByAltText('dl-default'))
+      await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+      await dispatchKey({ code: 'KeyS', key: 's', metaKey: true })
+      await dispatchKey({ code: 'KeyS', key: 's', ctrlKey: true })
+      expect(clicks).toHaveLength(0)
+    } finally { restore() }
+  })
+
+  it('hotKey={{ download: true }}: Cmd+S (Mac) 触发下载', async () => {
+    const { clicks, restore } = installAnchorSpy()
+    try {
+      render(<Zmage src={SRC} alt="dl-mac" hotKey={{ download: true }}/>)
+      fireEvent.click(screen.getByAltText('dl-mac'))
+      await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+      await dispatchKey({ code: 'KeyS', key: 's', metaKey: true })
+      expect(clicks).toHaveLength(1)
+      expect(clicks[0]).toContain('test.jpg')
+    } finally { restore() }
+  })
+
+  it('hotKey={{ download: true }}: Ctrl+S (Win/Linux) 触发下载', async () => {
+    const { clicks, restore } = installAnchorSpy()
+    try {
+      render(<Zmage src={SRC} alt="dl-win" hotKey={{ download: true }}/>)
+      fireEvent.click(screen.getByAltText('dl-win'))
+      await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+      await dispatchKey({ code: 'KeyS', key: 's', ctrlKey: true })
+      expect(clicks).toHaveLength(1)
+    } finally { restore() }
+  })
+
+  it('hotKey={{ download: true }}: 裸 S (无修饰键) 不触发, 防误触', async () => {
+    const { clicks, restore } = installAnchorSpy()
+    try {
+      render(<Zmage src={SRC} alt="dl-bare" hotKey={{ download: true }}/>)
+      fireEvent.click(screen.getByAltText('dl-bare'))
+      await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+      await dispatchKey({ code: 'KeyS', key: 's' })
+      expect(clicks).toHaveLength(0)
+    } finally { restore() }
+  })
+
+  it('hotKey={{ download: true }}: Cmd+Shift+S 不触发 (严格修饰键, 多了 Shift)', async () => {
+    const { clicks, restore } = installAnchorSpy()
+    try {
+      render(<Zmage src={SRC} alt="dl-strict" hotKey={{ download: true }}/>)
+      fireEvent.click(screen.getByAltText('dl-strict'))
+      await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+      await dispatchKey({ code: 'KeyS', key: 'S', metaKey: true, shiftKey: true })
+      expect(clicks).toHaveLength(0)
+    } finally { restore() }
+  })
+
+  it('阻止浏览器默认 "Save Page As" — keydown.preventDefault 被调用', async () => {
+    render(<Zmage src={SRC} alt="dl-prevent" hotKey={{ download: true }}/>)
+    fireEvent.click(screen.getByAltText('dl-prevent'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+    const e = new KeyboardEvent('keydown', { code: 'KeyS', key: 's', metaKey: true, cancelable: true })
+    await act(async () => {
+      window.dispatchEvent(e)
+      await new Promise(r => setTimeout(r, 50))
+    })
+    expect(e.defaultPrevented).toBe(true)
   })
 })
 
@@ -792,7 +942,7 @@ describe('Zmage ESC 与外层 modal/dialog 隔离 (#184)', () => {
 
   const dispatchEsc = async () => {
     await act(async () => {
-      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27 } as KeyboardEventInit))
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27 } as KeyboardEventInit))
       await new Promise(r => setTimeout(r, 50))
     })
   }

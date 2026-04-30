@@ -99,22 +99,33 @@ test('caption prop wired across types, defaults and llms.txt (no legacy txt resi
   assert.ok(captionLine, 'no API-table row in llms.txt declares the caption prop')
 })
 
-test('hotKey umbrella + per-side keys wired across types and llms.txt', () => {
-  // global.ts: HotKey interface declares flip / flipLeft / flipRight optional fields
+test('hotKey umbrellas + per-side custom-descriptor surface wired across types and llms.txt', () => {
+  // global.ts: HotKey interface exists, umbrellas remain boolean-only, per-side keys widened to HotKeyValue
   assert.match(globalTs, /export\s+interface\s+HotKey\b/, 'HotKey interface missing in types/global.ts')
-  assert.match(globalTs, /\bflip\?:\s*boolean\b/, 'HotKey.flip missing in types/global.ts')
-  assert.match(globalTs, /\bflipLeft\?:\s*boolean\b/, 'HotKey.flipLeft missing in types/global.ts')
-  assert.match(globalTs, /\bflipRight\?:\s*boolean\b/, 'HotKey.flipRight missing in types/global.ts')
-  // llms.txt API table row for hotKey must mention all three
-  // (require `hotKey` as the *first* cell so we skip the preset row that mentions
-  // "controller / hotKey / animate" in prose)
+  assert.match(globalTs, /\bflip\?:\s*boolean\b/, 'HotKey.flip umbrella must stay boolean-only in types/global.ts')
+  assert.match(globalTs, /\brotate\?:\s*boolean\b/, 'HotKey.rotate umbrella must stay boolean-only in types/global.ts')
+  // HotKeyValue alias = boolean | string | string[] (the descriptor surface for consumers)
+  assert.match(globalTs, /export\s+type\s+HotKeyValue\s*=\s*boolean\s*\|\s*string\s*\|\s*string\[\]/,
+    'HotKeyValue alias must be exported as `boolean | string | string[]` from types/global.ts')
+  // Per-side keys all typed as HotKeyValue
+  for (const k of ['close', 'zoom', 'flipLeft', 'flipRight', 'rotateLeft', 'rotateRight', 'download']) {
+    assert.match(globalTs, new RegExp(`\\b${k}\\?:\\s*HotKeyValue\\b`),
+      `HotKey.${k} should be typed as HotKeyValue in types/global.ts`)
+  }
+  // default.ts: defPreset adds rotate + download to both desktop and mobile hotKey
+  assert.match(defaultTs, /desktop:[\s\S]*?hotKey:[\s\S]*?\brotate:\s*true\b/,
+    'defPreset.desktop.hotKey.rotate=true missing in default.ts')
+  assert.match(defaultTs, /desktop:[\s\S]*?hotKey:[\s\S]*?\bdownload:\s*false\b/,
+    'defPreset.desktop.hotKey.download=false missing (download is opt-in)')
+  // llms.txt API table row for hotKey must mention umbrellas + all per-side + cross-platform Mod+S
   const hotKeyLine = llmsTxt.split('\n').find(
     (line) => /^\s*\|\s*`hotKey`\s*\|/.test(line)
   )
   assert.ok(hotKeyLine, 'no API-table row in llms.txt declares the hotKey prop')
-  assert.match(hotKeyLine, /\bflip\b/, 'llms.txt hotKey row missing flip')
-  assert.match(hotKeyLine, /\bflipLeft\b/, 'llms.txt hotKey row missing flipLeft')
-  assert.match(hotKeyLine, /\bflipRight\b/, 'llms.txt hotKey row missing flipRight')
+  for (const term of ['flip', 'flipLeft', 'flipRight', 'rotateLeft', 'rotateRight', 'download']) {
+    assert.match(hotKeyLine, new RegExp(`\\b${term}\\b`), `llms.txt hotKey row missing ${term}`)
+  }
+  assert.match(hotKeyLine, /Mod\+S/, 'llms.txt hotKey row should document the cross-platform Mod+S download default')
 })
 
 test('hideOnDblClick + onError prop wired across types, defaults and llms.txt', () => {

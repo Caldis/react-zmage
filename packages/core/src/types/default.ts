@@ -91,6 +91,10 @@ export const defPreset = {
       close: true,
       zoom: true,
       flip: true,
+      // rotate 在 controller 上默认开启 → hotKey 也默认开启 (umbrella, 绑定 [ / ])
+      rotate: true,
+      // download 与 controller.download 一致, 默认关闭; 启用后绑定 'Mod+S'
+      download: false,
     },
     animate: {
       browsing: true,
@@ -111,6 +115,8 @@ export const defPreset = {
       close: false,
       zoom: false,
       flip: false,
+      rotate: false,
+      download: false,
     },
     animate: {
       browsing: true,

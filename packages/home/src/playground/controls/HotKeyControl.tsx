@@ -3,7 +3,20 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
 
-type HotKey = { close?: boolean; zoom?: boolean; flip?: boolean; flipLeft?: boolean; flipRight?: boolean }
+// 各 entry 实际类型为 boolean | string | string[] (HotKeyValue), 但 playground 的 Switch
+// 仅暴露 boolean 切换; 自定义按键描述符 ('Mod+S' 等) 需要用户直接编辑代码片段。
+type HotKeyEntry = boolean | string | string[]
+type HotKey = {
+  close?: HotKeyEntry
+  zoom?: HotKeyEntry
+  flip?: boolean
+  flipLeft?: HotKeyEntry
+  flipRight?: HotKeyEntry
+  rotate?: boolean
+  rotateLeft?: HotKeyEntry
+  rotateRight?: HotKeyEntry
+  download?: HotKeyEntry
+}
 
 const ROWS: { key: keyof HotKey; labelKey: I18nKey; descKey: I18nKey }[] = [
   { key: 'close', labelKey: 'hotkey.close', descKey: 'hotkey.close.desc' },
@@ -11,14 +24,19 @@ const ROWS: { key: keyof HotKey; labelKey: I18nKey; descKey: I18nKey }[] = [
   { key: 'flip', labelKey: 'hotkey.flip', descKey: 'hotkey.flip.desc' },
   { key: 'flipLeft', labelKey: 'hotkey.flipLeft', descKey: 'hotkey.flipLeft.desc' },
   { key: 'flipRight', labelKey: 'hotkey.flipRight', descKey: 'hotkey.flipRight.desc' },
+  { key: 'rotate', labelKey: 'hotkey.rotate', descKey: 'hotkey.rotate.desc' },
+  { key: 'rotateLeft', labelKey: 'hotkey.rotateLeft', descKey: 'hotkey.rotateLeft.desc' },
+  { key: 'rotateRight', labelKey: 'hotkey.rotateRight', descKey: 'hotkey.rotateRight.desc' },
+  { key: 'download', labelKey: 'hotkey.download', descKey: 'hotkey.download.desc' },
 ]
 
-// lib (Browser.tsx handleKeyDown) gates ArrowLeft on `flipLeft || flip` and
-// ArrowRight on `flipRight || flip`; flip is the umbrella, mirroring the
-// controller pattern. Reuse the same disabled-state UX as ControllerControl.
+// lib (Browser.tsx handleKeyDown) 通过 resolveSideBinding 实现 per-side OR umbrella 兜底,
+// flip / rotate 是 umbrella, 启用后强制覆盖左右两侧 (与 ControllerControl 一致的视觉禁用态).
 const UMBRELLA: Record<string, string> = {
   flipLeft: 'flip',
   flipRight: 'flip',
+  rotateLeft: 'rotate',
+  rotateRight: 'rotate',
 }
 
 export function HotKeyControl ({ value, onChange }: { value: HotKey | boolean | undefined; onChange: (v: any) => void }) {

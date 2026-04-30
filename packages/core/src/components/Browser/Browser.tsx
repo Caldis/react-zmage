@@ -16,7 +16,8 @@ import Background from '../Background'
 // Utils
 import { Context } from '../context'
 import type { ContextType, ZoomTrigger } from '../context'
-import { disableScroll, enableScroll, getTargetPage, resolveShortestStep, unlockTouchInteraction } from '../../utils'
+import { disableScroll, downloadFromLink, enableScroll, getTargetPage, resolveShortestStep, unlockTouchInteraction } from '../../utils'
+import { matchAnyHotKey, resolveHotKeyValue, resolveSideBinding } from '../../utils/hotkey'
 import { defPropsWithEnv, resolvePreset } from '../../types/default'
 import { getBrowsingAnimationDuration } from '../../config/anim'
 import { probeStylesheet } from '../../utils/styleProbe'
@@ -301,39 +302,59 @@ export default class Browser extends React.Component<Props, State> {
       e.preventDefault()
       e.stopImmediatePropagation()
     }
-    // 判斷按鍵編碼
-    switch (e.keyCode) {
-    case 27: // Escape
-      // 退出 — 仅在 hotKey.close 为 true 时消费, 否则交给外层 (modal/dialog)
-      if (!hotKey.close) return
+
+    // 关闭 — 默认 'Escape'
+    if (matchAnyHotKey(e, resolveHotKeyValue(hotKey.close, 'Escape'))) {
       consume()
       zoom ? this.handleToggleZoom() : outBrowsing()
-      break
-    case 32: // SpaceBar
-      // 缩放 — 仅在 hotKey.zoom 为 true 时消费
-      if (!hotKey.zoom) return
+      return
+    }
+    // 缩放 — 默认 'Space'
+    if (matchAnyHotKey(e, resolveHotKeyValue(hotKey.zoom, 'Space'))) {
       consume()
       // 图片已是原始尺寸: 不进入 zoom 状态(否则 ESC 会被多消耗一次), 仅重放放大按钮 shake
       if (!zoom && !canZoom) {
         this.handleTriggerZoomShake()
-        break
+        return
       }
       this.handleToggleZoom('keyboard')
-      break
-    case 37: // ArrowLeft
-      // 上一张 — hotKey 开关决定是否拦截; 边界/zoom 态拦截但不翻页 (避免页面滚动)
-      if (!(hotKey.flipLeft || hotKey.flip)) return
+      return
+    }
+    // 上一张 — 默认 'ArrowLeft'; per-side 优先, umbrella flip 兜底
+    if (matchAnyHotKey(e, resolveSideBinding(hotKey.flipLeft, hotKey.flip, 'ArrowLeft'))) {
       consume()
-      if (zoom || (!loop && page === 0)) break
+      // 边界/zoom 态拦截但不翻页 (避免页面滚动)
+      if (zoom || (!loop && page === 0)) return
       this.handleToPrevPage()
-      break
-    case 39: // ArrowRight — 同 ArrowLeft 语义
-      if (!(hotKey.flipRight || hotKey.flip)) return
+      return
+    }
+    // 下一张 — 默认 'ArrowRight'
+    if (matchAnyHotKey(e, resolveSideBinding(hotKey.flipRight, hotKey.flip, 'ArrowRight'))) {
       consume()
-      if (zoom || (!loop && page === set.length - 1)) break
+      if (zoom || (!loop && page === set.length - 1)) return
       this.handleToNextPage()
-      break
-    default:
+      return
+    }
+    // 旋转 — 默认 'BracketLeft' / 'BracketRight' ([ / ]); per-side 优先, umbrella rotate 兜底
+    // zoom 态下不旋转 (会破坏 zoom transform 复合, 与按钮控件保持同样的不可用语义)
+    if (matchAnyHotKey(e, resolveSideBinding(hotKey.rotateLeft, hotKey.rotate, 'BracketLeft'))) {
+      consume()
+      if (zoom) return
+      this.handleToggleRotate('left')()
+      return
+    }
+    if (matchAnyHotKey(e, resolveSideBinding(hotKey.rotateRight, hotKey.rotate, 'BracketRight'))) {
+      consume()
+      if (zoom) return
+      this.handleToggleRotate('right')()
+      return
+    }
+    // 下载 — 默认 'Mod+S' (跨平台 ⌘/Ctrl + S, 与浏览器"另存为"肌肉记忆一致)
+    // 必须 consume 以阻止浏览器默认 "Save Page As" 同时弹出
+    if (matchAnyHotKey(e, resolveHotKeyValue(hotKey.download, 'Mod+S'))) {
+      consume()
+      const current = set[page]
+      if (current?.src) downloadFromLink(current.src)
       return
     }
   }

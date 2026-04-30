@@ -90,17 +90,37 @@ export interface ControllerSet {
 }
 
 /**
+ * 单个快捷键的取值
+ *
+ *  true       — 启用, 使用默认绑定 (见 default.ts 中各 action 的默认描述符)
+ *  false      — 禁用, 事件不被消费, 透传给外层监听 (modal/dialog 等)
+ *  string     — 自定义描述符, 形如 'Escape' / 'Space' / 'BracketLeft' / 'S' / 'Mod+S'
+ *               采用 e.code 命名 (按键物理位置, 与键盘布局无关)
+ *               单字母/数字短形式 'S' / '1' 内部归一化为 'KeyS' / 'Digit1'
+ *               修饰键前缀: Mod (= ⌘ 或 Ctrl, 跨平台) / Cmd / Ctrl / Shift / Alt
+ *               未声明的修饰键不可按下 ('Space' 不被 'Cmd+Space' 触发)
+ *  string[]   — 多绑定, 任一描述符匹配都触发该动作
+ */
+export type HotKeyValue = boolean | string | string[]
+
+/**
  * @see https://github.com/Caldis/react-zmage#hotkey
  */
 export interface HotKey {
-  // 关闭（ESC）
-  close?: boolean
-  // 缩放（空格）
-  zoom?: boolean
-  // 翻页（左右键）
+  // 关闭 (默认 'Escape')
+  close?: HotKeyValue
+  // 缩放 (默认 'Space')
+  zoom?: HotKeyValue
+  // 翻页 — umbrella 仅 boolean (语义为"同时启用左+右"), 单边可自定义按键
   flip?: boolean
-  flipLeft?: boolean
-  flipRight?: boolean
+  flipLeft?: HotKeyValue   // 默认 'ArrowLeft'
+  flipRight?: HotKeyValue  // 默认 'ArrowRight'
+  // 旋转 — umbrella 仅 boolean, 单边可自定义按键
+  rotate?: boolean
+  rotateLeft?: HotKeyValue   // 默认 'BracketLeft'  ([)
+  rotateRight?: HotKeyValue  // 默认 'BracketRight' (])
+  // 下载 (默认 'Mod+S' — 与浏览器"另存为"肌肉记忆一致, Mod 跨平台 ⌘/Ctrl)
+  download?: HotKeyValue
 }
 
 /**

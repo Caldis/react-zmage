@@ -1,5 +1,6 @@
 import { Heading } from '@/docs/Heading'
 import { ParamTable } from '@/docs/ParamTable'
+import { CodeBlock } from '@/components/CodeBlock'
 import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
 import { defPreset } from '@/schema/param-schema'
@@ -25,6 +26,10 @@ const HOTKEY_KEYS: { k: string; descKey: I18nKey }[] = [
   { k: 'flip', descKey: 'hotkey.flip.desc' },
   { k: 'flipLeft', descKey: 'hotkey.flipLeft.desc' },
   { k: 'flipRight', descKey: 'hotkey.flipRight.desc' },
+  { k: 'rotate', descKey: 'hotkey.rotate.desc' },
+  { k: 'rotateLeft', descKey: 'hotkey.rotateLeft.desc' },
+  { k: 'rotateRight', descKey: 'hotkey.rotateRight.desc' },
+  { k: 'download', descKey: 'hotkey.download.desc' },
 ]
 
 const ANIMATE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
@@ -51,6 +56,8 @@ const PRESET_ROWS: PresetRow[] = [
   { path: 'hotKey.close', label: 'hotkey.close' },
   { path: 'hotKey.zoom', label: 'hotkey.zoom' },
   { path: 'hotKey.flip', label: 'hotkey.flip' },
+  { path: 'hotKey.rotate', label: 'hotkey.rotate' },
+  { path: 'hotKey.download', label: 'hotkey.download' },
   { path: 'animate.browsing', label: 'animate.browsing.desc' },
   { path: 'animate.flip', label: 'animate.flip.desc' },
 ]
@@ -184,9 +191,46 @@ function HotKeyDetail () {
   return (
     <>
       <SubKeyTable typeName="HotKey" rows={HOTKEY_KEYS} />
-      <p className="-mt-4 mb-6 text-xs text-muted-foreground">
+      <p className="-mt-4 mb-3 text-xs text-muted-foreground">
         {t('docs.section.props.hotkey.umbrella')}
       </p>
+      <h4 className="mt-4 mb-2 text-sm font-semibold">{t('docs.section.props.hotkey.customTitle')}</h4>
+      <p className="mb-2 text-xs text-muted-foreground">{t('docs.section.props.hotkey.customIntro')}</p>
+      <CodeBlock code={`// Enable Cmd/Ctrl+S to download (off by default — opt in)
+<Zmage src="..." hotKey={{ download: true }} />
+
+// Rebind rotate to A / D, keep download default
+<Zmage src="..." hotKey={{ rotate: false, rotateLeft: 'KeyA', rotateRight: 'KeyD' }} />
+
+// Add Q as a second close key alongside the default Escape
+<Zmage src="..." hotKey={{ close: ['Escape', 'KeyQ'] }} />
+
+// Custom download shortcut (Mod = ⌘ on macOS, Ctrl on Windows/Linux)
+<Zmage src="..." hotKey={{ download: 'Mod+Shift+D' }} />`} language={'tsx' as any} />
+      <p className="mt-3 mb-1 text-xs font-medium text-muted-foreground">{t('docs.section.props.hotkey.cheatsheetTitle')}</p>
+      <ul className="mb-6 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+        <li>
+          <span className="font-mono">'S'</span> → <span className="font-mono">'KeyS'</span>,{' '}
+          <span className="font-mono">'1'</span> → <span className="font-mono">'Digit1'</span>{' '}
+          ({t('docs.section.props.hotkey.cheatsheet.shorthand')})
+        </li>
+        <li>
+          <span className="font-mono">'ArrowLeft' / 'ArrowRight' / 'ArrowUp' / 'ArrowDown'</span>{' '}
+          ({t('docs.section.props.hotkey.cheatsheet.arrows')})
+        </li>
+        <li>
+          <span className="font-mono">'BracketLeft' ([) / 'BracketRight' (]) / 'Comma' / 'Period' / 'Slash'</span>{' '}
+          ({t('docs.section.props.hotkey.cheatsheet.punct')})
+        </li>
+        <li>
+          <span className="font-mono">'Space' / 'Enter' / 'Tab' / 'Backspace' / 'Escape'</span>{' '}
+          ({t('docs.section.props.hotkey.cheatsheet.whitespace')})
+        </li>
+        <li>
+          <span className="font-mono">'Mod+' / 'Cmd+' / 'Ctrl+' / 'Shift+' / 'Alt+'</span>{' '}
+          ({t('docs.section.props.hotkey.cheatsheet.modifier')})
+        </li>
+      </ul>
     </>
   )
 }
