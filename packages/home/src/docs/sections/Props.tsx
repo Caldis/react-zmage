@@ -35,6 +35,10 @@ const HOTKEY_KEYS: { k: string; descKey: I18nKey }[] = [
 const ANIMATE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
   { k: 'browsing', type: 'boolean', descKey: 'animate.browsing.desc' },
   { k: 'flip', type: "'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'", descKey: 'animate.flip.desc' },
+  { k: 'cover', type: 'boolean | AnimateCoverOptions', descKey: 'animate.cover.desc' },
+  { k: 'cover.objectFit', type: 'boolean', descKey: 'animate.cover.objectFit.desc' },
+  { k: 'cover.clip', type: 'boolean', descKey: 'animate.cover.clip.desc' },
+  { k: 'cover.radius', type: 'boolean', descKey: 'animate.cover.radius.desc' },
 ]
 
 const GESTURE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
@@ -73,6 +77,7 @@ const PRESET_ROWS: PresetRow[] = [
   { path: 'hotKey.download', label: 'hotkey.download' },
   { path: 'animate.browsing', label: 'animate.browsing.desc' },
   { path: 'animate.flip', label: 'animate.flip.desc' },
+  { path: 'animate.cover', label: 'animate.cover.desc' },
   { path: 'gesture.swipe', label: 'gesture.swipe' },
   { path: 'gesture.dragExit', label: 'gesture.dragExit' },
 ]

@@ -93,8 +93,24 @@ export default class Browser extends React.Component<Props, State> {
     hotKey === false ? {} : { ...fallback, ...(typeof hotKey === 'object' ? hotKey : {}) }
   )
 
+  getAnimateCoverConfig = (animate: Props['animate'], fallback: Animate): Animate['cover'] => {
+    const fallbackCover = fallback.cover
+    if (animate === false) return false
+    const inputCover = animate && typeof animate === 'object' ? animate.cover : undefined
+    if (inputCover === false) return false
+    if (inputCover === true || inputCover === undefined) return fallbackCover
+    const base = fallbackCover && typeof fallbackCover === 'object' ? fallbackCover : {}
+    return { ...base, ...inputCover }
+  }
+
   getAnimateConfig = (animate: Props['animate'], fallback: Animate): Animate => (
-    animate === false ? { browsing: false, flip: false } as unknown as Animate : { ...fallback, ...(typeof animate === 'object' ? animate : {}) }
+    animate === false
+      ? { browsing: false, flip: false, cover: false } as unknown as Animate
+      : {
+        ...fallback,
+        ...(typeof animate === 'object' ? animate : {}),
+        cover: this.getAnimateCoverConfig(animate, fallback),
+      }
   )
 
   getGestureConfig = (gesture: Props['gesture'], fallback: GestureSet): GestureSet => (

@@ -4,7 +4,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
 
-type Animate = { browsing?: boolean; flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none' }
+type AnimateCover = boolean | { objectFit?: boolean; clip?: boolean; radius?: boolean }
+type Animate = { browsing?: boolean; flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'; cover?: AnimateCover }
 
 const FLIP_OPTIONS: { value: NonNullable<Animate['flip']>; labelKey: I18nKey }[] = [
   { value: 'fade', labelKey: 'animate.flip.fade' },
@@ -33,6 +34,18 @@ function TipLabel ({ children, descKey }: { children: React.ReactNode; descKey: 
 export function AnimateControl ({ value, onChange }: { value: Animate | boolean | undefined; onChange: (v: any) => void }) {
   const { t } = useT()
   const obj: Animate = (typeof value === 'object' && value) ? value : {}
+  const coverObj = obj.cover && typeof obj.cover === 'object' ? obj.cover : {}
+  const patchCover = (patch: NonNullable<Exclude<AnimateCover, boolean>>) => {
+    onChange({
+      ...obj,
+      cover: {
+        objectFit: coverObj.objectFit ?? true,
+        clip: coverObj.clip ?? true,
+        radius: coverObj.radius ?? true,
+        ...patch,
+      },
+    })
+  }
   return (
     <div className="grid gap-1.5 text-[11px] leading-tight">
       <label className="flex items-center justify-between gap-3">
@@ -47,6 +60,18 @@ export function AnimateControl ({ value, onChange }: { value: Animate | boolean 
           triggerClassName="h-7 w-32 text-[11px]"
           options={FLIP_OPTIONS.map(o => ({ value: o.value, label: t(o.labelKey) }))}
         />
+      </label>
+      <label className="flex items-center justify-between gap-3">
+        <TipLabel descKey="animate.cover.objectFit.desc">cover.objectFit</TipLabel>
+        <Switch checked={obj.cover !== false && coverObj.objectFit !== false} onCheckedChange={c => patchCover({ objectFit: c })} />
+      </label>
+      <label className="flex items-center justify-between gap-3">
+        <TipLabel descKey="animate.cover.clip.desc">cover.clip</TipLabel>
+        <Switch checked={obj.cover !== false && coverObj.clip !== false} onCheckedChange={c => patchCover({ clip: c })} />
+      </label>
+      <label className="flex items-center justify-between gap-3">
+        <TipLabel descKey="animate.cover.radius.desc">cover.radius</TipLabel>
+        <Switch checked={obj.cover !== false && coverObj.radius !== false} onCheckedChange={c => patchCover({ radius: c })} />
       </label>
     </div>
   )

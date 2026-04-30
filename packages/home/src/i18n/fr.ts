@@ -176,6 +176,10 @@ export const fr: I18nDict = {
 
   'animate.browsing.desc': 'Transition d\'ouverture / fermeture de la visionneuse',
   'animate.flip.desc': 'Style de transition lors du changement de page dans un set',
+  'animate.cover.desc': 'Cover-to-viewer transition geometry',
+  'animate.cover.objectFit.desc': 'Match the cover image object-fit / object-position geometry before animating',
+  'animate.cover.clip.desc': 'Use clip-path to match the img\'s own visible crop; may repaint during animation, so disable on performance-sensitive mobile pages',
+  'animate.cover.radius.desc': 'Animate from the cover border radius to the viewer radius',
 
   'param.src.label': 'src',
   'param.src.desc': 'URL de l\'image. Obligatoire.',
@@ -212,7 +216,7 @@ export const fr: I18nDict = {
   'param.hotKey.label': 'hotKey',
   'param.hotKey.desc': 'Raccourcis clavier.',
   'param.animate.label': 'animate',
-  'param.animate.desc': 'Configuration des animations : navigation + changement de page.',
+  'param.animate.desc': 'Animation config: browsing, cover geometry, and flip animation.',
   'param.gesture.label': 'gesture',
   'param.gesture.desc': 'Mobile single-finger gesture config. preset=mobile enables swipe and dragExit by default; gesture=false disables both.',
   'param.onBrowsing.label': 'onBrowsing',

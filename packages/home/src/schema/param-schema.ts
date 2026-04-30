@@ -33,13 +33,13 @@ export const defPreset = {
   desktop: {
     controller: { pagination: true, rotate: true, zoom: true, download: false, close: true, flip: true },
     hotKey: { close: true, zoom: true, flip: true, rotate: true, download: false },
-    animate: { browsing: true, flip: 'crossFade' as const },
+    animate: { browsing: true, flip: 'crossFade' as const, cover: { objectFit: true, clip: true, radius: true } },
     gesture: { swipe: false, dragExit: false },
   },
   mobile: {
     controller: { pagination: true, rotate: false, zoom: false, download: false, close: true, flip: false },
     hotKey: { close: false, zoom: false, flip: false, rotate: false, download: false },
-    animate: { browsing: true, flip: 'swipe' as const },
+    animate: { browsing: true, flip: 'swipe' as const, cover: { objectFit: true, clip: true, radius: true } },
     gesture: {
       swipe: { threshold: 120, velocity: 0.35, axisLock: 1.2, resistance: 0.35 },
       dragExit: { threshold: 80, velocity: 0.35, axisLock: 1.2, opacity: true },

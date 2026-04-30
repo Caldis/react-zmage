@@ -190,6 +190,10 @@ export const zhCN = {
   // Animate keys
   'animate.browsing.desc': '查看器开 / 关时的过渡动画',
   'animate.flip.desc': '在 set 中翻页时的过渡方式',
+  'animate.cover.desc': '封面到查看器的几何过渡',
+  'animate.cover.objectFit.desc': '打开前匹配封面图片的 object-fit / object-position 几何',
+  'animate.cover.clip.desc': '用 clip-path 匹配 img 自身可见裁切区域; 动画期间可能触发重绘, 移动端性能敏感时可关闭',
+  'animate.cover.radius.desc': '从封面圆角过渡到查看器圆角',
 
   // Param labels & descs
   'param.src.label': 'src',
@@ -227,7 +231,7 @@ export const zhCN = {
   'param.hotKey.label': 'hotKey',
   'param.hotKey.desc': '快捷键开关。',
   'param.animate.label': 'animate',
-  'param.animate.desc': '动画配置:浏览动画 + 翻页动画。',
+  'param.animate.desc': '动画配置:浏览、封面几何和翻页动画。',
   'param.gesture.label': 'gesture',
   'param.gesture.desc': '移动端单指手势配置。preset=mobile 默认开启 swipe 和 dragExit; gesture=false 可全部关闭。',
   'param.onBrowsing.label': 'onBrowsing',

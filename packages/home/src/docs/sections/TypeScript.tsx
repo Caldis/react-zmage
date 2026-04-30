@@ -15,6 +15,7 @@ export function TypeScript () {
   ControllerSet,
   HotKey,
   Animate,
+  AnimateCoverOptions,
   GestureSet,
 } from 'react-zmage'
 

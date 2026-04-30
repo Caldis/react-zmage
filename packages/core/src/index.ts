@@ -30,4 +30,5 @@ export type {
   HotKey,
   Animate,
   AnimateFlip,
+  AnimateCoverOptions,
 } from './types/global'

@@ -132,7 +132,7 @@ const ref = useRef<HTMLImageElement>(null)
 return <Zmage {...config} ref={ref} />
 ```
 
-`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `HotKey`, `Animate`, `GestureSet`, `GestureSwipeOptions`, `GestureDragExitOptions`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
+`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `HotKey`, `Animate`, `AnimateCoverOptions`, `GestureSet`, `GestureSwipeOptions`, `GestureDragExitOptions`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
 
 </details>
 
@@ -176,7 +176,7 @@ API is identical — only the import path changes. The SSR build is platform-neu
 |---|---|---|---|
 | `controller` | `boolean \| ControllerSet` | preset-driven | Per-button toggles in the top toolbar. Pass `false` to hide all, or a partial object to override individual buttons. |
 | `hotKey` | `boolean \| HotKey` | preset-driven | Keyboard shortcuts. |
-| `animate` | `boolean \| Animate` | preset-driven | Open/close + page-flip animations. |
+| `animate` | `boolean \| Animate` | preset-driven | Open/close, cover-geometry, and page-flip animations. |
 | `gesture` | `boolean \| GestureSet` | preset-driven | Mobile single-finger gestures. Pass `false` to disable all gestures, or a partial object to override `swipe` / `dragExit`. |
 
 #### `ControllerSet`
@@ -263,10 +263,19 @@ Examples:
 interface Animate {
   browsing?: boolean
   flip?:     'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'
+  cover?:    boolean | AnimateCoverOptions
+}
+
+interface AnimateCoverOptions {
+  objectFit?: boolean  // default true
+  clip?: boolean       // default true
+  radius?: boolean     // default true
 }
 ```
 
-Defaults: desktop = `{ browsing: true, flip: 'crossFade' }`, mobile = `{ browsing: true, flip: 'swipe' }`. `flip: 'none'` skips adjacent-page rendering — page change is an instant swap with no transition.
+Defaults: desktop = `{ browsing: true, flip: 'crossFade', cover: { objectFit: true, clip: true, radius: true } }`, mobile = `{ browsing: true, flip: 'swipe', cover: { objectFit: true, clip: true, radius: true } }`. `animate.cover` matches the cover image's `object-fit` / `object-position`, clip, and border radius during open / close. Set `animate={{ cover: false }}` for the legacy cover geometry path. `flip: 'none'` skips adjacent-page rendering — page change is an instant swap with no transition.
+
+`animate.cover` reads the clicked `<img>` itself. It can match `object-fit`, `object-position`, and `border-radius` applied directly to that image; clipping introduced by a parent wrapper (`overflow: hidden`, parent radius, mask, complex `clip-path`, transform, etc.) is not inferred. The geometry math is small, but animating `clip-path: inset(...)` and `border-radius` may repaint and is heavier than pure `transform` / `opacity`, especially on large images, weaker mobile devices, and iOS Safari. For performance-sensitive pages, use `animate={{ cover: { clip: false } }}` or `animate={{ cover: { radius: false } }}`.
 
 #### `GestureSet`
 

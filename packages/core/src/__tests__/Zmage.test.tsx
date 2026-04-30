@@ -635,6 +635,83 @@ describe('Zmage 动画行为', () => {
     expect(centerImage.style.transition).toBe('none')
   })
 
+  it('object-fit: cover 的封面打开首帧写入 clip-path 和 cover 圆角', async () => {
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+
+    try {
+      render(<Zmage src="https://example.com/object-fit.jpg" alt="object-fit-cover"/>)
+      const cover = screen.getByAltText('object-fit-cover') as HTMLImageElement
+      Object.defineProperty(cover, 'naturalWidth', { value: 1000, configurable: true })
+      Object.defineProperty(cover, 'naturalHeight', { value: 500, configurable: true })
+      cover.style.objectFit = 'cover'
+      cover.style.objectPosition = '50% 50%'
+      cover.style.borderRadius = '12px'
+      cover.getBoundingClientRect = () => ({
+        left: 400,
+        top: 300,
+        width: 200,
+        height: 200,
+        right: 600,
+        bottom: 500,
+        x: 400,
+        y: 300,
+        toJSON: () => ({}),
+      } as DOMRect)
+
+      fireEvent.click(cover)
+      await wait(30)
+
+      const image = document.getElementById('zmageImage') as HTMLImageElement
+      expect(image.style.transform).toContain('scale3d(0.4, 0.4, 1)')
+      // clip-path / border-radius use image-local coordinates before transform.
+      // Visual crop 100px and visual radius 12px at scale .4 become 250px and 30px locally.
+      expect(image.style.clipPath).toBe('inset(0px 250px 0px 250px round 30px)')
+      expect(image.style.borderRadius).toBe('30px')
+    } finally {
+      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
+      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+    }
+  })
+
+  it('animate.cover=false 时 object-fit 封面沿用旧几何且不写入 clip-path', async () => {
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+
+    try {
+      render(<Zmage src="https://example.com/object-fit-legacy.jpg" alt="object-fit-legacy" animate={{ cover: false }}/>)
+      const cover = screen.getByAltText('object-fit-legacy') as HTMLImageElement
+      Object.defineProperty(cover, 'naturalWidth', { value: 1000, configurable: true })
+      Object.defineProperty(cover, 'naturalHeight', { value: 500, configurable: true })
+      cover.style.objectFit = 'cover'
+      cover.getBoundingClientRect = () => ({
+        left: 400,
+        top: 300,
+        width: 200,
+        height: 200,
+        right: 600,
+        bottom: 500,
+        x: 400,
+        y: 300,
+        toJSON: () => ({}),
+      } as DOMRect)
+
+      fireEvent.click(cover)
+      await wait(30)
+
+      const image = document.getElementById('zmageImage') as HTMLImageElement
+      expect(image.style.transform).toContain('scale3d(0.2, 0.2, 1)')
+      expect(image.style.clipPath).toBe('')
+    } finally {
+      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
+      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+    }
+  })
+
   it('flip 动画复用左右边图节点, 让新旧页面可以执行 transition', async () => {
     render(
       <Zmage
@@ -787,7 +864,9 @@ describe('Zmage 动画行为', () => {
       />
     )
     fireEvent.click(screen.getByAltText('cover'))
-    await wait(50)
+    await wait(30)
+    fireEvent.load(document.getElementById('zmageImage') as HTMLImageElement)
+    await wait(60)
 
     const sideImage = Array
       .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
@@ -813,7 +892,9 @@ describe('Zmage 动画行为', () => {
       />
     )
     fireEvent.click(screen.getByAltText('cover'))
-    await wait(50)
+    await wait(30)
+    fireEvent.load(document.getElementById('zmageImage') as HTMLImageElement)
+    await wait(60)
 
     const sideImage = Array
       .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
@@ -2223,6 +2304,43 @@ describe('关闭路径 cover 实时追踪 (RAF)', () => {
     } finally {
       if (originalClientWidth) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth)
       if (originalClientHeight) Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight)
+    }
+  })
+
+  it('closing-follow RAF 同步写入 clip-path 和 border-radius', async () => {
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+
+    try {
+      render(<Zmage src="https://example.com/raf-clip.jpg" alt="raf-clip" preset="desktop"/>)
+      const cover = screen.getByAltText('raf-clip') as HTMLImageElement
+      Object.defineProperty(cover, 'naturalWidth', { value: 1000, configurable: true })
+      Object.defineProperty(cover, 'naturalHeight', { value: 500, configurable: true })
+      cover.style.objectFit = 'cover'
+      cover.style.objectPosition = '50% 50%'
+      cover.style.borderRadius = '12px'
+      const coverBox = installMutableCoverBCR(cover)
+      coverBox.left = 400
+      coverBox.top = 300
+      coverBox.width = 200
+      coverBox.height = 200
+
+      fireEvent.click(cover)
+      await wait(80)
+
+      clickById('zmageControlClose')
+      await wait(80)
+
+      const center = document.getElementById('zmageImage') as HTMLImageElement
+      expect(center.style.transition).toBe('none')
+      expect(center.style.clipPath).toContain('inset(')
+      expect(center.style.clipPath).toContain('round')
+      expect(center.style.borderRadius).not.toBe('')
+    } finally {
+      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
+      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
     }
   })
 

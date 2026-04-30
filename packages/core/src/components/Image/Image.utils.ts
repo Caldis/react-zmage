@@ -8,8 +8,15 @@ import { RefObject } from 'react'
 import { getClientHeight, getClientWidth, numberOfStyleUnits } from '../../utils'
 import { animationCurve, animationDuration, animationFunctionOnZooming, animationTransition } from '../../config/anim'
 import type { ContextType } from '../context'
-import { defaultGestureDragExitOptions, defaultGestureSwipeOptions } from '../../types/default'
-import { Animate, AnimateFlip, GestureDragExitOptions, GestureSet, GestureSwipeOptions } from '../../types/global'
+import { defaultAnimateCoverOptions, defaultGestureDragExitOptions, defaultGestureSwipeOptions } from '../../types/default'
+import { Animate, AnimateCoverOptions, AnimateFlip, GestureDragExitOptions, GestureSet, GestureSwipeOptions } from '../../types/global'
+
+export interface ClipInsets {
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
 
 export interface ImageStyleType {
   _type: 'cover' | 'browsing' | 'zooming'
@@ -20,6 +27,7 @@ export interface ImageStyleType {
   scale?: number
   rotate?: number
   radius?: number
+  clip?: ClipInsets
 }
 
 export type ImageRole = 'center' | 'side'
@@ -31,7 +39,7 @@ export type MotionPhase =
   | 'zoom-follow'
   | 'closing-follow'
 
-const zoomTransition = `transform ${animationDuration}ms ${animationFunctionOnZooming}, opacity ${animationDuration}ms ${animationFunctionOnZooming}, clip-path ${animationDuration}ms ${animationFunctionOnZooming}`
+const zoomTransition = `transform ${animationDuration}ms ${animationFunctionOnZooming}, opacity ${animationDuration}ms ${animationFunctionOnZooming}, clip-path ${animationDuration}ms ${animationFunctionOnZooming}, border-radius ${animationDuration}ms ${animationFunctionOnZooming}`
 
 export interface ViewportRect {
   left: number
@@ -65,6 +73,111 @@ export const calcFitScale = (naturalWidth: number, naturalHeight: number, edge =
   const scaleX = figureWidth > viewport.width ? viewport.width / figureWidth : 1
   const scaleY = figureHeight > viewport.height ? viewport.height / figureHeight : 1
   return Math.min(scaleX, scaleY) + 0.002
+}
+
+export const ZERO_CLIP: ClipInsets = { top: 0, right: 0, bottom: 0, left: 0 }
+
+const cloneZeroClip = (): ClipInsets => ({ ...ZERO_CLIP })
+
+const normalizeAnimateCoverOptions = (animate: Animate | boolean | undefined): false | Required<AnimateCoverOptions> => {
+  if (animate === false) return false
+  const cover = animate && typeof animate === 'object' ? animate.cover : undefined
+  if (cover === false) return false
+  if (cover && typeof cover === 'object') {
+    return { ...defaultAnimateCoverOptions, ...cover }
+  }
+  return { ...defaultAnimateCoverOptions }
+}
+
+const shouldUseClip = (context: ContextType) => {
+  const coverOptions = normalizeAnimateCoverOptions(context.animate)
+  return coverOptions !== false && coverOptions.clip
+}
+
+const getEndpointClip = (context: ContextType): ClipInsets | undefined => (
+  shouldUseClip(context) ? cloneZeroClip() : undefined
+)
+
+const parsePositionToken = (
+  token: string | undefined,
+  freeSpace: number,
+  axis: 'x' | 'y',
+): number => {
+  const value = token || '50%'
+  if (value === 'center') return freeSpace * 0.5
+  if (axis === 'x') {
+    if (value === 'left') return 0
+    if (value === 'right') return freeSpace
+  } else {
+    if (value === 'top') return 0
+    if (value === 'bottom') return freeSpace
+  }
+  if (value.endsWith('%')) {
+    const pct = Number.parseFloat(value)
+    return Number.isFinite(pct) ? freeSpace * (pct / 100) : freeSpace * 0.5
+  }
+  if (value.endsWith('px')) {
+    const px = Number.parseFloat(value)
+    return Number.isFinite(px) ? px : freeSpace * 0.5
+  }
+  return freeSpace * 0.5
+}
+
+const parseObjectPosition = (objectPosition: string | undefined, freeX: number, freeY: number) => {
+  const parts = (objectPosition || '50% 50%').trim().split(/\s+/)
+  const [xToken, yToken = '50%'] = parts.length > 0 ? parts : ['50%', '50%']
+  return {
+    x: parsePositionToken(xToken, freeX, 'x'),
+    y: parsePositionToken(yToken, freeY, 'y'),
+  }
+}
+
+const getObjectFitScale = (
+  objectFit: string | undefined,
+  naturalWidth: number,
+  naturalHeight: number,
+  width: number,
+  height: number,
+): number | null => {
+  if (!naturalWidth || !naturalHeight || !width || !height) return null
+  const fit = objectFit || 'fill'
+  const scaleX = width / naturalWidth
+  const scaleY = height / naturalHeight
+  if (fit === 'cover') return Math.max(scaleX, scaleY)
+  if (fit === 'contain') return Math.min(scaleX, scaleY)
+  if (fit === 'none') return 1
+  if (fit === 'scale-down') return Math.min(1, Math.min(scaleX, scaleY))
+  return null
+}
+
+const clampInset = (value: number) => Math.max(0, Math.abs(value) < 0.0001 ? 0 : value)
+const toImageLocalInset = (value: number, scale: number) => clampInset(value / scale)
+
+const getCoverRadius = ({
+  context,
+  borderRadius,
+  width,
+  coverOptions,
+}: {
+  context: ContextType
+  borderRadius: string
+  width: number
+  coverOptions: false | Required<AnimateCoverOptions>
+}) => (
+  coverOptions && coverOptions.radius
+    ? numberOfStyleUnits(borderRadius, { ref: width })
+    : context.radius ?? 0
+)
+
+export const getLocalRadius = (radius = 0, scale = 1) => {
+  const safeScale = Number.isFinite(scale) && scale > 0 ? scale : 1
+  return radius / safeScale
+}
+
+export const getClipPath = (clip: ClipInsets | undefined, radius = 0, scale = 1) => {
+  if (!clip) return undefined
+  const localRadius = getLocalRadius(radius, scale)
+  return `inset(${clip.top}px ${clip.right}px ${clip.bottom}px ${clip.left}px round ${localRadius}px)`
 }
 
 export const isZoomMotionPhase = (phase: MotionPhase) => (
@@ -126,6 +239,7 @@ export const getCurrentImageStyle = (context: ContextType, imageRef: RefObject<H
 export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLImageElement>, touchGesture?: TouchGesture): ImageStyleType => {
   const { coverRef, coverPos, rotate, pageIsCover } = context
   const viewport = getViewportRect(context)
+  const coverOptions = normalizeAnimateCoverOptions(context.animate)
   if (touchGesture && touchGesture.state === 'ended' && touchGesture.lastResult.kind === 'dragExit' && touchGesture.lastResult.accepted) {
     const offset = touchGesture.getOffset()
     return {
@@ -136,10 +250,12 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
   }
   if (coverRef.current) {
     // 从封面唤出
-    const { naturalWidth } = coverRef.current
+    const { naturalWidth, naturalHeight } = coverRef.current
     const { top, left, width, height } = coverRef.current.getBoundingClientRect()
-    const { opacity, borderRadius } = window.getComputedStyle(coverRef.current)
-    return pageIsCover ? {
+    const computedStyle = window.getComputedStyle(coverRef.current)
+    const { opacity, borderRadius, objectFit, objectPosition } = computedStyle
+    const radius = getCoverRadius({ context, borderRadius, width, coverOptions })
+    const legacyStyle: ImageStyleType = pageIsCover ? {
       _type: 'cover',
       // 所有 modal 几何都以实际 overlay 盒子为参考系, 避免宿主横向溢出时
       // documentElement.clientWidth / window.innerWidth 与 fixed 层尺寸分裂.
@@ -148,7 +264,7 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
       opacity: Number(opacity) || 1,
       scale: naturalWidth ? width / naturalWidth : 1,
       rotate: rotate - rotate % 360,
-      radius: numberOfStyleUnits(borderRadius, { ref: width }),
+      radius,
     } : {
       _type: 'cover',
       x: 0,
@@ -156,7 +272,41 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
       opacity: 0,
       scale: naturalWidth ? width / naturalWidth : 1,
       rotate: rotate - rotate % 360,
-      radius: numberOfStyleUnits(borderRadius, { ref: width }),
+      radius,
+    }
+
+    if (!pageIsCover || coverOptions === false || !coverOptions.objectFit) {
+      return legacyStyle
+    }
+
+    const objectScale = getObjectFitScale(objectFit, naturalWidth, naturalHeight, width, height)
+    if (objectScale == null) {
+      return legacyStyle
+    }
+
+    const objectWidth = naturalWidth * objectScale
+    const objectHeight = naturalHeight * objectScale
+    const freeX = width - objectWidth
+    const freeY = height - objectHeight
+    const objectOffset = parseObjectPosition(objectPosition, freeX, freeY)
+    const objectLeft = left + objectOffset.x
+    const objectTop = top + objectOffset.y
+    const clip = coverOptions.clip ? {
+      top: toImageLocalInset(top - objectTop, objectScale),
+      right: toImageLocalInset(objectLeft + objectWidth - (left + width), objectScale),
+      bottom: toImageLocalInset(objectTop + objectHeight - (top + height), objectScale),
+      left: toImageLocalInset(left - objectLeft, objectScale),
+    } : undefined
+
+    return {
+      _type: 'cover',
+      x: objectLeft + objectWidth / 2 - (viewport.left + viewport.width / 2),
+      y: objectTop + objectHeight / 2 - (viewport.top + viewport.height / 2),
+      opacity: Number(opacity) || 1,
+      scale: objectScale,
+      rotate: rotate - rotate % 360,
+      radius,
+      clip,
     }
   } else if (coverPos) {
     // 从 Callee 唤出
@@ -189,6 +339,17 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
  * 关键点是 to 由调用方每帧用 getCoverStyle 重算, 保证滚动期间 target 跟得上 cover 视口位置 */
 export const lerpCoverStyle = (from: ImageStyleType, to: ImageStyleType, t: number): ImageStyleType => {
   const lerp = (a: number, b: number) => a + (b - a) * t
+  const lerpClip = (fromClip: ClipInsets | undefined, toClip: ClipInsets | undefined): ClipInsets | undefined => {
+    if (!fromClip && !toClip) return undefined
+    const a = fromClip || ZERO_CLIP
+    const b = toClip || ZERO_CLIP
+    return {
+      top: lerp(a.top, b.top),
+      right: lerp(a.right, b.right),
+      bottom: lerp(a.bottom, b.bottom),
+      left: lerp(a.left, b.left),
+    }
+  }
   return {
     _type: 'cover',
     x: lerp(from.x ?? 0, to.x ?? 0),
@@ -197,6 +358,7 @@ export const lerpCoverStyle = (from: ImageStyleType, to: ImageStyleType, t: numb
     rotate: lerp(from.rotate ?? 0, to.rotate ?? 0),
     opacity: lerp(from.opacity ?? 1, to.opacity ?? 1),
     radius: lerp(from.radius ?? 0, to.radius ?? 0),
+    clip: lerpClip(from.clip, to.clip),
   }
 }
 
@@ -240,6 +402,7 @@ export const getBrowsingStyle = (context: ContextType, imageRef: RefObject<HTMLI
     scale,
     rotate,
     radius,
+    clip: getEndpointClip(context),
   }
 }
 
@@ -273,6 +436,7 @@ export const getZoomingStyle = (
     scale: 1,
     rotate,
     radius,
+    clip: getEndpointClip(context),
   }
 }
 

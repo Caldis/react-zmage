@@ -3,7 +3,7 @@
  **/
 
 // Libs
-import { AnimateFlip, BaseType, GestureDragExitOptions, GestureSwipeOptions, Preset, Set } from './global'
+import { AnimateCoverOptions, AnimateFlip, BaseType, GestureDragExitOptions, GestureSwipeOptions, Preset, Set } from './global'
 
 export const defaultGestureSwipeOptions: Required<GestureSwipeOptions> = {
   threshold: 120,
@@ -17,6 +17,12 @@ export const defaultGestureDragExitOptions: Required<GestureDragExitOptions> = {
   velocity: 0.35,
   axisLock: 1.2,
   opacity: true,
+}
+
+export const defaultAnimateCoverOptions: Required<AnimateCoverOptions> = {
+  objectFit: true,
+  clip: true,
+  radius: true,
 }
 
 /**
@@ -115,6 +121,7 @@ export const defPreset = {
     animate: {
       browsing: true,
       flip: 'crossFade' as AnimateFlip,
+      cover: { ...defaultAnimateCoverOptions },
     },
     gesture: {
       swipe: false,
@@ -141,6 +148,7 @@ export const defPreset = {
     animate: {
       browsing: true,
       flip: 'swipe' as AnimateFlip,
+      cover: { ...defaultAnimateCoverOptions },
     },
     gesture: {
       swipe: { ...defaultGestureSwipeOptions },

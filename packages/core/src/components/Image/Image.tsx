@@ -28,9 +28,11 @@ import {
   calcFitScale,
   closingEase,
   getAnimateConfig,
+  getClipPath,
   getCoverStyle,
   getCurrentImageStyle,
   getImageTransition,
+  getLocalRadius,
   getSideImageOffset,
   getViewportRect,
   getZoomingStyle,
@@ -569,6 +571,22 @@ export default class Image extends React.Component<PropsType, StateType> {
     node.style.transition = 'none'
     node.style.setProperty('-webkit-transition', 'none')
   }
+  setNodeClipAndRadius = (node: HTMLImageElement, imageStyle: ImageStyleType) => {
+    const scale = imageStyle.scale ?? 1
+    const clipPath = getClipPath(imageStyle.clip, imageStyle.radius ?? 0, scale)
+    if (clipPath) {
+      node.style.clipPath = clipPath
+      node.style.setProperty('-webkit-clip-path', clipPath)
+    } else {
+      node.style.clipPath = ''
+      node.style.removeProperty('-webkit-clip-path')
+    }
+    if (typeof imageStyle.radius === 'number') {
+      node.style.borderRadius = `${getLocalRadius(imageStyle.radius, scale)}px`
+    } else {
+      node.style.borderRadius = ''
+    }
+  }
   getZoomingStyleFromKeyboardPosition = () => {
     const zoomPosition = this.zoomPointerPosition || this.context.zoomPosition
     return zoomPosition
@@ -695,6 +713,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     this.setNodeTransitionNone(node)
     this.setNodeTransform(node, this.getCenterImageTransform(visual))
     node.style.opacity = String(visual.opacity ?? 1)
+    this.setNodeClipAndRadius(node, visual)
 
     if (rawProgress >= 1) {
       // 落地: 同步 React state, 让后续 render 接管 transform/opacity
@@ -870,7 +889,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { animate, set, zoom, page } = this.context
     const { invalidate, currentStyle, touchGesture, animateConfig } = this.state
     const flipKind = selectFlipKind(animate)
-    let transform, zIndex, pointerEvents
+    let transform, zIndex, pointerEvents, appliedScale
     // 获取动画配置
     // eslint-disable-next-line prefer-const
     let { offset, overflow, opacity } = animateConfig
@@ -884,6 +903,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       // browsing 态以外 (cover/zoom) side 不会渲染, 不用考虑.
       const ownScale = currentStyle._type === 'browsing' ? this.getOwnFitScale(imageIndex) : null
       const sideScale = (ownScale ?? (currentStyle.scale || 0)) + overflow
+      appliedScale = sideScale
       const effectiveOffset = getSideImageOffset({
         flipKind,
         baseOffset: offset,
@@ -903,14 +923,20 @@ export default class Image extends React.Component<PropsType, StateType> {
       // cover / zoom 态仍用 currentStyle.scale (那时 currentStyle 含 cover-anim / zoom scale 几何).
       const ownScale = currentStyle._type === 'browsing' ? this.getOwnFitScale(page) : null
       const centerScale = ownScale ?? (currentStyle.scale ?? 0)
+      appliedScale = centerScale
       const x = (currentStyle.x || 0) + touch.x
       const y = currentStyle.y + touch.y
       transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${centerScale}, ${centerScale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
       zIndex = 10
       opacity = touchOpacity ?? currentStyle.opacity ?? 1
     }
+    const radius = currentStyle.radius ?? 0
+    const localRadius = getLocalRadius(radius, appliedScale || 1)
+    const clipPath = getClipPath(currentStyle.clip, radius, appliedScale || 1)
     return {
       ...withVendorPrefix({ transform }),
+      ...(clipPath ? withVendorPrefix({ clipPath }) : {}),
+      ...(typeof currentStyle.radius === 'number' ? { borderRadius: `${localRadius}px` } : {}),
       cursor: zoom ? 'zoom-out' : 'initial',
       zIndex,
       opacity: invalidate ? 0 : opacity,

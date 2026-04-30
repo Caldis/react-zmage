@@ -194,8 +194,25 @@ test('gesture prop wired across types, defaults and llms.txt', () => {
   }
 })
 
+test('animate.cover wired across types, defaults and llms.txt', () => {
+  assert.match(globalTs, /export\s+interface\s+AnimateCoverOptions\b/, 'AnimateCoverOptions interface missing in types/global.ts')
+  assert.match(globalTs, /\bcover\?:\s*boolean\s*\|\s*AnimateCoverOptions\b/, 'Animate.cover missing from types/global.ts')
+  for (const key of ['objectFit', 'clip', 'radius']) {
+    assert.match(defaultTs, new RegExp(`defaultAnimateCoverOptions:[\\s\\S]*?\\b${key}:\\s*true\\b`), `default animate.cover.${key}=true missing in default.ts`)
+  }
+  assert.match(defaultTs, /desktop:[\s\S]*?animate:[\s\S]*?\bcover:\s*\{\s*\.\.\.defaultAnimateCoverOptions\s*\}/, 'desktop animate.cover should use default options in default.ts')
+  assert.match(defaultTs, /mobile:[\s\S]*?animate:[\s\S]*?\bcover:\s*\{\s*\.\.\.defaultAnimateCoverOptions\s*\}/, 'mobile animate.cover should use default options in default.ts')
+  const animateLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|\s*`animate`\s*\|/.test(line)
+  )
+  assert.ok(animateLine, 'no API-table row in llms.txt declares the animate prop')
+  for (const term of ['AnimateCoverOptions', 'objectFit', 'clip', 'radius', 'legacy cover geometry']) {
+    assert.match(animateLine, new RegExp(term), `llms.txt animate row missing ${term}`)
+  }
+})
+
 test('public type symbols present in types/global.ts', () => {
-  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'HotKey', 'Animate', 'GestureSet']) {
+  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'HotKey', 'Animate', 'AnimateCoverOptions', 'GestureSet']) {
     const re = new RegExp(`(?:export\\s+(?:interface|type)\\s+${sym}\\b)`)
     assert.match(globalTs, re, `${sym} not exported from types/global.ts`)
     assert.match(llmsTxt, new RegExp(`\\b${sym}\\b`), `${sym} not mentioned in llms.txt`)

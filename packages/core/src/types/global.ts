@@ -151,11 +151,21 @@ export type AnimateFlip =
   | 'swipe'     // 翻页
   | 'zoom'      // 缩放
   | 'none'      // 无动画 (瞬间切换, 不渲染相邻页, caption 也无过渡)
+export interface AnimateCoverOptions {
+  // 读取 cover 的 object-fit / object-position, 修正 cover 裁切场景的初始几何
+  objectFit?: boolean
+  // 用 clip-path 表达 cover 可见裁切区域
+  clip?: boolean
+  // 从 cover 圆角过渡到 viewer radius
+  radius?: boolean
+}
 export interface Animate {
   // 缩放动画 (未实现)
   browsing?: boolean
   // 翻页动画
   flip?: AnimateFlip
+  // 封面进入/退出几何修正
+  cover?: boolean | AnimateCoverOptions
 }
 
 /**

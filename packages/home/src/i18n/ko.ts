@@ -176,6 +176,10 @@ export const ko: I18nDict = {
 
   'animate.browsing.desc': '뷰어를 열고 닫을 때의 트랜지션',
   'animate.flip.desc': 'set 내에서 페이지를 이동할 때의 트랜지션 스타일',
+  'animate.cover.desc': 'Cover-to-viewer transition geometry',
+  'animate.cover.objectFit.desc': 'Match the cover image object-fit / object-position geometry before animating',
+  'animate.cover.clip.desc': 'Use clip-path to match the img\'s own visible crop; may repaint during animation, so disable on performance-sensitive mobile pages',
+  'animate.cover.radius.desc': 'Animate from the cover border radius to the viewer radius',
 
   'param.src.label': 'src',
   'param.src.desc': '이미지 URL. 필수 항목.',
@@ -212,7 +216,7 @@ export const ko: I18nDict = {
   'param.hotKey.label': 'hotKey',
   'param.hotKey.desc': '키보드 단축키.',
   'param.animate.label': 'animate',
-  'param.animate.desc': '애니메이션 설정: 브라우징 + 페이지 이동.',
+  'param.animate.desc': 'Animation config: browsing, cover geometry, and flip animation.',
   'param.gesture.label': 'gesture',
   'param.gesture.desc': 'Mobile single-finger gesture config. preset=mobile enables swipe and dragExit by default; gesture=false disables both.',
   'param.onBrowsing.label': 'onBrowsing',

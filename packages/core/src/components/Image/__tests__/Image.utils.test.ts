@@ -59,10 +59,36 @@ describe('getCoverStyle 跨 viewport 几何', () => {
     if (scroll) Object.defineProperty(HTMLElement.prototype, 'scrollWidth', { value: scroll.w, configurable: true })
   }
 
-  function buildCoverImg ({ left, top, width, height }: { left: number, top: number, width: number, height: number }) {
+  function buildCoverImg ({
+    left,
+    top,
+    width,
+    height,
+    naturalWidth = width,
+    naturalHeight = height,
+    objectFit,
+    objectPosition,
+    borderRadius,
+    opacity,
+  }: {
+    left: number
+    top: number
+    width: number
+    height: number
+    naturalWidth?: number
+    naturalHeight?: number
+    objectFit?: string
+    objectPosition?: string
+    borderRadius?: string
+    opacity?: string
+  }) {
     const img = document.createElement('img')
-    Object.defineProperty(img, 'naturalWidth', { value: width, configurable: true })
-    Object.defineProperty(img, 'naturalHeight', { value: height, configurable: true })
+    Object.defineProperty(img, 'naturalWidth', { value: naturalWidth, configurable: true })
+    Object.defineProperty(img, 'naturalHeight', { value: naturalHeight, configurable: true })
+    if (objectFit) img.style.objectFit = objectFit
+    if (objectPosition) img.style.objectPosition = objectPosition
+    if (borderRadius) img.style.borderRadius = borderRadius
+    if (opacity) img.style.opacity = opacity
     img.getBoundingClientRect = () => ({
       left, top, width, height,
       right: left + width, bottom: top + height,
@@ -83,13 +109,27 @@ describe('getCoverStyle 跨 viewport 几何', () => {
     return viewport
   }
 
-  function buildContext (cover: HTMLImageElement, pageIsCover = true, viewport?: HTMLElement) {
+  function buildContext (
+    cover: HTMLImageElement,
+    pageIsCover = true,
+    viewport?: HTMLElement,
+    extra: Partial<ContextType> = {},
+  ) {
     return {
       coverRef: { current: cover },
       coverPos: undefined,
       viewportRef: { current: viewport || null },
       rotate: 0,
       pageIsCover,
+      radius: 0,
+      animate: {
+        cover: {
+          objectFit: true,
+          clip: true,
+          radius: true,
+        },
+      },
+      ...extra,
     } as unknown as ContextType
   }
 
@@ -169,6 +209,108 @@ describe('getCoverStyle 跨 viewport 几何', () => {
     expect(style.y).toBe(150 - 384)
   })
 
+  it('object-fit: cover 时初始帧匹配实际渲染对象, 并用 clip 表达封面裁切', () => {
+    setViewport({
+      inner: { w: 1000, h: 800 },
+      client: { w: 1000, h: 800 },
+    })
+
+    const cover = buildCoverImg({
+      left: 400,
+      top: 300,
+      width: 200,
+      height: 200,
+      naturalWidth: 1000,
+      naturalHeight: 500,
+      objectFit: 'cover',
+      objectPosition: '50% 50%',
+      borderRadius: '12px',
+    })
+    const style = getCoverStyle(buildContext(cover))
+
+    // cover: 200x200, natural: 1000x500 => object-fit cover scale=max(.2,.4)=.4
+    // rendered object: 400x200 centered inside cover => left/right each clipped 100 screen px.
+    // clip-path 在 image local 坐标中应用后再 transform, 所以 local inset = 100 / .4 = 250.
+    expect(style.x).toBe(0)
+    expect(style.y).toBe(0)
+    expect(style.scale).toBeCloseTo(0.4, 5)
+    expect(style.clip).toEqual({ top: 0, right: 250, bottom: 0, left: 250 })
+    expect(style.radius).toBe(12)
+  })
+
+  it('object-position: 0% 50% 时只裁右侧, transform 使用渲染对象中心', () => {
+    setViewport({
+      inner: { w: 1000, h: 800 },
+      client: { w: 1000, h: 800 },
+    })
+
+    const cover = buildCoverImg({
+      left: 400,
+      top: 300,
+      width: 200,
+      height: 200,
+      naturalWidth: 1000,
+      naturalHeight: 500,
+      objectFit: 'cover',
+      objectPosition: '0% 50%',
+    })
+    const style = getCoverStyle(buildContext(cover))
+
+    expect(style.x).toBe(100)
+    expect(style.y).toBe(0)
+    expect(style.scale).toBeCloseTo(0.4, 5)
+    expect(style.clip).toEqual({ top: 0, right: 500, bottom: 0, left: 0 })
+  })
+
+  it('animate.cover=false 时保留旧 cover 几何, 不输出 clip', () => {
+    setViewport({
+      inner: { w: 1000, h: 800 },
+      client: { w: 1000, h: 800 },
+    })
+
+    const cover = buildCoverImg({
+      left: 400,
+      top: 300,
+      width: 200,
+      height: 200,
+      naturalWidth: 1000,
+      naturalHeight: 500,
+      objectFit: 'cover',
+    })
+    const style = getCoverStyle(buildContext(cover, true, undefined, {
+      animate: { cover: false },
+    } as Partial<ContextType>))
+
+    expect(style.x).toBe(0)
+    expect(style.y).toBe(0)
+    expect(style.scale).toBeCloseTo(0.2, 5)
+    expect(style.clip).toBeUndefined()
+  })
+
+  it('animate.cover.radius=false 时不读取封面圆角, 使用 viewer radius 作为端点', () => {
+    setViewport({
+      inner: { w: 1000, h: 800 },
+      client: { w: 1000, h: 800 },
+    })
+
+    const cover = buildCoverImg({
+      left: 400,
+      top: 300,
+      width: 200,
+      height: 200,
+      naturalWidth: 1000,
+      naturalHeight: 500,
+      objectFit: 'cover',
+      borderRadius: '20px',
+    })
+    const style = getCoverStyle(buildContext(cover, true, undefined, {
+      radius: 6,
+      animate: { cover: { objectFit: true, clip: true, radius: false } },
+    } as Partial<ContextType>))
+
+    expect(style.radius).toBe(6)
+  })
+
   it('模态 img 尚未读到 natural 尺寸时, 用同 src 封面图尺寸直接计算 browsing fit', () => {
     setViewport({
       inner: { w: 1000, h: 800 },
@@ -191,6 +333,7 @@ describe('getCoverStyle 跨 viewport 几何', () => {
     } as unknown as ContextType, { current: modalImg })
 
     expect(style.scale).toBeCloseTo(0.502, 5)
+    expect(style.clip).toEqual({ top: 0, right: 0, bottom: 0, left: 0 })
   })
 })
 
@@ -316,6 +459,16 @@ describe('lerpCoverStyle (关闭路径 RAF 插值)', () => {
     expect(out.scale).toBe(0.625)
     expect(out.rotate).toBe(180)
     expect(out.radius).toBe(4)
+  })
+
+  it('clip insets 跟随关闭路径一起插值', () => {
+    const out = lerpCoverStyle(
+      { ...browsingStyle, clip: { top: 0, right: 0, bottom: 0, left: 0 } },
+      { ...coverStyle, clip: { top: 20, right: 100, bottom: 40, left: 80 } },
+      0.5,
+    )
+
+    expect(out.clip).toEqual({ top: 10, right: 50, bottom: 20, left: 40 })
   })
 
   it('undefined 字段按默认值: x/y/scale/rotate=0, opacity=1, radius=0', () => {
