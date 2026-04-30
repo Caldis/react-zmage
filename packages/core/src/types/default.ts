@@ -3,7 +3,21 @@
  **/
 
 // Libs
-import { AnimateFlip, BaseType, Preset, Set } from './global'
+import { AnimateFlip, BaseType, GestureDragExitOptions, GestureSwipeOptions, Preset, Set } from './global'
+
+export const defaultGestureSwipeOptions: Required<GestureSwipeOptions> = {
+  threshold: 120,
+  velocity: 0.35,
+  axisLock: 1.2,
+  resistance: 0.35,
+}
+
+export const defaultGestureDragExitOptions: Required<GestureDragExitOptions> = {
+  threshold: 80,
+  velocity: 0.35,
+  axisLock: 1.2,
+  opacity: true,
+}
 
 /**
  * 默认值
@@ -38,6 +52,8 @@ export const defProp = {
   hotKey: {},
   // 动画  (从 preset 初始化)
   animate: {},
+  // 手势 (从 preset 初始化)
+  gesture: {},
 
   /**
    * 界面与交互
@@ -100,6 +116,10 @@ export const defPreset = {
       browsing: true,
       flip: 'crossFade' as AnimateFlip,
     },
+    gesture: {
+      swipe: false,
+      dragExit: false,
+    },
   },
   // 移动端
   mobile: {
@@ -121,6 +141,10 @@ export const defPreset = {
     animate: {
       browsing: true,
       flip: 'swipe' as AnimateFlip,
+    },
+    gesture: {
+      swipe: { ...defaultGestureSwipeOptions },
+      dragExit: { ...defaultGestureDragExitOptions },
     },
   }
 }
@@ -173,7 +197,7 @@ export const getConfigFromProps = (props: BaseType) => {
     // Presets
     preset,
     // Control
-    controller, hotKey, animate,
+    controller, hotKey, animate, gesture,
     // Styles & interactive
     hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, hideOnDblClick, loadingDelay,
     // Life cycle functions
@@ -208,7 +232,7 @@ export const getConfigFromProps = (props: BaseType) => {
       // Presets
       preset,
       // Control
-      controller, hotKey, animate,
+      controller, hotKey, animate, gesture,
       // Styles & interactive
       hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, hideOnDblClick, loadingDelay,
       // Life cycle functions

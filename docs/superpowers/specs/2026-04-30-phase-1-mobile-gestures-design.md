@@ -1,7 +1,7 @@
 # Phase 1: Mobile Single-Finger Gestures
 
 **Date:** 2026-04-30
-**Status:** Approved for specification. Implementation has not started.
+**Status:** Initial implementation complete. Review the final diff, tests, and normalized `gesture` shape before Phase 2 spec work starts.
 **Depends on:** `2026-04-30-zmage-next-interactions-overview.md`
 **Scope:** `gesture` public API foundation, preset-driven defaults, single-finger swipe paging, single-finger drag-exit, listener cleanup, and regression tests.
 
@@ -15,6 +15,11 @@ Make mobile single-finger gestures explicit, testable, and preset-driven:
 4. Users can disable all gestures with `gesture={false}` or override only one gesture with `gesture={{ swipe: false }}` or `gesture={{ dragExit: { threshold: 120 } }}`.
 
 This phase also fixes the current touch behavior classification path before adding any more gesture complexity.
+
+Today `defPreset.mobile.controller` keeps `flip`, `rotate`, `zoom`, and
+`download` disabled by default, leaving pagination dots as the only default
+mobile paging UI. Phase 1 adds `gesture.swipe` so the mobile preset has a
+touch-native paging path without turning on arrow buttons.
 
 ## Public API Changes
 
@@ -90,6 +95,8 @@ mobile: {
 ```
 
 The normalized runtime shape should use option objects for enabled features, not raw `true`, so gesture handlers can read thresholds without repeated branching.
+Disabled features should normalize to explicit `false` markers, so consumers can
+distinguish "known disabled feature" from "unknown future key".
 
 ## Compatibility Rules
 
@@ -115,37 +122,75 @@ Expected behavior:
 
 ```ts
 getGestureConfig = (gesture: Props['gesture'], fallback: GestureSet): GestureSet => {
-  if (gesture === false) return {}
+  if (gesture === false) return { swipe: false, dragExit: false }
   if (typeof gesture !== 'object') return normalizeGestureSet(fallback)
-  return normalizeGestureSet({ ...fallback, ...gesture })
+  return normalizeGestureSet({
+    swipe: mergeGestureChild(fallback.swipe, gesture.swipe, defaultSwipeOptions),
+    dragExit: mergeGestureChild(fallback.dragExit, gesture.dragExit, defaultDragExitOptions),
+  })
 }
 ```
 
-`normalizeGestureSet()` should live in a small utility location that can be unit-tested. It converts `true` into default option objects and preserves `false` as disabled.
+`normalizeGestureSet()` should live in a small utility location that can be
+unit-tested. It converts `true` into default option objects and preserves
+`false` as disabled.
 
-### Touch State
+`mergeGestureChild()` uses these rules:
 
-The current `TouchProfile` should be corrected or replaced with a small single-finger profile. The minimum needed behavior:
+- user child `undefined`: use preset child.
+- user child `false`: return `false`.
+- user child `true`: return that child's default option object.
+- user child object: shallow-merge `{ ...presetChildOptions, ...userChildOptions }`.
+- preset child `false` plus user child object: shallow-merge `{ ...defaultChildOptions, ...userChildOptions }`.
+
+### Engine Decision
+
+Phase 1 replaces the old `TouchProfile` instead of repairing it. The existing
+class has the current `IDLE` classification bug, hard-coded thresholds,
+`LIVING` naming, and unused update counter state. Reusing it would push the same
+cleanup into Phase 4.
+
+Ship a new `TouchGesture` class with:
+
+- `state: 'idle' | 'detecting' | 'swiping' | 'dragExiting' | 'ended'`
+- `start(point)`, `move(point)`, and `end()`
+- result data: `kind`, `offset`, `distance`, `velocity`, and whether the gesture was accepted
+- injected options from normalized `gesture.swipe` and `gesture.dragExit`
+- a private fixed detection floor, separate from public acceptance thresholds
+
+The minimum needed behavior:
 
 - Store start point, current point, start time, locked gesture kind, and last offset.
-- Decide gesture kind once the movement passes a small threshold.
+- Decide gesture kind once the movement passes the private detection floor.
 - Use `axisLock` so diagonal movement does not fire both swipe and drag-exit.
 - Expose current offset for visual transform.
 - On end, decide action using both distance and velocity thresholds.
 
-The likely current bug is that `TouchProfile.update()` only tries to classify when `behavior !== IDLE`, while the initial behavior is `IDLE`. Phase 1 must add a failing test for this path before fixing it.
+The public `threshold` option is the acceptance threshold. The private
+detection floor should be named separately, for example
+`GESTURE_DETECT_FLOOR_PX`, and stay fixed at 5px in Phase 1.
+
+The likely current bug is that `TouchProfile.update()` only tries to classify
+when `behavior !== IDLE`, while the initial behavior is `IDLE`. Phase 1 must
+add a failing test for this path before replacing the implementation.
 
 ### Event Listeners
 
 In mobile preset:
 
 - Register touch listeners only while the viewer is mounted and shown.
-- `touchstart` may be passive if it only records state.
+- `touchstart` must not call `preventDefault()`; light taps should keep the click/dblclick event chain intact.
 - `touchmove` must be `{ passive: false }` because it needs `preventDefault()` when swipe or drag-exit can consume the gesture.
 - `touchend` can be passive if it does not call `preventDefault()`.
 - All listener options must be compatible with removal. If the code stores an options object, it should reuse or avoid relying on object identity by removing without options when valid.
 
-The handler should call `preventDefault()` only after it knows the viewer owns the gesture. It should not block unrelated page touches when the viewer is closed.
+The handler should call `preventDefault()` only after movement crosses the
+private detection floor and the viewer owns the gesture. It should not block
+unrelated page touches when the viewer is closed.
+
+`lockTouchInteraction()` / `unlockTouchInteraction()` behavior remains
+unchanged. New gesture listeners are layered on top of the current mobile
+scroll-lock behavior.
 
 ### Visual Feedback
 
@@ -153,6 +198,7 @@ Horizontal swipe:
 
 - While moving, center image follows horizontal offset.
 - Side images continue to use existing side-image render path.
+- If `set.length <= 1`, skip horizontal swipe entirely and keep only vertical drag-exit detection.
 - At the boundary with `loop=false`, apply `resistance` to show a bounded drag instead of a full page drag.
 - On accepted end, call `toNextPage()` or `toPrevPage()`.
 - On rejected end, return to current page with the existing touch end transition.
@@ -172,7 +218,17 @@ Core public types and defaults:
 
 - `packages/core/src/types/global.ts`
 - `packages/core/src/types/default.ts`
-- `packages/core/src/index.ts` if new gesture types need re-export
+- `packages/core/src/index.ts`
+
+Phase 1 must re-export:
+
+```ts
+export type {
+  GestureSet,
+  GestureSwipeOptions,
+  GestureDragExitOptions,
+} from './types/global'
+```
 
 Runtime:
 
@@ -204,7 +260,7 @@ Docs should be updated in the implementation phase that lands the public `gestur
 Add or extend tests for the gesture profile:
 
 - `IDLE` movement that crosses horizontal threshold becomes `SWIPING`.
-- `IDLE` movement that crosses vertical threshold becomes `LIVING` or the final chosen drag-exit behavior name.
+- `IDLE` movement that crosses vertical threshold becomes the final chosen drag-exit behavior name.
 - Movement below threshold remains idle and does not trigger page switch or close.
 - Horizontal movement that does not satisfy `axisLock` does not become swipe.
 - Vertical movement that does not satisfy `axisLock` does not become drag-exit.
@@ -216,9 +272,13 @@ Add tests for gesture normalization:
 
 - `undefined` on desktop resolves to desktop defaults.
 - `undefined` on mobile resolves to mobile defaults.
-- `false` resolves to an empty gesture set.
+- `false` resolves to explicit false markers for `swipe` and `dragExit`.
 - `{ swipe: false }` disables swipe and leaves other preset defaults.
 - `{ dragExit: { threshold: 120 } }` merges only that option.
+
+Implementation order: first add a failing test that proves the current
+single-finger horizontal movement never leaves the idle state, then replace the
+engine and make that test pass.
 
 ### Component Tests
 
@@ -229,6 +289,7 @@ Add or extend Vitest + jsdom tests:
 - `preset="auto"` follows `matchMedia('(pointer: coarse) and (hover: none)')`.
 - Horizontal swipe on mobile calls `onSwitching(nextPage)` and changes page.
 - Horizontal swipe respects `loop=false` at first and last page.
+- Single-image mobile viewers do not respond to horizontal swipe.
 - `gesture={{ swipe: false }}` prevents horizontal swipe page switching.
 - Vertical drag-exit on mobile calls `onBrowsing(false)` through the existing close path.
 - `gesture={{ dragExit: false }}` prevents vertical drag-exit.
@@ -250,6 +311,7 @@ Phase 1 is done when:
 - Public `gesture` types and defaults exist.
 - `Browser.getPropsWithEnv()` includes normalized `gesture`.
 - Mobile preset uses gesture defaults from `defPreset`, not hard-coded handler assumptions.
+- The old `TouchProfile` class is deleted and all references use the new `TouchGesture` engine.
 - Single-finger swipe and drag-exit behavior are controlled by `gesture.swipe` and `gesture.dragExit`.
 - Desktop default behavior stays unchanged.
 - Tests cover defaults, overrides, disabled states, listener cleanup, and core gesture actions.

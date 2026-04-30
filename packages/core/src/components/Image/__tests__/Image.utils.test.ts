@@ -17,9 +17,11 @@ import {
   ImageStyleType,
   lerpCoverStyle,
   makeCubicBezierEase,
+  normalizeGestureSet,
   selectFlipKind,
+  TouchGesture,
 } from '../Image.utils'
-import { animationCurve } from '../../../config/anim'
+import { animationCurve, animationDuration, getBrowsingAnimationDuration } from '../../../config/anim'
 import type { ContextType } from '../../context'
 
 describe('getCoverStyle 跨 viewport 几何', () => {
@@ -265,6 +267,13 @@ describe('getImageTransition 动画边界', () => {
   })
 })
 
+describe('browsing 动画时长', () => {
+  it('mobile 和 desktop close RAF 使用同一份原始 browsing 时长', () => {
+    expect(getBrowsingAnimationDuration(true)).toBe(animationDuration)
+    expect(getBrowsingAnimationDuration(false)).toBe(animationDuration)
+  })
+})
+
 /**
  * 关闭路径 RAF 用到的纯函数
  *
@@ -458,5 +467,124 @@ describe('getSideImageOffset (side image 横向 offset)', () => {
       dims: null,
       viewport,
     })).toBe(1010)
+  })
+})
+
+describe('normalizeGestureSet (Phase 1 gesture config)', () => {
+  const fallback = {
+    swipe: { threshold: 120, velocity: 0.35, axisLock: 1.2, resistance: 0.35 },
+    dragExit: { threshold: 80, velocity: 0.35, axisLock: 1.2, opacity: true },
+  }
+
+  it('undefined 使用 preset fallback 并把 true 归一成 option object', () => {
+    expect(normalizeGestureSet(undefined, fallback)).toEqual(fallback)
+  })
+
+  it('false 归一成所有已实现 key 的显式 false markers', () => {
+    expect(normalizeGestureSet(false, fallback)).toEqual({ swipe: false, dragExit: false })
+  })
+
+  it('子项 false 只关闭该 gesture, 不影响其它 preset 默认值', () => {
+    expect(normalizeGestureSet({ swipe: false }, fallback)).toEqual({
+      swipe: false,
+      dragExit: fallback.dragExit,
+    })
+  })
+
+  it('子项 object 只覆盖指定 option, 保留同子项其它默认值', () => {
+    expect(normalizeGestureSet({ dragExit: { threshold: 120 } }, fallback)).toEqual({
+      swipe: fallback.swipe,
+      dragExit: { threshold: 120, velocity: 0.35, axisLock: 1.2, opacity: true },
+    })
+  })
+})
+
+describe('TouchGesture (Phase 1 mobile gesture state machine)', () => {
+  const gesture = {
+    swipe: { threshold: 120, velocity: 0.35, axisLock: 1.2, resistance: 0.35 },
+    dragExit: { threshold: 80, velocity: 0.35, axisLock: 1.2, opacity: true },
+  }
+
+  it('横向位移超过 detect floor 后锁定 swiping', () => {
+    const touch = new TouchGesture(gesture, { now: () => 0 })
+    touch.start({ x: 0, y: 0 })
+    touch.move({ x: -10, y: 2 })
+
+    expect(touch.state).toBe('swiping')
+    expect(touch.getOffset()).toEqual({ x: -10, y: 2 })
+  })
+
+  it('纵向位移超过 detect floor 后锁定 dragExiting', () => {
+    const touch = new TouchGesture(gesture, { now: () => 0 })
+    touch.start({ x: 0, y: 0 })
+    touch.move({ x: 2, y: 10 })
+
+    expect(touch.state).toBe('dragExiting')
+    expect(touch.getVisualOffset()).toEqual({ x: 0, y: 10 })
+  })
+
+  it('dragExit.opacity=false 时不输出拖拽透明度', () => {
+    const touch = new TouchGesture({
+      ...gesture,
+      dragExit: { threshold: 80, velocity: 0.35, axisLock: 1.2, opacity: false },
+    }, { now: () => 0 })
+    touch.start({ x: 0, y: 0 })
+    touch.move({ x: 2, y: 40 })
+
+    expect(touch.getTouchConfig().opacity).toBeUndefined()
+  })
+
+  it('dragExit.opacity=true 时按纵向距离输出透明度', () => {
+    const touch = new TouchGesture(gesture, { now: () => 0 })
+    touch.start({ x: 0, y: 0 })
+    touch.move({ x: 2, y: 80 })
+
+    expect(touch.getTouchConfig().opacity).toBe(0.5)
+  })
+
+  it('低于 detect floor 时保持 detecting, 不产生视觉偏移', () => {
+    const touch = new TouchGesture(gesture, { now: () => 0 })
+    touch.start({ x: 0, y: 0 })
+    touch.move({ x: 3, y: 1 })
+
+    expect(touch.state).toBe('detecting')
+    expect(touch.getVisualOffset()).toEqual({ x: 0, y: 0 })
+  })
+
+  it('横向距离超过 threshold 时接受 swipe', () => {
+    let t = 0
+    const touch = new TouchGesture(gesture, { now: () => t })
+    touch.start({ x: 0, y: 0 })
+    t = 1000
+    touch.move({ x: -130, y: 5 })
+    const result = touch.end()
+
+    expect(result).toMatchObject({ kind: 'swipe', accepted: true })
+    expect(result.offset.x).toBe(-130)
+  })
+
+  it('纵向速度超过 velocity 时接受 dragExit', () => {
+    let t = 0
+    const touch = new TouchGesture(gesture, { now: () => t })
+    touch.start({ x: 0, y: 0 })
+    t = 100
+    touch.move({ x: 2, y: 40 })
+    const result = touch.end()
+
+    expect(result).toMatchObject({ kind: 'dragExit', accepted: true })
+    expect(result.velocity.y).toBeCloseTo(0.4, 4)
+  })
+
+  it('已接受的 dragExit 在 ended 状态继续保留松手前的视觉位移', () => {
+    const touch = new TouchGesture(gesture, { now: () => 0 })
+    touch.start({ x: 100, y: 100 })
+    touch.move({ x: 102, y: 220 })
+
+    const result = touch.end()
+    const afterEnd = touch.getTouchConfig()
+
+    expect(result).toMatchObject({ kind: 'dragExit', accepted: true })
+    expect(afterEnd.touch).toEqual({ x: 0, y: 120 })
+    expect(afterEnd.transition).toBe('none')
   })
 })

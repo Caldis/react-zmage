@@ -2,10 +2,11 @@ import { PARAM_SCHEMA, type ParamGroup } from '@/schema/param-schema'
 import { Badge } from '@/components/ui/badge'
 import { useT } from '@/i18n/useT'
 
-const OBJECT_TYPE_NAME: Record<'controller' | 'hotkey' | 'animate' | 'set', string> = {
+const OBJECT_TYPE_NAME: Record<'controller' | 'hotkey' | 'animate' | 'gesture' | 'set', string> = {
   controller: 'ControllerSet',
   hotkey: 'HotKey',
   animate: 'Animate',
+  gesture: 'GestureSet',
   set: 'Set',
 }
 

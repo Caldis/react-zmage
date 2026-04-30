@@ -7,8 +7,9 @@ import { RefObject } from 'react'
 // Utils
 import { getClientHeight, getClientWidth, numberOfStyleUnits } from '../../utils'
 import { animationCurve, animationDuration, animationFunctionOnZooming, animationTransition } from '../../config/anim'
-import { ContextType } from '../context'
-import { Animate, AnimateFlip } from '../../types/global'
+import type { ContextType } from '../context'
+import { defaultGestureDragExitOptions, defaultGestureSwipeOptions } from '../../types/default'
+import { Animate, AnimateFlip, GestureDragExitOptions, GestureSet, GestureSwipeOptions } from '../../types/global'
 
 export interface ImageStyleType {
   _type: 'cover' | 'browsing' | 'zooming'
@@ -108,7 +109,7 @@ export const getImageTransition = ({
 }
 
 /* 获取当前图片样式 */
-export const getCurrentImageStyle = (context: ContextType, imageRef: RefObject<HTMLImageElement>, touchProfile: TouchProfile) => {
+export const getCurrentImageStyle = (context: ContextType, imageRef: RefObject<HTMLImageElement>, touchGesture: TouchGesture) => {
   const { show, zoom } = context
   if (show) {
     if (zoom) {
@@ -117,16 +118,16 @@ export const getCurrentImageStyle = (context: ContextType, imageRef: RefObject<H
       return getBrowsingStyle(context, imageRef)
     }
   } else {
-    return getCoverStyle(context, imageRef, touchProfile)
+    return getCoverStyle(context, imageRef, touchGesture)
   }
 }
 
 /* 获取封面样式 */
-export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLImageElement>, touchProfile?: TouchProfile): ImageStyleType => {
+export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLImageElement>, touchGesture?: TouchGesture): ImageStyleType => {
   const { coverRef, coverPos, rotate, pageIsCover } = context
   const viewport = getViewportRect(context)
-  if (touchProfile && touchProfile.phase === TOUCH_BEHAVIOR_PHASE.END) {
-    const offset = touchProfile.getCurrentOffset()
+  if (touchGesture && touchGesture.state === 'ended' && touchGesture.lastResult.kind === 'dragExit' && touchGesture.lastResult.accepted) {
+    const offset = touchGesture.getOffset()
     return {
       _type: 'cover',
       _behavior: 'merge',
@@ -358,129 +359,195 @@ export function getAnimateConfig(
 /**
  * 触控行为管理
  */
-// const TOUCH_UPDATE_PERIOD = 1
-const TOUCH_BEHAVIOR_THRESHOLD = 5
-const TOUCH_SPEED_THRESHOLD = 0.35
-const TOUCH_DISTANCE_THRESHOLD = { x: 120, y: 80 }
+export const GESTURE_DETECT_FLOOR_PX = 5
 
-export enum TOUCH_BEHAVIOR_PHASE {
-  BEGIN = 'BEGIN',
-  MOVING = 'MOVING',
-  END = 'END',
+type GestureChildOptions = GestureSwipeOptions | GestureDragExitOptions
+type NormalizedGestureChild<T extends GestureChildOptions> = false | Required<T>
+
+const mergeGestureChild = <T extends GestureChildOptions>(
+  fallback: boolean | T | undefined,
+  user: boolean | Partial<T> | undefined,
+  defaultOptions: Required<T>
+): NormalizedGestureChild<T> => {
+  if (user === false) return false
+  if (user === true) return { ...defaultOptions }
+  if (user && typeof user === 'object') {
+    const base = fallback && typeof fallback === 'object' ? fallback : defaultOptions
+    return { ...defaultOptions, ...base, ...user } as Required<T>
+  }
+  if (fallback === false) return false
+  if (fallback === true) return { ...defaultOptions }
+  if (fallback && typeof fallback === 'object') return { ...defaultOptions, ...fallback } as Required<T>
+  return false
 }
 
-export enum TOUCH_BEHAVIOR_TYPE {
-  IDLE = 'IDLE',
-  SWIPING = 'SWIPING',
-  LIVING = 'LIVING',
+export const normalizeGestureSet = (
+  gesture: boolean | GestureSet | undefined,
+  fallback: GestureSet = {},
+): GestureSet => {
+  if (gesture === false) {
+    return { swipe: false, dragExit: false }
+  }
+  const input = gesture && typeof gesture === 'object' ? gesture : {}
+  return {
+    swipe: mergeGestureChild(fallback.swipe, input.swipe, defaultGestureSwipeOptions),
+    dragExit: mergeGestureChild(fallback.dragExit, input.dragExit, defaultGestureDragExitOptions),
+  }
 }
 
-export interface TouchProfileProps {
-  origin?: Coordinate
+export type TouchGestureState = 'idle' | 'detecting' | 'swiping' | 'dragExiting' | 'ended'
+export type TouchGestureKind = 'none' | 'swipe' | 'dragExit'
+
+export interface TouchGestureResult {
+  kind: TouchGestureKind
+  accepted: boolean
+  offset: Coordinate
+  distance: Coordinate
+  velocity: Coordinate
 }
 
-export class TouchProfile {
+const emptyTouchResult = (): TouchGestureResult => ({
+  kind: 'none',
+  accepted: false,
+  offset: { x: 0, y: 0 },
+  distance: { x: 0, y: 0 },
+  velocity: { x: 0, y: 0 },
+})
 
-  protected updateCounter: number
-  protected begin: {
-    time: number
-    origin: Coordinate
-    offset: Coordinate
+export class TouchGesture {
+  public state: TouchGestureState = 'idle'
+  public lastResult: TouchGestureResult = emptyTouchResult()
+  private startPoint: Coordinate = { x: 0, y: 0 }
+  private currentPoint: Coordinate = { x: 0, y: 0 }
+  private startTime = 0
+  private now: () => number
+
+  constructor (
+    private gesture: GestureSet = {},
+    options: { now?: () => number } = {},
+  ) {
+    this.now = options.now || (() => Date.now())
   }
-  protected current: {
-    origin: Coordinate
-    offset: Coordinate
+
+  public start = (point: Coordinate) => {
+    this.startPoint = point
+    this.currentPoint = point
+    this.startTime = this.now()
+    this.state = 'detecting'
+    this.lastResult = emptyTouchResult()
+    return this
   }
 
-  public phase: TOUCH_BEHAVIOR_PHASE
-  public behavior: TOUCH_BEHAVIOR_TYPE
-
-  constructor (props?: TouchProfileProps) {
-    this.updateCounter = 0
-    this.phase = TOUCH_BEHAVIOR_PHASE.BEGIN
-    this.behavior = TOUCH_BEHAVIOR_TYPE.IDLE
-    this.begin = {
-      time: new Date().getTime(),
-      origin: props?.origin || { x: 0, y: 0 },
-      offset: { x: 0, y: 0 },
+  public move = (point: Coordinate) => {
+    if (this.state === 'idle' || this.state === 'ended') return this
+    this.currentPoint = point
+    if (this.state === 'detecting') {
+      this.lockGesture()
     }
-    this.current = {
-      origin: props?.origin || { x: 0, y: 0 },
-      offset: { x: 0, y: 0 },
-    }
+    return this
   }
 
-  public getCurrentOffset = () => {
-    return {
-      x: this.current.origin.x - this.begin.origin.x,
-      y: this.current.origin.y - this.begin.origin.y
+  public end = (): TouchGestureResult => {
+    const offset = this.getOffset()
+    const distance = this.getDistance()
+    const interval = Math.max(this.now() - this.startTime, 1)
+    const velocity = {
+      x: distance.x / interval,
+      y: distance.y / interval,
     }
+    const result: TouchGestureResult = {
+      kind: 'none',
+      accepted: false,
+      offset,
+      distance,
+      velocity,
+    }
+
+    if (this.state === 'swiping' && this.swipeOptions) {
+      result.kind = 'swipe'
+      result.accepted = distance.x >= this.swipeOptions.threshold || velocity.x >= this.swipeOptions.velocity
+    } else if (this.state === 'dragExiting' && this.dragExitOptions) {
+      result.kind = 'dragExit'
+      result.accepted = distance.y >= this.dragExitOptions.threshold || velocity.y >= this.dragExitOptions.velocity
+    }
+
+    this.state = 'ended'
+    this.lastResult = result
+    return result
   }
-  public getCurrentDistance = () => {
-    const offset = this.getCurrentOffset()
+
+  public getOffset = (): Coordinate => ({
+    x: this.currentPoint.x - this.startPoint.x,
+    y: this.currentPoint.y - this.startPoint.y,
+  })
+
+  public getDistance = (): Coordinate => {
+    const offset = this.getOffset()
     return {
       x: Math.abs(offset.x),
       y: Math.abs(offset.y),
     }
   }
-  public getTouchConfig = ({ enableSwiping, enableLiving } = { enableSwiping: false, enableLiving: false }) => {
-    let transition
-    const touch = { x: 0, y: 0 }
-    if (this.phase === TOUCH_BEHAVIOR_PHASE.MOVING) {
-      const offset = this.getCurrentOffset()
-      if (this.behavior === TOUCH_BEHAVIOR_TYPE.SWIPING && enableSwiping) {
-        touch.x = offset.x
-        transition = 'none'
-      } else if (this.behavior === TOUCH_BEHAVIOR_TYPE.LIVING && enableLiving) {
-        touch.y = offset.y
-        transition = 'none'
-      }
-    }
-    if (this.phase === TOUCH_BEHAVIOR_PHASE.END) {
-      transition = animationTransition(2)
-    }
-    return { touch, transition }
+
+  public getVisualOffset = (): Coordinate => {
+    const offset = this.getOffset()
+    if (this.state === 'swiping') return { x: offset.x, y: 0 }
+    if (this.state === 'dragExiting') return { x: 0, y: offset.y }
+    if (this.isAcceptedDragExitEnd()) return { x: 0, y: this.lastResult.offset.y }
+    return { x: 0, y: 0 }
   }
 
-  public update = (props: TouchProfileProps) => {
-    // 会卡帧
-    // // 更新计数
-    // this.updateCounter++
-    // // 根据周期决定是否更新
-    // if (this.updateCounter%TOUCH_UPDATE_PERIOD===0) {
-    // 更新阶段属性
-    this.phase = TOUCH_BEHAVIOR_PHASE.MOVING
-    // 更新坐标属性
-    this.current.origin = props.origin || { x: 0, y: 0 }
-    // 初次更新行为属性
-    if (this.behavior !== TOUCH_BEHAVIOR_TYPE.IDLE) {
-      const distance = this.getCurrentDistance()
-      if (distance.x > distance.y) {
-        if (distance.x > TOUCH_BEHAVIOR_THRESHOLD) {
-          this.behavior = TOUCH_BEHAVIOR_TYPE.SWIPING
-        }
-      } else {
-        if (distance.y > TOUCH_BEHAVIOR_THRESHOLD) {
-          this.behavior = TOUCH_BEHAVIOR_TYPE.LIVING
-        }
-      }
+  public getTouchConfig = (options: { resistance?: number } = {}) => {
+    const touch = this.getVisualOffset()
+    const opacity = this.getVisualOpacity()
+    if (this.state === 'swiping' && typeof options.resistance === 'number') {
+      touch.x *= options.resistance
     }
-    return this
-    // }
+    const ownsCurrentGesture = this.state === 'swiping' || this.state === 'dragExiting'
+    return {
+      touch,
+      opacity,
+      transition: ownsCurrentGesture || this.isAcceptedDragExitEnd() ? 'none' : this.state === 'ended' ? animationTransition() : undefined,
+    }
   }
-  public end = () => {
-    // 更新阶段属性
-    this.phase = TOUCH_BEHAVIOR_PHASE.END
-    // 时间间隔
-    const interval = new Date().getTime() - this.begin.time
-    // 更新行为属性, 如果对应速度小于阈值, 则视为无操作
-    const distance = this.getCurrentDistance()
-    if ((this.behavior === TOUCH_BEHAVIOR_TYPE.SWIPING && (distance.x / interval < TOUCH_SPEED_THRESHOLD && distance.x < TOUCH_DISTANCE_THRESHOLD.x)) ||
-      (this.behavior === TOUCH_BEHAVIOR_TYPE.LIVING && (distance.y / interval < TOUCH_SPEED_THRESHOLD && distance.y < TOUCH_DISTANCE_THRESHOLD.y))
-    ) {
-      this.behavior = TOUCH_BEHAVIOR_TYPE.IDLE
+
+  public ownsGesture = () => this.state === 'swiping' || this.state === 'dragExiting'
+
+  private getVisualOpacity = () => {
+    const dragExit = this.dragExitOptions
+    const canUseDragExitOpacity = this.state === 'dragExiting' || this.isAcceptedDragExitEnd()
+    if (!canUseDragExitOpacity || !dragExit || dragExit.opacity === false) return undefined
+    const distanceY = this.isAcceptedDragExitEnd() ? this.lastResult.distance.y : this.getDistance().y
+    const progress = Math.min(distanceY / (dragExit.threshold * 2), 1)
+    return Math.max(0.35, 1 - progress)
+  }
+
+  private isAcceptedDragExitEnd = () => (
+    this.state === 'ended' &&
+    this.lastResult.kind === 'dragExit' &&
+    this.lastResult.accepted
+  )
+
+  private get swipeOptions () {
+    return this.gesture.swipe && typeof this.gesture.swipe === 'object' ? this.gesture.swipe as Required<GestureSwipeOptions> : null
+  }
+
+  private get dragExitOptions () {
+    return this.gesture.dragExit && typeof this.gesture.dragExit === 'object' ? this.gesture.dragExit as Required<GestureDragExitOptions> : null
+  }
+
+  private lockGesture = () => {
+    const distance = this.getDistance()
+    if (distance.x < GESTURE_DETECT_FLOOR_PX && distance.y < GESTURE_DETECT_FLOOR_PX) return
+    const swipe = this.swipeOptions
+    const dragExit = this.dragExitOptions
+    if (swipe && distance.x >= GESTURE_DETECT_FLOOR_PX && distance.x >= distance.y * swipe.axisLock) {
+      this.state = 'swiping'
+      return
     }
-    return this
+    if (dragExit && distance.y >= GESTURE_DETECT_FLOOR_PX && distance.y >= distance.x * dragExit.axisLock) {
+      this.state = 'dragExiting'
+    }
   }
 }
 

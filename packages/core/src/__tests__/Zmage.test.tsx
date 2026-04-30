@@ -7,7 +7,7 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 import Zmage from '../Zmage'
 import { resolvePreset } from '../types/default'
 import { pageIsCover } from '../components/Browser/Browser.utils'
-import type { HotKey } from '../types/global'
+import type { GestureSet, HotKey } from '../types/global'
 
 const SRC = 'https://example.com/test.jpg'
 
@@ -164,6 +164,260 @@ describe('Zmage StrictMode 双 mount/unmount 不应泄漏副作用', () => {
     expect(countListeners('touchstart')).toBe(0)
     expect(countListeners('touchmove')).toBe(0)
     expect(countListeners('touchend')).toBe(0)
+  })
+})
+
+describe('Zmage mobile gesture Phase 1', () => {
+  const wait = async (ms: number) => {
+    await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+
+  const buildTouchEvent = (
+    type: 'touchstart' | 'touchmove' | 'touchend',
+    point: { x: number, y: number },
+  ) => {
+    const event = new Event(type, { bubbles: true, cancelable: true }) as TouchEvent
+    const touch = { clientX: point.x, clientY: point.y }
+    Object.defineProperty(event, 'touches', {
+      configurable: true,
+      value: type === 'touchend' ? [] : [touch],
+    })
+    Object.defineProperty(event, 'changedTouches', {
+      configurable: true,
+      value: [touch],
+    })
+    return event
+  }
+
+  const dispatchTouch = (
+    type: 'touchstart' | 'touchmove' | 'touchend',
+    point: { x: number, y: number },
+  ) => {
+    const event = buildTouchEvent(type, point)
+    window.dispatchEvent(event)
+    return event
+  }
+
+  const getImageTranslateY = () => {
+    const image = document.getElementById('zmageImage') as HTMLImageElement | null
+    if (!image) throw new Error('expected #zmageImage to be mounted')
+    const match = image.style.transform.match(/translate3d\((-?\d+(?:\.\d+)?)px, (-?\d+(?:\.\d+)?)px, 0px\) scale3d/)
+    if (!match) throw new Error(`unexpected transform: ${image.style.transform}`)
+    return Number(match[2])
+  }
+
+  const renderMobileSet = (props: { gesture?: boolean | GestureSet, loop?: boolean, onBrowsing?: (v: boolean) => void, onSwitching?: (page: number) => void } = {}) =>
+    render(
+      <Zmage
+        src="https://example.com/mobile-a.jpg"
+        alt="mobile-gesture"
+        preset="mobile"
+        gesture={props.gesture}
+        loop={props.loop}
+        onBrowsing={props.onBrowsing}
+        onSwitching={props.onSwitching}
+        set={[
+          { src: 'https://example.com/mobile-a.jpg', alt: 'a', caption: 'first' },
+          { src: 'https://example.com/mobile-b.jpg', alt: 'b', caption: 'second' },
+        ]}
+      />
+    )
+
+  it('mobile preset 注册 touchmove 时使用 passive:false, 卸载后清理监听', async () => {
+    const originalAdd = window.addEventListener.bind(window)
+    const originalRemove = window.removeEventListener.bind(window)
+    const touchMoveOptions: unknown[] = []
+    const listeners = new Map<string, Set<EventListenerOrEventListenerObject>>()
+
+    window.addEventListener = vi.fn(((type: string, listener: EventListenerOrEventListenerObject, options?: unknown) => {
+      if (type === 'touchmove') touchMoveOptions.push(options)
+      let bucket = listeners.get(type)
+      if (!bucket) {
+        bucket = new Set()
+        listeners.set(type, bucket)
+      }
+      bucket.add(listener)
+      return originalAdd(type, listener, options as AddEventListenerOptions)
+    }) as typeof window.addEventListener)
+    window.removeEventListener = vi.fn(((type: string, listener: EventListenerOrEventListenerObject, options?: unknown) => {
+      listeners.get(type)?.delete(listener)
+      return originalRemove(type, listener, options as EventListenerOptions)
+    }) as typeof window.removeEventListener)
+
+    try {
+      const { unmount } = renderMobileSet()
+      fireEvent.click(screen.getByAltText('mobile-gesture'))
+      await wait(50)
+
+      expect(touchMoveOptions).toContainEqual({ passive: false })
+
+      unmount()
+      await wait(600)
+      expect(listeners.get('touchstart')?.size ?? 0).toBe(0)
+      expect(listeners.get('touchmove')?.size ?? 0).toBe(0)
+      expect(listeners.get('touchend')?.size ?? 0).toBe(0)
+    } finally {
+      window.addEventListener = originalAdd
+      window.removeEventListener = originalRemove
+    }
+  })
+
+  it('desktop preset 不注册 Phase 1 touch listeners', async () => {
+    const originalAdd = window.addEventListener.bind(window)
+    const touchTypes: string[] = []
+    window.addEventListener = vi.fn(((type: string, listener: EventListenerOrEventListenerObject, options?: unknown) => {
+      if (type.startsWith('touch')) touchTypes.push(type)
+      return originalAdd(type, listener, options as AddEventListenerOptions)
+    }) as typeof window.addEventListener)
+
+    try {
+      render(
+        <Zmage
+          src="https://example.com/desktop-a.jpg"
+          alt="desktop-gesture"
+          preset="desktop"
+          set={[
+            { src: 'https://example.com/desktop-a.jpg', alt: 'a' },
+            { src: 'https://example.com/desktop-b.jpg', alt: 'b' },
+          ]}
+        />
+      )
+      fireEvent.click(screen.getByAltText('desktop-gesture'))
+      await wait(50)
+
+      expect(touchTypes).toEqual([])
+    } finally {
+      window.addEventListener = originalAdd
+    }
+  })
+
+  it('mobile 左划触发下一页并调用 onSwitching', async () => {
+    const onSwitching = vi.fn()
+    renderMobileSet({ onSwitching })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 200, y: 100 })
+      const move = dispatchTouch('touchmove', { x: 40, y: 105 })
+      dispatchTouch('touchend', { x: 40, y: 105 })
+      expect(move.defaultPrevented).toBe(true)
+      await new Promise(r => setTimeout(r, 80))
+    })
+
+    expect(onSwitching).toHaveBeenCalledWith(1)
+    expect((document.getElementById('zmageImage') as HTMLImageElement).src).toContain('mobile-b.jpg')
+  })
+
+  it('gesture.swipe=false 禁止横向拖曳翻页', async () => {
+    const onSwitching = vi.fn()
+    renderMobileSet({ gesture: { swipe: false }, onSwitching })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 200, y: 100 })
+      const move = dispatchTouch('touchmove', { x: 40, y: 105 })
+      dispatchTouch('touchend', { x: 40, y: 105 })
+      expect(move.defaultPrevented).toBe(false)
+      await new Promise(r => setTimeout(r, 80))
+    })
+
+    expect(onSwitching).not.toHaveBeenCalled()
+    expect((document.getElementById('zmageImage') as HTMLImageElement).src).toContain('mobile-a.jpg')
+  })
+
+  it('mobile 纵向拖曳通过现有 close path 调用 onBrowsing(false)', async () => {
+    const onBrowsing = vi.fn()
+    renderMobileSet({ onBrowsing })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 100, y: 100 })
+      const move = dispatchTouch('touchmove', { x: 102, y: 220 })
+      dispatchTouch('touchend', { x: 102, y: 220 })
+      expect(move.defaultPrevented).toBe(true)
+      await new Promise(r => setTimeout(r, 800))
+    })
+
+    expect(onBrowsing).toHaveBeenCalledWith(false)
+    expect(document.getElementById('zmage')).toBeNull()
+  })
+
+  it('mobile 纵向拖曳退出沿用 350ms browsing close 时长', async () => {
+    const onBrowsing = vi.fn()
+    renderMobileSet({ onBrowsing })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 100, y: 100 })
+      dispatchTouch('touchmove', { x: 102, y: 220 })
+      dispatchTouch('touchend', { x: 102, y: 220 })
+      await new Promise(r => setTimeout(r, 420))
+    })
+
+    expect(onBrowsing).toHaveBeenCalledWith(false)
+    expect(document.getElementById('zmage')).toBeNull()
+  })
+
+  it('mobile 纵向拖曳退出从松手位置续接 out 动画, 不先回中心', async () => {
+    renderMobileSet()
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 100, y: 100 })
+      dispatchTouch('touchmove', { x: 102, y: 220 })
+    })
+    expect(getImageTranslateY()).toBe(120)
+
+    await act(async () => {
+      dispatchTouch('touchend', { x: 102, y: 220 })
+      await new Promise(r => setTimeout(r, 30))
+    })
+    expect(Math.abs(getImageTranslateY())).toBeGreaterThan(80)
+  })
+
+  it('gesture.dragExit=false 禁止纵向拖曳关闭', async () => {
+    const onBrowsing = vi.fn()
+    renderMobileSet({ gesture: { dragExit: false }, onBrowsing })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 100, y: 100 })
+      const move = dispatchTouch('touchmove', { x: 102, y: 220 })
+      dispatchTouch('touchend', { x: 102, y: 220 })
+      expect(move.defaultPrevented).toBe(false)
+      await new Promise(r => setTimeout(r, 120))
+    })
+
+    expect(onBrowsing).not.toHaveBeenCalledWith(false)
+    expect(document.getElementById('zmage')).toBeTruthy()
+  })
+
+  it('gesture=false 同时禁止横向翻页和纵向关闭', async () => {
+    const onBrowsing = vi.fn()
+    const onSwitching = vi.fn()
+    renderMobileSet({ gesture: false, onBrowsing, onSwitching })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 200, y: 100 })
+      dispatchTouch('touchmove', { x: 40, y: 105 })
+      dispatchTouch('touchend', { x: 40, y: 105 })
+      dispatchTouch('touchstart', { x: 100, y: 100 })
+      dispatchTouch('touchmove', { x: 102, y: 220 })
+      dispatchTouch('touchend', { x: 102, y: 220 })
+      await new Promise(r => setTimeout(r, 120))
+    })
+
+    expect(onSwitching).not.toHaveBeenCalled()
+    expect(onBrowsing).not.toHaveBeenCalledWith(false)
+    expect(document.getElementById('zmage')).toBeTruthy()
   })
 })
 

@@ -40,14 +40,15 @@ import {
   lerpCoverStyle,
   MotionPhase,
   selectFlipKind,
-  TOUCH_BEHAVIOR_PHASE,
-  TOUCH_BEHAVIOR_TYPE,
-  TouchProfile,
+  TouchGesture,
+  TouchGestureResult,
 } from './Image.utils'
 
 type PropsType = BrowsingParams
 const ZOOM_FOLLOW_EASE = 0.05
 const ZOOM_FOLLOW_THRESHOLD = 0.35
+const TOUCH_PASSIVE_LISTENER_OPTIONS: AddEventListenerOptions = { passive: true }
+const TOUCH_MOVE_LISTENER_OPTIONS: AddEventListenerOptions = { passive: false }
 
 interface StateType {
   // 加载状态
@@ -58,7 +59,7 @@ interface StateType {
   // 动画
   animateConfig: ImageAnimateType
   // 触控
-  touchProfile: TouchProfile
+  touchGesture: TouchGesture
   // 时间戳 Flag
   timestamp: { [ImageUrl: string]: number },
   // 各 set 索引对应图片的 natural 尺寸 — 由 onLoad 收集.
@@ -110,6 +111,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   // 这个 timer (= loadingDelay 默认 200ms). 若图片在延迟内通过 onLoad / cdU fast-path / polling
   // 任何途径 handleImageLoadEnd, 此 timer 被 cancel → Loading 永不显示, 杜绝缓存图切换的 flash.
   loadingShowDelayTimer?: ReturnType<typeof setTimeout>
+  touchGesture = new TouchGesture()
   // State
   readonly state = {
     // 加载状态
@@ -120,7 +122,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     // 动画
     animateConfig: getAnimateConfig(this.context, selectFlipKind(this.context.animate)),
     // 触控
-    touchProfile: new TouchProfile(),
+    touchGesture: this.touchGesture,
     // 时间戳 Flag
     timestamp: {},
     // 各 set 索引对应图片的 natural 尺寸
@@ -132,9 +134,9 @@ export default class Image extends React.Component<PropsType, StateType> {
     window.addEventListener('resize', this.handleResize)
     if (presetIsMobile) {
       this.pendingRafHandles.push(window.requestAnimationFrame(() => {
-        window.addEventListener('touchstart', this.handleTouchStart)
-        window.addEventListener('touchmove', this.handleTouchMove)
-        window.addEventListener('touchend', this.handleTouchEnd)
+        window.addEventListener('touchstart', this.handleTouchStart, TOUCH_PASSIVE_LISTENER_OPTIONS)
+        window.addEventListener('touchmove', this.handleTouchMove, TOUCH_MOVE_LISTENER_OPTIONS)
+        window.addEventListener('touchend', this.handleTouchEnd, TOUCH_PASSIVE_LISTENER_OPTIONS)
       }))
     }
     if (presetIsDesktop && hideOnScroll) {
@@ -291,10 +293,10 @@ export default class Image extends React.Component<PropsType, StateType> {
    * 信息更新
    **/
   updateCurrentImageStyle = () => {
-    const { touchProfile } = this.state
+    const { touchGesture } = this.state
     const nextStyle = this.context.zoom && this.context.zoomTrigger === 'keyboard'
       ? this.getZoomingStyleFromKeyboardPosition()
-      : getCurrentImageStyle(this.context, this.imageRef, touchProfile)
+      : getCurrentImageStyle(this.context, this.imageRef, touchGesture)
     this.setCurrentStyle(nextStyle, () => {
       if (nextStyle._type === 'zooming') {
         if (this.motionPhase === 'zoom-enter') {
@@ -306,8 +308,8 @@ export default class Image extends React.Component<PropsType, StateType> {
     })
   }
   updateCurrentImageStyleWithoutBrowsingTransition = () => {
-    const { touchProfile } = this.state
-    const nextStyle = getCurrentImageStyle(this.context, this.imageRef, touchProfile)
+    const { touchGesture } = this.state
+    const nextStyle = getCurrentImageStyle(this.context, this.imageRef, touchGesture)
     this.motionPhase = 'browsing-instant'
     this.setCurrentStyle(nextStyle, () => {
       if (this.browsingTransitionRaf !== undefined) {
@@ -371,17 +373,23 @@ export default class Image extends React.Component<PropsType, StateType> {
   }
   // 触摸事件
   handleTouchStart = (e: TouchEvent) => {
-    const { clientX, clientY } = e.touches[0]
-    this.setTouchProfile(new TouchProfile({ origin: { x: clientX, y: clientY } }))
+    const point = this.getTouchPoint(e)
+    if (!point) return
+    this.touchGesture = new TouchGesture(this.getActiveGesture()).start(point)
+    this.setTouchGesture(this.touchGesture)
   }
   handleTouchMove = (e: TouchEvent) => {
-    const { touchProfile } = this.state
-    const { clientX, clientY } = e.touches[0]
-    this.setTouchProfile(touchProfile.update({ origin: { x: clientX, y: clientY } }))
+    const point = this.getTouchPoint(e)
+    if (!point) return
+    const nextGesture = this.touchGesture.move(point)
+    if (nextGesture.ownsGesture()) {
+      e.preventDefault()
+    }
+    this.setTouchGesture(nextGesture)
   }
   handleTouchEnd = () => {
-    const { touchProfile } = this.state
-    this.setTouchProfile(touchProfile.end())
+    const result = this.touchGesture.end()
+    this.setTouchGesture(this.touchGesture, () => this.commitTouchGestureResult(result))
   }
   // 鼠标事件
   handleMouseMove = (e: MouseEvent) => {
@@ -656,7 +664,7 @@ export default class Image extends React.Component<PropsType, StateType> {
 
     this.closingStartTime = performance.now()
     this.closingDuration = getBrowsingAnimationDuration(this.context.presetIsDesktop)
-    this.closingFromStyle = this.state.currentStyle
+    this.closingFromStyle = this.getCurrentVisualStyle()
     this.motionPhase = 'closing-follow'
 
     // scroll handler 之前可能在 inline top 上写了滚动差; RAF 接管位置后必须复位,
@@ -681,7 +689,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     const eased = closingEase(rawProgress)
 
     // 实时读 cover 视口位置 — 这是"零滞后追踪"的关键
-    const target = getCoverStyle(this.context, this.imageRef, this.state.touchProfile)
+    const target = this.getClosingTargetStyle(from)
     const visual = lerpCoverStyle(from, target, eased)
 
     this.setNodeTransitionNone(node)
@@ -711,6 +719,20 @@ export default class Image extends React.Component<PropsType, StateType> {
     if (this.motionPhase === 'closing-follow') {
       this.motionPhase = 'idle'
     }
+  }
+  getCurrentVisualStyle = (): ImageStyleType => {
+    const { currentStyle, touchGesture } = this.state
+    const { touch, opacity } = touchGesture.getTouchConfig()
+    return {
+      ...currentStyle,
+      x: (currentStyle.x ?? 0) + touch.x,
+      y: currentStyle.y + touch.y,
+      opacity: opacity ?? currentStyle.opacity,
+    }
+  }
+  getClosingTargetStyle = (from: ImageStyleType): ImageStyleType => {
+    const target = getCoverStyle(this.context, this.imageRef, this.state.touchGesture)
+    return target._behavior === 'merge' ? { ...from, ...target } : target
   }
   /**
    * Scale 校准 transition 中断
@@ -789,22 +811,50 @@ export default class Image extends React.Component<PropsType, StateType> {
     })
     this.startZoomFollow(zoomingStyle)
   }
-  setTouchProfile = (nextProfile: TouchProfile) => {
-    if (nextProfile) {
+  getTouchPoint = (e: TouchEvent): Coordinate | null => {
+    const touch = e.touches[0] || e.changedTouches[0]
+    if (!touch) return null
+    return { x: touch.clientX, y: touch.clientY }
+  }
+
+  getActiveGesture = () => {
+    const { gesture, set, zoom } = this.context
+    if (zoom) return { swipe: false, dragExit: false }
+    const swipe = gesture?.swipe
+    const dragExit = gesture?.dragExit
+    return {
+      swipe: Array.isArray(set) && set.length > 1 && swipe && typeof swipe === 'object' ? swipe : false,
+      dragExit: dragExit && typeof dragExit === 'object' ? dragExit : false,
+    }
+  }
+
+  getSwipeBoundaryResistance = (touchGesture: TouchGesture) => {
+    const { gesture, loop, page, set } = this.context
+    if (loop || touchGesture.state !== 'swiping' || !Array.isArray(set) || set.length <= 1) return undefined
+    const swipe = gesture?.swipe
+    if (!swipe || typeof swipe !== 'object') return undefined
+    const offset = touchGesture.getOffset()
+    const atFirstDraggingRight = page === 0 && offset.x > 0
+    const atLastDraggingLeft = page === set.length - 1 && offset.x < 0
+    return atFirstDraggingRight || atLastDraggingLeft ? swipe.resistance : undefined
+  }
+
+  commitTouchGestureResult = (result: TouchGestureResult) => {
+    if (!result.accepted) return
+    const { outBrowsing, toPrevPage, toNextPage } = this.context
+    if (result.kind === 'swipe') {
+      result.offset.x < 0 ? toNextPage() : toPrevPage()
+    } else if (result.kind === 'dragExit') {
+      outBrowsing()
+    }
+  }
+
+  setTouchGesture = (nextGesture: TouchGesture, callback?: () => void) => {
+    if (nextGesture) {
+      this.touchGesture = nextGesture
       this.setState({
-        touchProfile: nextProfile
-      }, () => {
-        const { outBrowsing, toPrevPage, toNextPage } = this.context
-        const { touchProfile } = this.state
-        if (touchProfile.phase === TOUCH_BEHAVIOR_PHASE.END) {
-          if (touchProfile.behavior === TOUCH_BEHAVIOR_TYPE.SWIPING) {
-            const offset = touchProfile.getCurrentOffset()
-            offset.x < 0 ? toNextPage() : toPrevPage()
-          } else if (touchProfile.behavior === TOUCH_BEHAVIOR_TYPE.LIVING) {
-            outBrowsing()
-          }
-        }
-      })
+        touchGesture: nextGesture
+      }, callback)
     }
   }
   // 给定 set 索引算它自己的 fit-scale (browsing 态用); 没收集到 dimensions 返回 null,
@@ -818,14 +868,14 @@ export default class Image extends React.Component<PropsType, StateType> {
 
   getStyle = (step: number, distance: number, isSideImage: boolean, imageIndex: number): CSSProperties => {
     const { animate, set, zoom, page } = this.context
-    const { invalidate, currentStyle, touchProfile, animateConfig } = this.state
+    const { invalidate, currentStyle, touchGesture, animateConfig } = this.state
     const flipKind = selectFlipKind(animate)
     let transform, zIndex, pointerEvents
     // 获取动画配置
     // eslint-disable-next-line prefer-const
     let { offset, overflow, opacity } = animateConfig
     // 获取触摸配置
-    const { touch, transition } = touchProfile.getTouchConfig({ enableSwiping: set.length > 1, enableLiving: true })
+    const { touch, opacity: touchOpacity, transition } = touchGesture.getTouchConfig({ resistance: this.getSwipeBoundaryResistance(touchGesture) })
     // 计算样式
     if (isSideImage) {
       // side image 用自己的 fit-scale (而不是 center 的) — 修复 #167:
@@ -857,7 +907,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       const y = currentStyle.y + touch.y
       transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${centerScale}, ${centerScale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
       zIndex = 10
-      opacity = currentStyle.opacity || 1
+      opacity = touchOpacity ?? currentStyle.opacity ?? 1
     }
     return {
       ...withVendorPrefix({ transform }),

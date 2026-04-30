@@ -29,6 +29,7 @@ export const SIDEBAR_GROUPS: Group[] = [
       { id: 'props-controller', labelKey: 'group.controller' },
       { id: 'props-hotkey', labelKey: 'group.hotkey' },
       { id: 'props-animate', labelKey: 'group.animate' },
+      { id: 'props-gesture', labelKey: 'group.gesture' },
       { id: 'props-lifecycle', labelKey: 'group.lifecycle' },
       { id: 'props-controlled', labelKey: 'group.controlled' },
     ],

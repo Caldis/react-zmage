@@ -4209,7 +4209,7 @@ packages:
       react-dom: '*'
 
   react-zmage@file:.pack/react-zmage-1.6.0.tgz:
-    resolution: {integrity: sha512-beKX09zcCjqHptr6mobSwFDyIJS2ZvT65vqrbqjUpqou0VScmVyIoZY4h4c+sFSFfmOdNCMWsweDP9wXqEtLtQ==, tarball: file:.pack/react-zmage-1.6.0.tgz}
+    resolution: {integrity: sha512-+9g42qipQd5MCBQzF6qioGt9kxNZspnZKmIto+mqkAnkEZjmWZ2H29afQl9iJwTjHsQuZIqDE51U6ENhxwNsJQ==, tarball: file:.pack/react-zmage-1.6.0.tgz}
     version: 1.6.0
     peerDependencies:
       react: '>=16.8.0 <20'

@@ -22,7 +22,8 @@ import { defPropsWithEnv, resolvePreset } from '../../types/default'
 import { getBrowsingAnimationDuration } from '../../config/anim'
 import { probeStylesheet } from '../../utils/styleProbe'
 import { hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
-import { Animate, ControllerSet, FunctionalParams, HotKey, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
+import { Animate, ControllerSet, FunctionalParams, GestureSet, HotKey, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
+import { normalizeGestureSet } from '../Image/Image.utils'
 
 export interface Props extends PresetParams, FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams {
   // Controlled status
@@ -94,6 +95,10 @@ export default class Browser extends React.Component<Props, State> {
 
   getAnimateConfig = (animate: Props['animate'], fallback: Animate): Animate => (
     animate === false ? { browsing: false, flip: false } as unknown as Animate : { ...fallback, ...(typeof animate === 'object' ? animate : {}) }
+  )
+
+  getGestureConfig = (gesture: Props['gesture'], fallback: GestureSet): GestureSet => (
+    normalizeGestureSet(gesture, fallback)
   )
 
   getClosingRotate = () => {
@@ -170,7 +175,7 @@ export default class Browser extends React.Component<Props, State> {
    * 如果需要读取 controller / hotKey / animate 需要由此读取
    */
   getPropsWithEnv = () => {
-    const { preset, controller, hotKey, animate } = this.props
+    const { preset, controller, hotKey, animate, gesture } = this.props
     const defProp = defPropsWithEnv(preset)
     const resolved = resolvePreset(preset)
     return {
@@ -183,6 +188,7 @@ export default class Browser extends React.Component<Props, State> {
       controller: this.getControllerConfig(controller, defProp.controller),
       hotKey: this.getHotKeyConfig(hotKey, defProp.hotKey),
       animate: this.getAnimateConfig(animate, defProp.animate),
+      gesture: this.getGestureConfig(gesture, defProp.gesture),
     }
   }
 
@@ -486,7 +492,7 @@ export default class Browser extends React.Component<Props, State> {
       // Preset
       preset, presetIsMobile, presetIsDesktop,
       // Control
-      controller, hotKey, animate,
+      controller, hotKey, animate, gesture,
       // Styles & interactive
       hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, hideOnDblClick, loadingDelay,
       // Life cycle
@@ -504,7 +510,7 @@ export default class Browser extends React.Component<Props, State> {
       // Preset
       preset, presetIsMobile, presetIsDesktop,
       // Control
-      controller, hotKey, animate,
+      controller, hotKey, animate, gesture,
       // Styles & interactive
       hideOnScroll, coverVisible, backdrop, radius, edge, loop, hideOnDblClick, loadingDelay,
       // Life cycle (only those Image/Caption need from context)

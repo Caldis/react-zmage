@@ -75,6 +75,7 @@ export const zhCN = {
   'group.controller': '控制器',
   'group.hotkey': '快捷键',
   'group.animate': '动画',
+  'group.gesture': '手势',
   'group.lifecycle': '生命周期',
   'group.controlled': '受控',
 
@@ -120,6 +121,23 @@ export const zhCN = {
   'animate.flip.swipe': '滑动',
   'animate.flip.zoom': '缩放',
   'animate.flip.none': '无',
+
+  // Gesture keys
+  'gesture.swipe': '拖拽翻页',
+  'gesture.dragExit': '拖拽退出',
+  'gesture.threshold': 'threshold',
+  'gesture.velocity': 'velocity',
+  'gesture.axisLock': 'axisLock',
+  'gesture.resistance': 'resistance',
+  'gesture.opacity': 'opacity',
+  'gesture.desc': '移动端单指手势。桌面预设默认关闭,移动端预设默认开启拖拽翻页和拖拽退出。',
+  'gesture.swipe.desc': '横向拖拽切换 set 中的图片。单图模式下自动忽略。',
+  'gesture.dragExit.desc': '纵向拖拽关闭查看器,走现有 onBrowsing(false) 关闭路径。',
+  'gesture.threshold.desc': '接受手势所需的最小拖拽距离,单位 px。',
+  'gesture.velocity.desc': '接受手势所需的最小速度,单位 px/ms。',
+  'gesture.axisLock.desc': '轴向锁定比例,用于避免斜向移动同时触发横向和纵向手势。',
+  'gesture.resistance.desc': 'loop=false 且位于首尾页时的边界阻尼比例。',
+  'gesture.opacity.desc': '纵向拖拽退出时是否随拖拽距离降低图片透明度。',
 
   // ControllerSet keys
   'controller.pagination': '分页指示器',
@@ -210,6 +228,8 @@ export const zhCN = {
   'param.hotKey.desc': '快捷键开关。',
   'param.animate.label': 'animate',
   'param.animate.desc': '动画配置:浏览动画 + 翻页动画。',
+  'param.gesture.label': 'gesture',
+  'param.gesture.desc': '移动端单指手势配置。preset=mobile 默认开启 swipe 和 dragExit; gesture=false 可全部关闭。',
   'param.onBrowsing.label': 'onBrowsing',
   'param.onBrowsing.desc': '查看器打开/关闭时回调,参数 boolean。',
   'param.onZooming.label': 'onZooming',
@@ -274,6 +294,7 @@ export const zhCN = {
   'docs.search.desc.propsController': '控制栏按钮(分页 / 旋转 / 缩放 / 关闭 / 翻页…)',
   'docs.search.desc.propsHotkey': '快捷键: ESC / 空格 / 方向键',
   'docs.search.desc.propsAnimate': '浏览动画与翻页动画',
+  'docs.search.desc.propsGesture': '移动端拖拽翻页和拖拽退出',
   'docs.search.desc.propsLifecycle': 'onBrowsing · onZooming · onSwitching · onRotating',
   'docs.search.desc.propsControlled': '受控的浏览状态',
   'docs.search.desc.examples': '单图与多图画廊示例',

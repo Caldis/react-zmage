@@ -10,11 +10,9 @@ export const animationDuration = 350
 export const animationFunctionOnZooming = 'cubic-bezier(0, 0.1, 0.1, 1)'
 export const animationDurationOnZooming = 0
 
-// 浏览/关闭动画的实际时长 — mobile preset 用 2 倍时长以匹配触摸交互的视觉节奏.
-// Browser.unInit 的 closeDelay 也以此为基准 (再减 10ms 为 React state 同步留缓冲).
-// Image.startClosingFollow 用它驱动 RAF.
-export const getBrowsingAnimationDuration = (presetIsDesktop: boolean) =>
-  presetIsDesktop ? animationDuration : animationDuration * 2
+// 浏览/关闭动画的实际时长。保留 preset 参数是为了让 Browser/Image 两处调用共享同一入口,
+// 但 mobile 与 desktop 都必须沿用原始 browsing timing, 避免关闭卸载和图片归位不同步。
+export const getBrowsingAnimationDuration = (_presetIsDesktop: boolean) => animationDuration
 
 export const animationTransition = (multiple = 1) => `transform ${animationDuration * multiple}ms ${animationFunction}, opacity ${animationDuration * multiple}ms ${animationFunction}, clip-path ${animationDuration * multiple}ms ${animationFunction}`
 

@@ -123,6 +123,25 @@ export interface HotKey {
   download?: HotKeyValue
 }
 
+export interface GestureSwipeOptions {
+  threshold?: number
+  velocity?: number
+  axisLock?: number
+  resistance?: number
+}
+
+export interface GestureDragExitOptions {
+  threshold?: number
+  velocity?: number
+  axisLock?: number
+  opacity?: boolean
+}
+
+export interface GestureSet {
+  swipe?: boolean | GestureSwipeOptions
+  dragExit?: boolean | GestureDragExitOptions
+}
+
 /**
  * @see https://github.com/Caldis/react-zmage#animate
  */
@@ -188,6 +207,8 @@ export interface FunctionalParams {
   hotKey?: boolean | HotKey
   // 动画
   animate?: boolean | Animate
+  // 手势
+  gesture?: boolean | GestureSet
 }
 
 export interface FunctionalNormalizedParams {
@@ -197,6 +218,8 @@ export interface FunctionalNormalizedParams {
   hotKey?: HotKey
   // 动画
   animate?: Animate
+  // 手势
+  gesture?: GestureSet
 }
 
 /**

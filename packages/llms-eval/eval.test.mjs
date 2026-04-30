@@ -174,8 +174,28 @@ test('controller visual keys (backdrop + color) declared in ControllerSet and ll
   assert.match(controllerLine, /controller\.color|`color`/, 'llms.txt controller row missing the color visual key')
 })
 
+test('gesture prop wired across types, defaults and llms.txt', () => {
+  assert.match(globalTs, /export\s+interface\s+GestureSet\b/, 'GestureSet interface missing in types/global.ts')
+  assert.match(globalTs, /export\s+interface\s+GestureSwipeOptions\b/, 'GestureSwipeOptions interface missing in types/global.ts')
+  assert.match(globalTs, /export\s+interface\s+GestureDragExitOptions\b/, 'GestureDragExitOptions interface missing in types/global.ts')
+  assert.match(globalTs, /\bgesture\?:\s*boolean\s*\|\s*GestureSet\b/, 'gesture prop missing from FunctionalParams')
+  assert.match(defaultTs, /desktop:[\s\S]*?gesture:[\s\S]*?\bswipe:\s*false\b/, 'desktop gesture.swipe=false missing in default.ts')
+  assert.match(defaultTs, /desktop:[\s\S]*?gesture:[\s\S]*?\bdragExit:\s*false\b/, 'desktop gesture.dragExit=false missing in default.ts')
+  assert.match(defaultTs, /defaultGestureSwipeOptions:[\s\S]*?\bthreshold:\s*120\b/, 'default gesture.swipe threshold missing in default.ts')
+  assert.match(defaultTs, /defaultGestureDragExitOptions:[\s\S]*?\bthreshold:\s*80\b/, 'default gesture.dragExit threshold missing in default.ts')
+  assert.match(defaultTs, /mobile:[\s\S]*?gesture:[\s\S]*?\bswipe:\s*\{\s*\.\.\.defaultGestureSwipeOptions\s*\}/, 'mobile gesture.swipe should use default options in default.ts')
+  assert.match(defaultTs, /mobile:[\s\S]*?gesture:[\s\S]*?\bdragExit:\s*\{\s*\.\.\.defaultGestureDragExitOptions\s*\}/, 'mobile gesture.dragExit should use default options in default.ts')
+  const gestureLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|\s*`gesture`\s*\|/.test(line)
+  )
+  assert.ok(gestureLine, 'no API-table row in llms.txt declares the gesture prop')
+  for (const term of ['swipe', 'dragExit', 'threshold', 'velocity', 'axisLock']) {
+    assert.match(gestureLine, new RegExp(`\\b${term}\\b`), `llms.txt gesture row missing ${term}`)
+  }
+})
+
 test('public type symbols present in types/global.ts', () => {
-  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'HotKey', 'Animate']) {
+  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'HotKey', 'Animate', 'GestureSet']) {
     const re = new RegExp(`(?:export\\s+(?:interface|type)\\s+${sym}\\b)`)
     assert.match(globalTs, re, `${sym} not exported from types/global.ts`)
     assert.match(llmsTxt, new RegExp(`\\b${sym}\\b`), `${sym} not mentioned in llms.txt`)

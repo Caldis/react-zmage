@@ -109,7 +109,7 @@ The wrapper queries `<img>` descendants in `componentDidMount` / `componentDidUp
 Wrapper-specific prop scope:
 
 - Put `src` / `alt` on the child `<img>` nodes. Top-level `src` / `alt` are overwritten by the clicked DOM node.
-- Viewer configuration still belongs on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, and lifecycle callbacks.
+- Viewer configuration still belongs on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `gesture`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, and lifecycle callbacks.
 - Pass `set` when the wrapped subtree should behave as one shared gallery. If the clicked image's `src` appears in `set`, Wrapper opens that matching index; `defaultPage` is only the fallback.
 - Without `set`, the clicked image opens as a single image. `data-zmage-caption` or the nearest `figcaption` can provide the viewer caption.
 - The controlled `browsing` prop is for component mode; it does not control `<Zmage.Wrapper>`.
@@ -132,7 +132,7 @@ const ref = useRef<HTMLImageElement>(null)
 return <Zmage {...config} ref={ref} />
 ```
 
-`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `HotKey`, `Animate`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
+`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `HotKey`, `Animate`, `GestureSet`, `GestureSwipeOptions`, `GestureDragExitOptions`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
 
 </details>
 
@@ -168,7 +168,7 @@ API is identical — only the import path changes. The SSR build is platform-neu
 
 | Prop | Type | Default | Notes |
 |---|---|---|---|
-| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'desktop'` | Bundles defaults for `controller`, `hotKey`, and `animate`. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → `mobile`, otherwise `desktop`. SSR / no `matchMedia` falls back to `desktop`. |
+| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'desktop'` | Bundles defaults for `controller`, `hotKey`, `animate`, and `gesture`. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → `mobile`, otherwise `desktop`. SSR / no `matchMedia` falls back to `desktop`. |
 
 ### Functional
 
@@ -177,6 +177,7 @@ API is identical — only the import path changes. The SSR build is platform-neu
 | `controller` | `boolean \| ControllerSet` | preset-driven | Per-button toggles in the top toolbar. Pass `false` to hide all, or a partial object to override individual buttons. |
 | `hotKey` | `boolean \| HotKey` | preset-driven | Keyboard shortcuts. |
 | `animate` | `boolean \| Animate` | preset-driven | Open/close + page-flip animations. |
+| `gesture` | `boolean \| GestureSet` | preset-driven | Mobile single-finger gestures. Pass `false` to disable all gestures, or a partial object to override `swipe` / `dragExit`. |
 
 #### `ControllerSet`
 
@@ -212,6 +213,8 @@ interface ControllerSet {
 | `download` | — | — |
 | `close` | ✅ | ✅ |
 | `flip` | ✅ | — |
+| `gesture.swipe` | — | ✅ |
+| `gesture.dragExit` | — | ✅ |
 
 #### `HotKey`
 
@@ -265,6 +268,31 @@ interface Animate {
 
 Defaults: desktop = `{ browsing: true, flip: 'crossFade' }`, mobile = `{ browsing: true, flip: 'swipe' }`. `flip: 'none'` skips adjacent-page rendering — page change is an instant swap with no transition.
 
+#### `GestureSet`
+
+```ts
+interface GestureSet {
+  swipe?: boolean | GestureSwipeOptions
+  dragExit?: boolean | GestureDragExitOptions
+}
+
+interface GestureSwipeOptions {
+  threshold?: number    // default 120
+  velocity?: number     // default 0.35 px/ms
+  axisLock?: number     // default 1.2
+  resistance?: number   // default 0.35 at non-loop edges
+}
+
+interface GestureDragExitOptions {
+  threshold?: number    // default 80
+  velocity?: number     // default 0.35 px/ms
+  axisLock?: number     // default 1.2
+  opacity?: boolean     // default true
+}
+```
+
+Desktop default: `{ swipe: false, dragExit: false }`. Mobile default enables horizontal drag paging and vertical drag-to-exit with the option defaults above. `gesture={{ swipe: false }}` only disables drag paging; `gesture={{ dragExit: false }}` only disables drag-to-exit. Single-image viewers ignore horizontal swipe, and zoom mode disables Phase 1 single-finger gestures.
+
 ### Interface & interaction
 
 | Prop | Type | Default | Notes |
@@ -305,7 +333,7 @@ Every `HTMLAttributes<HTMLImageElement>` (`className`, `style`, `width`, `height
 export type BaseType =
   & BaseParams                    // src / alt / caption / set / defaultPage
   & PresetParams                  // preset
-  & FunctionalParams              // controller / hotKey / animate
+  & FunctionalParams              // controller / hotKey / animate / gesture
   & InterfaceAndInteractionParams // hideOnScroll / hideOnDblClick / coverVisible / backdrop / zIndex / radius / edge / loop / loadingDelay
   & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating / onError
   & ControlledParams              // browsing

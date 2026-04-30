@@ -1,7 +1,7 @@
 # Zmage Next Interactions Overview
 
 **Date:** 2026-04-30
-**Status:** Approved for staged specification. Implementation has not started.
+**Status:** Approved for staged specification. Phase 1 implementation is complete and should be reviewed before Phase 2 spec work starts.
 **Scope:** `packages/core` public interaction API, image geometry, mobile gestures, zoom input, controller extension, and the public docs that describe those changes.
 
 ## Goal
@@ -44,14 +44,22 @@ export interface FunctionalNormalizedParams {
 }
 ```
 
-The merge rule must mirror `controller`, `hotKey`, and `animate`:
+`gesture` uses its own normalization rule. It must not be described as a
+direct mirror of `controller`, `hotKey`, or `animate`: `controller` and `hotKey`
+are single-level flag objects today, while each `gesture` child may be an option
+object.
 
-- `gesture === false`: disable every gesture and wheel-zoom feature.
-- `gesture === true` or `gesture === undefined`: use the current preset default.
-- `typeof gesture === 'object'`: shallow-merge the object over the current preset default.
+The merge rule is per-child:
+
+- `gesture === false`: disable every implemented gesture feature. The normalized shape uses explicit false markers for all implemented keys, for example `{ swipe: false, dragExit: false }` in Phase 1.
+- `gesture === true` or `gesture === undefined`: use the current resolved preset default.
+- `typeof gesture === 'object'`: merge each known child key independently.
+- A missing child key uses the current preset value for that key.
 - A child value set to `false` disables only that child feature.
-- A child value set to `true` enables that child feature with its default options.
-- A child object enables that child feature and overrides only the specified options.
+- A child value set to `true` enables that child feature with that child's default option object.
+- A child object enables that child feature and shallow-merges only that child's options: `{ ...presetChildOptions, ...userChildOptions }`.
+
+This is intentionally a two-level merge, not `{ ...fallback, ...gesture }`.
 
 ```ts
 export interface GestureSet {
@@ -223,7 +231,6 @@ export type ControllerRender = (args: {
   actions: {
     close: () => void
     zoom: () => void
-    openOriginal: () => void
     rotateLeft: () => void
     rotateRight: () => void
     prev: () => void
@@ -244,8 +251,10 @@ Compatibility rules:
 
 - `controller=false` has the highest priority and disables all controller UI, including `render`.
 - Existing per-button `ControllerItem` behavior stays valid.
+- `controller.placement` defaults to `'top-right'`, matching the current toolbar position and enter direction.
 - `placement` changes the default toolbar position and enter direction only. It must not move flip-left, flip-right, or pagination unless a later design explicitly says so.
 - The render callback exposes stable public state only. It must not expose `mounted`, `pageWithStep`, `zoomShakeKey`, `zoomTrigger`, or other internal fields.
+- Slots must use stable component types and keys. Phase 5 must not define slot component types inside render paths.
 
 ## Architecture Constraints
 
@@ -254,7 +263,7 @@ Compatibility rules:
 - `Browser` remains the owner of viewer state: `show`, `zoom`, `page`, `rotate`, `canZoom`, and lifecycle callback dispatch.
 - `Image` remains the owner of image geometry, touch/wheel input handling, RAF interpolation, and DOM-adjacent transient values.
 - `Control` remains a UI layer. It must not own gesture state.
-- `Context` may carry normalized `gesture`, but should not expose per-frame gesture values.
+- `Context` carries normalized `gesture` after Phase 1. Per-frame gesture values such as touch coordinates, velocity, lock state, and RAF target offset must stay in `Image` instance fields or local utilities, not Context.
 
 ### Vercel React Best Practices Constraints
 
@@ -269,6 +278,8 @@ The implementation must follow these rules:
 - Do not add runtime heavy dependencies for gestures or zoom. Browser tests may add test-only dependencies.
 - Keep SSR and RSC safe: no unguarded top-level `window` or `document` reads.
 - Do not define React components inside React components when splitting controller slots.
+- Phase 3+ zoom timing must stay separate from `loadingDelay`; `loadingDelay` is image-load anti-flicker, not input-response delay.
+- If Phase 4 gesture or animation debugging gets stuck, use `docs/superpowers/methodology/2026-04-30-complex-animation-debugging-framework.md`.
 
 ### Existing Contract Preservation
 
@@ -299,7 +310,7 @@ Use the smallest reliable test for each behavior:
 
 - Pure geometry and state-machine logic belongs in `packages/core/src/components/Image/__tests__/Image.utils.test.ts` or focused sibling test files.
 - React wiring, callbacks, normalized props, listener registration, and DOM inline style strings belong in Vitest + jsdom component tests.
-- Browser-only behavior such as real touch input, `clip-path` pixels, and wheel smoothness should get small Playwright smoke tests once the relevant phase introduces browser-sensitive behavior.
+- Browser-only behavior such as real touch input, `clip-path` pixels, and wheel smoothness should get small browser smoke tests once the relevant phase introduces browser-sensitive behavior and the repo has the needed test harness. Phase specs must state whether browser smoke is a gate for that phase or a deferred human/browser verification item.
 - Agent runs may verify automated commands, but must not claim human visual verification of gesture feel or animation quality.
 
 Standard verification chain:

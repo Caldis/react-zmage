@@ -11,6 +11,7 @@ import { ScalarControl } from './controls/ScalarControl'
 import { ControllerControl } from './controls/ControllerControl'
 import { HotKeyControl } from './controls/HotKeyControl'
 import { AnimateControl } from './controls/AnimateControl'
+import { GestureControl } from './controls/GestureControl'
 import { SetControl } from './controls/SetControl'
 import { CallbackControl } from './controls/CallbackControl'
 import { DataPresetToggle } from './DataPresetToggle'
@@ -24,11 +25,12 @@ const GROUP_TO_DOCS_ANCHOR: Record<ParamGroup, string> = {
   controller: '/docs#props-controller',
   hotkey: '/docs#props-hotkey',
   animate: '/docs#props-animate',
+  gesture: '/docs#props-gesture',
   lifecycle: '/docs#props-lifecycle',
   controlled: '/docs#props-controlled',
 }
 
-const GROUP_ORDER: ParamGroup[] = ['data', 'preset', 'interface', 'controller', 'hotkey', 'animate', 'lifecycle', 'controlled']
+const GROUP_ORDER: ParamGroup[] = ['data', 'preset', 'interface', 'controller', 'hotkey', 'animate', 'gesture', 'lifecycle', 'controlled']
 const GROUP_LABELS: Record<ParamGroup, I18nKey> = {
   data: 'group.data',
   preset: 'group.preset',
@@ -36,6 +38,7 @@ const GROUP_LABELS: Record<ParamGroup, I18nKey> = {
   controller: 'group.controller',
   hotkey: 'group.hotkey',
   animate: 'group.animate',
+  gesture: 'group.gesture',
   lifecycle: 'group.lifecycle',
   controlled: 'group.controlled',
 }
@@ -51,6 +54,7 @@ function renderControl (def: ParamDef, value: any, onChange: (v: any) => void) {
     if (c.component === 'controller') return <ControllerControl value={value} onChange={onChange} />
     if (c.component === 'hotkey') return <HotKeyControl value={value} onChange={onChange} />
     if (c.component === 'animate') return <AnimateControl value={value} onChange={onChange} />
+    if (c.component === 'gesture') return <GestureControl value={value} onChange={onChange} />
     if (c.component === 'set') return <SetControl value={value} onChange={onChange} />
   }
   if (c.kind === 'callback') {

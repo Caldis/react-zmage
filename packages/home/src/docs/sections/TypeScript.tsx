@@ -15,6 +15,7 @@ export function TypeScript () {
   ControllerSet,
   HotKey,
   Animate,
+  GestureSet,
 } from 'react-zmage'
 
 const props: BaseType = {

@@ -17,6 +17,7 @@ export const defProp = {
   controller: {} as Record<string, boolean>,
   hotKey: {} as Record<string, boolean>,
   animate: {} as Record<string, unknown>,
+  gesture: {} as Record<string, unknown>,
   hideOnScroll: true,
   coverVisible: false,
   backdrop: '#FFFFFF',
@@ -33,11 +34,16 @@ export const defPreset = {
     controller: { pagination: true, rotate: true, zoom: true, download: false, close: true, flip: true },
     hotKey: { close: true, zoom: true, flip: true, rotate: true, download: false },
     animate: { browsing: true, flip: 'crossFade' as const },
+    gesture: { swipe: false, dragExit: false },
   },
   mobile: {
     controller: { pagination: true, rotate: false, zoom: false, download: false, close: true, flip: false },
     hotKey: { close: false, zoom: false, flip: false, rotate: false, download: false },
     animate: { browsing: true, flip: 'swipe' as const },
+    gesture: {
+      swipe: { threshold: 120, velocity: 0.35, axisLock: 1.2, resistance: 0.35 },
+      dragExit: { threshold: 80, velocity: 0.35, axisLock: 1.2, opacity: true },
+    },
   },
 }
 
@@ -49,11 +55,11 @@ export type ControlKind =
   | { kind: 'color' }
   | { kind: 'select'; options: { value: string; labelKey: I18nKey }[] }
   | { kind: 'segmented'; options: { value: string; labelKey: I18nKey }[] }
-  | { kind: 'object'; component: 'controller' | 'hotkey' | 'animate' | 'set' }
+  | { kind: 'object'; component: 'controller' | 'hotkey' | 'animate' | 'gesture' | 'set' }
   | { kind: 'callback'; events: string[] }
 
 export type ParamGroup =
-  | 'data' | 'preset' | 'interface' | 'controller' | 'hotkey' | 'animate' | 'lifecycle' | 'controlled'
+  | 'data' | 'preset' | 'interface' | 'controller' | 'hotkey' | 'animate' | 'gesture' | 'lifecycle' | 'controlled'
 
 export type ParamDef<K extends keyof BaseType = keyof BaseType> = {
   name: K
@@ -123,6 +129,10 @@ export const PARAM_SCHEMA: ParamDef[] = [
   // Animate
   { name: 'animate', group: 'animate', default: defPreset.desktop.animate, control: { kind: 'object', component: 'animate' },
     i18n: { labelKey: 'param.animate.label', descKey: 'param.animate.desc' } },
+
+  // Gesture
+  { name: 'gesture', group: 'gesture', default: defPreset.desktop.gesture, control: { kind: 'object', component: 'gesture' },
+    i18n: { labelKey: 'param.gesture.label', descKey: 'param.gesture.desc' } },
 
   // Lifecycle
   { name: 'onBrowsing', group: 'lifecycle', default: undefined, control: { kind: 'callback', events: ['onBrowsing'] },

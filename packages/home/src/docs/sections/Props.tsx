@@ -37,6 +37,19 @@ const ANIMATE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
   { k: 'flip', type: "'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'", descKey: 'animate.flip.desc' },
 ]
 
+const GESTURE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
+  { k: 'swipe', type: 'boolean | GestureSwipeOptions', descKey: 'gesture.swipe.desc' },
+  { k: 'dragExit', type: 'boolean | GestureDragExitOptions', descKey: 'gesture.dragExit.desc' },
+  { k: 'swipe.threshold', type: 'number', descKey: 'gesture.threshold.desc' },
+  { k: 'swipe.velocity', type: 'number', descKey: 'gesture.velocity.desc' },
+  { k: 'swipe.axisLock', type: 'number', descKey: 'gesture.axisLock.desc' },
+  { k: 'swipe.resistance', type: 'number', descKey: 'gesture.resistance.desc' },
+  { k: 'dragExit.threshold', type: 'number', descKey: 'gesture.threshold.desc' },
+  { k: 'dragExit.velocity', type: 'number', descKey: 'gesture.velocity.desc' },
+  { k: 'dragExit.axisLock', type: 'number', descKey: 'gesture.axisLock.desc' },
+  { k: 'dragExit.opacity', type: 'boolean', descKey: 'gesture.opacity.desc' },
+]
+
 const SET_FIELDS: { k: string; type: string; required?: boolean; descKey: I18nKey }[] = [
   { k: 'src', type: 'string', required: true, descKey: 'set.src.desc' },
   { k: 'alt', type: 'string', descKey: 'set.alt.desc' },
@@ -60,16 +73,18 @@ const PRESET_ROWS: PresetRow[] = [
   { path: 'hotKey.download', label: 'hotkey.download' },
   { path: 'animate.browsing', label: 'animate.browsing.desc' },
   { path: 'animate.flip', label: 'animate.flip.desc' },
+  { path: 'gesture.swipe', label: 'gesture.swipe' },
+  { path: 'gesture.dragExit', label: 'gesture.dragExit' },
 ]
 
 function readPresetValue (preset: 'desktop' | 'mobile', path: string): unknown {
-  const [group, key] = path.split('.') as ['controller' | 'hotKey' | 'animate', string]
+  const [group, key] = path.split('.') as ['controller' | 'hotKey' | 'animate' | 'gesture', string]
   const bucket = defPreset[preset][group] as Record<string, unknown>
   return bucket[key]
 }
 
 function PresetCell ({ value }: { value: unknown }) {
-  const display = typeof value === 'string' ? `'${value}'` : String(value)
+  const display = typeof value === 'string' ? `'${value}'` : typeof value === 'object' && value !== null ? '{…}' : String(value)
   return <code className="font-mono text-xs">{display}</code>
 }
 
@@ -278,6 +293,33 @@ function AnimateDetail () {
   )
 }
 
+function GestureDetail () {
+  const { t } = useT()
+  return (
+    <div className="my-6 overflow-hidden rounded-lg border border-border">
+      <TypeCaption name="GestureSet" />
+      <table className="w-full text-sm">
+        <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+          <tr>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.keyHeader')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.animate.typeHeader')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.descHeader')}</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {GESTURE_KEYS.map(({ k, type, descKey }) => (
+            <tr key={k}>
+              <td className="px-4 py-2.5 font-mono align-top">{k}</td>
+              <td className="px-4 py-2.5 align-top font-mono text-xs text-muted-foreground">{type}</td>
+              <td className="px-4 py-2.5 text-muted-foreground">{t(descKey)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 export function Props () {
   const { t } = useT()
   return (
@@ -304,6 +346,9 @@ export function Props () {
       <Heading id="props-animate" level={3}>{t('group.animate')}</Heading>
       <ParamTable group="animate" />
       <AnimateDetail />
+      <Heading id="props-gesture" level={3}>{t('group.gesture')}</Heading>
+      <ParamTable group="gesture" />
+      <GestureDetail />
       <Heading id="props-lifecycle" level={3}>{t('group.lifecycle')}</Heading>
       <ParamTable group="lifecycle" />
       <Heading id="props-controlled" level={3}>{t('group.controlled')}</Heading>

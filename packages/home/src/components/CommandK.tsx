@@ -18,7 +18,7 @@ type Item = { id: string; label: string; desc: string; href: string; group: stri
 // Sub-property entries surfaced in search. Each leaf gets its own searchable entry,
 // linking back to the parent group's anchor in the Props section.
 type SubEntry = {
-  parent: 'controller' | 'hotkey' | 'animate'
+  parent: 'controller' | 'hotkey' | 'animate' | 'gesture'
   /** Leaf key, e.g. "flip", "flipLeft". Combined with the parent into the displayed label. */
   leaf: string
   /** i18n key for the localized leaf name. */
@@ -64,6 +64,15 @@ const SUB_PARAM_ENTRIES: SubEntry[] = [
   { parent: 'animate', leaf: 'crossFade', labelKey: 'animate.flip.crossFade', descKey: 'animate.flip.desc', isValue: true },
   { parent: 'animate', leaf: 'swipe',     labelKey: 'animate.flip.swipe',     descKey: 'animate.flip.desc', isValue: true },
   { parent: 'animate', leaf: 'zoom',      labelKey: 'animate.flip.zoom',      descKey: 'animate.flip.desc', isValue: true },
+
+  // Gesture children — link → /docs#props-gesture.
+  { parent: 'gesture', leaf: 'swipe',      labelKey: 'gesture.swipe',      descKey: 'gesture.swipe.desc' },
+  { parent: 'gesture', leaf: 'dragExit',   labelKey: 'gesture.dragExit',   descKey: 'gesture.dragExit.desc' },
+  { parent: 'gesture', leaf: 'threshold',  labelKey: 'gesture.threshold',  descKey: 'gesture.threshold.desc' },
+  { parent: 'gesture', leaf: 'velocity',   labelKey: 'gesture.velocity',   descKey: 'gesture.velocity.desc' },
+  { parent: 'gesture', leaf: 'axisLock',   labelKey: 'gesture.axisLock',   descKey: 'gesture.axisLock.desc' },
+  { parent: 'gesture', leaf: 'resistance', labelKey: 'gesture.resistance', descKey: 'gesture.resistance.desc' },
+  { parent: 'gesture', leaf: 'opacity',    labelKey: 'gesture.opacity',    descKey: 'gesture.opacity.desc' },
 ]
 
 // Side-anchor → desc i18n key. Items without an entry fall back to '' (no second line).
@@ -78,6 +87,7 @@ const SIDEBAR_DESC: Record<string, I18nKey> = {
   'props-controller': 'docs.search.desc.propsController',
   'props-hotkey': 'docs.search.desc.propsHotkey',
   'props-animate': 'docs.search.desc.propsAnimate',
+  'props-gesture': 'docs.search.desc.propsGesture',
   'props-lifecycle': 'docs.search.desc.propsLifecycle',
   'props-controlled': 'docs.search.desc.propsControlled',
   examples: 'docs.search.desc.examples',
