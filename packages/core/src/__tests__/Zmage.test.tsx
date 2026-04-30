@@ -42,6 +42,61 @@ describe('Zmage 基础组件', () => {
   })
 })
 
+describe('Zmage Wrapper', () => {
+  const A = 'https://example.com/wrapper-a.jpg'
+  const B = 'https://example.com/wrapper-b.jpg'
+
+  afterEach(async () => {
+    const close = document.getElementById('zmageControlClose')
+    if (close) {
+      fireEvent.click(close)
+      await act(async () => { await new Promise(r => setTimeout(r, 600)) })
+    }
+    document.getElementById('zmagePortal')?.remove()
+  })
+
+  it('显式 set 时按被点击 img 定位初始页', async () => {
+    render(
+      <Zmage.Wrapper
+        set={[
+          { src: A, alt: 'viewer-a' },
+          { src: B, alt: 'viewer-b' },
+        ]}
+      >
+        <article>
+          <img src={A} alt="cover-a" />
+          <img src={B} alt="cover-b" />
+        </article>
+      </Zmage.Wrapper>
+    )
+
+    fireEvent.click(screen.getByAltText('cover-b'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+    const img = document.getElementById('zmageImage') as HTMLImageElement
+    expect(img.src).toContain('wrapper-b.jpg')
+    expect(img.alt).toBe('viewer-b')
+  })
+
+  it('未传 set 时从临近 figcaption 读取 caption', async () => {
+    render(
+      <Zmage.Wrapper>
+        <article>
+          <figure>
+            <img src={A} alt="cover-a" />
+            <figcaption>Caption from rich text</figcaption>
+          </figure>
+        </article>
+      </Zmage.Wrapper>
+    )
+
+    fireEvent.click(screen.getByAltText('cover-a'))
+    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('Caption from rich text')
+  })
+})
+
 describe('Zmage StrictMode 双 mount/unmount 不应泄漏副作用', () => {
   let originalAddEventListener: typeof window.addEventListener
   let originalRemoveEventListener: typeof window.removeEventListener

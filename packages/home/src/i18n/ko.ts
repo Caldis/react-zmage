@@ -221,8 +221,8 @@ export const ko: I18nDict = {
   'docs.section.modes.imperativeTitle': '명령형',
   'docs.section.modes.imperativeBody': '적절한 커버 <img>가 없거나, 컴포넌트 트리에 추가 노드를 마운트하고 싶지 않을 때 사용합니다. 이벤트 핸들러, 비동기 콜백, 서드파티 위젯 등 어디에서든 호출하여 뷰어를 열 수 있습니다. 수동으로 닫을 수 있도록 destructor 클로저를 반환합니다.',
   'docs.section.modes.wrapperTitle': '래퍼',
-  'docs.section.modes.wrapperBody': '렌더링되는 HTML을 직접 제어할 수 없을 때 사용합니다 — markdown 출력, CMS 리치 텍스트, dangerouslySetInnerHTML. 하위 트리를 감싸기만 하면 원본 콘텐츠를 수정하지 않고도 내부의 모든 <img>에 자동으로 뷰어가 연결됩니다.',
-  'docs.section.modes.wrapperNote': '래퍼는 componentDidMount / componentDidUpdate 시점에 자식 img를 탐색합니다. 래퍼가 렌더링된 이후에 주입된 이미지는 래퍼가 다시 렌더될 때까지 연결되지 않습니다.',
+  'docs.section.modes.wrapperBody': '렌더링되는 HTML을 직접 제어할 수 없을 때 사용합니다 — markdown 출력, CMS 리치 텍스트, dangerouslySetInnerHTML. Wrapper는 클릭된 <img>에서 src / alt를 읽고, backdrop, 컨트롤, 단축키, 애니메이션, 콜백, set 같은 뷰어 설정은 <Zmage.Wrapper>에 둡니다.',
+  'docs.section.modes.wrapperNote': 'Wrapper는 componentDidMount / componentDidUpdate 시점에 자식 img를 탐색합니다. Wrapper가 렌더링된 뒤에 주입된 이미지는 Wrapper가 다시 렌더될 때까지 연결되지 않습니다. set이 전달되면 클릭된 img의 src를 set과 대조해 초기 페이지로 사용하고, set이 없으면 data-zmage-caption 또는 가장 가까운 figcaption을 뷰어 caption으로 사용할 수 있습니다.',
 
   'docs.section.theming.title': '테마 통합',
   'docs.section.theming.intro': 'react-zmage는 의도적으로 호스트 사이트의 테마 시스템에 종속되지 않습니다 — prefers-color-scheme을 읽지 않으며, 특정 CSS 변수 프레임워크에 묶이지도 않습니다. 라이트/다크 통합은 사용자 측의 책임입니다:',
@@ -259,6 +259,12 @@ export const ko: I18nDict = {
 
   'docs.section.props.title': 'Props',
   'docs.section.props.intro': 'BaseType의 모든 속성은 세 가지 모드 중 어떤 것에서도 사용할 수 있습니다.',
+  'docs.section.props.wrapperScope.title': 'Wrapper 모드의 prop 범위',
+  'docs.section.props.wrapperScope.intro': '<Zmage.Wrapper>는 커버 이미지를 직접 렌더링하지 않습니다. 이미 존재하는 하위 <img> 노드에 뷰어를 연결하므로, 일부 prop은 Wrapper 모드에서 별도의 의미를 갖습니다.',
+  'docs.section.props.wrapperScope.data': 'src와 alt는 자식 <img>에 둡니다. 최상위 src / alt는 클릭된 DOM 노드 값으로 덮어써집니다. set이 없을 때는 caption을 data-zmage-caption 또는 가장 가까운 figcaption에서 읽을 수 있습니다.',
+  'docs.section.props.wrapperScope.config': 'set과 defaultPage는 명시적인 공유 갤러리에 사용할 수 있습니다. 클릭된 img src가 set에 있으면 Wrapper는 해당 index를 열고, defaultPage는 fallback으로만 쓰입니다. preset, controller, hotKey, animate, backdrop, zIndex, radius, edge, loop, coverVisible, hideOnScroll, hideOnDblClick, loadingDelay는 평소처럼 적용됩니다.',
+  'docs.section.props.wrapperScope.lifecycle': 'onBrowsing, onZooming, onSwitching, onRotating, onError는 정상 동작합니다. Wrapper 내부에서 같은 뷰어를 열기 때문입니다.',
+  'docs.section.props.wrapperScope.controlled': 'browsing은 컴포넌트 모드의 controlled state이며 Wrapper를 제어하지 않습니다. 외부 state로 열고 싶다면 컴포넌트 모드를 쓰거나 Zmage.browsing()을 직접 호출하세요.',
   'docs.section.props.interface': '인터페이스 및 인터랙션',
   'docs.section.props.controller.keyHeader': '키',
   'docs.section.props.controller.descHeader': '설명',

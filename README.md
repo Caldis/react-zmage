@@ -106,6 +106,14 @@ function Trigger() {
 
 The wrapper queries `<img>` descendants in `componentDidMount` / `componentDidUpdate`. Imgs injected after the wrapper renders won't get bound until the wrapper re-renders.
 
+Wrapper-specific prop scope:
+
+- Put `src` / `alt` on the child `<img>` nodes. Top-level `src` / `alt` are overwritten by the clicked DOM node.
+- Viewer configuration still belongs on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, and lifecycle callbacks.
+- Pass `set` when the wrapped subtree should behave as one shared gallery. If the clicked image's `src` appears in `set`, Wrapper opens that matching index; `defaultPage` is only the fallback.
+- Without `set`, the clicked image opens as a single image. `data-zmage-caption` or the nearest `figcaption` can provide the viewer caption.
+- The controlled `browsing` prop is for component mode; it does not control `<Zmage.Wrapper>`.
+
 <details>
 <summary><strong>TypeScript</strong></summary>
 
@@ -153,8 +161,8 @@ API is identical — only the import path changes. The SSR build is platform-neu
 | `src` | `string` | — | Image URL. Same as `<img src>`. |
 | `alt` | `string` | `''` | Image title; rendered above the viewer in browsing mode. |
 | `caption` | `string \| { text: string; style?: CSSProperties; className?: string }` | `''` | Caption rendered below the viewer. String form uses the default pill style; object form lets you override styling or theme it. Per-page override available via `set[i].caption`. |
-| `set` | `Set[]` | `[]` | Multi-image gallery. When non-empty, arrow keys flip pages. |
-| `defaultPage` | `number` | `0` | Initial index when `set` is non-empty. |
+| `set` | `Set[]` | `[]` | Multi-image gallery. When non-empty, arrow keys flip pages. In Wrapper mode, pass `set` to treat wrapped images as one shared gallery; clicking an image whose `src` appears in `set` opens that matching index. |
+| `defaultPage` | `number` | `0` | Initial index when `set` is non-empty. In Wrapper mode this is a fallback only; a clicked image that matches `set[i].src` wins. |
 
 ### Preset
 
@@ -285,7 +293,7 @@ Defaults: desktop = `{ browsing: true, flip: 'crossFade' }`, mobile = `{ browsin
 
 | Prop | Type | Default | Notes |
 |---|---|---|---|
-| `browsing` | `boolean` | _(uncontrolled)_ | Controlled-mode prop, distinct from the static method `Zmage.browsing()`. Pair with `onBrowsing` so external state stays in sync. Omit for self-managed open/close. |
+| `browsing` | `boolean` | _(uncontrolled)_ | Controlled-mode prop, distinct from the static method `Zmage.browsing()`. Pair with `onBrowsing` so external state stays in sync. Omit for self-managed open/close. Does not control `<Zmage.Wrapper>`. |
 
 ### Native passthrough
 
@@ -336,7 +344,7 @@ Runtime feature detection picks the right mount API; consumers configure nothing
 />
 ```
 
-When `set` is non-empty, the first image you see in browsing mode is `set[defaultPage]`, not `src`. To keep the cover and the first viewer page in sync, put the cover in `set[0]` and pass it to `src` as well.
+In component and imperative modes, when `set` is non-empty, the first image you see in browsing mode is `set[defaultPage]`, not `src`. To keep the cover and the first viewer page in sync, put the cover in `set[0]` and pass it to `src` as well. In Wrapper mode, a clicked child image that matches `set[i].src` opens that index automatically.
 
 ### Selectively disable controls
 

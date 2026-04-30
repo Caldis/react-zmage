@@ -141,6 +141,22 @@ function SetDetail () {
   )
 }
 
+function WrapperScopeDetail () {
+  const { t } = useT()
+  return (
+    <div className="my-6 rounded-lg border border-border bg-muted/25 p-4 text-sm">
+      <p className="font-medium">{t('docs.section.props.wrapperScope.title')}</p>
+      <p className="mt-2 text-muted-foreground">{t('docs.section.props.wrapperScope.intro')}</p>
+      <ul className="mt-3 list-disc space-y-1.5 pl-5 text-muted-foreground">
+        <li>{t('docs.section.props.wrapperScope.data')}</li>
+        <li>{t('docs.section.props.wrapperScope.config')}</li>
+        <li>{t('docs.section.props.wrapperScope.lifecycle')}</li>
+        <li>{t('docs.section.props.wrapperScope.controlled')}</li>
+      </ul>
+    </div>
+  )
+}
+
 function TypeCaption ({ name }: { name: string }) {
   return (
     <div className="border-b border-border px-4 py-2 font-mono text-xs text-muted-foreground">
@@ -268,6 +284,7 @@ export function Props () {
     <section className="mt-12 space-y-4">
       <Heading id="props">{t('docs.section.props.title')}</Heading>
       <p>{t('docs.section.props.intro')}</p>
+      <WrapperScopeDetail />
       <Heading id="props-data" level={3}>{t('group.data')}</Heading>
       <ParamTable group="data" />
       <Heading id="props-set" level={3}>{t('docs.section.props.set.title')}</Heading>

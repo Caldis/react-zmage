@@ -221,8 +221,8 @@ export const ja: I18nDict = {
   'docs.section.modes.imperativeTitle': '命令式',
   'docs.section.modes.imperativeBody': '適切なカバー用 <img> がない、あるいはコンポーネントツリーに余計なノードをマウントしたくないときに選んでください。イベントハンドラ、非同期コールバック、サードパーティ製ウィジェットから呼び出して、どこからでもビューアを開けます。戻り値は手動クローズ用のデストラクタクロージャです。',
   'docs.section.modes.wrapperTitle': 'ラッパー',
-  'docs.section.modes.wrapperBody': 'レンダリングされる HTML を自分で制御できないとき(markdown 出力、CMS リッチテキスト、dangerouslySetInnerHTML など)に使ってください。サブツリーをラップするだけで、ソースコンテンツを書き換えることなく、内側のすべての <img> が自動的にビューアを獲得します。',
-  'docs.section.modes.wrapperNote': 'ラッパーは componentDidMount / componentDidUpdate のタイミングで子の img を検索します。ラッパーがレンダリングされた後に挿入された画像は、ラッパーが再レンダリングされるまでひも付きません。',
+  'docs.section.modes.wrapperBody': 'レンダリングされる HTML を自分で制御できないとき(markdown 出力、CMS リッチテキスト、dangerouslySetInnerHTML など)に使ってください。Wrapper はクリックされた <img> から src / alt を読み取り、backdrop、コントロール、ホットキー、アニメーション、コールバック、set などのビューア設定は <Zmage.Wrapper> に置きます。',
+  'docs.section.modes.wrapperNote': 'Wrapper は componentDidMount / componentDidUpdate のタイミングで子の img を検索します。Wrapper がレンダリングされた後に挿入された画像は、Wrapper が再レンダリングされるまでひも付きません。set を渡した場合、クリックされた img の src を set と照合して初期ページにします。set がない場合は、data-zmage-caption または最も近い figcaption をビューアの caption として使えます。',
 
   'docs.section.theming.title': 'テーマ統合',
   'docs.section.theming.intro': 'react-zmage は意図的にホストサイトのテーマシステムから独立しています ── prefers-color-scheme を読まず、特定の CSS 変数フレームワークにも縛られません。ライト/ダークの統合は利用側が制御します:',
@@ -259,6 +259,12 @@ export const ja: I18nDict = {
 
   'docs.section.props.title': 'Props',
   'docs.section.props.intro': 'BaseType に定義されたすべての prop は、3 つのモードのいずれでも利用できます。',
+  'docs.section.props.wrapperScope.title': 'Wrapper モードの prop 範囲',
+  'docs.section.props.wrapperScope.intro': '<Zmage.Wrapper> はカバー画像自体をレンダリングしません。既存の子孫 <img> ノードにビューアを結び付けるため、一部の prop は Wrapper モード固有の意味を持ちます。',
+  'docs.section.props.wrapperScope.data': 'src と alt は子の <img> に置きます。トップレベルの src / alt は、クリックされた DOM ノードの値で上書きされます。set がない場合、caption は data-zmage-caption または最も近い figcaption から読み取れます。',
+  'docs.section.props.wrapperScope.config': 'set と defaultPage は明示的な共有ギャラリーに使えます。クリックされた img の src が set に含まれる場合、Wrapper は対応する index を開きます。defaultPage は fallback です。preset、controller、hotKey、animate、backdrop、zIndex、radius、edge、loop、coverVisible、hideOnScroll、hideOnDblClick、loadingDelay は通常どおり適用されます。',
+  'docs.section.props.wrapperScope.lifecycle': 'onBrowsing、onZooming、onSwitching、onRotating、onError は動作します。Wrapper 内部で同じビューアを開くためです。',
+  'docs.section.props.wrapperScope.controlled': 'browsing はコンポーネントモードの controlled state であり、Wrapper は制御しません。外部 state から開きたい場合は、コンポーネントモードを使うか Zmage.browsing() を直接呼び出してください。',
   'docs.section.props.interface': 'インターフェースとインタラクション',
   'docs.section.props.controller.keyHeader': 'キー',
   'docs.section.props.controller.descHeader': '説明',

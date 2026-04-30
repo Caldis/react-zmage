@@ -32,7 +32,7 @@ import type {
 // Three usage modes
 <Zmage src="..." />                                  // 1. Component
 Zmage.browsing(props): () => void                    // 2. Imperative; returns destructor
-<Zmage.wrapper>{children}</Zmage.wrapper>            // 3. Auto-attach to <img> in children
+<Zmage.Wrapper>{children}</Zmage.Wrapper>            // 3. Auto-attach to <img> in children
 
 // Ref forwarding
 const ref = useRef<HTMLImageElement>(null)
@@ -80,9 +80,9 @@ Single `BaseType` covers all. Grouped here by purpose:
 
 | Group | Props | Notes |
 |---|---|---|
-| Data | `src`, `alt`, `caption`, `set`, `defaultPage` | `set` enables multi-image mode. `caption` is `string \| { text, style?, className? }` — renders below the image; per-set override via `set[i].caption` |
+| Data | `src`, `alt`, `caption`, `set`, `defaultPage` | `set` enables multi-image mode. `caption` is `string \| { text, style?, className? }` — renders below the image; per-set override via `set[i].caption`. In Wrapper mode, child `<img>` nodes provide `src` / `alt`; top-level `set` may define a shared gallery, and clicked `img.src` opens the matching `set[i]` before falling back to `defaultPage`. Without `set`, `data-zmage-caption` or nearest `figcaption` may provide caption. |
 | Preset | `preset: 'desktop' \| 'mobile' \| 'auto'` | drives default `controller` / `hotKey` / `animate`. `'auto'` resolves via `matchMedia('(pointer: coarse) and (hover: none)')` on the client; SSR falls back to desktop |
-| Controlled | `browsing` | omit for self-managed; pair with `onBrowsing` if set |
+| Controlled | `browsing` | omit for self-managed; pair with `onBrowsing` if set. Does not control `<Zmage.Wrapper>` |
 | Functional | `controller`, `hotKey`, `animate` | pass `boolean` to disable, or partial object to override. `controller.flip` / `hotKey.flip` and `controller.rotate` / `hotKey.rotate` are umbrellas over their per-side counterparts; enabling the umbrella forces both sides on. **`hotKey` entries accept `boolean \| string \| string[]`** — string is an `e.code` descriptor (`'Escape'` / `'BracketLeft'` / `'S'`) with cross-platform `Mod` prefix (= ⌘ on macOS, Ctrl elsewhere; e.g. `'Mod+S'`). New defaults: `[`/`]` rotate, `Mod+S` download (download is opt-in: defaults `false` because it hijacks the browser's "Save Page As"). Per-side string descriptor wins over umbrella. `controller.backdrop` / `controller.color` decouple the toolbar bg/icon-color from the modal `backdrop` (set both when `backdrop` is solid dark) |
 | Interface | `hideOnScroll`, `hideOnDblClick`, `coverVisible`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `loadingDelay` | desktop-only flags noted in README. `hideOnScroll` and `hideOnDblClick` are the auto-dismiss trigger family (user action → close viewer); `hideOnDblClick` defaults `false`. `loadingDelay` defaults `200ms` — anti-flicker delay before showing the loading indicator (set 0 for legacy instant-show) |
 | Lifecycle | `onBrowsing`, `onZooming`, `onSwitching`, `onRotating`, `onError` | first 4 callback args: `boolean`/`boolean`/`number`/`number`. `onError(e: SyntheticEvent<HTMLImageElement>)` fires for cover **or** viewer img-load failure — the only hook for the viewer-side failure (cover also flows via native `<img>` `onError` passthrough) |
@@ -97,7 +97,8 @@ Defaults & sub-shapes: see [`packages/core/src/types/default.ts`](./packages/cor
 3. **Treating `Zmage` as a class** — it is a `forwardRef` exotic component. ❌ `new Zmage()`. ✅ JSX or `Zmage.browsing()`.
 4. **Mixing controlled and uncontrolled** — if `browsing` is in props, it must be a fully controlled `boolean` (provide `onBrowsing` to receive changes). Mixing both modes silently breaks state sync.
 5. **Calling `Zmage.browsing` server-side** — it manipulates `document.body`. Guard with `typeof window !== 'undefined'` or call from event handlers / effects.
-6. **Wrapping with `Zmage.wrapper` without re-rendering** — wrapper attaches click handlers in `componentDidMount` / `componentDidUpdate` by querying `wrapperRef.current.querySelectorAll('img')`. Dynamically-injected `<img>` (after wrapper update) won't get attached unless wrapper re-renders.
+6. **Putting `src` / `alt` on `<Zmage.Wrapper>` as if it rendered an image** — Wrapper binds real descendant `<img>` nodes. Put image data in the HTML, and pass only viewer config / optional shared `set` to Wrapper.
+7. **Wrapping with `Zmage.Wrapper` without re-rendering** — wrapper attaches click handlers in `componentDidMount` / `componentDidUpdate` by querying `wrapperRef.current.querySelectorAll('img')`. Dynamically-injected `<img>` (after wrapper update) won't get attached unless wrapper re-renders.
 
 ## File layout (when generating PRs)
 

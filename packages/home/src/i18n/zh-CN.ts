@@ -244,8 +244,8 @@ export const zhCN = {
   'docs.section.modes.imperativeTitle': '命令式',
   'docs.section.modes.imperativeBody': '当你没有合适的封面 <img>,或不希望在组件树里多挂载节点时使用。可以从事件处理器、第三方回调或异步流程中调用,在任意位置弹出查看器。返回值是一个 destructor 闭包,用于手动关闭。',
   'docs.section.modes.wrapperTitle': '包裹器',
-  'docs.section.modes.wrapperBody': '当渲染出的 HTML 不在你的控制之内时使用 —— markdown 输出、CMS 富文本、dangerouslySetInnerHTML 等。把这棵子树整个包起来,内部所有 <img> 自动获得查看能力,无需修改原始内容。',
-  'docs.section.modes.wrapperNote': '包裹器会在 componentDidMount / componentDidUpdate 期间查找子节点中的 img。包裹器渲染之后再注入的图片,需等到包裹器重新渲染时才会被绑定。',
+  'docs.section.modes.wrapperBody': '当渲染出的 HTML 不在你的控制之内时使用 —— markdown 输出、CMS 富文本、dangerouslySetInnerHTML 等。Wrapper 会从被点击的 <img> 读取 src / alt; backdrop、控制器、快捷键、动画、回调、set 等查看器配置仍然写在 <Zmage.Wrapper> 上。',
+  'docs.section.modes.wrapperNote': '包裹器会在 componentDidMount / componentDidUpdate 期间查找子节点中的 img。包裹器渲染之后再注入的图片,需等到包裹器重新渲染时才会被绑定。传入 set 时,Wrapper 会用被点击图片的 src 匹配 set 并作为初始页;不传 set 时,可从 data-zmage-caption 或最近的 figcaption 读取 caption。',
 
   'docs.section.theming.title': '主题集成',
   'docs.section.theming.intro': 'react-zmage 在设计上不感知宿主站点的主题系统 —— 它不读取 prefers-color-scheme,也不绑定任何 CSS 变量框架。是否切换深浅色完全由消费方决定:',
@@ -283,6 +283,12 @@ export const zhCN = {
 
   'docs.section.props.title': 'API 参数',
   'docs.section.props.intro': 'BaseType 上的所有属性,在三种调用方式中均可使用。',
+  'docs.section.props.wrapperScope.title': 'Wrapper 模式下的参数范围',
+  'docs.section.props.wrapperScope.intro': '<Zmage.Wrapper> 自己不渲染封面图,而是给已有的子级 <img> 绑定查看器。因此有些参数在包裹器模式下有不同语义。',
+  'docs.section.props.wrapperScope.data': 'src 和 alt 应放在子级 <img> 上。顶层 src / alt 会被点击的 DOM 节点覆盖。不传 set 时,caption 可从 data-zmage-caption 或最近的 figcaption 读取。',
+  'docs.section.props.wrapperScope.config': 'set 和 defaultPage 可用于显式共享图库。若被点击图片的 src 出现在 set 中,Wrapper 会打开匹配索引;defaultPage 只作为兜底。preset、controller、hotKey、animate、backdrop、zIndex、radius、edge、loop、coverVisible、hideOnScroll、hideOnDblClick、loadingDelay 正常生效。',
+  'docs.section.props.wrapperScope.lifecycle': 'onBrowsing、onZooming、onSwitching、onRotating、onError 正常生效,因为 Wrapper 内部打开的是同一个查看器。',
+  'docs.section.props.wrapperScope.controlled': 'browsing 是组件模式的受控态,不能控制 Wrapper。需要用外部状态打开时,使用组件模式,或自行调用 Zmage.browsing()。',
   'docs.section.props.interface': '界面与交互',
   'docs.section.props.controller.keyHeader': '名称',
   'docs.section.props.controller.descHeader': '说明',

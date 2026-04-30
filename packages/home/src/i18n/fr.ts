@@ -221,8 +221,8 @@ export const fr: I18nDict = {
   'docs.section.modes.imperativeTitle': 'Impératif',
   'docs.section.modes.imperativeBody': "À privilégier quand vous n'avez pas de bon <img> de couverture, ou ne voulez pas monter de nœuds supplémentaires dans votre arbre de composants. Appelez depuis des gestionnaires d'événement, des callbacks asynchrones ou des widgets tiers pour ouvrir la visionneuse depuis n'importe où. Retourne une closure de destruction pour une fermeture manuelle.",
   'docs.section.modes.wrapperTitle': 'Wrapper',
-  'docs.section.modes.wrapperBody': "À utiliser quand vous ne contrôlez pas le HTML rendu — sortie markdown, texte enrichi CMS, dangerouslySetInnerHTML. Encapsulez le sous-arbre et chaque <img> à l'intérieur gagne automatiquement la visionneuse, sans modifier le contenu source.",
-  'docs.section.modes.wrapperNote': 'Le wrapper recherche les enfants img pendant componentDidMount / componentDidUpdate. Les images injectées après le rendu du wrapper ne seront liées qu\'au prochain rendu.',
+  'docs.section.modes.wrapperBody': "À utiliser quand vous ne contrôlez pas le HTML rendu — sortie markdown, texte enrichi CMS, dangerouslySetInnerHTML. Wrapper lit src / alt depuis le <img> cliqué ; les props de visionneuse comme backdrop, contrôles, raccourcis, animation, callbacks et set restent sur <Zmage.Wrapper>.",
+  'docs.section.modes.wrapperNote': "Wrapper recherche les enfants img pendant componentDidMount / componentDidUpdate. Les images injectées après le rendu du wrapper ne seront liées qu'au prochain rendu. Si set est fourni, le src du img cliqué est comparé à set et utilisé comme page initiale ; sans set, data-zmage-caption ou la figcaption la plus proche peut devenir la caption de la visionneuse.",
 
   'docs.section.theming.title': 'Thèmes',
   'docs.section.theming.intro': 'react-zmage est volontairement agnostique vis-à-vis du système de thème du site hôte — il ne lit pas prefers-color-scheme et n\'est lié à aucun framework de variables CSS. L\'intégration clair/sombre est la responsabilité du consommateur :',
@@ -259,6 +259,12 @@ export const fr: I18nDict = {
 
   'docs.section.props.title': 'Props',
   'docs.section.props.intro': 'Toutes les props de BaseType peuvent être passées dans n\'importe lequel des trois modes.',
+  'docs.section.props.wrapperScope.title': 'Portée des props en mode Wrapper',
+  'docs.section.props.wrapperScope.intro': "<Zmage.Wrapper> ne rend pas lui-même l'image de couverture. Il lie des nœuds <img> descendants déjà présents ; certaines props ont donc une signification propre en mode Wrapper.",
+  'docs.section.props.wrapperScope.data': 'src et alt doivent être placés sur le <img> enfant. Les src / alt de premier niveau sont remplacés par le nœud DOM cliqué. Sans set, caption peut être lue depuis data-zmage-caption ou depuis la figcaption la plus proche.',
+  'docs.section.props.wrapperScope.config': "set et defaultPage sont pris en charge pour une galerie partagée explicite. Quand le src du img cliqué apparaît dans set, Wrapper ouvre l'index correspondant ; defaultPage ne sert que de fallback. preset, controller, hotKey, animate, backdrop, zIndex, radius, edge, loop, coverVisible, hideOnScroll, hideOnDblClick et loadingDelay s'appliquent normalement.",
+  'docs.section.props.wrapperScope.lifecycle': 'onBrowsing, onZooming, onSwitching, onRotating et onError fonctionnent, car Wrapper ouvre la même visionneuse en interne.',
+  'docs.section.props.wrapperScope.controlled': "browsing est l'état contrôlé du mode composant et ne contrôle pas Wrapper. Pour ouvrir depuis votre propre état, utilisez le mode composant ou appelez Zmage.browsing() vous-même.",
   'docs.section.props.interface': 'Interface et interaction',
   'docs.section.props.controller.keyHeader': 'Clé',
   'docs.section.props.controller.descHeader': 'Description',

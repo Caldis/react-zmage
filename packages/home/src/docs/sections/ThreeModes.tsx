@@ -20,7 +20,12 @@ export function ThreeModes () {
 // returns a destructor: () => void`} language={'tsx' as any} />
       <h3 className="mt-6 text-lg font-semibold">{t('docs.section.modes.wrapperTitle')}</h3>
       <p>{t('docs.section.modes.wrapperBody')}</p>
-      <CodeBlock code={`<Zmage.Wrapper backdrop="#0a0a0a">
+      <CodeBlock code={`const gallery = [
+  { src: '/photo-1.jpg', alt: 'one', caption: 'First image' },
+  { src: '/photo-2.jpg', alt: 'two', caption: 'Second image' },
+]
+
+<Zmage.Wrapper set={gallery} backdrop="#0a0a0a">
   <article dangerouslySetInnerHTML={{ __html: html }} />
 </Zmage.Wrapper>`} language={'tsx' as any} />
       <p className="text-sm text-muted-foreground">{t('docs.section.modes.wrapperNote')}</p>

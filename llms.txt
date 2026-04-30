@@ -29,7 +29,7 @@ const close = Zmage.browsing({ src: '/photo.jpg', backdrop: '#111' })
 // later: close()
 
 // Wrapper: auto-attach to every <img> inside an HTML subtree
-<Zmage.Wrapper>
+<Zmage.Wrapper backdrop="#111">
   <article dangerouslySetInnerHTML={{ __html: html }} />
 </Zmage.Wrapper>
 
@@ -48,7 +48,7 @@ const [open, setOpen] = useState(false)
 
 - **Component**: you control the markup. Highest specificity, recommended default.
 - **Imperative**: open from arbitrary callbacks (e.g., a button onClick handler outside JSX). `Zmage.browsing(opts)` returns a destructor — calling it closes the viewer. Guard with `typeof window !== 'undefined'` if it can run server-side.
-- **Wrapper**: you don't control the rendered HTML (CMS markup, MDX, `dangerouslySetInnerHTML`). Wrapper scans its `<img>` descendants on mount and on every re-render, then binds click handlers; new imgs injected without a Wrapper re-render are not picked up.
+- **Wrapper**: you don't control the rendered HTML (CMS markup, MDX, `dangerouslySetInnerHTML`). Wrapper scans its `<img>` descendants on mount and on every re-render, then binds click handlers; new imgs injected without a Wrapper re-render are not picked up. Child `<img>` nodes provide `src` / `alt`; viewer configuration props stay on `<Zmage.Wrapper>`.
 
 ## API quick reference
 
@@ -59,8 +59,8 @@ const [open, setOpen] = useState(false)
 | `src` | `string` | — | Required. Same as `<img src>`. |
 | `alt` | `string` | `''` | Same as `<img alt>`. |
 | `caption` | `string \| { text: string; style?: CSSProperties; className?: string }` | `''` | Caption rendered below the image inside the viewer. Pass a string for the default pill, or an object to override styling (`style` is shallow-merged onto the default class; `className` appends). Per-set entries may override via `set[i].caption`. |
-| `set` | `Array<{ src, alt?, caption? }>` | `[]` | Multi-image gallery. When non-empty, arrow keys page. `caption` per item accepts the same `string \| object` shape as the top-level prop. |
-| `defaultPage` | `number` | `0` | Initial index when `set` is non-empty. |
+| `set` | `Array<{ src, alt?, caption? }>` | `[]` | Multi-image gallery. When non-empty, arrow keys page. `caption` per item accepts the same `string \| object` shape as the top-level prop. In Wrapper mode, pass `set` for a shared gallery; a clicked child image whose `src` matches `set[i].src` opens that index. |
+| `defaultPage` | `number` | `0` | Initial index when `set` is non-empty. In Wrapper mode this is a fallback only; matched child image src wins. |
 | `backdrop` | `string` (CSS color) | `'#FFFFFF'` | **Default is white** — override (e.g. `'#111'`) for dark UIs or you'll get a white-on-white modal. |
 | `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'desktop'` | Picks default `controller` / `hotKey` / `animate` bundle. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → mobile defaults, otherwise desktop. SSR / no `matchMedia` falls back to desktop. |
 | `controller` | `boolean \| ControllerSet` | preset | Per-button toggles: `pagination`, `rotate`, `rotateLeft`, `rotateRight`, `zoom`, `download`, `close`, `flip`, `flipLeft`, `flipRight`. `rotate` and `flip` are umbrellas: enabling either overrides its per-side counterparts (e.g. `rotate: true` shows both rotateLeft+rotateRight regardless of those flags). Visual keys: `backdrop` (toolbar bg, falls back to top-level `backdrop`) and `color` (icon color, falls back to `currentColor`). Pair them on dark `backdrop` to keep the toolbar legible — e.g. `backdrop="#111"` + `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}`. Per-button string overrides (e.g. `controller.zoom: '#ff8800'`) still win over `controller.color`. |
@@ -77,9 +77,16 @@ const [open, setOpen] = useState(false)
 | `onSwitching` | `(page: number) => void` | — | Fires on page change. |
 | `onRotating` | `(deg: number) => void` | — | Fires on rotation. |
 | `onError` | `(e: SyntheticEvent<HTMLImageElement>) => void` | — | Fires when an image (cover **or** viewer) fails to load. The cover-image case also still flows through native `<img>` `onError` via HTML attribute passthrough; this prop is the only way to observe the **viewer** image's load failure. |
-| `browsing` | `boolean` | — | **Controlled-mode prop**, distinct from the static method `Zmage.browsing()`. Pair with `onBrowsing` to drive open state from outside. |
+| `browsing` | `boolean` | — | **Controlled-mode prop**, distinct from the static method `Zmage.browsing()`. Pair with `onBrowsing` to drive open state from outside. Does not control `<Zmage.Wrapper>`. |
 
 Standard `<img>` HTML attributes (`className`, `style`, `width`, `height`, `loading`, `id`, etc.) pass through to the cover image.
+
+Wrapper mode prop scope:
+- Put `src` / `alt` on child `<img>` nodes; top-level `src` / `alt` are overridden by the clicked DOM node.
+- Pass viewer behavior and visuals on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, plus lifecycle callbacks.
+- Pass `set` when the wrapped subtree should be one shared gallery. If clicked `img.src` matches `set[i].src`, Wrapper opens `i`; otherwise it falls back to `defaultPage`.
+- Without `set`, the clicked image opens alone. `data-zmage-caption` or the nearest `figcaption` can provide the viewer caption.
+- `browsing` is component-controlled state and does not control Wrapper.
 
 ### Custom hotkey bindings
 
@@ -132,9 +139,10 @@ The library is theme-agnostic by design — there's no theme provider, no light/
 1. Forgetting `import 'react-zmage/style.css'` — viewer renders unstyled.
 2. Confusing the static method `Zmage.browsing(opts)` (imperative open, returns a destructor) with the `browsing` prop (controlled-mode boolean). Same name, different things — the prop must always be paired with an `onBrowsing` handler or state desyncs silently.
 3. Wrapper not picking up dynamically-injected imgs — Wrapper only re-scans on its own re-render, not on DOM mutations.
-4. Calling `Zmage.browsing()` in code that may run server-side — guard with `typeof window !== 'undefined'`, or import from `react-zmage/ssr`.
-5. Leaving `backdrop` at the default `#FFFFFF` on a dark-themed page — the modal will render white-on-white. Always set `backdrop` explicitly if your host UI isn't light.
-6. Setting `backdrop` to a solid dark color (e.g. `'#000'`) without also setting `controller.color`/`controller.backdrop` — toolbar icons default to `currentColor` (often near-black) and the toolbar bg follows `backdrop` unless overridden, so icons disappear into the bar. Pair: `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}`.
+4. Putting `src` / `alt` on `<Zmage.Wrapper>` and expecting them to render images — Wrapper reads actual descendant `<img>` nodes instead.
+5. Calling `Zmage.browsing()` in code that may run server-side — guard with `typeof window !== 'undefined'`, or import from `react-zmage/ssr`.
+6. Leaving `backdrop` at the default `#FFFFFF` on a dark-themed page — the modal will render white-on-white. Always set `backdrop` explicitly if your host UI isn't light.
+7. Setting `backdrop` to a solid dark color (e.g. `'#000'`) without also setting `controller.color`/`controller.backdrop` — toolbar icons default to `currentColor` (often near-black) and the toolbar bg follows `backdrop` unless overridden, so icons disappear into the bar. Pair: `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}`.
 
 ## Optional
 

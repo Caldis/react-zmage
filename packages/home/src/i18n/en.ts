@@ -228,8 +228,8 @@ export const en: I18nDict = {
   'docs.section.modes.imperativeTitle': 'Imperative',
   'docs.section.modes.imperativeBody': "Reach for this when you have no good cover <img>, or don't want to mount extra nodes in your component tree. Call from event handlers, async callbacks, or third-party widgets to open the viewer from anywhere. Returns a destructor closure for manual close.",
   'docs.section.modes.wrapperTitle': 'Wrapper',
-  'docs.section.modes.wrapperBody': "Use this when you don't control the rendered HTML — markdown output, CMS rich text, dangerouslySetInnerHTML. Wrap the subtree and every <img> inside automatically gains the viewer, without modifying the source content.",
-  'docs.section.modes.wrapperNote': "Wrapper queries img children during componentDidMount / componentDidUpdate. Imgs injected after the wrapper renders won't get bound until the wrapper re-renders.",
+  'docs.section.modes.wrapperBody': "Use this when you don't control the rendered HTML — markdown output, CMS rich text, dangerouslySetInnerHTML. Wrapper reads src / alt from the clicked <img>; viewer props such as backdrop, controls, hotkeys, animation, callbacks, and set stay on <Zmage.Wrapper>.",
+  'docs.section.modes.wrapperNote': "Wrapper queries img children during componentDidMount / componentDidUpdate. Imgs injected after the wrapper renders won't get bound until the wrapper re-renders. If set is supplied, the clicked img's src is matched against set and used as the initial page; if no set is supplied, data-zmage-caption or the nearest figcaption can become the viewer caption.",
 
   'docs.section.theming.title': 'Theming',
   'docs.section.theming.intro': 'react-zmage is intentionally agnostic to the host site\'s theme system — it does not read prefers-color-scheme and is not bound to any CSS-variable framework. Light/dark integration is the consumer\'s responsibility:',
@@ -267,6 +267,12 @@ export const en: I18nDict = {
 
   'docs.section.props.title': 'Props',
   'docs.section.props.intro': 'Every prop on BaseType can be passed in any of the three modes.',
+  'docs.section.props.wrapperScope.title': 'Wrapper mode prop scope',
+  'docs.section.props.wrapperScope.intro': '<Zmage.Wrapper> does not render the cover image itself. It binds existing descendant <img> nodes, so a few props have wrapper-specific meaning.',
+  'docs.section.props.wrapperScope.data': 'src and alt should live on the child <img>. Top-level src / alt are overridden by the clicked DOM node. caption may be read from data-zmage-caption or the nearest figcaption when no set is supplied.',
+  'docs.section.props.wrapperScope.config': 'set and defaultPage are supported for an explicit shared gallery. When the clicked img src appears in set, Wrapper opens that matching index; defaultPage is only the fallback. preset, controller, hotKey, animate, backdrop, zIndex, radius, edge, loop, coverVisible, hideOnScroll, hideOnDblClick, and loadingDelay apply normally.',
+  'docs.section.props.wrapperScope.lifecycle': 'onBrowsing, onZooming, onSwitching, onRotating, and onError work because Wrapper opens the same viewer internally.',
+  'docs.section.props.wrapperScope.controlled': 'browsing is component-controlled state and does not control Wrapper. To open from your own state, use component mode or call Zmage.browsing() yourself.',
   'docs.section.props.interface': 'Interface & interaction',
   'docs.section.props.controller.keyHeader': 'Key',
   'docs.section.props.controller.descHeader': 'Description',

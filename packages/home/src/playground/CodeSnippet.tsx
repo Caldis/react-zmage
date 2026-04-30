@@ -8,6 +8,12 @@ import { buildLibProps } from '@/playground/state'
 type Mode = 'component' | 'imperative' | 'wrapper'
 type GetUmbrellaPhrase = (umbrella: string) => string
 
+type WrapperHtmlImage = {
+  src: string
+  alt?: string
+  caption?: any
+}
+
 function isCallback (v: any) {
   return typeof v === 'function' && v?.__zmageLog === true
 }
@@ -87,9 +93,69 @@ function renderImperative (props: Record<string, any>, getPhrase: GetUmbrellaPhr
   ].join('\n')
 }
 
-function renderWrapper (props: Record<string, any>, getPhrase: GetUmbrellaPhrase) {
+function getCaptionText (caption: any, fallback?: string) {
+  if (typeof caption === 'string' && caption.trim()) return caption.trim()
+  if (caption && typeof caption === 'object' && typeof caption.text === 'string' && caption.text.trim()) {
+    return caption.text.trim()
+  }
+  return fallback || ''
+}
+
+function escapeHtmlAttr (value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\\/g, '\\\\')
+    .replace(/`/g, '\\`')
+    .replace(/\$\{/g, '\\${')
+}
+
+function wrapperImagesFromValues (values: Record<string, any>): WrapperHtmlImage[] {
+  if (Array.isArray(values.set) && values.set.length > 0) return values.set
+  return values.src ? [{ src: values.src, alt: values.alt, caption: values.caption }] : []
+}
+
+function renderWrapperHtml (values: Record<string, any>) {
+  const imgs = wrapperImagesFromValues(values).slice(0, 4)
+  if (imgs.length === 0) {
+    return `const html = \`
+<p>CMS or markdown content with image tags.</p>
+\``
+  }
+
+  const figures = imgs.map((img, i) => {
+    const caption = getCaptionText(img.caption, img.alt || `Image ${i + 1}`)
+    return [
+      `  <figure>`,
+      `    <img src="${escapeHtmlAttr(img.src)}" alt="${escapeHtmlAttr(img.alt || '')}" />`,
+      caption ? `    <figcaption>${escapeHtmlAttr(caption)}</figcaption>` : '',
+      `  </figure>`,
+    ].filter(Boolean).join('\n')
+  })
+  return [
+    `const html = \``,
+    `  <p>Rich text from a CMS, markdown renderer, or MDX pipeline.</p>`,
+    ...figures,
+    `\``,
+  ].join('\n')
+}
+
+function omitWrapperOnlyDataProps (props: Record<string, any>) {
+  const {
+    src: _src,
+    alt: _alt,
+    caption: _caption,
+    browsing: _browsing,
+    ...rest
+  } = props
+  return rest
+}
+
+function renderWrapper (values: Record<string, any>, props: Record<string, any>, getPhrase: GetUmbrellaPhrase) {
   const entries = Object.entries(props)
-  const lines: string[] = []
+  const lines: string[] = [renderWrapperHtml(values), '']
   if (entries.length === 0) {
     lines.push(`<Zmage.Wrapper>`)
   } else {
@@ -120,10 +186,11 @@ export function CodeSnippet ({
     t('snippet.overriddenByProp').replace('{umbrella}', umbrella)
   // hideDefaults 打开 → 不传 touched, 一律剥 schema 默认.
   // hideDefaults 关闭 → 传 touched, 保留用户碰过的默认值.
-  const props = buildLibProps(values, hideDefaults ? undefined : touched)
+  const rawProps = buildLibProps(values, hideDefaults ? undefined : touched)
+  const props = mode === 'wrapper' ? omitWrapperOnlyDataProps(rawProps) : rawProps
   const code = mode === 'component' ? renderJsx(props, getPhrase)
     : mode === 'imperative' ? renderImperative(props, getPhrase)
-      : renderWrapper(props, getPhrase)
+      : renderWrapper(values, props, getPhrase)
   const id = React.useId()
   return (
     <CodeBlock

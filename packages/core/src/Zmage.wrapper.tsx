@@ -8,9 +8,23 @@ import React from 'react'
 import callee from './Zmage.callee'
 // Utils
 import { defProp } from './types/default'
-import { BaseType } from './types/global'
+import { BaseType, Set } from './types/global'
 
 type Props = BaseType
+
+const readCaptionFromNode = (item: HTMLImageElement) => {
+  const explicit = item.getAttribute('data-zmage-caption')?.trim()
+  if (explicit) return explicit
+
+  const figure = item.closest('figure')
+  const figcaption = figure?.querySelector('figcaption')?.textContent?.trim()
+  return figcaption || undefined
+}
+
+const findSetIndexBySrc = (set: Set[] | undefined, src: string) => {
+  if (!Array.isArray(set) || set.length === 0) return -1
+  return set.findIndex(item => item.src === src)
+}
 
 export default class ReactZmageWrapper extends React.Component<Props> {
 
@@ -43,11 +57,15 @@ export default class ReactZmageWrapper extends React.Component<Props> {
           // 路径, 模态层渲染 src="" 触发浏览器 "empty src" 警告 + 模态空白.
           const itemSrc = item.getAttribute('src') || ''
           const itemAlt = item.getAttribute('alt') || undefined
+          const itemCaption = readCaptionFromNode(item)
+          const itemSetIndex = findSetIndexBySrc(restProps.set, itemSrc)
           item.addEventListener('click', () => callee({
             ...restProps,
             coverRef: { current: item },
             src: itemSrc,
             alt: itemAlt,
+            caption: itemCaption ?? restProps.caption,
+            defaultPage: itemSetIndex >= 0 ? itemSetIndex : restProps.defaultPage,
           }))
         }
       })
