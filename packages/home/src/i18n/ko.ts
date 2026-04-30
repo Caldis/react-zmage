@@ -179,6 +179,8 @@ export const ko: I18nDict = {
   'param.coverVisible.desc': '뷰어가 열려 있는 동안에도 커버 이미지를 표시합니다.',
   'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
   'param.closeOnDoubleClick.desc': '이미지 더블클릭으로 뷰어를 닫습니다. 기본값은 꺼짐.',
+  'param.loadingDelay.label': 'loadingDelay',
+  'param.loadingDelay.desc': '로딩 인디케이터 표시 전 지연 (ms). 이 기간 안에 이미지 로딩이 완료되면 로딩이 표시되지 않습니다 — 캐시된 이미지를 빠르게 전환할 때 깜빡임을 방지합니다. 기본 200ms; 0 = 즉시 표시 (구버전 동작).',
   'param.controller.label': 'controller',
   'param.controller.desc': '컨트롤 바 버튼. false로 전체 비활성화하거나 부분 객체로 기본값을 덮어쓸 수 있습니다.',
   'param.hotKey.label': 'hotKey',

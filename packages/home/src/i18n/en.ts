@@ -179,6 +179,8 @@ export const en: I18nDict = {
   'param.coverVisible.desc': 'Keep the cover image visible while browsing.',
   'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
   'param.closeOnDoubleClick.desc': 'Close the viewer on image double-click. Off by default; turn on to dismiss with a double-click.',
+  'param.loadingDelay.label': 'loadingDelay',
+  'param.loadingDelay.desc': 'Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Default 200ms (industry-standard react-loadable value); set 0 for legacy instant-show.',
   'param.controller.label': 'controller',
   'param.controller.desc': 'Control-bar buttons. Pass false to disable all, or a partial object to override.',
   'param.hotKey.label': 'hotKey',

@@ -194,6 +194,8 @@ export const zhCN = {
   'param.coverVisible.desc': '查看时保留封面图。',
   'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
   'param.closeOnDoubleClick.desc': '双击图片时关闭查看器。默认关闭,启用后浏览态双击图片即退出。',
+  'param.loadingDelay.label': 'loadingDelay',
+  'param.loadingDelay.desc': 'Loading 指示器显示前的延迟 (ms)。在此期间内图片加载完成则不显示 loading,避免快速切换缓存图时的视觉闪烁。默认 200ms (业界 react-loadable 经典值);设为 0 = 立即显示 (旧行为)。',
   'param.controller.label': 'controller',
   'param.controller.desc': '控制器按钮开关;传 false 关闭整组,或传部分对象覆盖默认。',
   'param.hotKey.label': 'hotKey',

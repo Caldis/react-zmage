@@ -199,6 +199,10 @@ export interface InterfaceAndInteractionParams {
   loop?: boolean
   // 双击图片关闭 (浏览态; 默认 false 不破坏现有点击语义)
   closeOnDoubleClick?: boolean
+  // Loading 显示前的延迟 (ms). 在此时间内图片加载完成则永不显示 loading 指示器, 避免快速切换
+  // 缓存图时的视觉闪烁. 默认 200 (业界 react-loadable 的经典值; UX 研究"顺滑"上限).
+  // 设为 0 = 立即显示 (旧行为). 内部命中 fast-path (img.complete 已就绪) 时直接绕过此延迟.
+  loadingDelay?: number
 }
 
 /**

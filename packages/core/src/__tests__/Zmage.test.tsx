@@ -1477,6 +1477,194 @@ describe('Zmage canZoom 切页路径收敛 (#regression-zoom-after-flip)', () =>
   })
 })
 
+describe('Zmage Loading 显示策略 (anti-flicker, loadingDelay prop)', () => {
+  // 真实回归: 切页时 handleImageLoadStart 同步 setState({isFetching: true}), 加 500ms polling
+  // 兜底, 缓存图切页会 flash Loading ~500ms. 修复: 切页 cdU 中检查 node.complete,
+  //   - 完成 → handleImageLoadEnd 直接走 fast-path, Loading 完全不显示
+  //   - 未完成 → handleImageLoadStart 推迟 isFetching=true 到 loadingDelay (默认 200ms) 后,
+  //              且若 image 在延迟内通过 onLoad 完成, cancel timer → Loading 仍永不显示
+  // 业界参考: Ant Design Spin (delay prop) / react-loadable (delay 200ms 默认) / TanStack Query
+  // (placeholderData) / React Suspense (useTransition).
+
+  type Dim = { w: number, h: number }
+  const stripQuery = (s: string) => s.split('?')[0]
+  const mockImageDimensionsBySrc = (mapping: Record<string, Dim>) => {
+    const origW = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
+    const origH = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
+    const origC = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'complete')
+    const lookup = (img: HTMLImageElement) => mapping[stripQuery(img.getAttribute('src') || img.src || '')]
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement)?.w ?? 0 },
+    })
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement)?.h ?? 0 },
+    })
+    Object.defineProperty(HTMLImageElement.prototype, 'complete', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement) !== undefined },
+    })
+    return () => {
+      if (origW) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', origW)
+      else delete (HTMLImageElement.prototype as any).naturalWidth
+      if (origH) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', origH)
+      else delete (HTMLImageElement.prototype as any).naturalHeight
+      if (origC) Object.defineProperty(HTMLImageElement.prototype, 'complete', origC)
+      else delete (HTMLImageElement.prototype as any).complete
+    }
+  }
+  const wait = async (ms: number) => {
+    await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+
+  it("缓存图切页 (fast-path) 全程不显示 Loading", async () => {
+    const A = 'https://example.com/cached-a.jpg'
+    const B = 'https://example.com/cached-b.jpg'
+    const restore = mockImageDimensionsBySrc({
+      [A]: { w: 1000, h: 1000 },
+      [B]: { w: 1500, h: 1500 },
+    })
+
+    try {
+      render(
+        <Zmage src={A} alt="cached" preset="desktop" animate={{ flip: 'crossFade' }}
+          set={[{ src: A }, { src: B }]}/>
+      )
+      fireEvent.click(screen.getByAltText('cached'))
+      await wait(50)
+
+      // 让 page 0 onLoad 触发, 清除初始 isFetching
+      const center0 = document.getElementById('zmageImage') as HTMLImageElement
+      await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 50)) })
+      expect(document.getElementById('zmageLoading')).toBeNull()
+
+      // 切到 page 1 — 缓存图 + key-reuse → cdU fast-path 立即 handleImageLoadEnd → 永不显示 Loading
+      clickById('zmageControlFlipRight')
+
+      // 立即检查 (sync 后): Loading 不应出现
+      expect(document.getElementById('zmageLoading')).toBeNull()
+
+      // 等待超过默认 loadingDelay (200ms) — 仍不应出现
+      await wait(250)
+      expect(document.getElementById('zmageLoading')).toBeNull()
+    } finally {
+      restore()
+    }
+  })
+
+  it("loadingDelay prop 生效: 自定义 50ms 延迟下, 未完成图片在 50ms 后显示 Loading", async () => {
+    // 方法: 一张图在 mock 中 (complete=true), 另一张不在 (complete=false → 走 slow path)
+    const CACHED = 'https://example.com/cached-2.jpg'
+    const UNCACHED = 'https://example.com/uncached-2.jpg'
+    const restore = mockImageDimensionsBySrc({ [CACHED]: { w: 1000, h: 1000 } })
+
+    try {
+      render(
+        <Zmage src={CACHED} alt="prop" preset="desktop" animate={{ flip: 'none' }}
+          loadingDelay={50}
+          set={[{ src: CACHED }, { src: UNCACHED }]}/>
+      )
+      fireEvent.click(screen.getByAltText('prop'))
+      await wait(50)
+      const center0 = document.getElementById('zmageImage') as HTMLImageElement
+      await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 50)) })
+
+      // 切到 uncached 页. flip='none' 保证新 center 是 fresh mount, complete=false.
+      clickById('zmageControlFlipRight')
+
+      // delay 内 (20ms < 50ms): Loading 不应出现
+      await wait(20)
+      expect(document.getElementById('zmageLoading')).toBeNull()
+
+      // 超过 delay (60ms 总, > 50ms): Loading 应出现
+      await wait(50)
+      expect(document.getElementById('zmageLoading')).toBeTruthy()
+    } finally {
+      restore()
+    }
+  })
+
+  it("loadingDelay 内 onLoad 触发 → cancel timer, Loading 永不出现 (fast-load)", async () => {
+    // 方法: loadingDelay 较长 (200ms), 切到 fresh-mount, 在 delay 内 fireEvent.load → 应取消 timer
+    const A = 'https://example.com/fast-a.jpg'
+    const B = 'https://example.com/fast-b.jpg'
+    const restoreA = mockImageDimensionsBySrc({ [A]: { w: 1000, h: 1000 } })
+
+    try {
+      render(
+        <Zmage src={A} alt="fast" preset="desktop" animate={{ flip: 'none' }}
+          loadingDelay={200}
+          set={[{ src: A }, { src: B }]}/>
+      )
+      fireEvent.click(screen.getByAltText('fast'))
+      await wait(50)
+      const center0 = document.getElementById('zmageImage') as HTMLImageElement
+      await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 50)) })
+
+      // 切到 page 1. flip='none' fresh mount + B 不在 mapping → complete=false → slow path.
+      clickById('zmageControlFlipRight')
+
+      // delay 内 (50ms < 200ms): Loading 不应出现 (timer 还没触发)
+      await wait(50)
+      expect(document.getElementById('zmageLoading')).toBeNull()
+
+      // 此刻把 B 加进 mapping 模拟 onLoad fire (避免直接 fireEvent.load — 因为现实 jsdom 中 fireEvent.load 已经在我们 fix 中调 handleImageLoadEnd)
+      restoreA()  // 清除旧 mock
+      const restoreB = mockImageDimensionsBySrc({ [A]: { w: 1000, h: 1000 }, [B]: { w: 800, h: 800 } })
+      try {
+        const center1 = document.getElementById('zmageImage') as HTMLImageElement
+        await act(async () => {
+          fireEvent.load(center1)
+          await new Promise(r => setTimeout(r, 5))
+        })
+
+        // delay timer 应被 onLoad → handleImageLoadEnd cancel → Loading 永不出现
+        // 等到原 delay 后窗口 (250ms 总), 仍不应出现
+        await wait(200)
+        expect(document.getElementById('zmageLoading')).toBeNull()
+      } finally {
+        restoreB()
+      }
+    } catch (e) {
+      restoreA()
+      throw e
+    }
+  })
+
+  it("StrictMode unmount: loadingShowDelayTimer 被 clearTimeout 不泄漏", async () => {
+    const A = 'https://example.com/leak-a.jpg'
+    const B = 'https://example.com/leak-b.jpg'
+    const restore = mockImageDimensionsBySrc({ [A]: { w: 1000, h: 1000 } })  // 仅 A
+
+    try {
+      const { unmount } = render(
+        <Zmage src={A} alt="leak" preset="desktop" animate={{ flip: 'none' }}
+          loadingDelay={500}  // 较长延迟, 确保 timer 在 unmount 前还活着
+          set={[{ src: A }, { src: B }]}/>
+      )
+      fireEvent.click(screen.getByAltText('leak'))
+      await wait(50)
+      const center0 = document.getElementById('zmageImage') as HTMLImageElement
+      await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 30)) })
+
+      // 切到 uncached → schedules 500ms delay timer
+      clickById('zmageControlFlipRight')
+      await wait(50)
+
+      // unmount 在 timer 触发前
+      unmount()
+
+      // 等够 timer 时间 — 不应有任何 setState 报错或残留 #zmageLoading
+      await wait(600)
+      expect(document.getElementById('zmageLoading')).toBeNull()
+      expect(document.getElementById('zmage')).toBeNull()
+    } finally {
+      restore()
+    }
+  })
+})
+
 describe('Zmage 命令式调用', () => {
   it('Zmage.browsing 返回 destructor 函数; 调用后 portal 节点移除', async () => {
     const destroy = Zmage.browsing({ src: SRC, alt: 't' })

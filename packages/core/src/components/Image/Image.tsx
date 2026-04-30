@@ -106,6 +106,10 @@ export default class Image extends React.Component<PropsType, StateType> {
   // @keyframes (opacity 0→1) 作为降级过渡. CSS animation 与 transition 是独立子系统, 不会被
   // setNodeTransitionNone 中断, 所以与 scale 校准 interrupt 完全解耦.
   jumpFadeTimer?: ReturnType<typeof setTimeout>
+  // Loading 显示延迟 Timer: handleImageLoadStart 不再同步把 isFetching 设 true, 而是 schedule
+  // 这个 timer (= loadingDelay 默认 200ms). 若图片在延迟内通过 onLoad / cdU fast-path / polling
+  // 任何途径 handleImageLoadEnd, 此 timer 被 cancel → Loading 永不显示, 杜绝缓存图切换的 flash.
+  loadingShowDelayTimer?: ReturnType<typeof setTimeout>
   // State
   readonly state = {
     // 加载状态
@@ -184,8 +188,6 @@ export default class Image extends React.Component<PropsType, StateType> {
     }
     // 切换页面时
     if (prevPage !== currPage) {
-      // 显示加载
-      this.handleImageLoadStart()
       // #167: 翻页动画下 (fade/crossFade/swipe) side image 节点会被复用为新 center,
       // 它的 src 不变 → 浏览器不再派发 load 事件 → handleImageLoad 不会触发 →
       // 两个副作用必须显式补齐 (handleImageLoad 是这两件事的唯一 onLoad-driven 来源):
@@ -194,10 +196,16 @@ export default class Image extends React.Component<PropsType, StateType> {
       //      空格键也能错误进入 zoom → reportCanZoom 重算 (与 handleResize / handleImageLoad
       //      同样的 reportCanZoom 来源, 三个触发源在此收敛).
       // 注: side image 自己有 fit-scale (走 imageDimensions, 见 getStyle), 这里只补 center.
+      // 同时承担 Loading 显示策略的 fast-path 入口:
+      //   - 若新 center 已 complete (cached / key-reused), 立即 handleImageLoadEnd 跳过 Loading
+      //   - 否则走 handleImageLoadStart 的延迟路径 (loadingDelay 内不显示 Loading)
       const node = this.imageRef.current
       if (node && node.complete && node.naturalWidth > 0) {
+        this.handleImageLoadEnd()
         this.debounceUpdateCurrentImageStyle()
         this.reportCanZoom()
+      } else {
+        this.handleImageLoadStart()
       }
       // ① 切页时若目标页 dims 缺失 → 标记 dim 校准债务. 仅在 page 真正改变时设置, 保证
       // 首次开场的 cover→browsing 动画 (无 page 变化) 不会被后续 dim 到达误中断.
@@ -243,6 +251,10 @@ export default class Image extends React.Component<PropsType, StateType> {
     if (this.jumpFadeTimer !== undefined) {
       clearTimeout(this.jumpFadeTimer)
       this.jumpFadeTimer = undefined
+    }
+    if (this.loadingShowDelayTimer !== undefined) {
+      clearTimeout(this.loadingShowDelayTimer)
+      this.loadingShowDelayTimer = undefined
     }
     this.cancelClosingFollow()
     this.resetZoomMotionState()
@@ -387,17 +399,37 @@ export default class Image extends React.Component<PropsType, StateType> {
     this.startZoomFollow(zoomingStyle)
   }
   // 加载事件
+  // Loading 显示策略 (anti-flicker):
+  //   - handleImageLoadStart 不再同步显示 Loading, 而是 schedule 一个 loadingDelay 定时器
+  //   - 若图片在 delay 内通过 onLoad (handleImageLoad) / cdU fast-path / polling 任何途径完成,
+  //     handleImageLoadEnd 取消此 timer → Loading 永不显示
+  //   - 若 delay 后仍未完成, timer 触发 setState({isFetching:true}) → Loading 显示
+  // 借鉴 react-loadable / Ant Design Spin / TanStack Query 等业界做法.
   handleImageLoadStart = () => {
-    this.setState({
-      isFetching: true,
-      invalidate: false,
-    }, this.handleDetectImageLoadComplete)
+    // invalidate 立即重置 (与 isFetching 解耦; invalidate 是错误标记, 不需要延迟)
+    this.setState({ invalidate: false })
+    // 立即启动 polling 兜底 (即使 onLoad 不派发 — 例如 key-reused img — polling 仍能最终发现 complete)
+    this.handleDetectImageLoadComplete()
+    // 推迟 isFetching=true. 若 image 在延迟内完成, cancel timer → Loading 永不显示.
+    if (this.loadingShowDelayTimer !== undefined) {
+      clearTimeout(this.loadingShowDelayTimer)
+    }
+    const delay = this.context.loadingDelay ?? 200
+    this.loadingShowDelayTimer = setTimeout(() => {
+      this.loadingShowDelayTimer = undefined
+      this.setState({ isFetching: true })
+    }, delay)
   }
   handleDetectImageLoadComplete = () => {
     clearInterval(this.imageLoadingTimer)
     this.imageLoadingTimer = checkImageLoadedComplete(this.imageRef.current, this.handleImageLoadEnd)
   }
   handleImageLoadEnd = ({ invalidate } = { invalidate: false }) => {
+    // 取消 loading 显示 timer — image 已完成, 即使 timer 还未触发, 也不需要让 Loading 显示
+    if (this.loadingShowDelayTimer !== undefined) {
+      clearTimeout(this.loadingShowDelayTimer)
+      this.loadingShowDelayTimer = undefined
+    }
     clearInterval(this.imageLoadingTimer)
     this.setState({
       isFetching: false,
@@ -412,6 +444,9 @@ export default class Image extends React.Component<PropsType, StateType> {
       this.debounceUpdateCurrentImageStyle()
     }
     this.reportCanZoom()
+    // onLoad 派发 = 浏览器确认 image 加载完成. 立即清除 Loading 状态 (cancel delay timer + isFetching=false),
+    // 不再独靠 500ms polling. 这是 fast-load 场景下"延迟显示"机制能彻底无 flash 的关键.
+    this.handleImageLoadEnd()
   }
   // 把 "图是否大于视口" 的判断上抛给 Browser, 用于 Control 的禁用态和空格键的早返回.
   // 旋转/dpr 暂不参与计算; 这里只用 naturalWidth/Height vs 布局视口宽高的保守判断.

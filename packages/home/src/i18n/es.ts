@@ -179,6 +179,8 @@ export const es: I18nDict = {
   'param.coverVisible.desc': 'Mantener la imagen de portada visible durante la navegación.',
   'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
   'param.closeOnDoubleClick.desc': 'Cerrar el visor al hacer doble clic en la imagen. Desactivado por defecto.',
+  'param.loadingDelay.label': 'loadingDelay',
+  'param.loadingDelay.desc': 'Retraso (ms) antes de mostrar el indicador de carga. Si la imagen termina de cargar dentro de esta ventana, no se muestra el loading — evita el parpadeo al cambiar entre imágenes en caché. Por defecto 200ms; 0 = mostrar al instante (comportamiento antiguo).',
   'param.controller.label': 'controller',
   'param.controller.desc': 'Botones de la barra de control. Pasa false para desactivar todo, o un objeto parcial para sobrescribir.',
   'param.hotKey.label': 'hotKey',

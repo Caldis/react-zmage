@@ -179,6 +179,8 @@ export const ja: I18nDict = {
   'param.coverVisible.desc': '閲覧中もカバー画像を表示し続ける。',
   'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
   'param.closeOnDoubleClick.desc': '画像をダブルクリックでビューアを閉じる。既定はオフ。',
+  'param.loadingDelay.label': 'loadingDelay',
+  'param.loadingDelay.desc': 'ローディングインジケータを表示するまでの遅延 (ms)。この期間内に画像が読み込まれれば、ローディングは表示されません — キャッシュ画像を素早く切り替える際のちらつきを防ぎます。既定 200ms;0 = 即時表示 (旧動作)。',
   'param.controller.label': 'controller',
   'param.controller.desc': 'コントロールバーのボタン。false で全無効、部分オブジェクトで個別に上書きできます。',
   'param.hotKey.label': 'hotKey',

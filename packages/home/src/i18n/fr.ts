@@ -179,6 +179,8 @@ export const fr: I18nDict = {
   'param.coverVisible.desc': 'Garder l\'image de couverture visible pendant la navigation.',
   'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
   'param.closeOnDoubleClick.desc': 'Fermer la visionneuse au double-clic sur l\'image. Désactivé par défaut.',
+  'param.loadingDelay.label': 'loadingDelay',
+  'param.loadingDelay.desc': 'Délai (ms) avant d\'afficher l\'indicateur de chargement. Si l\'image termine de charger dans cette fenêtre, le loading n\'est pas affiché — évite le clignotement lors du basculement rapide entre images en cache. Par défaut 200ms ; 0 = affichage immédiat (comportement hérité).',
   'param.controller.label': 'controller',
   'param.controller.desc': 'Boutons de la barre de contrôle. Passez false pour tout désactiver, ou un objet partiel pour surcharger.',
   'param.hotKey.label': 'hotKey',

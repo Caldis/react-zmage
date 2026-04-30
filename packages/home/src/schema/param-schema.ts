@@ -25,6 +25,7 @@ export const defProp = {
   edge: 0,
   loop: true,
   closeOnDoubleClick: false,
+  loadingDelay: 200,
 }
 
 export const defPreset = {
@@ -107,6 +108,8 @@ export const PARAM_SCHEMA: ParamDef[] = [
     i18n: { labelKey: 'param.coverVisible.label', descKey: 'param.coverVisible.desc' } },
   { name: 'closeOnDoubleClick', group: 'interface', default: defProp.closeOnDoubleClick, control: { kind: 'switch' },
     i18n: { labelKey: 'param.closeOnDoubleClick.label', descKey: 'param.closeOnDoubleClick.desc' } },
+  { name: 'loadingDelay', group: 'interface', default: defProp.loadingDelay, control: { kind: 'slider', min: 0, max: 1000, step: 50 },
+    i18n: { labelKey: 'param.loadingDelay.label', descKey: 'param.loadingDelay.desc' } },
 
   // Controller
   { name: 'controller', group: 'controller', default: defPreset.desktop.controller, control: { kind: 'object', component: 'controller' },

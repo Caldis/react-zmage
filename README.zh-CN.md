@@ -237,6 +237,7 @@ interface Animate {
 | `edge` | `number` | `0` | 图片距屏幕边缘的留白 (px)。 |
 | `loop` | `boolean` | `true` | 多图模式：尾页是否循环回首页。 |
 | `closeOnDoubleClick` | `boolean` | `false` | 双击图片时关闭查看器。默认关闭；启用后浏览态双击图片即退出。 |
+| `loadingDelay` | `number` | `200` | Loading 指示器显示前的延迟 (ms)。在此期间内图片加载完成则不显示 loading，避免快速切换缓存图时的视觉闪烁。默认 200ms (业界 react-loadable 经典值)；设为 0 = 立即显示 (旧行为)。 |
 
 ### 生命周期
 
@@ -265,7 +266,7 @@ export type BaseType =
   & BaseParams                    // src / alt / caption / set / defaultPage
   & PresetParams                  // preset
   & FunctionalParams              // controller / hotKey / animate
-  & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop / closeOnDoubleClick
+  & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop / closeOnDoubleClick / loadingDelay
   & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating / onError
   & ControlledParams              // browsing
   & HTMLAttributes<HTMLImageElement>

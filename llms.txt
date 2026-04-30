@@ -71,6 +71,7 @@ const [open, setOpen] = useState(false)
 | `zIndex` / `radius` / `edge` | `number` | `1000` / `0` / `0` | Modal stacking, image corner radius, viewport padding. |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
 | `closeOnDoubleClick` | `boolean` | `false` | Close the viewer on image double-click. Off by default to preserve current single-click semantics; turn on to dismiss with a double-click. |
+| `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
 | `onBrowsing` | `(isBrowsing: boolean) => void` | — | Fires on open/close. |
 | `onZooming` | `(isZooming: boolean) => void` | — | Fires on zoom in/out. |
 | `onSwitching` | `(page: number) => void` | — | Fires on page change. |

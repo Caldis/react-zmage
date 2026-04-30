@@ -58,6 +58,8 @@ export const defProp = {
   loop: true,
   // 双击图片关闭 (浏览态)
   closeOnDoubleClick: false,
+  // Loading 显示前的延迟 (ms), 在此期间内加载完成则不显示 loading
+  loadingDelay: 200,
 
   /**
    * 生命周期
@@ -167,7 +169,7 @@ export const getConfigFromProps = (props: BaseType) => {
     // Control
     controller, hotKey, animate,
     // Styles & interactive
-    hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, closeOnDoubleClick,
+    hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, closeOnDoubleClick, loadingDelay,
     // Life cycle functions
     onBrowsing, onZooming, onSwitching, onRotating, onError,
     // Controlled props
@@ -202,7 +204,7 @@ export const getConfigFromProps = (props: BaseType) => {
       // Control
       controller, hotKey, animate,
       // Styles & interactive
-      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, closeOnDoubleClick,
+      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, closeOnDoubleClick, loadingDelay,
       // Life cycle functions
       onBrowsing, onZooming, onSwitching, onRotating, onError,
     },

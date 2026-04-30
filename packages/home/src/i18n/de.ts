@@ -179,6 +179,8 @@ export const de: I18nDict = {
   'param.coverVisible.desc': 'Coverbild beim Browsen sichtbar lassen.',
   'param.closeOnDoubleClick.label': 'closeOnDoubleClick',
   'param.closeOnDoubleClick.desc': 'Viewer per Doppelklick auf das Bild schließen. Standardmäßig aus.',
+  'param.loadingDelay.label': 'loadingDelay',
+  'param.loadingDelay.desc': 'Verzögerung (ms) vor Anzeige der Ladeanzeige. Lädt das Bild innerhalb dieses Fensters, wird kein Loading angezeigt — verhindert das Aufblitzen beim schnellen Wechsel zwischengespeicherter Bilder. Standard 200ms; 0 = sofortige Anzeige (altes Verhalten).',
   'param.controller.label': 'controller',
   'param.controller.desc': 'Buttons der Steuerleiste. false deaktiviert alles, ein Teilobjekt überschreibt einzelne Werte.',
   'param.hotKey.label': 'hotKey',

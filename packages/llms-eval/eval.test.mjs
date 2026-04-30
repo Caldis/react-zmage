@@ -134,6 +134,18 @@ test('closeOnDoubleClick + onError prop wired across types, defaults and llms.tx
   assert.ok(onErrLine, 'no API-table row in llms.txt declares onError')
 })
 
+test('loadingDelay prop wired across types, defaults and llms.txt', () => {
+  // global.ts: loadingDelay on InterfaceAndInteractionParams
+  assert.match(globalTs, /\bloadingDelay\?:\s*number\b/, 'loadingDelay missing in types/global.ts')
+  // default.ts: loadingDelay default = 200 in defProp (anti-flicker delay before loading shows)
+  assert.match(defaultTs, /\bloadingDelay:\s*200\b/, 'loadingDelay default missing in defProp')
+  // llms.txt API row
+  const line = llmsTxt.split('\n').find(
+    (line) => /^\s*\|\s*`loadingDelay`\s*\|/.test(line)
+  )
+  assert.ok(line, 'no API-table row in llms.txt declares loadingDelay')
+})
+
 test('controller visual keys (backdrop + color) declared in ControllerSet and llms.txt', () => {
   // global.ts: ControllerSet declares the visual keys
   assert.match(globalTs, /export\s+interface\s+ControllerSet\b/, 'ControllerSet interface missing in types/global.ts')

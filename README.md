@@ -242,6 +242,7 @@ Defaults: desktop = `{ browsing: true, flip: 'crossFade' }`, mobile = `{ browsin
 | `edge` | `number` | `0` | Minimum margin between image and viewport (px). |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
 | `closeOnDoubleClick` | `boolean` | `false` | Close the viewer on image double-click. Off by default; turn on to allow dismissing with a double-click. |
+| `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
 
 ### Lifecycle
 
@@ -270,7 +271,7 @@ export type BaseType =
   & BaseParams                    // src / alt / caption / set / defaultPage
   & PresetParams                  // preset
   & FunctionalParams              // controller / hotKey / animate
-  & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop / closeOnDoubleClick
+  & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop / closeOnDoubleClick / loadingDelay
   & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating / onError
   & ControlledParams              // browsing
   & HTMLAttributes<HTMLImageElement>
