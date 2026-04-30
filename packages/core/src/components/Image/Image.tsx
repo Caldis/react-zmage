@@ -188,12 +188,16 @@ export default class Image extends React.Component<PropsType, StateType> {
       this.handleImageLoadStart()
       // #167: 翻页动画下 (fade/crossFade/swipe) side image 节点会被复用为新 center,
       // 它的 src 不变 → 浏览器不再派发 load 事件 → handleImageLoad 不会触发 →
-      // currentStyle.scale 会保留前一页的 fit-scale. 这里在新 center 节点已 complete
-      // 时显式重算 currentStyle, 让 center 拿到当前页正确的 fit-scale.
+      // 两个副作用必须显式补齐 (handleImageLoad 是这两件事的唯一 onLoad-driven 来源):
+      //   1. currentStyle.scale 保留前一页 fit-scale → debounceUpdateCurrentImageStyle 重算
+      //   2. canZoom 保留 handleSwitchPages 的乐观 reset (=true), 小图切到时按钮不会禁用,
+      //      空格键也能错误进入 zoom → reportCanZoom 重算 (与 handleResize / handleImageLoad
+      //      同样的 reportCanZoom 来源, 三个触发源在此收敛).
       // 注: side image 自己有 fit-scale (走 imageDimensions, 见 getStyle), 这里只补 center.
       const node = this.imageRef.current
       if (node && node.complete && node.naturalWidth > 0) {
         this.debounceUpdateCurrentImageStyle()
+        this.reportCanZoom()
       }
       // ① 切页时若目标页 dims 缺失 → 标记 dim 校准债务. 仅在 page 真正改变时设置, 保证
       // 首次开场的 cover→browsing 动画 (无 page 变化) 不会被后续 dim 到达误中断.

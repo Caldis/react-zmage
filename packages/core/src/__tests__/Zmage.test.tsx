@@ -1352,6 +1352,131 @@ describe('Zmage 跳页与 fade 降级 (Issue 1 / Issue 2)', () => {
   })
 })
 
+describe('Zmage canZoom 切页路径收敛 (#regression-zoom-after-flip)', () => {
+  // 真实回归: handleSwitchPages 切页时把 canZoom 乐观 reset 成 true, 设计意图是新图 onLoad
+  // 触发 reportCanZoom 把 canZoom 修正成准确值. 但 key-reused side→center 节点 src 不变,
+  // 浏览器不派发 onLoad → reportCanZoom 永不调用 → 小图切到时 canZoom 卡在 true → 放大按钮
+  // 不禁用, 空格键也能错误进入 zoom. 修复: 在 cdU 切页路径补一次 reportCanZoom, 让
+  // handleResize / handleImageLoad / 切页 三个触发源都收敛到 reportCanZoom.
+
+  type Dim = { w: number, h: number }
+  const stripQuery = (s: string) => s.split('?')[0]
+  const mockImageDimensionsBySrc = (mapping: Record<string, Dim>) => {
+    const origW = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth')
+    const origH = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalHeight')
+    const origC = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'complete')
+    const lookup = (img: HTMLImageElement) => mapping[stripQuery(img.getAttribute('src') || img.src || '')]
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement)?.w ?? 0 },
+    })
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement)?.h ?? 0 },
+    })
+    Object.defineProperty(HTMLImageElement.prototype, 'complete', {
+      configurable: true,
+      get () { return lookup(this as HTMLImageElement) !== undefined },
+    })
+    return () => {
+      if (origW) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', origW)
+      else delete (HTMLImageElement.prototype as any).naturalWidth
+      if (origH) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', origH)
+      else delete (HTMLImageElement.prototype as any).naturalHeight
+      if (origC) Object.defineProperty(HTMLImageElement.prototype, 'complete', origC)
+      else delete (HTMLImageElement.prototype as any).complete
+    }
+  }
+  const wait = async (ms: number) => {
+    await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+
+  it("从大图 (canZoom=true) 切到小图 (key-reuse 路径) 后, 放大按钮立刻进入禁用态", async () => {
+    const BIG = 'https://example.com/big.jpg'
+    const SMALL = 'https://example.com/small.jpg'
+    const restore = mockImageDimensionsBySrc({
+      [BIG]: { w: 5000, h: 5000 },     // 远大于 viewport 1024 → canZoom=true
+      [SMALL]: { w: 500, h: 500 },     // 远小于 viewport → canZoom=false
+    })
+    const origCW = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const origCH = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1024 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 768 })
+
+    try {
+      render(
+        <Zmage src={BIG} alt="zoom-conv" preset="desktop"
+          set={[{ src: BIG, alt: 'big' }, { src: SMALL, alt: 'small' }]}/>
+      )
+      fireEvent.click(screen.getByAltText('zoom-conv'))
+      await wait(50)
+
+      // 让 page 0 (big) onLoad 触发 handleImageLoad → reportCanZoom → canZoom=true
+      const center0 = document.getElementById('zmageImage') as HTMLImageElement
+      await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 50)) })
+
+      const zoomBtn = document.getElementById('zmageControlZoom') as HTMLDivElement
+      expect(zoomBtn).toBeTruthy()
+      // big 图: canZoom=true, 按钮不应有 disabled class
+      expect(zoomBtn.className).not.toContain('disabled')
+
+      // 切到 page 1 (small). 这是 step+1 in-range, 旧 step+1 side[small] 节点会被 React key 复用
+      // 为新 center → src 不变 → 浏览器不派发 onLoad → handleImageLoad 不会调用 reportCanZoom
+      // → 修复前 canZoom 卡在 true (bug); 修复后 cdU 路径补的 reportCanZoom 把 canZoom 修成 false.
+      clickById('zmageControlFlipRight')
+      await wait(20)
+
+      // 关键回归断言
+      expect(zoomBtn.className).toContain('disabled')
+    } finally {
+      restore()
+      if (origCW) Object.defineProperty(HTMLElement.prototype, 'clientWidth', origCW)
+      if (origCH) Object.defineProperty(HTMLElement.prototype, 'clientHeight', origCH)
+    }
+  })
+
+  it("从小图 (canZoom=false) 切到大图 (key-reuse 路径) 后, 放大按钮立刻解除禁用", async () => {
+    // 反向案例: 确保收敛是双向的 — 小→大 也能正确更新 canZoom
+    const BIG = 'https://example.com/big2.jpg'
+    const SMALL = 'https://example.com/small2.jpg'
+    const restore = mockImageDimensionsBySrc({
+      [BIG]: { w: 5000, h: 5000 },
+      [SMALL]: { w: 500, h: 500 },
+    })
+    const origCW = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const origCH = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1024 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 768 })
+
+    try {
+      render(
+        <Zmage src={SMALL} alt="zoom-conv-r" preset="desktop"
+          set={[{ src: SMALL, alt: 'small' }, { src: BIG, alt: 'big' }]}/>
+      )
+      fireEvent.click(screen.getByAltText('zoom-conv-r'))
+      await wait(50)
+
+      const center0 = document.getElementById('zmageImage') as HTMLImageElement
+      await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 50)) })
+
+      const zoomBtn = document.getElementById('zmageControlZoom') as HTMLDivElement
+      // small 图: canZoom=false, 按钮应有 disabled class
+      expect(zoomBtn.className).toContain('disabled')
+
+      // 切到 page 1 (big). 同 key-reuse 场景.
+      clickById('zmageControlFlipRight')
+      await wait(20)
+
+      // canZoom 应被修正成 true → 按钮解除 disabled
+      expect(zoomBtn.className).not.toContain('disabled')
+    } finally {
+      restore()
+      if (origCW) Object.defineProperty(HTMLElement.prototype, 'clientWidth', origCW)
+      if (origCH) Object.defineProperty(HTMLElement.prototype, 'clientHeight', origCH)
+    }
+  })
+})
+
 describe('Zmage 命令式调用', () => {
   it('Zmage.browsing 返回 destructor 函数; 调用后 portal 节点移除', async () => {
     const destroy = Zmage.browsing({ src: SRC, alt: 't' })
