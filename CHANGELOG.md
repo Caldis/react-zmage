@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.6.0
+
+- **feat (Wrapper shared gallery)**: `<Zmage.Wrapper>` now supports an explicit `set` as a shared gallery for rich-text / CMS content. When a child `<img>` is clicked, Wrapper matches that image's `src` against `set[i].src` and opens the matching page; `defaultPage` remains the fallback when no match is found.
+- **feat (Wrapper captions)**: Wrapped images can now provide viewer captions through `data-zmage-caption` or the nearest `figcaption` when no explicit `set` is supplied. This lets existing article / markdown / CMS markup feed the viewer without rewriting image nodes into `<Zmage>` components.
+- **docs / demo**: The Wrapper playground now renders a dense editorial layout with hero imagery, floated figures, side figures, repeated crops, captions, and prose. The generated snippet now mirrors real Wrapper usage: image data lives in descendant `<img>` nodes, while viewer behavior stays on `<Zmage.Wrapper>`.
+- **docs**: README, zh-CN README, AGENTS, llms.txt, home docs, and all seven home i18n files now describe which props apply in Wrapper mode and which props are component-only (`browsing`, top-level `src` / `alt` / `caption`).
+- **release**: Published as `react-zmage@1.6.0`.
+
+## 1.5.0
+
+- **feat (HotKey rotate / download / custom descriptors)**: desktop preset now supports `[` / `]` for rotation, plus opt-in `Mod+S` download. Every `HotKey` entry accepts `boolean | string | string[]`, so users can rebind actions to physical `e.code` descriptors such as `KeyA`, `KeyD`, `BracketLeft`, or `Mod+S`.
+- **feat (`loadingDelay`)**: added `loadingDelay` to delay the loading indicator before showing it. The default `200ms` threshold avoids flicker when cached images load quickly; `0` restores the legacy instant-show behavior.
+- **breaking (`closeOnDoubleClick` renamed)**: `closeOnDoubleClick` was renamed to `hideOnDblClick`, matching the existing `hideOnScroll` auto-dismiss naming family.
+- **fix (jump-page animation)**: large page jumps in multi-image sets now fade instead of swiping, avoiding visible teleport-like movement on long jumps.
+- **fix (close animation target)**: close animations now track the cover element's viewport position per frame, avoiding landing offsets when the page scrolls or resizes during close.
+- **fix (zoom availability after page switch)**: `canZoom` now converges on key-reuse page-change paths, so Space / zoom-button availability reflects the current image's natural dimensions.
+- **fix (scale calibration)**: late-arriving image dimensions cancel an already-started calibration transition instead of stacking a second transform path.
+
+## 1.4.1
+
+- **fix (modal hotkey isolation)**: while `<Zmage>` is browsing, ESC / arrow keys / Space are captured and consumed before outer modal or dialog listeners can react. This prevents a host modal from closing together with the viewer. Keys still bubble when Zmage is configured not to consume them, such as `hotKey.close=false`.
+
+## 1.4.0
+
+- **feat (`onError`)**: viewer image load failures now call the user-provided `onError`. Cover-image failures already flowed through native `<img>` passthrough; this release exposed the viewer-side failure that had previously been absorbed internally.
+- **feat (`closeOnDoubleClick`)**: added an opt-in double-click-to-close interaction for the browsing image. It defaulted to `false` to preserve existing click behavior and was later renamed to `hideOnDblClick` in 1.5.0.
+- **docs**: synchronized README, AGENTS, llms.txt, seven-language i18n docs, and llms-eval static contract coverage for the new public props.
+
 ## 1.3.1
 
 - **chore (publish hygiene)**: Dropped IIFE / global bundle from the npm tarball. React component libs aren't realistically consumed via `<script src="…">`, and that format was ~60 % of 1.3.0's tarball (`dist/index.global.js` + map). ESM and CJS entries (`dist/index.{mjs,cjs}`) plus the SSR entries remain — typical bundler-based projects see no behavior change, just a smaller install.
