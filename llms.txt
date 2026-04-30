@@ -67,10 +67,10 @@ const [open, setOpen] = useState(false)
 | `hotKey` | `boolean \| { close?, zoom?, flip?, flipLeft?, flipRight? }` | preset | Esc / Space / ←→ toggles. `flip` is the umbrella over `flipLeft` / `flipRight` (mirrors the `controller` pattern): enabling `flip` forces both arrow keys on regardless of the per-side flags. |
 | `animate` | `boolean \| { browsing?: boolean; flip?: 'fade' \| 'crossFade' \| 'swipe' \| 'zoom' \| 'none' }` | preset | Viewer open/close and page-flip transitions. `animate=false` disables animations; `animate.browsing=false` makes background, image, controls, and caption open/close without transition. `animate.flip='none'` skips adjacent-page rendering — page change is an instant swap with no transition (caption text also updates instantly). |
 | `hideOnScroll` | `boolean` | `true` | Auto-close on page scroll (desktop only). |
+| `hideOnDblClick` | `boolean` | `false` | Auto-close on image double-click. Off by default to preserve current single-click semantics; turn on to dismiss with a double-click. |
 | `coverVisible` | `boolean` | `false` | Keep the underlying `<img>` visible while the modal is open. |
 | `zIndex` / `radius` / `edge` | `number` | `1000` / `0` / `0` | Modal stacking, image corner radius, viewport padding. |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
-| `closeOnDoubleClick` | `boolean` | `false` | Close the viewer on image double-click. Off by default to preserve current single-click semantics; turn on to dismiss with a double-click. |
 | `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
 | `onBrowsing` | `(isBrowsing: boolean) => void` | — | Fires on open/close. |
 | `onZooming` | `(isZooming: boolean) => void` | — | Fires on zoom in/out. |

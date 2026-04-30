@@ -24,7 +24,7 @@ export const defProp = {
   radius: 0,
   edge: 0,
   loop: true,
-  closeOnDoubleClick: false,
+  hideOnDblClick: false,
   loadingDelay: 200,
 }
 
@@ -102,12 +102,13 @@ export const PARAM_SCHEMA: ParamDef[] = [
     i18n: { labelKey: 'param.edge.label', descKey: 'param.edge.desc' } },
   { name: 'loop', group: 'interface', default: defProp.loop, control: { kind: 'switch' },
     i18n: { labelKey: 'param.loop.label', descKey: 'param.loop.desc' } },
+  // hide-trigger 家族 (用户动作 → 自动关闭)
   { name: 'hideOnScroll', group: 'interface', default: defProp.hideOnScroll, desktopOnly: true, control: { kind: 'switch' },
     i18n: { labelKey: 'param.hideOnScroll.label', descKey: 'param.hideOnScroll.desc' } },
+  { name: 'hideOnDblClick', group: 'interface', default: defProp.hideOnDblClick, control: { kind: 'switch' },
+    i18n: { labelKey: 'param.hideOnDblClick.label', descKey: 'param.hideOnDblClick.desc' } },
   { name: 'coverVisible', group: 'interface', default: defProp.coverVisible, desktopOnly: true, control: { kind: 'switch' },
     i18n: { labelKey: 'param.coverVisible.label', descKey: 'param.coverVisible.desc' } },
-  { name: 'closeOnDoubleClick', group: 'interface', default: defProp.closeOnDoubleClick, control: { kind: 'switch' },
-    i18n: { labelKey: 'param.closeOnDoubleClick.label', descKey: 'param.closeOnDoubleClick.desc' } },
   { name: 'loadingDelay', group: 'interface', default: defProp.loadingDelay, control: { kind: 'slider', min: 0, max: 1000, step: 50 },
     i18n: { labelKey: 'param.loadingDelay.label', descKey: 'param.loadingDelay.desc' } },
 

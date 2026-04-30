@@ -117,17 +117,17 @@ test('hotKey umbrella + per-side keys wired across types and llms.txt', () => {
   assert.match(hotKeyLine, /\bflipRight\b/, 'llms.txt hotKey row missing flipRight')
 })
 
-test('closeOnDoubleClick + onError prop wired across types, defaults and llms.txt', () => {
-  // global.ts: closeOnDoubleClick on InterfaceAndInteractionParams; onError on LifeCycleParams
-  assert.match(globalTs, /\bcloseOnDoubleClick\?:\s*boolean\b/, 'closeOnDoubleClick missing in types/global.ts')
+test('hideOnDblClick + onError prop wired across types, defaults and llms.txt', () => {
+  // global.ts: hideOnDblClick on InterfaceAndInteractionParams; onError on LifeCycleParams
+  assert.match(globalTs, /\bhideOnDblClick\?:\s*boolean\b/, 'hideOnDblClick missing in types/global.ts')
   assert.match(globalTs, /\bonError\?:\s*\(e:\s*SyntheticEvent/, 'onError missing in types/global.ts')
-  // default.ts: closeOnDoubleClick has a false default in defProp
-  assert.match(defaultTs, /\bcloseOnDoubleClick:\s*false\b/, 'closeOnDoubleClick default missing in defProp')
+  // default.ts: hideOnDblClick has a false default in defProp
+  assert.match(defaultTs, /\bhideOnDblClick:\s*false\b/, 'hideOnDblClick default missing in defProp')
   // llms.txt API rows
   const dblLine = llmsTxt.split('\n').find(
-    (line) => /^\s*\|\s*`closeOnDoubleClick`\s*\|/.test(line)
+    (line) => /^\s*\|\s*`hideOnDblClick`\s*\|/.test(line)
   )
-  assert.ok(dblLine, 'no API-table row in llms.txt declares closeOnDoubleClick')
+  assert.ok(dblLine, 'no API-table row in llms.txt declares hideOnDblClick')
   const onErrLine = llmsTxt.split('\n').find(
     (line) => /^\s*\|\s*`onError`\s*\|/.test(line)
   )

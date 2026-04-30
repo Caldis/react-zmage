@@ -42,8 +42,10 @@ export const defProp = {
   /**
    * 界面与交互
    **/
-  // 滚动时隐藏 (仅桌面端可用)
+  // 滚动时隐藏 (浏览态; 仅桌面端可用)
   hideOnScroll: true,
+  // 双击图片隐藏 (浏览态)
+  hideOnDblClick: false,
   // 封面可见性 (仅桌面端可用)
   coverVisible: false,
   // 背景色
@@ -56,8 +58,6 @@ export const defProp = {
   edge: 0,
   // 是否循环查看
   loop: true,
-  // 双击图片关闭 (浏览态)
-  closeOnDoubleClick: false,
   // Loading 显示前的延迟 (ms), 在此期间内加载完成则不显示 loading
   loadingDelay: 200,
 
@@ -169,7 +169,7 @@ export const getConfigFromProps = (props: BaseType) => {
     // Control
     controller, hotKey, animate,
     // Styles & interactive
-    hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, closeOnDoubleClick, loadingDelay,
+    hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, hideOnDblClick, loadingDelay,
     // Life cycle functions
     onBrowsing, onZooming, onSwitching, onRotating, onError,
     // Controlled props
@@ -204,7 +204,7 @@ export const getConfigFromProps = (props: BaseType) => {
       // Control
       controller, hotKey, animate,
       // Styles & interactive
-      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, closeOnDoubleClick, loadingDelay,
+      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, hideOnDblClick, loadingDelay,
       // Life cycle functions
       onBrowsing, onZooming, onSwitching, onRotating, onError,
     },

@@ -363,11 +363,11 @@ export default class Image extends React.Component<PropsType, StateType> {
       return { imageDimensions: { ...prev.imageDimensions, [imageIndex]: { w, h } } }
     })
   }
-  // 双击关闭 (closeOnDoubleClick=true 时启用)。注: 浏览器在 dblclick 之前会先派发两次 click,
+  // 双击关闭 (hideOnDblClick=true 时启用)。注: 浏览器在 dblclick 之前会先派发两次 click,
   // 因此在 zoom 态做 dblclick 会先 zoom-out 再 close, 是有意为之的链式动画 — 不再额外门控。
   handleDoubleClick = () => {
-    const { closeOnDoubleClick, outBrowsing } = this.context
-    closeOnDoubleClick && outBrowsing()
+    const { hideOnDblClick, outBrowsing } = this.context
+    hideOnDblClick && outBrowsing()
   }
   // 触摸事件
   handleTouchStart = (e: TouchEvent) => {

@@ -230,13 +230,13 @@ interface Animate {
 | 配置项 | 类型 | 默认 | 说明 |
 |---|---|---|---|
 | `hideOnScroll` | `boolean` | `true` | 滚动时是否自动关闭查看器（仅桌面端）。 |
+| `hideOnDblClick` | `boolean` | `false` | 双击图片时是否自动关闭查看器。默认关闭；启用后浏览态双击图片即退出。 |
 | `coverVisible` | `boolean` | `false` | 放大期间是否保留封面图（默认会隐藏避免动画穿帮）。 |
 | `backdrop` | `string` | `'#FFFFFF'` | 查看器背景色，接受任何合法 CSS color / gradient。**默认白色** —— 深色站点请显式覆盖（例如 `'#111'`）。 |
 | `zIndex` | `number` | `1000` | Portal 容器的 `z-index`。 |
 | `radius` | `number` | `0` | 查看模式下图片圆角 (px)。 |
 | `edge` | `number` | `0` | 图片距屏幕边缘的留白 (px)。 |
 | `loop` | `boolean` | `true` | 多图模式：尾页是否循环回首页。 |
-| `closeOnDoubleClick` | `boolean` | `false` | 双击图片时关闭查看器。默认关闭；启用后浏览态双击图片即退出。 |
 | `loadingDelay` | `number` | `200` | Loading 指示器显示前的延迟 (ms)。在此期间内图片加载完成则不显示 loading，避免快速切换缓存图时的视觉闪烁。默认 200ms (业界 react-loadable 经典值)；设为 0 = 立即显示 (旧行为)。 |
 
 ### 生命周期
@@ -266,7 +266,7 @@ export type BaseType =
   & BaseParams                    // src / alt / caption / set / defaultPage
   & PresetParams                  // preset
   & FunctionalParams              // controller / hotKey / animate
-  & InterfaceAndInteractionParams // hideOnScroll / coverVisible / backdrop / zIndex / radius / edge / loop / closeOnDoubleClick / loadingDelay
+  & InterfaceAndInteractionParams // hideOnScroll / hideOnDblClick / coverVisible / backdrop / zIndex / radius / edge / loop / loadingDelay
   & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating / onError
   & ControlledParams              // browsing
   & HTMLAttributes<HTMLImageElement>

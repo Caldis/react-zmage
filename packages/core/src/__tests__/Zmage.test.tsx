@@ -753,9 +753,9 @@ describe('Zmage onError 透传 (#148)', () => {
   })
 })
 
-describe('Zmage closeOnDoubleClick (#195)', () => {
-  it('closeOnDoubleClick=true 时, 双击中心图关闭浏览层', async () => {
-    render(<Zmage src={SRC} alt="dbl" closeOnDoubleClick/>)
+describe('Zmage hideOnDblClick (#195)', () => {
+  it('hideOnDblClick=true 时, 双击中心图关闭浏览层', async () => {
+    render(<Zmage src={SRC} alt="dbl" hideOnDblClick/>)
     fireEvent.click(screen.getByAltText('dbl'))
     await act(async () => { await new Promise(r => setTimeout(r, 50)) })
 
