@@ -18,6 +18,38 @@ const CONTROLLER_KEYS: { k: string; descKey: I18nKey }[] = [
   { k: 'flipRight', descKey: 'controller.flipRight.desc' },
   { k: 'backdrop', descKey: 'controller.backdrop.desc' },
   { k: 'color', descKey: 'controller.color.desc' },
+  { k: 'placement', descKey: 'controller.placement.desc' },
+  { k: 'render', descKey: 'controller.render.desc' },
+]
+
+const CONTROLLER_RENDER_ROWS: { k: string; type: string }[] = [
+  { k: 'state', type: 'ControllerRenderState' },
+  { k: 'state.show', type: 'boolean' },
+  { k: 'state.zoom', type: 'boolean' },
+  { k: 'state.page', type: 'number' },
+  { k: 'state.total', type: 'number' },
+  { k: 'state.canZoom', type: 'boolean' },
+  { k: 'state.canPrev', type: 'boolean' },
+  { k: 'state.canNext', type: 'boolean' },
+  { k: 'state.canDownload', type: 'boolean' },
+  { k: 'state.preset', type: "'desktop' | 'mobile'" },
+  { k: 'state.placement', type: 'ControllerPlacement' },
+  { k: 'state.current', type: 'Set | undefined' },
+  { k: 'actions', type: 'ControllerRenderActions' },
+  { k: 'actions.close', type: '() => void' },
+  { k: 'actions.zoom', type: '() => void' },
+  { k: 'actions.rotateLeft', type: '() => void' },
+  { k: 'actions.rotateRight', type: '() => void' },
+  { k: 'actions.prev', type: '() => void' },
+  { k: 'actions.next', type: '() => void' },
+  { k: 'actions.toPage', type: '(page: number) => void' },
+  { k: 'actions.download', type: '() => void' },
+  { k: 'slots', type: 'ControllerRenderSlots' },
+  { k: 'slots.Toolbar', type: 'ReactNode' },
+  { k: 'slots.Pagination', type: 'ReactNode' },
+  { k: 'slots.FlipLeft', type: 'ReactNode' },
+  { k: 'slots.FlipRight', type: 'ReactNode' },
+  { k: 'return', type: 'ReactNode' },
 ]
 
 const HOTKEY_KEYS: { k: string; descKey: I18nKey }[] = [
@@ -45,6 +77,9 @@ const GESTURE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
   { k: 'swipe', type: 'boolean | GestureSwipeOptions', descKey: 'gesture.swipe.desc' },
   { k: 'dragExit', type: 'boolean | GestureDragExitOptions', descKey: 'gesture.dragExit.desc' },
   { k: 'wheelZoom', type: 'boolean | GestureWheelZoomOptions', descKey: 'gesture.wheelZoom.desc' },
+  { k: 'pinchZoom', type: 'boolean | GesturePinchZoomOptions', descKey: 'gesture.pinchZoom.desc' },
+  { k: 'doubleTapZoom', type: 'boolean | GestureDoubleTapZoomOptions', descKey: 'gesture.doubleTapZoom.desc' },
+  { k: 'touchAction', type: "'managed' | 'auto' | 'manipulation' | 'none'", descKey: 'gesture.touchAction.desc' },
   { k: 'swipe.threshold', type: 'number', descKey: 'gesture.threshold.desc' },
   { k: 'swipe.velocity', type: 'number', descKey: 'gesture.velocity.desc' },
   { k: 'swipe.axisLock', type: 'number', descKey: 'gesture.axisLock.desc' },
@@ -60,6 +95,16 @@ const GESTURE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
   { k: 'wheelZoom.center', type: "'pointer' | 'viewport'", descKey: 'gesture.wheelZoom.center.desc' },
   { k: 'wheelZoom.reverse', type: 'boolean', descKey: 'gesture.wheelZoom.reverse.desc' },
   { k: 'wheelZoom.exitGuardDuration', type: 'number', descKey: 'gesture.wheelZoom.exitGuardDuration.desc' },
+  { k: 'pinchZoom.minScale', type: "'fit' | number", descKey: 'gesture.pinchZoom.minScale.desc' },
+  { k: 'pinchZoom.maxScale', type: 'number', descKey: 'gesture.pinchZoom.maxScale.desc' },
+  { k: 'pinchZoom.resetBelowFit', type: 'boolean', descKey: 'gesture.pinchZoom.resetBelowFit.desc' },
+  { k: 'pinchZoom.center', type: "'gesture' | 'viewport'", descKey: 'gesture.pinchZoom.center.desc' },
+  { k: 'doubleTapZoom.scale', type: 'number', descKey: 'gesture.doubleTapZoom.scale.desc' },
+  { k: 'doubleTapZoom.minScale', type: "'fit' | number", descKey: 'gesture.doubleTapZoom.minScale.desc' },
+  { k: 'doubleTapZoom.maxScale', type: 'number', descKey: 'gesture.doubleTapZoom.maxScale.desc' },
+  { k: 'doubleTapZoom.center', type: "'tap' | 'viewport'", descKey: 'gesture.doubleTapZoom.center.desc' },
+  { k: 'doubleTapZoom.interval', type: 'number', descKey: 'gesture.doubleTapZoom.interval.desc' },
+  { k: 'doubleTapZoom.distance', type: 'number', descKey: 'gesture.doubleTapZoom.distance.desc' },
 ]
 
 const SET_FIELDS: { k: string; type: string; required?: boolean; descKey: I18nKey }[] = [
@@ -78,6 +123,7 @@ const PRESET_ROWS: PresetRow[] = [
   { path: 'controller.download', label: 'controller.download' },
   { path: 'controller.close', label: 'controller.close' },
   { path: 'controller.flip', label: 'controller.flip' },
+  { path: 'controller.placement', label: 'controller.placement' },
   { path: 'hotKey.close', label: 'hotkey.close' },
   { path: 'hotKey.zoom', label: 'hotkey.zoom' },
   { path: 'hotKey.flip', label: 'hotkey.flip' },
@@ -89,6 +135,9 @@ const PRESET_ROWS: PresetRow[] = [
   { path: 'gesture.swipe', label: 'gesture.swipe' },
   { path: 'gesture.dragExit', label: 'gesture.dragExit' },
   { path: 'gesture.wheelZoom', label: 'gesture.wheelZoom' },
+  { path: 'gesture.pinchZoom', label: 'gesture.pinchZoom' },
+  { path: 'gesture.doubleTapZoom', label: 'gesture.doubleTapZoom' },
+  { path: 'gesture.touchAction', label: 'gesture.touchAction' },
 ]
 
 function readPresetValue (preset: 'desktop' | 'mobile', path: string): unknown {
@@ -109,8 +158,8 @@ function PresetDetail () {
       <p className="text-sm text-muted-foreground">
         {t('docs.section.props.preset.intro')}
       </p>
-      <div className="my-6 overflow-hidden rounded-lg border border-border">
-        <table className="w-full text-sm">
+      <div className="my-6 overflow-x-auto rounded-lg border border-border">
+        <table className="min-w-[720px] w-full text-sm">
           <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
             <tr>
               <th className="px-4 py-2.5 font-medium">{t('docs.section.props.preset.subParamHeader')}</th>
@@ -143,9 +192,9 @@ function PresetDetail () {
 function SetDetail () {
   const { t } = useT()
   return (
-    <div className="my-6 overflow-hidden rounded-lg border border-border">
+    <div className="my-6 overflow-x-auto rounded-lg border border-border">
       <TypeCaption name="Set" />
-      <table className="w-full text-sm">
+      <table className="min-w-[720px] w-full text-sm">
         <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
           <tr>
             <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.keyHeader')}</th>
@@ -197,9 +246,9 @@ function TypeCaption ({ name }: { name: string }) {
 function SubKeyTable ({ typeName, rows }: { typeName: string; rows: { k: string; descKey: I18nKey }[] }) {
   const { t } = useT()
   return (
-    <div className="my-6 overflow-hidden rounded-lg border border-border">
+    <div className="my-6 overflow-x-auto rounded-lg border border-border">
       <TypeCaption name={typeName} />
-      <table className="w-full text-sm">
+      <table className="min-w-[720px] w-full text-sm">
         <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
           <tr>
             <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.keyHeader')}</th>
@@ -219,6 +268,31 @@ function SubKeyTable ({ typeName, rows }: { typeName: string; rows: { k: string;
   )
 }
 
+function TypeOnlyTable ({ typeName, rows }: { typeName: string; rows: { k: string; type: string }[] }) {
+  const { t } = useT()
+  return (
+    <div className="my-6 overflow-x-auto rounded-lg border border-border">
+      <TypeCaption name={typeName} />
+      <table className="min-w-[720px] w-full text-sm">
+        <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+          <tr>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.keyHeader')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('docs.section.props.animate.typeHeader')}</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {rows.map(({ k, type }) => (
+            <tr key={k}>
+              <td className="px-4 py-2.5 font-mono align-top">{k}</td>
+              <td className="px-4 py-2.5 align-top font-mono text-xs text-muted-foreground">{type}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 function ControllerDetail () {
   const { t } = useT()
   return (
@@ -227,6 +301,50 @@ function ControllerDetail () {
       <p className="-mt-4 mb-6 text-xs text-muted-foreground">
         {t('docs.section.props.controller.umbrella')}
       </p>
+      <h4 className="mt-4 mb-2 text-sm font-semibold">{t('docs.section.props.controller.renderTitle')}</h4>
+      <p className="mb-2 text-xs text-muted-foreground">{t('docs.section.props.controller.renderIntro')}</p>
+      <TypeOnlyTable typeName="ControllerRender" rows={CONTROLLER_RENDER_ROWS} />
+      <CodeBlock code={`<Zmage
+  src="photo.jpg"
+  set={[
+    { src: 'photo.jpg', alt: 'Cover' },
+    { src: 'detail.jpg', alt: 'Detail' },
+  ]}
+  controller={{
+    placement: 'bottom-center',
+    render: ({ state, actions, slots }) => {
+      if (!state.show) return null
+
+      return (
+        <div className="my-zmage-controls" data-placement={state.placement}>
+          <button type="button" disabled={!state.canPrev} onClick={actions.prev}>
+            Prev
+          </button>
+          <span>
+            {state.page + 1} / {state.total}
+          </span>
+          <button type="button" disabled={!state.canNext} onClick={actions.next}>
+            Next
+          </button>
+          <button type="button" disabled={!state.zoom && !state.canZoom} onClick={actions.zoom}>
+            {state.zoom ? 'Fit' : 'Zoom'}
+          </button>
+          {state.canDownload && (
+            <button type="button" onClick={actions.download}>
+              Download
+            </button>
+          )}
+          <button type="button" onClick={actions.close}>
+            Close
+          </button>
+
+          {/* Reuse built-in pieces only where you want them. */}
+          {slots.Pagination}
+        </div>
+      )
+    },
+  }}
+/>`} language={'tsx' as any} />
     </>
   )
 }
@@ -283,9 +401,9 @@ function HotKeyDetail () {
 function AnimateDetail () {
   const { t } = useT()
   return (
-    <div className="my-6 overflow-hidden rounded-lg border border-border">
+    <div className="my-6 overflow-x-auto rounded-lg border border-border">
       <TypeCaption name="Animate" />
-      <table className="w-full text-sm">
+      <table className="min-w-[720px] w-full text-sm">
         <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
           <tr>
             <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.keyHeader')}</th>
@@ -310,9 +428,9 @@ function AnimateDetail () {
 function GestureDetail () {
   const { t } = useT()
   return (
-    <div className="my-6 overflow-hidden rounded-lg border border-border">
+    <div className="my-6 overflow-x-auto rounded-lg border border-border">
       <TypeCaption name="GestureSet" />
-      <table className="w-full text-sm">
+      <table className="min-w-[720px] w-full text-sm">
         <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
           <tr>
             <th className="px-4 py-2.5 font-medium">{t('docs.section.props.controller.keyHeader')}</th>

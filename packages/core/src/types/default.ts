@@ -3,7 +3,9 @@
  **/
 
 // Libs
-import { AnimateCoverOptions, AnimateFlip, BaseType, GestureDragExitOptions, GestureSwipeOptions, GestureWheelZoomOptions, Preset, Set } from './global'
+import { AnimateCoverOptions, AnimateFlip, BaseType, GestureDoubleTapZoomOptions, GestureDragExitOptions, GesturePinchZoomOptions, GestureSwipeOptions, GestureWheelZoomOptions, Preset, Set } from './global'
+
+const DEFAULT_PRESET: Preset = 'auto'
 
 export const defaultGestureSwipeOptions: Required<GestureSwipeOptions> = {
   threshold: 120,
@@ -27,6 +29,22 @@ export const defaultGestureWheelZoomOptions: Required<GestureWheelZoomOptions> =
   center: 'pointer',
   reverse: false,
   exitGuardDuration: 1000,
+}
+
+export const defaultGesturePinchZoomOptions: Required<GesturePinchZoomOptions> = {
+  minScale: 'fit',
+  maxScale: 4,
+  resetBelowFit: true,
+  center: 'gesture',
+}
+
+export const defaultGestureDoubleTapZoomOptions: Required<GestureDoubleTapZoomOptions> = {
+  scale: 1,
+  minScale: 'fit',
+  maxScale: 4,
+  center: 'tap',
+  interval: 300,
+  distance: 32,
 }
 
 export const defaultAnimateCoverOptions: Required<AnimateCoverOptions> = {
@@ -57,7 +75,7 @@ export const defProp = {
   /**
    * 预设
    **/
-  preset: '',
+  preset: DEFAULT_PRESET,
 
   /**
    * 功能控制
@@ -118,6 +136,7 @@ export const defPreset = {
       download: false,
       close: true,
       flip: true,
+      placement: 'top-right' as const,
     },
     hotKey: {
       close: true,
@@ -137,6 +156,9 @@ export const defPreset = {
       swipe: false,
       dragExit: false,
       wheelZoom: { ...defaultGestureWheelZoomOptions },
+      pinchZoom: false,
+      doubleTapZoom: false,
+      touchAction: 'managed' as const,
     },
   },
   // 移动端
@@ -148,6 +170,7 @@ export const defPreset = {
       download: false,
       close: true,
       flip: false,
+      placement: 'top-right' as const,
     },
     hotKey: {
       close: false,
@@ -165,6 +188,9 @@ export const defPreset = {
       swipe: { ...defaultGestureSwipeOptions },
       dragExit: { ...defaultGestureDragExitOptions },
       wheelZoom: false,
+      pinchZoom: { ...defaultGesturePinchZoomOptions },
+      doubleTapZoom: { ...defaultGestureDoubleTapZoomOptions },
+      touchAction: 'managed' as const,
     },
   }
 }
@@ -190,9 +216,10 @@ const DEF_PROP_MOBILE = {
  * 比"是不是手机"更贴近"该不该展示 hotkey 与 swipe"的真正语义。
  */
 export const resolvePreset = (preset?: Preset): 'desktop' | 'mobile' => {
-  if (preset === 'mobile') return 'mobile'
-  if (preset === 'desktop') return 'desktop'
-  if (preset === 'auto') {
+  const targetPreset = preset || DEFAULT_PRESET
+  if (targetPreset === 'mobile') return 'mobile'
+  if (targetPreset === 'desktop') return 'desktop'
+  if (targetPreset === 'auto') {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 'desktop'
     return window.matchMedia('(pointer: coarse) and (hover: none)').matches ? 'mobile' : 'desktop'
   }

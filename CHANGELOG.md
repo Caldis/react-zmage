@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- **feat (preset default)**: omitted `preset` now resolves as `'auto'`, using `(pointer: coarse) and (hover: none)` to choose mobile defaults on touch-first devices and desktop defaults elsewhere. Use `preset="desktop"` to force the old desktop bundle on touch devices.
+- **feat (mobile gestures)**: mobile preset now enables horizontal drag paging, vertical drag-to-exit, pinch zoom, double-tap zoom, managed `touch-action`, and bounce-like pan resistance while zoomed.
+- **feat (wheel zoom)**: desktop preset now supports smooth wheel / trackpad zoom while already zoomed, with configurable direction reversal and a `1000ms` exit guard to prevent residual wheel events after zoom-out.
+- **feat (controller API)**: `controller.placement` moves the toolbar to screen edges / centers, and `controller.render({ state, actions, slots })` lets consumers replace the full controller UI while reusing built-in slots.
+- **feat (cover geometry)**: `animate.cover` now matches cover `object-fit` / `object-position`, clip, and border radius during open / close so cropped covers start from the visible cover frame. Parent-wrapper clipping is intentionally not inferred.
+- **docs / demo**: synchronized README, zh-CN README, AGENTS, llms.txt, home docs, playground controls, llms-eval, and home demo image geometry for the new preset, gesture, controller, and cover-animation options.
+
 ## 1.6.0
 
 - **feat (Wrapper shared gallery)**: `<Zmage.Wrapper>` now supports an explicit `set` as a shared gallery for rich-text / CMS content. When a child `<img>` is clicked, Wrapper matches that image's `src` against `set[i].src` and opens the matching page; `defaultPage` remains the fallback when no match is found.

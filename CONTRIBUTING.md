@@ -91,7 +91,7 @@ CI 会在 GitHub Actions 上分别跑 build job 和 sandbox-matrix job (R17/R18/
 
 4. **公共组件类型保持 callable + statics 形态，不要用 `ForwardRefExoticComponent` 交叉**。当前 `ReactZmageComponent = ((props) => JSX.Element | null) & { browsing, wrapper, ... }` 是有意为之，绕开了 `@types/react@18+` 的 `ReactPortal` 回归与 `defaultProps` 引发的 prop 推断丢失。改回 `ForwardRefExoticComponent` 会破坏 R18/R19 消费者的严格 JSX 检查。
 
-5. **`react-dom/client` 必须通过运行时 `require` 获取，不能静态 `import`**。静态 import 会让 R16/17 消费方 bundler 报 "Module not found"。当前 `Zmage.callee.tsx` 的 `resolveMountAdapter()` 用 `require + try/catch` 平滑降级。
+5. **`react-dom/client` 保持静态 `import`，并在 tsup 中 externalize**。不要再改回浏览器运行时 `require`，浏览器 ESM 产物不能依赖它。R16/R17 兼容性由 sandbox checks 和 SSR smoke tests 覆盖；R18+ 通过这个 external import 解析 `createRoot`。当前 `Zmage.callee.tsx` 的 `resolveMountAdapter()` 会根据运行时能力选择 mount API。
 
 6. **`tsup.config.ts` 的 `external` 必须包含 `react`、`react-dom`、`react-dom/client`**。少一个会让 R18+ 的 mount 适配器无法在打包后被消费方解析。
 

@@ -19,6 +19,11 @@ export default function Background ({ show, zoom }: Props) {
 
   const { animate, backdrop, outBrowsing, toggleZoom, presetIsDesktop } = useContext(Context)
   const browsingAnimationDisabled = animate?.browsing === false
+  const transitionDelay = browsingAnimationDisabled
+    ? '0s'
+    : show && presetIsDesktop
+      ? '.15s'
+      : '0s'
 
   return (
     <div
@@ -29,11 +34,7 @@ export default function Background ({ show, zoom }: Props) {
         opacity: show ? 1 : 0,
         background: backdrop || '',
         transition: browsingAnimationDisabled ? 'none' : undefined,
-        transitionDelay: browsingAnimationDisabled
-          ? '0s'
-          : presetIsDesktop
-            ? show ? '.15s' : '0s'
-            : show ? '0s' : '.35s'
+        transitionDelay,
       }}
     />
   )

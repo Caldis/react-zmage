@@ -8,17 +8,17 @@ export function ThreeModes () {
     <section className="mt-12 space-y-4">
       <Heading id="modes">{t('docs.section.modes.title')}</Heading>
       <p>{t('docs.section.modes.intro')}</p>
-      <h3 className="mt-6 text-lg font-semibold">{t('docs.section.modes.componentTitle')}</h3>
+      <Heading id="modes-component" level={3}>{t('docs.section.modes.componentTitle')}</Heading>
       <p>{t('docs.section.modes.componentBody')}</p>
       <CodeBlock code={`<Zmage
   src="hero.jpg"
   set={[...]}
 />`} language={'tsx' as any} />
-      <h3 className="mt-6 text-lg font-semibold">{t('docs.section.modes.imperativeTitle')}</h3>
+      <Heading id="modes-imperative" level={3}>{t('docs.section.modes.imperativeTitle')}</Heading>
       <p>{t('docs.section.modes.imperativeBody')}</p>
       <CodeBlock code={`Zmage.browsing({ src: 'hero.jpg', set: [...] })
 // returns a destructor: () => void`} language={'tsx' as any} />
-      <h3 className="mt-6 text-lg font-semibold">{t('docs.section.modes.wrapperTitle')}</h3>
+      <Heading id="modes-wrapper" level={3}>{t('docs.section.modes.wrapperTitle')}</Heading>
       <p>{t('docs.section.modes.wrapperBody')}</p>
       <CodeBlock code={`const gallery = [
   { src: '/photo-1.jpg', alt: 'one', caption: 'First image' },

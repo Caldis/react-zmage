@@ -8,8 +8,8 @@ import { RefObject } from 'react'
 import { getClientHeight, getClientWidth, numberOfStyleUnits } from '../../utils'
 import { animationCurve, animationDuration, animationFunctionOnZooming, animationTransition } from '../../config/anim'
 import type { ContextType } from '../context'
-import { defaultAnimateCoverOptions, defaultGestureDragExitOptions, defaultGestureSwipeOptions, defaultGestureWheelZoomOptions } from '../../types/default'
-import { Animate, AnimateCoverOptions, AnimateFlip, GestureDragExitOptions, GestureSet, GestureSwipeOptions, GestureWheelZoomOptions } from '../../types/global'
+import { defaultAnimateCoverOptions, defaultGestureDoubleTapZoomOptions, defaultGestureDragExitOptions, defaultGesturePinchZoomOptions, defaultGestureSwipeOptions, defaultGestureWheelZoomOptions } from '../../types/default'
+import { Animate, AnimateCoverOptions, AnimateFlip, GestureDoubleTapZoomOptions, GestureDragExitOptions, GesturePinchZoomOptions, GestureSet, GestureSwipeOptions, GestureTouchAction, GestureWheelZoomOptions } from '../../types/global'
 
 export interface ClipInsets {
   top: number
@@ -454,6 +454,93 @@ const clampNumber = (value: number, min: number, max: number) => (
   Math.min(Math.max(value, min), max)
 )
 
+const ZOOM_PAN_BOUNCE_RESISTANCE = 0.35
+
+const resistBoundary = (
+  value: number,
+  min: number,
+  max: number,
+  resistance = ZOOM_PAN_BOUNCE_RESISTANCE,
+) => {
+  if (value < min) return min + ((value - min) * resistance)
+  if (value > max) return max + ((value - max) * resistance)
+  return value
+}
+
+export const getZoomPanBounds = (
+  context: ContextType,
+  imageRef: RefObject<HTMLImageElement>,
+  scale = 1,
+) => {
+  const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
+  const viewport = getViewportRect(context)
+  const saveEdge = context.edge || 50
+  const safeScale = Number.isFinite(scale) && scale > 0 ? scale : 1
+  const scaledWidth = naturalWidth * safeScale
+  const scaledHeight = naturalHeight * safeScale
+  const maxX = scaledWidth > viewport.width ? (scaledWidth - viewport.width) / 2 + saveEdge : 0
+  const maxY = scaledHeight > viewport.height ? (scaledHeight - viewport.height) / 2 + saveEdge : 0
+  return {
+    minX: -maxX,
+    maxX,
+    minY: -maxY,
+    maxY,
+  }
+}
+
+export const clampZoomPanStyle = (
+  context: ContextType,
+  imageRef: RefObject<HTMLImageElement>,
+  style: ImageStyleType,
+): ImageStyleType => {
+  const scale = Number.isFinite(style.scale) && (style.scale ?? 0) > 0 ? style.scale as number : 1
+  const bounds = getZoomPanBounds(context, imageRef, scale)
+  return {
+    ...style,
+    _type: 'zooming',
+    scale,
+    x: clampNumber(style.x ?? 0, bounds.minX, bounds.maxX),
+    y: clampNumber(style.y, bounds.minY, bounds.maxY),
+  }
+}
+
+export const resistZoomPanStyle = (
+  context: ContextType,
+  imageRef: RefObject<HTMLImageElement>,
+  style: ImageStyleType,
+): ImageStyleType => {
+  const scale = Number.isFinite(style.scale) && (style.scale ?? 0) > 0 ? style.scale as number : 1
+  const bounds = getZoomPanBounds(context, imageRef, scale)
+  return {
+    ...style,
+    _type: 'zooming',
+    scale,
+    x: resistBoundary(style.x ?? 0, bounds.minX, bounds.maxX),
+    y: resistBoundary(style.y, bounds.minY, bounds.maxY),
+  }
+}
+
+export interface ZoomScaleRange {
+  minScale: number
+  maxScale: number
+  fitScale: number
+}
+
+export const getZoomScaleRange = (
+  context: ContextType,
+  imageRef: RefObject<HTMLImageElement>,
+  options: { minScale?: 'fit' | number, maxScale?: number },
+): ZoomScaleRange => {
+  const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
+  const fitScale = calcFitScale(naturalWidth, naturalHeight, context.edge ?? 0, getViewportRect(context))
+  const minScale = options.minScale === 'fit' || options.minScale == null
+    ? fitScale
+    : options.minScale
+  const safeMin = Number.isFinite(minScale) && minScale > 0 ? minScale : fitScale || 1
+  const maxScale = Number.isFinite(options.maxScale) && (options.maxScale ?? 0) >= safeMin ? options.maxScale as number : safeMin
+  return { minScale: safeMin, maxScale, fitScale }
+}
+
 export const normalizeWheelDelta = (
   wheel: Pick<WheelEvent, 'deltaY' | 'deltaMode'>,
   viewport: Pick<ViewportRect, 'height'> = getViewportRect(),
@@ -495,13 +582,51 @@ export const getWheelZoomScaleRange = (
   imageRef: RefObject<HTMLImageElement>,
   options: Required<GestureWheelZoomOptions>,
 ) => {
-  const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
-  const minScale = options.minScale === 'fit'
-    ? calcFitScale(naturalWidth, naturalHeight, context.edge ?? 0, getViewportRect(context))
-    : options.minScale
-  const safeMin = Number.isFinite(minScale) && minScale > 0 ? minScale : 1
-  const maxScale = Number.isFinite(options.maxScale) && options.maxScale >= safeMin ? options.maxScale : safeMin
-  return { minScale: safeMin, maxScale }
+  const { minScale, maxScale } = getZoomScaleRange(context, imageRef, options)
+  return { minScale, maxScale }
+}
+
+export interface TouchPointLike {
+  clientX: number
+  clientY: number
+}
+
+export const getTouchDistance = (touches: ArrayLike<TouchPointLike>) => {
+  if (touches.length < 2) return 0
+  const first = touches[0]
+  const second = touches[1]
+  return Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY)
+}
+
+export const getTouchMidpoint = (touches: ArrayLike<TouchPointLike>) => {
+  if (touches.length < 2) return { clientX: 0, clientY: 0 }
+  const first = touches[0]
+  const second = touches[1]
+  return {
+    clientX: (first.clientX + second.clientX) / 2,
+    clientY: (first.clientY + second.clientY) / 2,
+  }
+}
+
+export const getNextPinchZoomScale = ({
+  baseScale,
+  startDistance,
+  currentDistance,
+  minScale,
+  maxScale,
+}: {
+  baseScale: number
+  startDistance: number
+  currentDistance: number
+  minScale: number
+  maxScale: number
+}) => {
+  const safeStart = Number.isFinite(startDistance) && startDistance > 0 ? startDistance : 1
+  const safeBase = Number.isFinite(baseScale) && baseScale > 0 ? baseScale : 1
+  const safeCurrent = Number.isFinite(currentDistance) && currentDistance > 0 ? currentDistance : safeStart
+  const safeMin = Number.isFinite(minScale) && minScale > 0 ? minScale : 0.01
+  const safeMax = Number.isFinite(maxScale) && maxScale >= safeMin ? maxScale : safeMin
+  return clampNumber(safeBase * (safeCurrent / safeStart), safeMin, safeMax)
 }
 
 /* 动画属性 */
@@ -589,7 +714,7 @@ export function getAnimateConfig(
  */
 export const GESTURE_DETECT_FLOOR_PX = 5
 
-type GestureChildOptions = GestureSwipeOptions | GestureDragExitOptions | GestureWheelZoomOptions
+type GestureChildOptions = GestureSwipeOptions | GestureDragExitOptions | GestureWheelZoomOptions | GesturePinchZoomOptions | GestureDoubleTapZoomOptions
 type NormalizedGestureChild<T extends GestureChildOptions> = false | Required<T>
 
 const mergeGestureChild = <T extends GestureChildOptions>(
@@ -614,14 +739,51 @@ export const normalizeGestureSet = (
   fallback: GestureSet = {},
 ): GestureSet => {
   if (gesture === false) {
-    return { swipe: false, dragExit: false, wheelZoom: false }
+    return {
+      swipe: false,
+      dragExit: false,
+      wheelZoom: false,
+      pinchZoom: false,
+      doubleTapZoom: false,
+      touchAction: 'auto',
+    }
   }
   const input = gesture && typeof gesture === 'object' ? gesture : {}
+  const touchAction = normalizeGestureTouchAction(input.touchAction, fallback.touchAction)
   return {
     swipe: mergeGestureChild(fallback.swipe, input.swipe, defaultGestureSwipeOptions),
     dragExit: mergeGestureChild(fallback.dragExit, input.dragExit, defaultGestureDragExitOptions),
     wheelZoom: mergeGestureChild(fallback.wheelZoom, input.wheelZoom, defaultGestureWheelZoomOptions),
+    pinchZoom: mergeGestureChild(fallback.pinchZoom, input.pinchZoom, defaultGesturePinchZoomOptions),
+    doubleTapZoom: mergeGestureChild(fallback.doubleTapZoom, input.doubleTapZoom, defaultGestureDoubleTapZoomOptions),
+    touchAction,
   }
+}
+
+const isGestureTouchAction = (value: unknown): value is GestureTouchAction => (
+  value === 'managed' ||
+  value === 'auto' ||
+  value === 'manipulation' ||
+  value === 'none'
+)
+
+const normalizeGestureTouchAction = (
+  user: GestureTouchAction | undefined,
+  fallback: GestureTouchAction | undefined,
+): GestureTouchAction => {
+  if (isGestureTouchAction(user)) return user
+  if (isGestureTouchAction(fallback)) return fallback
+  return 'managed'
+}
+
+export const resolveGestureTouchAction = (gesture: GestureSet | undefined): Exclude<GestureTouchAction, 'managed'> => {
+  const touchAction = gesture?.touchAction
+  if (touchAction === 'auto' || touchAction === 'manipulation' || touchAction === 'none') {
+    return touchAction
+  }
+  if (gesture?.pinchZoom && typeof gesture.pinchZoom === 'object') return 'none'
+  if (gesture?.doubleTapZoom && typeof gesture.doubleTapZoom === 'object') return 'manipulation'
+  return 'auto'
 }
 
 export type TouchGestureState = 'idle' | 'detecting' | 'swiping' | 'dragExiting' | 'ended'
@@ -633,6 +795,37 @@ export interface TouchGestureResult {
   offset: Coordinate
   distance: Coordinate
   velocity: Coordinate
+}
+
+export class DoubleTapGesture {
+  private lastTap?: { point: Coordinate, time: number }
+  private now: () => number
+
+  constructor (
+    private options: Pick<Required<GestureDoubleTapZoomOptions>, 'interval' | 'distance'>,
+    config: { now?: () => number } = {},
+  ) {
+    this.now = config.now || (() => Date.now())
+  }
+
+  public tap = (point: Coordinate) => {
+    const time = this.now()
+    const lastTap = this.lastTap
+    if (lastTap) {
+      const interval = time - lastTap.time
+      const distance = Math.hypot(point.x - lastTap.point.x, point.y - lastTap.point.y)
+      if (interval >= 0 && interval <= this.options.interval && distance <= this.options.distance) {
+        this.lastTap = undefined
+        return true
+      }
+    }
+    this.lastTap = { point, time }
+    return false
+  }
+
+  public cancel = () => {
+    this.lastTap = undefined
+  }
 }
 
 const emptyTouchResult = (): TouchGestureResult => ({

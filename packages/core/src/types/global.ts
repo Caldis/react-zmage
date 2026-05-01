@@ -62,6 +62,54 @@ export type Preset =
  */
 export type ControllerItem = boolean | string | ReactNode
 
+export type ControllerPlacement =
+  | 'top-right'
+  | 'top-left'
+  | 'bottom-right'
+  | 'bottom-left'
+  | 'top-center'
+  | 'bottom-center'
+  | 'left-center'
+  | 'right-center'
+
+export interface ControllerRenderState {
+  show: boolean
+  zoom: boolean
+  page: number
+  total: number
+  canZoom: boolean
+  canPrev: boolean
+  canNext: boolean
+  canDownload: boolean
+  preset: Exclude<Preset, 'auto'>
+  placement: ControllerPlacement
+  current?: Set
+}
+
+export interface ControllerRenderActions {
+  close: () => void
+  zoom: () => void
+  rotateLeft: () => void
+  rotateRight: () => void
+  prev: () => void
+  next: () => void
+  toPage: (page: number) => void
+  download: () => void
+}
+
+export interface ControllerRenderSlots {
+  Toolbar: ReactNode
+  Pagination: ReactNode
+  FlipLeft: ReactNode
+  FlipRight: ReactNode
+}
+
+export type ControllerRender = (args: {
+  state: ControllerRenderState
+  actions: ControllerRenderActions
+  slots: ControllerRenderSlots
+}) => ReactNode
+
 /**
  * @see https://github.com/Caldis/react-zmage#controllerSet
  */
@@ -87,6 +135,10 @@ export interface ControllerSet {
   // 单按钮通过 ControllerItem 字符串值仍可独立覆盖颜色 (per-button override 优先)
   backdrop?: string
   color?: string
+  // 工具栏位置
+  placement?: ControllerPlacement
+  // 完全自定义控制器渲染
+  render?: ControllerRender
 }
 
 /**
@@ -147,10 +199,31 @@ export interface GestureWheelZoomOptions {
   exitGuardDuration?: number
 }
 
+export interface GesturePinchZoomOptions {
+  minScale?: 'fit' | number
+  maxScale?: number
+  resetBelowFit?: boolean
+  center?: 'gesture' | 'viewport'
+}
+
+export interface GestureDoubleTapZoomOptions {
+  scale?: number
+  minScale?: 'fit' | number
+  maxScale?: number
+  center?: 'tap' | 'viewport'
+  interval?: number
+  distance?: number
+}
+
+export type GestureTouchAction = 'managed' | 'auto' | 'manipulation' | 'none'
+
 export interface GestureSet {
   swipe?: boolean | GestureSwipeOptions
   dragExit?: boolean | GestureDragExitOptions
   wheelZoom?: boolean | GestureWheelZoomOptions
+  pinchZoom?: boolean | GesturePinchZoomOptions
+  doubleTapZoom?: boolean | GestureDoubleTapZoomOptions
+  touchAction?: GestureTouchAction
 }
 
 /**

@@ -20,10 +20,37 @@ import {
 } from '../../asserts/icons'
 // Utils
 import { Context } from '../context'
-import { ControllerItem, ControllerSet } from '../../types/global'
+import { ControllerItem, ControllerPlacement, ControllerRenderActions, ControllerRenderSlots, ControllerRenderState, ControllerSet } from '../../types/global'
 import { downloadFromLink } from '../../utils'
 
 type IconComponent = ComponentType<{ color?: string }>
+const CONTROLLER_PLACEMENTS = new Set<ControllerPlacement>([
+  'top-right',
+  'top-left',
+  'bottom-right',
+  'bottom-left',
+  'top-center',
+  'bottom-center',
+  'left-center',
+  'right-center',
+])
+
+function resolveControllerPlacement (placement: ControllerSet['placement']): ControllerPlacement {
+  return typeof placement === 'string' && CONTROLLER_PLACEMENTS.has(placement)
+    ? placement
+    : 'top-right'
+}
+
+const PLACEMENT_CLASS: Record<ControllerPlacement, string> = {
+  'top-right': style.topRight,
+  'top-left': style.topLeft,
+  'bottom-right': style.bottomRight,
+  'bottom-left': style.bottomLeft,
+  'top-center': style.topCenter,
+  'bottom-center': style.bottomCenter,
+  'left-center': style.leftCenter,
+  'right-center': style.rightCenter,
+}
 
 function getControllerItem (
   item: ControllerItem,
@@ -96,6 +123,7 @@ export default function Control () {
   }, [zoomShakeKey])
 
   const browsingTransitionStyle = animate?.browsing === false ? { transition: 'none' } : undefined
+  const placement = resolveControllerPlacement(controllerParams.placement)
   const handleMobileZoom = () => {
     const current = Array.isArray(set) ? set[page] : undefined
     if (!current) {
@@ -108,168 +136,208 @@ export default function Control () {
     }
   }
 
+  const rotateLeftItem = controllerParams.rotateLeft || controllerParams.rotate
+  const rotateRightItem = controllerParams.rotateRight || controllerParams.rotate
+  const hasToolbar = !!(
+    rotateLeftItem ||
+    rotateRightItem ||
+    controllerParams.download ||
+    controllerParams.zoom ||
+    controllerParams.close
+  )
+  const toolbarSlot = hasToolbar ? (
+    // 控制按钮
+    <div
+      id="zmageControl"
+      data-placement={placement}
+      className={classnames(style.controls, PLACEMENT_CLASS[placement], { [style.show]: !zoom && show })}
+      style={{ backgroundColor: effectiveControllerBackdrop, ...browsingTransitionStyle }}
+    >
+      {
+        getControllerItem(
+          rotateLeftItem,
+          IconRotateLeft,
+          'zmageControlRotateLeft',
+          classnames(style.rotateLeft, { [style.show]: !zoom && show }),
+          toggleRotate('left'),
+          show,
+          zoom,
+          undefined,
+          browsingTransitionStyle,
+          undefined,
+          undefined,
+          controllerColor
+        )
+      }
+      {
+        getControllerItem(
+          rotateRightItem,
+          IconRotateRight,
+          'zmageControlRotateRight',
+          classnames(style.rotateRight, { [style.show]: !zoom && show }),
+          toggleRotate('right'),
+          show,
+          zoom,
+          undefined,
+          browsingTransitionStyle,
+          undefined,
+          undefined,
+          controllerColor
+        )
+      }
+      {
+        getControllerItem(
+          controllerParams.download,
+          IconDownload,
+          'zmageControlDownload',
+          classnames(style.download, { [style.show]: !zoom && show }),
+          () => set[page]?.src && downloadFromLink(set[page].src),
+          show,
+          zoom,
+          undefined,
+          browsingTransitionStyle,
+          undefined,
+          undefined,
+          controllerColor
+        )
+      }
+      {
+        getControllerItem(
+          controllerParams.zoom,
+          IconZoom,
+          'zmageControlZoom',
+          classnames(style.zoom, { [style.show]: !zoom && show, [style.disabled]: zoomDisabled }),
+          presetIsMobile ? handleMobileZoom : () => toggleZoom(),
+          show,
+          zoom,
+          undefined,
+          browsingTransitionStyle,
+          zoomDisabled,
+          zoomButtonRef,
+          controllerColor
+        )
+      }
+      {
+        getControllerItem(
+          controllerParams.close,
+          IconClose,
+          'zmageControlClose',
+          classnames(style.close, { [style.show]: !zoom && show }),
+          zoom ? () => toggleZoom() : outBrowsing,
+          show,
+          zoom,
+          undefined,
+          browsingTransitionStyle,
+          undefined,
+          undefined,
+          controllerColor
+        )
+      }
+    </div>
+  ) : null
+
+  const flipLeftSlot = Array.isArray(set) && set.length > 1 && (loop || page !== 0)
+    ? getControllerItem(
+      (controllerParams.flipLeft || controllerParams.flip),
+      IconArrowLeft,
+      'zmageControlFlipLeft',
+      classnames(style.flipLeft, { [style.show]: !zoom && show }),
+      toPrevPage,
+      show,
+      zoom,
+      undefined,
+      browsingTransitionStyle,
+      undefined,
+      undefined,
+      controllerColor
+    )
+    : null
+  const flipRightSlot = Array.isArray(set) && set.length > 1 && (loop || page !== set.length - 1)
+    ? getControllerItem(
+      (controllerParams.flipRight || controllerParams.flip),
+      IconArrowRight,
+      'zmageControlFlipRight',
+      classnames(style.flipRight, { [style.show]: !zoom && show }),
+      toNextPage,
+      show,
+      zoom,
+      undefined,
+      browsingTransitionStyle,
+      undefined,
+      undefined,
+      controllerColor
+    )
+    : null
+  const paginationSlot = Array.isArray(set) && set.length > 1
+    ? (React.isValidElement(controllerParams.pagination)
+      ? React.cloneElement(controllerParams.pagination as React.ReactElement<{ show: boolean; zoom: boolean; onClick: (target: number) => void }>, { show, zoom, onClick: toPage })
+      : !!controllerParams.pagination && (
+        <div
+          id="zmageControlPagination"
+          className={classnames(style.pages, { [style.show]: !zoom && show, [style.mobile]: presetIsMobile })}
+          style={{ backgroundColor: effectiveControllerBackdrop, ...browsingTransitionStyle }}
+        >
+          {
+            set.map((_, i) =>
+              i === page ?
+                <span key={i} id="zmageControlPaginationActive" className={style.blackDot}/> :
+                <span key={i} className={style.whiteDot} onClick={() => toPage(i)}/>
+            )
+          }
+        </div>
+      ))
+    : null
+
+  const total = set.length
+  const current = set[page]
+  const canPrev = total > 1 && (loop || page > 0)
+  const canNext = total > 1 && (loop || page < total - 1)
+  const canDownload = typeof current?.src === 'string' && current.src.length > 0
+  const actions: ControllerRenderActions = {
+    close: outBrowsing,
+    zoom: () => {
+      if (!zoom && !canZoom) return
+      toggleZoom()
+    },
+    rotateLeft: toggleRotate('left'),
+    rotateRight: toggleRotate('right'),
+    prev: toPrevPage,
+    next: toNextPage,
+    toPage,
+    download: () => {
+      if (current?.src) downloadFromLink(current.src)
+    },
+  }
+  const state: ControllerRenderState = {
+    show,
+    zoom,
+    page,
+    total,
+    canZoom,
+    canPrev,
+    canNext,
+    canDownload,
+    preset: presetIsMobile ? 'mobile' : 'desktop',
+    placement,
+    current,
+  }
+  const slots: ControllerRenderSlots = {
+    Toolbar: toolbarSlot,
+    Pagination: paginationSlot,
+    FlipLeft: flipLeftSlot,
+    FlipRight: flipRightSlot,
+  }
+
+  if (typeof controllerParams.render === 'function') {
+    return <Fragment>{controllerParams.render({ state, actions, slots })}</Fragment>
+  }
+
   return (
     <Fragment>
-
-      {/*控制按钮*/}
-      <div
-        id="zmageControl"
-        className={classnames(style.controls, { [style.show]: !zoom && show })}
-        style={{ backgroundColor: effectiveControllerBackdrop, ...browsingTransitionStyle }}
-      >
-
-        {/*旋转*/}
-        {
-          getControllerItem(
-            (controllerParams.rotateLeft || controllerParams.rotate),
-            IconRotateLeft,
-            'zmageControlRotateLeft',
-            classnames(style.rotateLeft, { [style.show]: !zoom && show }),
-            toggleRotate('left'),
-            show,
-            zoom,
-            undefined,
-            browsingTransitionStyle,
-            undefined,
-            undefined,
-            controllerColor
-          )
-        }
-        {
-          getControllerItem(
-            (controllerParams.rotateRight || controllerParams.rotate),
-            IconRotateRight,
-            'zmageControlRotateRight',
-            classnames(style.rotateRight, { [style.show]: !zoom && show }),
-            toggleRotate('right'),
-            show,
-            zoom,
-            undefined,
-            browsingTransitionStyle,
-            undefined,
-            undefined,
-            controllerColor
-          )
-        }
-
-        {/*下载*/}
-        {
-          getControllerItem(
-            controllerParams.download,
-            IconDownload,
-            'zmageControlDownload',
-            classnames(style.download, { [style.show]: !zoom && show }),
-            () => downloadFromLink(set[page].src),
-            show,
-            zoom,
-            undefined,
-            browsingTransitionStyle,
-            undefined,
-            undefined,
-            controllerColor
-          )
-        }
-
-        {/*放大*/}
-        {
-          getControllerItem(
-            controllerParams.zoom,
-            IconZoom,
-            'zmageControlZoom',
-            classnames(style.zoom, { [style.show]: !zoom && show, [style.disabled]: zoomDisabled }),
-            presetIsMobile ? handleMobileZoom : () => toggleZoom(),
-            show,
-            zoom,
-            undefined,
-            browsingTransitionStyle,
-            zoomDisabled,
-            zoomButtonRef,
-            controllerColor
-          )
-        }
-
-        {/*关闭*/}
-        {
-          getControllerItem(
-            controllerParams.close,
-            IconClose,
-            'zmageControlClose',
-            classnames(style.close, { [style.show]: !zoom && show }),
-            zoom ? () => toggleZoom() : outBrowsing,
-            show,
-            zoom,
-            undefined,
-            browsingTransitionStyle,
-            undefined,
-            undefined,
-            controllerColor
-          )
-        }
-
-      </div>
-
-      {/*翻页控制*/}
-      {
-        Array.isArray(set) && set.length > 1 &&
-        <Fragment>
-          {
-            (loop || page !== 0) &&
-            getControllerItem(
-              (controllerParams.flipLeft || controllerParams.flip),
-              IconArrowLeft,
-              'zmageControlFlipLeft',
-              classnames(style.flipLeft, { [style.show]: !zoom && show }),
-              toPrevPage,
-              show,
-              zoom,
-              undefined,
-              browsingTransitionStyle,
-              undefined,
-              undefined,
-              controllerColor
-            )
-          }
-          {
-            (loop || page !== set.length - 1) &&
-            getControllerItem(
-              (controllerParams.flipRight || controllerParams.flip),
-              IconArrowRight,
-              'zmageControlFlipRight',
-              classnames(style.flipRight, { [style.show]: !zoom && show }),
-              toNextPage,
-              show,
-              zoom,
-              undefined,
-              browsingTransitionStyle,
-              undefined,
-              undefined,
-              controllerColor
-            )
-          }
-        </Fragment>
-      }
-
-      {/*页数指示*/}
-      {
-        (Array.isArray(set) && set.length > 1) &&
-        (React.isValidElement(controllerParams.pagination)
-          ? React.cloneElement(controllerParams.pagination as React.ReactElement<{ show: boolean; zoom: boolean; onClick: (target: number) => void }>, { show, zoom, onClick: toPage })
-          : !!controllerParams.pagination && (
-            <div
-              id="zmageControlPagination"
-              className={classnames(style.pages, { [style.show]: !zoom && show, [style.mobile]: presetIsMobile })}
-              style={{ backgroundColor: effectiveControllerBackdrop, ...browsingTransitionStyle }}
-            >
-              {
-                set.map((_, i) =>
-                  i === page ?
-                    <span key={i} id="zmageControlPaginationActive" className={style.blackDot}/> :
-                    <span key={i} className={style.whiteDot} onClick={() => toPage(i)}/>
-                )
-              }
-            </div>
-          ))
-      }
+      {toolbarSlot}
+      {flipLeftSlot}
+      {flipRightSlot}
+      {paginationSlot}
     </Fragment>
   )
 }

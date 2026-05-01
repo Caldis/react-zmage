@@ -1,6 +1,11 @@
 import type { BaseType } from 'react-zmage'
 import type { I18nKey } from '@/i18n/dict'
 
+type PresetValue = NonNullable<BaseType['preset']>
+type ResolvedPresetValue = Exclude<PresetValue, 'auto'>
+
+const DEFAULT_PRESET: PresetValue = 'auto'
+
 // ─────────────────────────────────────────────────────────────
 // Default values mirrored from packages/core/src/types/default.ts
 // (defProp / defPreset are NOT part of react-zmage's public exports
@@ -13,8 +18,8 @@ export const defProp = {
   caption: '',
   set: [] as { src: string; alt?: string; caption?: string | { text: string; style?: Record<string, unknown>; className?: string } }[],
   defaultPage: 0,
-  preset: '',
-  controller: {} as Record<string, boolean>,
+  preset: DEFAULT_PRESET,
+  controller: {} as Record<string, boolean | string>,
   hotKey: {} as Record<string, boolean>,
   animate: {} as Record<string, unknown>,
   gesture: {} as Record<string, unknown>,
@@ -31,26 +36,44 @@ export const defProp = {
 
 export const defPreset = {
   desktop: {
-    controller: { pagination: true, rotate: true, zoom: true, download: false, close: true, flip: true },
+    controller: { pagination: true, rotate: true, zoom: true, download: false, close: true, flip: true, placement: 'top-right' as const },
     hotKey: { close: true, zoom: true, flip: true, rotate: true, download: false },
     animate: { browsing: true, flip: 'crossFade' as const, cover: { objectFit: true, clip: true, radius: true } },
     gesture: {
       swipe: false,
       dragExit: false,
       wheelZoom: { step: 0.12, smooth: true, minScale: 'fit' as const, maxScale: 4, center: 'pointer' as const, reverse: false, exitGuardDuration: 1000 },
+      pinchZoom: false,
+      doubleTapZoom: false,
+      touchAction: 'managed' as const,
     },
   },
   mobile: {
-    controller: { pagination: true, rotate: false, zoom: false, download: false, close: true, flip: false },
+    controller: { pagination: true, rotate: false, zoom: false, download: false, close: true, flip: false, placement: 'top-right' as const },
     hotKey: { close: false, zoom: false, flip: false, rotate: false, download: false },
     animate: { browsing: true, flip: 'swipe' as const, cover: { objectFit: true, clip: true, radius: true } },
     gesture: {
       swipe: { threshold: 120, velocity: 0.35, axisLock: 1.2, resistance: 0.35 },
       dragExit: { threshold: 80, velocity: 0.35, axisLock: 1.2, opacity: true },
       wheelZoom: false,
+      pinchZoom: { minScale: 'fit' as const, maxScale: 4, resetBelowFit: true, center: 'gesture' as const },
+      doubleTapZoom: { scale: 1, minScale: 'fit' as const, maxScale: 4, center: 'tap' as const, interval: 300, distance: 32 },
+      touchAction: 'managed' as const,
     },
   },
 }
+
+export const resolvePreset = (preset?: PresetValue | ''): ResolvedPresetValue => {
+  const targetPreset = preset || DEFAULT_PRESET
+  if (targetPreset === 'mobile') return 'mobile'
+  if (targetPreset === 'desktop') return 'desktop'
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 'desktop'
+  return window.matchMedia('(pointer: coarse) and (hover: none)').matches ? 'mobile' : 'desktop'
+}
+
+export const getPresetDefaults = (preset?: PresetValue | '') => defPreset[resolvePreset(preset)]
+
+const defaultPresetValues = getPresetDefaults(defProp.preset)
 
 export type ControlKind =
   | { kind: 'switch' }
@@ -91,13 +114,12 @@ export const PARAM_SCHEMA: ParamDef[] = [
     i18n: { labelKey: 'param.defaultPage.label', descKey: 'param.defaultPage.desc' } },
 
   // Preset
-  { name: 'preset', group: 'preset', default: '', control: {
+  { name: 'preset', group: 'preset', default: defProp.preset, control: {
     kind: 'segmented',
     options: [
+      { value: 'auto', labelKey: 'preset.auto' },
       { value: 'desktop', labelKey: 'preset.desktop' },
       { value: 'mobile', labelKey: 'preset.mobile' },
-      { value: 'auto', labelKey: 'preset.auto' },
-      { value: '', labelKey: 'preset.none' },
     ],
   },
   i18n: { labelKey: 'param.preset.label', descKey: 'param.preset.desc' } },
@@ -124,19 +146,19 @@ export const PARAM_SCHEMA: ParamDef[] = [
     i18n: { labelKey: 'param.loadingDelay.label', descKey: 'param.loadingDelay.desc' } },
 
   // Controller
-  { name: 'controller', group: 'controller', default: defPreset.desktop.controller, control: { kind: 'object', component: 'controller' },
+  { name: 'controller', group: 'controller', default: defaultPresetValues.controller, control: { kind: 'object', component: 'controller' },
     i18n: { labelKey: 'param.controller.label', descKey: 'param.controller.desc' } },
 
   // HotKey
-  { name: 'hotKey', group: 'hotkey', default: defPreset.desktop.hotKey, control: { kind: 'object', component: 'hotkey' },
+  { name: 'hotKey', group: 'hotkey', default: defaultPresetValues.hotKey, control: { kind: 'object', component: 'hotkey' },
     i18n: { labelKey: 'param.hotKey.label', descKey: 'param.hotKey.desc' } },
 
   // Animate
-  { name: 'animate', group: 'animate', default: defPreset.desktop.animate, control: { kind: 'object', component: 'animate' },
+  { name: 'animate', group: 'animate', default: defaultPresetValues.animate, control: { kind: 'object', component: 'animate' },
     i18n: { labelKey: 'param.animate.label', descKey: 'param.animate.desc' } },
 
   // Gesture
-  { name: 'gesture', group: 'gesture', default: defPreset.desktop.gesture, control: { kind: 'object', component: 'gesture' },
+  { name: 'gesture', group: 'gesture', default: defaultPresetValues.gesture, control: { kind: 'object', component: 'gesture' },
     i18n: { labelKey: 'param.gesture.label', descKey: 'param.gesture.desc' } },
 
   // Lifecycle

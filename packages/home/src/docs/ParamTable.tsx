@@ -40,8 +40,8 @@ export function ParamTable ({ group }: { group: ParamGroup }) {
   const items = PARAM_SCHEMA.filter(d => d.group === group)
   if (items.length === 0) return null
   return (
-    <div className="my-6 overflow-hidden rounded-lg border border-border">
-      <table className="w-full text-sm">
+    <div className="my-6 overflow-x-auto rounded-lg border border-border">
+      <table className="min-w-[720px] w-full text-sm">
         <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
           <tr>
             <th className="px-4 py-2.5 font-medium">Prop</th>

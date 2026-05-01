@@ -28,16 +28,21 @@ import {
 import {
   calcFitScale,
   closingEase,
+  DoubleTapGesture,
   getAnimateConfig,
   getClipPath,
   getCoverStyle,
   getCurrentImageStyle,
   getImageTransition,
   getLocalRadius,
+  getNextPinchZoomScale,
   getNextWheelZoomScale,
   getSideImageOffset,
+  getTouchDistance,
+  getTouchMidpoint,
   getViewportRect,
   getWheelZoomScaleRange,
+  getZoomScaleRange,
   getZoomingStyle,
   ImageAnimateType,
   ImageStyleType,
@@ -48,8 +53,11 @@ import {
   selectFlipKind,
   TouchGesture,
   TouchGestureResult,
+  clampZoomPanStyle,
+  GESTURE_DETECT_FLOOR_PX,
+  resistZoomPanStyle,
 } from './Image.utils'
-import type { GestureWheelZoomOptions } from '../../types/global'
+import type { GestureDoubleTapZoomOptions, GesturePinchZoomOptions, GestureWheelZoomOptions } from '../../types/global'
 
 type PropsType = BrowsingParams
 const ZOOM_FOLLOW_EASE = 0.05
@@ -58,7 +66,26 @@ const TOUCH_PASSIVE_LISTENER_OPTIONS: AddEventListenerOptions = { passive: true 
 const TOUCH_MOVE_LISTENER_OPTIONS: AddEventListenerOptions = { passive: false }
 const WHEEL_LISTENER_OPTIONS: AddEventListenerOptions = { passive: false }
 const WHEEL_ZOOM_FIT_EPSILON = 0.001
+const TOUCH_SYNTHETIC_CLICK_GUARD_MS = 450
 type NormalizedWheelZoomOptions = Required<GestureWheelZoomOptions>
+type NormalizedPinchZoomOptions = Required<GesturePinchZoomOptions>
+type NormalizedDoubleTapZoomOptions = Required<GestureDoubleTapZoomOptions>
+
+interface PinchGestureSession {
+  startDistance: number
+  baseScale: number
+  minScale: number
+  maxScale: number
+  fitScale: number
+  options: NormalizedPinchZoomOptions
+}
+
+interface ZoomTouchPanSession {
+  startPoint: Coordinate
+  startStyle: ImageStyleType
+  active: boolean
+  targetStyle?: ImageStyleType
+}
 
 interface StateType {
   // 加载状态
@@ -109,6 +136,13 @@ export default class Image extends React.Component<PropsType, StateType> {
   pendingZoomMousePosition?: Coordinate
   zoomPointerPosition?: Coordinate
   zoomTargetScale?: number
+  pinchGestureSession?: PinchGestureSession
+  pinchTargetStyle?: ImageStyleType
+  pinchSequenceLocked = false
+  zoomTouchPanSession?: ZoomTouchPanSession
+  doubleTapGesture?: DoubleTapGesture
+  doubleTapGestureKey?: string
+  suppressSyntheticClickUntil = 0
   wheelZoomExitGuardUntil = 0
   wheelZoomExitGuardTimer?: ReturnType<typeof setTimeout>
   // Dim 校准 RAF: 切到未渲染过 side 的页面时, 目标页 dims 由 onLoad 才落地, dims 一旦记录,
@@ -151,6 +185,7 @@ export default class Image extends React.Component<PropsType, StateType> {
         window.addEventListener('touchstart', this.handleTouchStart, TOUCH_PASSIVE_LISTENER_OPTIONS)
         window.addEventListener('touchmove', this.handleTouchMove, TOUCH_MOVE_LISTENER_OPTIONS)
         window.addEventListener('touchend', this.handleTouchEnd, TOUCH_PASSIVE_LISTENER_OPTIONS)
+        window.addEventListener('touchcancel', this.handleTouchCancel, TOUCH_PASSIVE_LISTENER_OPTIONS)
       }))
     }
     if (presetIsDesktop && hideOnScroll) {
@@ -165,6 +200,8 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { show: currShow, zoom: currZoom, rotate: currRotate, page: currPage } = this.props
     const { animate, presetIsMobile } = this.context
     const keyboardZoomEnter = !prevZoom && currZoom && this.context.zoomTrigger === 'keyboard'
+    const pinchZoomEnter = !prevZoom && currZoom && this.context.zoomTrigger === 'pinch'
+    const doubleTapZoomEnter = !prevZoom && currZoom && this.context.zoomTrigger === 'doubleTap'
     if (prevShow !== currShow || prevPage !== currPage || (prevZoom && !currZoom)) {
       this.resetZoomMotionState()
     }
@@ -173,18 +210,32 @@ export default class Image extends React.Component<PropsType, StateType> {
       this.cancelClosingFollow()
     }
     if (!prevZoom && currZoom) {
-      keyboardZoomEnter ? this.startKeyboardZoomEnter() : this.startZoomEnter()
+      if (keyboardZoomEnter) {
+        this.startKeyboardZoomEnter()
+      } else if (pinchZoomEnter && this.pinchTargetStyle) {
+        this.applyZoomStyleImmediately(this.pinchTargetStyle)
+      } else if (doubleTapZoomEnter) {
+        this.startStoredZoomEnter()
+      } else {
+        this.startZoomEnter()
+      }
     }
     // 状态改变时更新样式 (Page 导致的 src 变化的 update 交给图片自身的 onload 调用)
     if (prevShow !== currShow || prevZoom !== currZoom || prevRotate !== currRotate) {
       const updateStyle = () => {
         if (keyboardZoomEnter) {
           this.updateCurrentImageStyleForKeyboardZoom()
+        } else if (pinchZoomEnter && this.pinchTargetStyle) {
+          this.setCurrentStyle(this.pinchTargetStyle)
+        } else if (doubleTapZoomEnter) {
+          this.updateCurrentImageStyleForStoredZoom()
         } else if (prevShow !== currShow && animate?.browsing === false) {
           this.updateCurrentImageStyleWithoutBrowsingTransition()
         } else if (prevShow && !currShow) {
           // 关闭路径: 启动 RAF 实时追踪 cover 视口位置, 避免 350ms transition 期间 target snapshot 导致的滚动滞后
           this.startClosingFollow()
+        } else if (prevZoom && !currZoom) {
+          this.updateCurrentImageStyle()
         } else {
           this.debounceUpdateCurrentImageStyle()
         }
@@ -281,6 +332,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       window.removeEventListener('touchstart', this.handleTouchStart)
       window.removeEventListener('touchmove', this.handleTouchMove)
       window.removeEventListener('touchend', this.handleTouchEnd)
+      window.removeEventListener('touchcancel', this.handleTouchCancel)
     }
     if (presetIsDesktop) {
       window.removeEventListener('scroll', this.handleScroll)
@@ -318,8 +370,8 @@ export default class Image extends React.Component<PropsType, StateType> {
    **/
   updateCurrentImageStyle = () => {
     const { touchGesture } = this.state
-    const nextStyle = this.context.zoom && this.context.zoomTrigger === 'keyboard'
-      ? this.getZoomingStyleFromKeyboardPosition()
+    const nextStyle = this.context.zoom && (this.context.zoomTrigger === 'keyboard' || this.context.zoomTrigger === 'doubleTap')
+      ? this.getZoomingStyleFromStoredPosition()
       : getCurrentImageStyle(this.context, this.imageRef, touchGesture)
     this.setCurrentStyle(nextStyle, () => {
       if (nextStyle._type === 'zooming') {
@@ -348,7 +400,11 @@ export default class Image extends React.Component<PropsType, StateType> {
     })
   }
   updateCurrentImageStyleForKeyboardZoom = () => {
-    const nextStyle = this.getZoomingStyleFromKeyboardPosition()
+    const nextStyle = this.getZoomingStyleFromStoredPosition()
+    this.setCurrentStyle(nextStyle, this.scheduleZoomEnterComplete)
+  }
+  updateCurrentImageStyleForStoredZoom = () => {
+    const nextStyle = this.getZoomingStyleFromStoredPosition()
     this.setCurrentStyle(nextStyle, this.scheduleZoomEnterComplete)
   }
   debounceUpdateCurrentImageStyle = debounce(this.updateCurrentImageStyle, 50)
@@ -372,7 +428,13 @@ export default class Image extends React.Component<PropsType, StateType> {
       this.imageRef.current.style.top = `calc(50% + ${show ? 0 : this.initialPageOffset - window.pageYOffset}px)`
     }
   }
-  handleClick = () => {
+  handleClick = (e: React.MouseEvent<HTMLImageElement>) => {
+    if (this.shouldSuppressSyntheticClick()) {
+      this.suppressSyntheticClickUntil = 0
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
     const { zoom, toggleZoom } = this.context
     zoom && toggleZoom()
   }
@@ -397,12 +459,40 @@ export default class Image extends React.Component<PropsType, StateType> {
   }
   // 触摸事件
   handleTouchStart = (e: TouchEvent) => {
+    if (this.tryStartPinchGesture(e)) {
+      return
+    }
+    if (e.touches.length > 1) {
+      return
+    }
+    if (this.pinchSequenceLocked) {
+      return
+    }
     const point = this.getTouchPoint(e)
     if (!point) return
+    if (this.tryStartZoomTouchPan(point)) {
+      return
+    }
     this.touchGesture = new TouchGesture(this.getActiveGesture()).start(point)
     this.setTouchGesture(this.touchGesture)
   }
   handleTouchMove = (e: TouchEvent) => {
+    if (this.pinchGestureSession) {
+      this.updatePinchGesture(e)
+      return
+    }
+    if (this.tryStartPinchGesture(e)) {
+      return
+    }
+    if (e.touches.length > 1) {
+      return
+    }
+    if (this.pinchSequenceLocked) {
+      return
+    }
+    if (this.updateZoomTouchPan(e)) {
+      return
+    }
     const point = this.getTouchPoint(e)
     if (!point) return
     const nextGesture = this.touchGesture.move(point)
@@ -411,9 +501,25 @@ export default class Image extends React.Component<PropsType, StateType> {
     }
     this.setTouchGesture(nextGesture)
   }
-  handleTouchEnd = () => {
+  handleTouchEnd = (e: TouchEvent) => {
+    if (this.pinchGestureSession || this.pinchSequenceLocked) {
+      this.endPinchGesture(e)
+      return
+    }
+    if (this.endZoomTouchPan()) {
+      return
+    }
+    if (this.tryHandleDoubleTapGesture(e)) {
+      return
+    }
     const result = this.touchGesture.end()
     this.setTouchGesture(this.touchGesture, () => this.commitTouchGestureResult(result))
+  }
+  handleTouchCancel = () => {
+    this.clearPinchGesture()
+    this.clearZoomTouchPan()
+    this.touchGesture = new TouchGesture()
+    this.setTouchGesture(this.touchGesture)
   }
   // 鼠标事件
   handleMouseMove = (e: MouseEvent) => {
@@ -595,6 +701,16 @@ export default class Image extends React.Component<PropsType, StateType> {
     this.clearWheelZoomExitGuard()
     this.motionPhase = 'zoom-enter'
   }
+  startStoredZoomEnter = () => {
+    this.debounceUpdateCurrentImageStyle.cancel()
+    this.cancelZoomEnterTimer()
+    this.cancelZoomFollowFrame()
+    this.zoomFollowCurrentStyle = undefined
+    this.zoomFollowTargetStyle = undefined
+    this.pendingZoomMousePosition = undefined
+    this.clearWheelZoomExitGuard()
+    this.motionPhase = 'zoom-enter'
+  }
   startKeyboardZoomEnter = () => {
     this.debounceUpdateCurrentImageStyle.cancel()
     this.cancelZoomEnterTimer()
@@ -615,6 +731,8 @@ export default class Image extends React.Component<PropsType, StateType> {
     this.pendingZoomMousePosition = undefined
     this.zoomPointerPosition = undefined
     this.zoomTargetScale = undefined
+    this.clearPinchGesture()
+    this.clearZoomTouchPan()
     if (isZoomMotionPhase(this.motionPhase)) {
       this.motionPhase = 'idle'
     }
@@ -712,7 +830,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       ? { clientX: viewport.left + viewport.width / 2, clientY: viewport.top + viewport.height / 2 }
       : { clientX: e.clientX, clientY: e.clientY }
   )
-  applyZoomStyleImmediately = (zoomingStyle: ImageStyleType) => {
+  writeZoomStyleToNode = (zoomingStyle: ImageStyleType) => {
     const node = this.imageRef.current
     this.cancelZoomFollowFrame()
     this.motionPhase = 'zoom-follow'
@@ -725,14 +843,274 @@ export default class Image extends React.Component<PropsType, StateType> {
       node.style.opacity = String(zoomingStyle.opacity ?? 1)
       this.setNodeClipAndRadius(node, zoomingStyle)
     }
+  }
+  applyZoomStyleImmediately = (zoomingStyle: ImageStyleType) => {
+    this.writeZoomStyleToNode(zoomingStyle)
     this.setCurrentStyle(zoomingStyle)
   }
-  getZoomingStyleFromKeyboardPosition = () => {
+  getPinchZoomOptions = (): NormalizedPinchZoomOptions | null => {
+    const pinchZoom = this.context.gesture?.pinchZoom
+    return pinchZoom && typeof pinchZoom === 'object'
+      ? pinchZoom as NormalizedPinchZoomOptions
+      : null
+  }
+  canStartPinchZoom = () => {
+    const { canZoom, zoom } = this.context
+    return zoom || canZoom
+  }
+  getPinchFocus = (
+    touches: ArrayLike<{ clientX: number, clientY: number }>,
+    options: NormalizedPinchZoomOptions,
+    viewport = getViewportRect(this.context),
+  ) => (
+    options.center === 'viewport'
+      ? { clientX: viewport.left + viewport.width / 2, clientY: viewport.top + viewport.height / 2 }
+      : getTouchMidpoint(touches)
+  )
+  tryStartPinchGesture = (e: TouchEvent) => {
+    if (e.touches.length < 2 || this.pinchGestureSession) {
+      return false
+    }
+    const pinchZoom = this.getPinchZoomOptions()
+    if (!pinchZoom || !this.canStartPinchZoom()) {
+      return false
+    }
+    const startDistance = getTouchDistance(e.touches)
+    if (startDistance <= 0) {
+      return false
+    }
+
+    const { minScale, maxScale, fitScale } = getZoomScaleRange(this.context, this.imageRef, pinchZoom)
+    const currentScale = this.context.zoom
+      ? this.getCurrentZoomTargetScale()
+      : this.state.currentStyle.scale
+    const baseScale = Number.isFinite(currentScale) && (currentScale ?? 0) > 0 ? currentScale as number : fitScale
+    const focus = this.getPinchFocus(e.touches, pinchZoom)
+    const zoomingStyle = getZoomingStyle(this.context, this.imageRef, focus, { scale: baseScale })
+
+    this.pinchGestureSession = {
+      startDistance,
+      baseScale,
+      minScale,
+      maxScale,
+      fitScale,
+      options: pinchZoom,
+    }
+    this.pinchTargetStyle = zoomingStyle
+    this.pinchSequenceLocked = true
+    this.zoomPointerPosition = { x: focus.clientX, y: focus.clientY }
+    this.zoomTargetScale = baseScale
+    this.clearZoomTouchPan()
+    this.touchGesture = new TouchGesture()
+    this.setTouchGesture(this.touchGesture)
+
+    if (this.context.zoom) {
+      this.writeZoomStyleToNode(zoomingStyle)
+    } else {
+      this.context.toggleZoom('pinch')
+    }
+    return true
+  }
+  updatePinchGesture = (e: TouchEvent) => {
+    const session = this.pinchGestureSession
+    if (!session || e.touches.length < 2) {
+      return
+    }
+    e.preventDefault()
+    const currentDistance = getTouchDistance(e.touches)
+    const scale = getNextPinchZoomScale({
+      baseScale: session.baseScale,
+      startDistance: session.startDistance,
+      currentDistance,
+      minScale: session.minScale,
+      maxScale: session.maxScale,
+    })
+    const focus = this.getPinchFocus(e.touches, session.options)
+    const zoomingStyle = getZoomingStyle(this.context, this.imageRef, focus, { scale })
+
+    this.pinchTargetStyle = zoomingStyle
+    this.zoomPointerPosition = { x: focus.clientX, y: focus.clientY }
+    this.zoomTargetScale = scale
+    this.writeZoomStyleToNode(zoomingStyle)
+  }
+  endPinchGesture = (e: TouchEvent) => {
+    const session = this.pinchGestureSession
+    const target = this.pinchTargetStyle
+    const hasActiveTouches = e.touches.length > 0
+    const shouldResetToFit = !!session &&
+      !!target &&
+      session.options.resetBelowFit !== false &&
+      (target.scale ?? session.fitScale) <= session.minScale + WHEEL_ZOOM_FIT_EPSILON
+
+    if (target) {
+      this.setCurrentStyle(target)
+    }
+    this.pinchGestureSession = undefined
+    this.pinchTargetStyle = target
+    this.pinchSequenceLocked = hasActiveTouches
+
+    if (shouldResetToFit && this.context.zoom) {
+      this.context.toggleZoom('pinch')
+    }
+    if (!hasActiveTouches) {
+      this.pinchSequenceLocked = false
+      this.pinchTargetStyle = undefined
+    }
+  }
+  clearPinchGesture = () => {
+    this.pinchGestureSession = undefined
+    this.pinchTargetStyle = undefined
+    this.pinchSequenceLocked = false
+  }
+  getZoomTouchPanStartStyle = () => {
+    const current = this.zoomFollowCurrentStyle ||
+      this.zoomFollowTargetStyle ||
+      (this.state.currentStyle._type === 'zooming' ? this.state.currentStyle : undefined) ||
+      this.getZoomingStyleFromStoredPosition()
+    return clampZoomPanStyle(this.context, this.imageRef, current)
+  }
+  tryStartZoomTouchPan = (point: Coordinate) => {
+    if (!this.context.zoom || this.state.currentStyle._type !== 'zooming') {
+      return false
+    }
+    this.zoomTouchPanSession = {
+      startPoint: point,
+      startStyle: this.getZoomTouchPanStartStyle(),
+      active: false,
+    }
+    this.touchGesture = new TouchGesture().start(point)
+    this.setTouchGesture(this.touchGesture)
+    return true
+  }
+  updateZoomTouchPan = (e: TouchEvent) => {
+    const session = this.zoomTouchPanSession
+    if (!session) {
+      return false
+    }
+    const point = this.getTouchPoint(e)
+    if (!point) {
+      return true
+    }
+
+    this.touchGesture = this.touchGesture.move(point)
+    const dx = point.x - session.startPoint.x
+    const dy = point.y - session.startPoint.y
+    if (!session.active &&
+      Math.abs(dx) < GESTURE_DETECT_FLOOR_PX &&
+      Math.abs(dy) < GESTURE_DETECT_FLOOR_PX) {
+      return true
+    }
+
+    session.active = true
+    this.doubleTapGesture?.cancel()
+    e.preventDefault()
+    const nextStyle = resistZoomPanStyle(this.context, this.imageRef, {
+      ...session.startStyle,
+      x: (session.startStyle.x ?? 0) + dx,
+      y: session.startStyle.y + dy,
+    })
+    session.targetStyle = nextStyle
+    this.writeZoomStyleToNode(nextStyle)
+    return true
+  }
+  endZoomTouchPan = () => {
+    const session = this.zoomTouchPanSession
+    if (!session) {
+      return false
+    }
+    this.zoomTouchPanSession = undefined
+    if (!session.active) {
+      return false
+    }
+    const target = clampZoomPanStyle(this.context, this.imageRef, session.targetStyle || session.startStyle)
+    this.cancelZoomFollowFrame()
+    this.zoomFollowCurrentStyle = undefined
+    this.zoomFollowTargetStyle = undefined
+    this.motionPhase = 'idle'
+    this.zoomTargetScale = target.scale
+    this.setCurrentStyle(target)
+    return true
+  }
+  clearZoomTouchPan = () => {
+    this.zoomTouchPanSession = undefined
+  }
+  getZoomingStyleFromStoredPosition = () => {
     const zoomPosition = this.zoomPointerPosition || this.context.zoomPosition
     const scale = this.getCurrentZoomTargetScale()
     return zoomPosition
       ? getZoomingStyle(this.context, this.imageRef, { clientX: zoomPosition.x, clientY: zoomPosition.y }, { scale })
       : getZoomingStyle(this.context, this.imageRef, {}, { scale })
+  }
+  getDoubleTapZoomOptions = (): NormalizedDoubleTapZoomOptions | null => {
+    const doubleTapZoom = this.context.gesture?.doubleTapZoom
+    return doubleTapZoom && typeof doubleTapZoom === 'object'
+      ? doubleTapZoom as NormalizedDoubleTapZoomOptions
+      : null
+  }
+  getDoubleTapGesture = (options: NormalizedDoubleTapZoomOptions) => {
+    const key = `${options.interval}:${options.distance}`
+    if (!this.doubleTapGesture || this.doubleTapGestureKey !== key) {
+      this.doubleTapGesture = new DoubleTapGesture(options)
+      this.doubleTapGestureKey = key
+    }
+    return this.doubleTapGesture
+  }
+  getDoubleTapFocus = (
+    point: Coordinate,
+    options: NormalizedDoubleTapZoomOptions,
+    viewport = getViewportRect(this.context),
+  ) => (
+    options.center === 'viewport'
+      ? { clientX: viewport.left + viewport.width / 2, clientY: viewport.top + viewport.height / 2 }
+      : { clientX: point.x, clientY: point.y }
+  )
+  getDoubleTapTargetScale = (options: NormalizedDoubleTapZoomOptions) => {
+    const { minScale, maxScale } = getZoomScaleRange(this.context, this.imageRef, options)
+    const scale = Number.isFinite(options.scale) && options.scale > 0 ? options.scale : maxScale
+    return Math.min(Math.max(scale, minScale), maxScale)
+  }
+  suppressNextSyntheticClick = () => {
+    this.suppressSyntheticClickUntil = Date.now() + TOUCH_SYNTHETIC_CLICK_GUARD_MS
+  }
+  shouldSuppressSyntheticClick = () => (
+    this.suppressSyntheticClickUntil > 0 && Date.now() <= this.suppressSyntheticClickUntil
+  )
+  tryHandleDoubleTapGesture = (e: TouchEvent) => {
+    const doubleTapZoom = this.getDoubleTapZoomOptions()
+    if (!doubleTapZoom || e.touches.length > 0 || e.changedTouches.length !== 1) {
+      return false
+    }
+    const point = this.getChangedTouchPoint(e)
+    if (!point) {
+      return false
+    }
+    const movement = this.touchGesture.getDistance()
+    if (movement.x > doubleTapZoom.distance || movement.y > doubleTapZoom.distance) {
+      this.doubleTapGesture?.cancel()
+      return false
+    }
+    if (!this.getDoubleTapGesture(doubleTapZoom).tap(point)) {
+      return false
+    }
+
+    this.touchGesture = new TouchGesture()
+    this.setTouchGesture(this.touchGesture)
+    this.suppressNextSyntheticClick()
+
+    if (this.context.zoom) {
+      this.context.toggleZoom('doubleTap')
+      return true
+    }
+    if (!this.canStartPinchZoom()) {
+      return true
+    }
+
+    const focus = this.getDoubleTapFocus(point, doubleTapZoom)
+    const scale = this.getDoubleTapTargetScale(doubleTapZoom)
+    this.zoomPointerPosition = { x: focus.clientX, y: focus.clientY }
+    this.zoomTargetScale = scale
+    this.context.toggleZoom('doubleTap')
+    return true
   }
   scheduleZoomEnterComplete = () => {
     this.cancelZoomEnterTimer()
@@ -979,6 +1357,11 @@ export default class Image extends React.Component<PropsType, StateType> {
     if (!touch) return null
     return { x: touch.clientX, y: touch.clientY }
   }
+  getChangedTouchPoint = (e: TouchEvent): Coordinate | null => {
+    const touch = e.changedTouches[0]
+    if (!touch) return null
+    return { x: touch.clientX, y: touch.clientY }
+  }
 
   getActiveGesture = () => {
     const { gesture, set, zoom } = this.context
@@ -1120,7 +1503,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   }
   buildImage = ({ step = 0, imageIndex = 0 }: { step?: number, imageIndex?: number } = {}) => {
     const { set, show, zoom, page, pageWithStep } = this.context
-    const { invalidate } = this.state
+    const { invalidate, currentStyle } = this.state
     // 是否邊圖
     const distance = Math.abs(step)
     const isSideImage = distance > 0
@@ -1159,7 +1542,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     }
     // 構建内容
     if (isSideImage) {
-      const sideImageShow = show && !zoom
+      const sideImageShow = show && !zoom && currentStyle._type !== 'zooming'
       return sideImageShow && <img key={key} {...commonProps}/>
     } else {
       return <img key={key} {...commonProps} {...centerProps}/>

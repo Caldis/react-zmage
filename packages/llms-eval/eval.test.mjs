@@ -54,6 +54,21 @@ test('backdrop default value matches code', () => {
     `llms.txt says backdrop ${docMatch[0]} but code says ${codeDefault}`)
 })
 
+test('preset default value matches code and llms.txt', () => {
+  assert.match(defaultTs, /const\s+DEFAULT_PRESET:\s*Preset\s*=\s*'auto'/,
+    'default.ts should define DEFAULT_PRESET as auto')
+  assert.match(defaultTs, /\bpreset:\s*DEFAULT_PRESET\b/,
+    'defProp.preset should use DEFAULT_PRESET')
+  const presetLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|\s*`preset`\s*\|/.test(line)
+  )
+  assert.ok(presetLine, 'no API-table row in llms.txt declares the preset prop')
+  assert.match(presetLine, /\|\s*`'auto'`\s*\|/,
+    'llms.txt preset row should document auto as the default')
+  assert.match(presetLine, /Omitting `preset` uses `'auto'`/,
+    'llms.txt preset row should document omitted preset behavior')
+})
+
 test('all packages/... links in llms.txt resolve to local files', () => {
   const re = /\(https:\/\/github\.com\/Caldis\/react-zmage\/blob\/master\/(packages\/[^)]+?)\)/g
   const missing = []
@@ -174,29 +189,67 @@ test('controller visual keys (backdrop + color) declared in ControllerSet and ll
   assert.match(controllerLine, /controller\.color|`color`/, 'llms.txt controller row missing the color visual key')
 })
 
+test('controller placement and custom render API wired across types, defaults and llms.txt', () => {
+  for (const sym of ['ControllerPlacement', 'ControllerRender', 'ControllerRenderState', 'ControllerRenderActions', 'ControllerRenderSlots']) {
+    assert.match(globalTs, new RegExp(`export\\s+(?:interface|type)\\s+${sym}\\b`), `${sym} missing in types/global.ts`)
+    assert.match(indexTs, new RegExp(`\\b${sym}\\b`), `${sym} missing from public type exports`)
+    assert.match(llmsTxt, new RegExp(`\\b${sym}\\b`), `${sym} missing in llms.txt`)
+  }
+  assert.match(globalTs, /\bplacement\?:\s*ControllerPlacement\b/, 'ControllerSet.placement missing in types/global.ts')
+  assert.match(globalTs, /\brender\?:\s*ControllerRender\b/, 'ControllerSet.render missing in types/global.ts')
+  assert.match(defaultTs, /desktop:[\s\S]*?controller:[\s\S]*?\bplacement:\s*'top-right'/, 'desktop controller.placement default missing in default.ts')
+  assert.match(defaultTs, /mobile:[\s\S]*?controller:[\s\S]*?\bplacement:\s*'top-right'/, 'mobile controller.placement default missing in default.ts')
+  const controllerLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|\s*`controller`\s*\|/.test(line)
+  )
+  assert.ok(controllerLine, 'no API-table row in llms.txt declares the controller prop')
+  for (const term of ['controller.placement', 'controller.render', 'state', 'actions', 'slots', 'top-right', 'bottom-center']) {
+    assert.match(controllerLine, new RegExp(term), `llms.txt controller row missing ${term}`)
+  }
+  assert.match(controllerLine, /\(args: \{ state: ControllerRenderState; actions: ControllerRenderActions; slots: ControllerRenderSlots \}\) => ReactNode/,
+    'llms.txt controller row should document the controller.render function signature')
+  assert.match(controllerLine, /return `null`/,
+    'llms.txt controller row should document that returning null hides the custom controller layer')
+})
+
 test('gesture prop wired across types, defaults and llms.txt', () => {
   assert.match(globalTs, /export\s+interface\s+GestureSet\b/, 'GestureSet interface missing in types/global.ts')
   assert.match(globalTs, /export\s+interface\s+GestureSwipeOptions\b/, 'GestureSwipeOptions interface missing in types/global.ts')
   assert.match(globalTs, /export\s+interface\s+GestureDragExitOptions\b/, 'GestureDragExitOptions interface missing in types/global.ts')
   assert.match(globalTs, /export\s+interface\s+GestureWheelZoomOptions\b/, 'GestureWheelZoomOptions interface missing in types/global.ts')
+  assert.match(globalTs, /export\s+interface\s+GesturePinchZoomOptions\b/, 'GesturePinchZoomOptions interface missing in types/global.ts')
+  assert.match(globalTs, /export\s+interface\s+GestureDoubleTapZoomOptions\b/, 'GestureDoubleTapZoomOptions interface missing in types/global.ts')
+  assert.match(globalTs, /export\s+type\s+GestureTouchAction\b/, 'GestureTouchAction type missing in types/global.ts')
   assert.match(globalTs, /\bgesture\?:\s*boolean\s*\|\s*GestureSet\b/, 'gesture prop missing from FunctionalParams')
   assert.match(defaultTs, /desktop:[\s\S]*?gesture:[\s\S]*?\bswipe:\s*false\b/, 'desktop gesture.swipe=false missing in default.ts')
   assert.match(defaultTs, /desktop:[\s\S]*?gesture:[\s\S]*?\bdragExit:\s*false\b/, 'desktop gesture.dragExit=false missing in default.ts')
   assert.match(defaultTs, /desktop:[\s\S]*?gesture:[\s\S]*?\bwheelZoom:\s*\{\s*\.\.\.defaultGestureWheelZoomOptions\s*\}/, 'desktop gesture.wheelZoom should use default options in default.ts')
+  assert.match(defaultTs, /desktop:[\s\S]*?gesture:[\s\S]*?\bpinchZoom:\s*false\b/, 'desktop gesture.pinchZoom=false missing in default.ts')
+  assert.match(defaultTs, /desktop:[\s\S]*?gesture:[\s\S]*?\bdoubleTapZoom:\s*false\b/, 'desktop gesture.doubleTapZoom=false missing in default.ts')
+  assert.match(defaultTs, /desktop:[\s\S]*?gesture:[\s\S]*?\btouchAction:\s*'managed'(?:\s+as\s+const)?\b/, 'desktop gesture.touchAction=managed missing in default.ts')
   assert.match(defaultTs, /defaultGestureSwipeOptions:[\s\S]*?\bthreshold:\s*120\b/, 'default gesture.swipe threshold missing in default.ts')
   assert.match(defaultTs, /defaultGestureDragExitOptions:[\s\S]*?\bthreshold:\s*80\b/, 'default gesture.dragExit threshold missing in default.ts')
   assert.match(defaultTs, /defaultGestureWheelZoomOptions:[\s\S]*?\bstep:\s*0\.12\b/, 'default gesture.wheelZoom step missing in default.ts')
   assert.match(defaultTs, /defaultGestureWheelZoomOptions:[\s\S]*?\bmaxScale:\s*4\b/, 'default gesture.wheelZoom maxScale missing in default.ts')
   assert.match(defaultTs, /defaultGestureWheelZoomOptions:[\s\S]*?\breverse:\s*false\b/, 'default gesture.wheelZoom reverse=false missing in default.ts')
   assert.match(defaultTs, /defaultGestureWheelZoomOptions:[\s\S]*?\bexitGuardDuration:\s*1000\b/, 'default gesture.wheelZoom exitGuardDuration=1000 missing in default.ts')
+  assert.match(defaultTs, /defaultGesturePinchZoomOptions:[\s\S]*?\bmaxScale:\s*4\b/, 'default gesture.pinchZoom maxScale missing in default.ts')
+  assert.match(defaultTs, /defaultGesturePinchZoomOptions:[\s\S]*?\bresetBelowFit:\s*true\b/, 'default gesture.pinchZoom resetBelowFit=true missing in default.ts')
+  assert.match(defaultTs, /defaultGesturePinchZoomOptions:[\s\S]*?\bcenter:\s*'gesture'/, 'default gesture.pinchZoom center=gesture missing in default.ts')
+  assert.match(defaultTs, /defaultGestureDoubleTapZoomOptions:[\s\S]*?\bscale:\s*1\b/, 'default gesture.doubleTapZoom scale=1 missing in default.ts')
+  assert.match(defaultTs, /defaultGestureDoubleTapZoomOptions:[\s\S]*?\binterval:\s*300\b/, 'default gesture.doubleTapZoom interval=300 missing in default.ts')
+  assert.match(defaultTs, /defaultGestureDoubleTapZoomOptions:[\s\S]*?\bdistance:\s*32\b/, 'default gesture.doubleTapZoom distance=32 missing in default.ts')
   assert.match(defaultTs, /mobile:[\s\S]*?gesture:[\s\S]*?\bswipe:\s*\{\s*\.\.\.defaultGestureSwipeOptions\s*\}/, 'mobile gesture.swipe should use default options in default.ts')
   assert.match(defaultTs, /mobile:[\s\S]*?gesture:[\s\S]*?\bdragExit:\s*\{\s*\.\.\.defaultGestureDragExitOptions\s*\}/, 'mobile gesture.dragExit should use default options in default.ts')
   assert.match(defaultTs, /mobile:[\s\S]*?gesture:[\s\S]*?\bwheelZoom:\s*false\b/, 'mobile gesture.wheelZoom=false missing in default.ts')
+  assert.match(defaultTs, /mobile:[\s\S]*?gesture:[\s\S]*?\bpinchZoom:\s*\{\s*\.\.\.defaultGesturePinchZoomOptions\s*\}/, 'mobile gesture.pinchZoom should use default options in default.ts')
+  assert.match(defaultTs, /mobile:[\s\S]*?gesture:[\s\S]*?\bdoubleTapZoom:\s*\{\s*\.\.\.defaultGestureDoubleTapZoomOptions\s*\}/, 'mobile gesture.doubleTapZoom should use default options in default.ts')
+  assert.match(defaultTs, /mobile:[\s\S]*?gesture:[\s\S]*?\btouchAction:\s*'managed'(?:\s+as\s+const)?\b/, 'mobile gesture.touchAction=managed missing in default.ts')
   const gestureLine = llmsTxt.split('\n').find(
     (line) => /^\s*\|\s*`gesture`\s*\|/.test(line)
   )
   assert.ok(gestureLine, 'no API-table row in llms.txt declares the gesture prop')
-  for (const term of ['swipe', 'dragExit', 'wheelZoom', 'threshold', 'velocity', 'axisLock', 'step', 'minScale', 'maxScale', 'reverse', 'exitGuardDuration']) {
+  for (const term of ['swipe', 'dragExit', 'wheelZoom', 'pinchZoom', 'doubleTapZoom', 'touchAction', 'threshold', 'velocity', 'axisLock', 'step', 'minScale', 'maxScale', 'reverse', 'exitGuardDuration', 'resetBelowFit', 'interval', 'distance']) {
     assert.match(gestureLine, new RegExp(`\\b${term}\\b`), `llms.txt gesture row missing ${term}`)
   }
 })
@@ -219,7 +272,7 @@ test('animate.cover wired across types, defaults and llms.txt', () => {
 })
 
 test('public type symbols present in types/global.ts', () => {
-  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'HotKey', 'Animate', 'AnimateCoverOptions', 'GestureSet', 'GestureWheelZoomOptions']) {
+  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'ControllerPlacement', 'ControllerRender', 'ControllerRenderState', 'ControllerRenderActions', 'ControllerRenderSlots', 'HotKey', 'Animate', 'AnimateCoverOptions', 'GestureSet', 'GestureWheelZoomOptions', 'GesturePinchZoomOptions', 'GestureDoubleTapZoomOptions', 'GestureTouchAction']) {
     const re = new RegExp(`(?:export\\s+(?:interface|type)\\s+${sym}\\b)`)
     assert.match(globalTs, re, `${sym} not exported from types/global.ts`)
     assert.match(llmsTxt, new RegExp(`\\b${sym}\\b`), `${sym} not mentioned in llms.txt`)

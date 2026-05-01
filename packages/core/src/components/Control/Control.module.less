@@ -33,21 +33,83 @@
 .controls {
   box-sizing: border-box;
   position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
   padding: 0 0.4rem;
   opacity: 0;
   display: flex;
   z-index: 1000;
   border-radius: 5rem;
-  transform: translateX(100%);
   transition: transform @animationDuration @animationFunction, opacity @animationDuration;
+}
 
-  &.show {
-    opacity: 0.8;
-    transform: translateX(0);
-  }
+.topRight {
+  top: 0.6rem;
+  right: 0.6rem;
+  transform: translateX(100%);
+}
 
+.topLeft {
+  top: 0.6rem;
+  left: 0.6rem;
+  transform: translateX(-100%);
+}
+
+.bottomRight {
+  right: 0.6rem;
+  bottom: 0.6rem;
+  transform: translateX(100%);
+}
+
+.bottomLeft {
+  bottom: 0.6rem;
+  left: 0.6rem;
+  transform: translateX(-100%);
+}
+
+.topCenter {
+  top: 0.6rem;
+  left: 50%;
+  transform: translate(-50%, -100%);
+}
+
+.bottomCenter {
+  bottom: 0.6rem;
+  left: 50%;
+  transform: translate(-50%, 100%);
+}
+
+.leftCenter {
+  top: 50%;
+  left: 0.6rem;
+  transform: translate(-100%, -50%);
+}
+
+.rightCenter {
+  top: 50%;
+  right: 0.6rem;
+  transform: translate(100%, -50%);
+}
+
+.topRight.show,
+.topLeft.show,
+.bottomRight.show,
+.bottomLeft.show {
+  opacity: 0.8;
+  transform: translateX(0);
+}
+
+.topCenter.show,
+.bottomCenter.show {
+  opacity: 0.8;
+  transform: translate(-50%, 0);
+}
+
+.leftCenter.show,
+.rightCenter.show {
+  opacity: 0.8;
+  transform: translate(0, -50%);
+}
+
+.controls {
   .pinButton {
     .baseButton;
 

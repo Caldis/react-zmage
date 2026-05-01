@@ -47,6 +47,8 @@ const SUB_PARAM_ENTRIES: SubEntry[] = [
   // Visual override entries — strings the toolbar renders, not button toggles.
   { parent: 'controller', leaf: 'backdrop',    labelKey: 'controller.backdrop',    descKey: 'controller.backdrop.desc' },
   { parent: 'controller', leaf: 'color',       labelKey: 'controller.color',       descKey: 'controller.color.desc' },
+  { parent: 'controller', leaf: 'placement',   labelKey: 'controller.placement',   descKey: 'controller.placement.desc' },
+  { parent: 'controller', leaf: 'render',      labelKey: 'controller.render',      descKey: 'controller.render.desc' },
 
   // HotKey children — link → /docs#props-hotkey. Display the parent as "hotKey"
   // (matching the prop name) while the i18n namespace stays lowercase.
@@ -70,6 +72,9 @@ const SUB_PARAM_ENTRIES: SubEntry[] = [
   { parent: 'gesture', leaf: 'swipe',      labelKey: 'gesture.swipe',      descKey: 'gesture.swipe.desc' },
   { parent: 'gesture', leaf: 'dragExit',   labelKey: 'gesture.dragExit',   descKey: 'gesture.dragExit.desc' },
   { parent: 'gesture', leaf: 'wheelZoom',  labelKey: 'gesture.wheelZoom',  descKey: 'gesture.wheelZoom.desc' },
+  { parent: 'gesture', leaf: 'pinchZoom',  labelKey: 'gesture.pinchZoom',  descKey: 'gesture.pinchZoom.desc' },
+  { parent: 'gesture', leaf: 'doubleTapZoom', labelKey: 'gesture.doubleTapZoom', descKey: 'gesture.doubleTapZoom.desc' },
+  { parent: 'gesture', leaf: 'touchAction', labelKey: 'gesture.touchAction', descKey: 'gesture.touchAction.desc' },
   { parent: 'gesture', leaf: 'threshold',  labelKey: 'gesture.threshold',  descKey: 'gesture.threshold.desc' },
   { parent: 'gesture', leaf: 'velocity',   labelKey: 'gesture.velocity',   descKey: 'gesture.velocity.desc' },
   { parent: 'gesture', leaf: 'axisLock',   labelKey: 'gesture.axisLock',   descKey: 'gesture.axisLock.desc' },
@@ -82,6 +87,10 @@ const SUB_PARAM_ENTRIES: SubEntry[] = [
   { parent: 'gesture', leaf: 'center',     labelKey: 'gesture.wheelZoom.center', descKey: 'gesture.wheelZoom.center.desc' },
   { parent: 'gesture', leaf: 'reverse',    labelKey: 'gesture.wheelZoom.reverse', descKey: 'gesture.wheelZoom.reverse.desc' },
   { parent: 'gesture', leaf: 'exitGuardDuration', labelKey: 'gesture.wheelZoom.exitGuardDuration', descKey: 'gesture.wheelZoom.exitGuardDuration.desc' },
+  { parent: 'gesture', leaf: 'resetBelowFit', labelKey: 'gesture.pinchZoom.resetBelowFit', descKey: 'gesture.pinchZoom.resetBelowFit.desc' },
+  { parent: 'gesture', leaf: 'scale',      labelKey: 'gesture.doubleTapZoom.scale', descKey: 'gesture.doubleTapZoom.scale.desc' },
+  { parent: 'gesture', leaf: 'interval',   labelKey: 'gesture.doubleTapZoom.interval', descKey: 'gesture.doubleTapZoom.interval.desc' },
+  { parent: 'gesture', leaf: 'distance',   labelKey: 'gesture.doubleTapZoom.distance', descKey: 'gesture.doubleTapZoom.distance.desc' },
 ]
 
 // Side-anchor → desc i18n key. Items without an entry fall back to '' (no second line).
@@ -89,9 +98,14 @@ const SIDEBAR_DESC: Record<string, I18nKey> = {
   installation: 'docs.search.desc.installation',
   ssr: 'docs.search.desc.ssr',
   modes: 'docs.search.desc.modes',
+  'modes-component': 'modes.component.desc',
+  'modes-imperative': 'modes.imperative.desc',
+  'modes-wrapper': 'modes.wrapper.desc',
   theming: 'docs.search.desc.theming',
   'props-data': 'docs.search.desc.propsData',
+  'props-set': 'docs.search.desc.propsSet',
   'props-preset': 'docs.search.desc.propsPreset',
+  'props-preset-bundles': 'docs.search.desc.propsPresetBundles',
   'props-interface': 'docs.search.desc.propsInterface',
   'props-controller': 'docs.search.desc.propsController',
   'props-hotkey': 'docs.search.desc.propsHotkey',
@@ -108,16 +122,7 @@ const SIDEBAR_DESC: Record<string, I18nKey> = {
 function buildIndex (t: (k: I18nKey) => string): Item[] {
   const out: Item[] = []
   for (const g of SIDEBAR_GROUPS) {
-    for (const it of g.items) {
-      const descKey = SIDEBAR_DESC[it.id]
-      out.push({
-        id: it.id,
-        label: t(it.labelKey),
-        desc: descKey ? t(descKey) : '',
-        href: `/docs#${it.id}`,
-        group: t(g.titleKey),
-      })
-    }
+    addSidebarItems(out, g.items, t, t(g.titleKey))
   }
   // Per-prop entries. Each prop's own descKey is already translated and grouped under Props.
   const propsLabel = t('docs.sidebar.props')
@@ -177,6 +182,25 @@ function fuzzyScore (q: string, label: string, desc: string) {
   let score = 0; let i = 0
   for (const ch of ll) { if (ch === ql[i]) { score += 1; i += 1; if (i >= ql.length) break } }
   return i === ql.length ? score : 0
+}
+
+function addSidebarItems (
+  out: Item[],
+  items: typeof SIDEBAR_GROUPS[number]['items'],
+  t: (k: I18nKey) => string,
+  group: string,
+) {
+  for (const it of items) {
+    const descKey = SIDEBAR_DESC[it.id]
+    out.push({
+      id: it.id,
+      label: t(it.labelKey),
+      desc: descKey ? t(descKey) : '',
+      href: `/docs#${it.id}`,
+      group,
+    })
+    if (it.items) addSidebarItems(out, it.items, t, group)
+  }
 }
 
 export function CommandK () {

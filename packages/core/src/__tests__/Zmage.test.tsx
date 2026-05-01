@@ -5,9 +5,9 @@ import React, { StrictMode } from 'react'
 import { render, fireEvent, screen, act } from '@testing-library/react'
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 import Zmage from '../Zmage'
-import { resolvePreset } from '../types/default'
+import { defPropsWithEnv, resolvePreset } from '../types/default'
 import { pageIsCover } from '../components/Browser/Browser.utils'
-import type { GestureSet, HotKey } from '../types/global'
+import type { ControllerSet, GestureSet, HotKey } from '../types/global'
 
 const SRC = 'https://example.com/test.jpg'
 
@@ -164,6 +164,7 @@ describe('Zmage StrictMode 双 mount/unmount 不应泄漏副作用', () => {
     expect(countListeners('touchstart')).toBe(0)
     expect(countListeners('touchmove')).toBe(0)
     expect(countListeners('touchend')).toBe(0)
+    expect(countListeners('touchcancel')).toBe(0)
   })
 })
 
@@ -385,27 +386,31 @@ describe('Zmage mobile gesture Phase 1', () => {
   }
 
   const buildTouchEvent = (
-    type: 'touchstart' | 'touchmove' | 'touchend',
-    point: { x: number, y: number },
+    type: 'touchstart' | 'touchmove' | 'touchend' | 'touchcancel',
+    point: { x: number, y: number } | Array<{ x: number, y: number }>,
+    activePoint?: { x: number, y: number } | Array<{ x: number, y: number }>,
   ) => {
     const event = new Event(type, { bubbles: true, cancelable: true }) as TouchEvent
-    const touch = { clientX: point.x, clientY: point.y }
+    const changedTouches = (Array.isArray(point) ? point : [point]).map(p => ({ clientX: p.x, clientY: p.y }))
+    const activeSource = activePoint === undefined ? point : activePoint
+    const activeTouches = (Array.isArray(activeSource) ? activeSource : [activeSource]).map(p => ({ clientX: p.x, clientY: p.y }))
     Object.defineProperty(event, 'touches', {
       configurable: true,
-      value: type === 'touchend' ? [] : [touch],
+      value: type === 'touchcancel' || (type === 'touchend' && activePoint === undefined) ? [] : activeTouches,
     })
     Object.defineProperty(event, 'changedTouches', {
       configurable: true,
-      value: [touch],
+      value: changedTouches,
     })
     return event
   }
 
   const dispatchTouch = (
-    type: 'touchstart' | 'touchmove' | 'touchend',
-    point: { x: number, y: number },
+    type: 'touchstart' | 'touchmove' | 'touchend' | 'touchcancel',
+    point: { x: number, y: number } | Array<{ x: number, y: number }>,
+    activePoint?: { x: number, y: number } | Array<{ x: number, y: number }>,
   ) => {
-    const event = buildTouchEvent(type, point)
+    const event = buildTouchEvent(type, point, activePoint)
     window.dispatchEvent(event)
     return event
   }
@@ -418,7 +423,60 @@ describe('Zmage mobile gesture Phase 1', () => {
     return Number(match[2])
   }
 
-  const renderMobileSet = (props: { gesture?: boolean | GestureSet, loop?: boolean, onBrowsing?: (v: boolean) => void, onSwitching?: (page: number) => void } = {}) =>
+  const getImageTranslate = () => {
+    const image = document.getElementById('zmageImage') as HTMLImageElement | null
+    if (!image) throw new Error('expected #zmageImage to be mounted')
+    const match = image.style.transform.match(/translate3d\((-?\d+(?:\.\d+)?)px, (-?\d+(?:\.\d+)?)px, 0px\) scale3d/)
+    if (!match) throw new Error(`unexpected transform: ${image.style.transform}`)
+    return { x: Number(match[1]), y: Number(match[2]) }
+  }
+
+  const getImageScale = () => {
+    const image = document.getElementById('zmageImage') as HTMLImageElement | null
+    if (!image) throw new Error('expected #zmageImage to be mounted')
+    return getElementScale(image)
+  }
+
+  const getElementScale = (image: HTMLImageElement) => {
+    const match = image.style.transform.match(/scale3d\((-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?), 1\)/)
+    if (!match) throw new Error(`unexpected transform: ${image.style.transform}`)
+    return Number(match[1])
+  }
+
+  const getSideImages = () => (
+    Array.from(document.querySelectorAll('#zmage img'))
+      .filter((image): image is HTMLImageElement => image instanceof HTMLImageElement && image.id !== 'zmageImage')
+  )
+
+  const prepareViewerImage = () => {
+    const image = document.getElementById('zmageImage') as HTMLImageElement | null
+    const viewport = document.getElementById('zmageViewport') as HTMLElement | null
+    if (!image) throw new Error('expected #zmageImage to be mounted')
+    if (!viewport) throw new Error('expected #zmageViewport to be mounted')
+    viewport.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+      right: 1000,
+      bottom: 800,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRect)
+    Object.defineProperty(image, 'naturalWidth', { value: 2000, configurable: true })
+    Object.defineProperty(image, 'naturalHeight', { value: 1000, configurable: true })
+    fireEvent.load(image)
+    return image
+  }
+
+  const renderMobileSet = (props: {
+    gesture?: boolean | GestureSet,
+    loop?: boolean,
+    onBrowsing?: (v: boolean) => void,
+    onSwitching?: (page: number) => void,
+    onZooming?: (v: boolean) => void,
+  } = {}) =>
     render(
       <Zmage
         src="https://example.com/mobile-a.jpg"
@@ -428,6 +486,7 @@ describe('Zmage mobile gesture Phase 1', () => {
         loop={props.loop}
         onBrowsing={props.onBrowsing}
         onSwitching={props.onSwitching}
+        onZooming={props.onZooming}
         set={[
           { src: 'https://example.com/mobile-a.jpg', alt: 'a', caption: 'first' },
           { src: 'https://example.com/mobile-b.jpg', alt: 'b', caption: 'second' },
@@ -462,16 +521,298 @@ describe('Zmage mobile gesture Phase 1', () => {
       await wait(50)
 
       expect(touchMoveOptions).toContainEqual({ passive: false })
+      expect(listeners.get('touchcancel')?.size ?? 0).toBe(1)
 
       unmount()
       await wait(600)
       expect(listeners.get('touchstart')?.size ?? 0).toBe(0)
       expect(listeners.get('touchmove')?.size ?? 0).toBe(0)
       expect(listeners.get('touchend')?.size ?? 0).toBe(0)
+      expect(listeners.get('touchcancel')?.size ?? 0).toBe(0)
     } finally {
       window.addEventListener = originalAdd
       window.removeEventListener = originalRemove
     }
+  })
+
+  it('mobile preset 默认把 viewer touch-action 管理为 none', async () => {
+    renderMobileSet()
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    expect(document.getElementById('zmageViewport')?.style.touchAction).toBe('none')
+  })
+
+  it('pinchZoom=false 且 doubleTapZoom 保持开启时 touch-action 为 manipulation', async () => {
+    renderMobileSet({ gesture: { pinchZoom: false } })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    expect(document.getElementById('zmageViewport')?.style.touchAction).toBe('manipulation')
+  })
+
+  it('gesture=false 时 touch-action 回到 auto', async () => {
+    renderMobileSet({ gesture: false })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    expect(document.getElementById('zmageViewport')?.style.touchAction).toBe('auto')
+  })
+
+  it('gesture.touchAction 显式值优先于 managed 规则', async () => {
+    renderMobileSet({ gesture: { touchAction: 'auto' } })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    expect(document.getElementById('zmageViewport')?.style.touchAction).toBe('auto')
+  })
+
+  it('双指 pinch 在 mobile 模式进入 zoom, 并在移动时阻止默认页面手势', async () => {
+    const onZooming = vi.fn()
+    renderMobileSet({ onZooming })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+    prepareViewerImage()
+
+    await act(async () => {
+      dispatchTouch('touchstart', [{ x: 400, y: 300 }, { x: 600, y: 300 }])
+      const move = dispatchTouch('touchmove', [{ x: 350, y: 300 }, { x: 650, y: 300 }])
+      expect(move.defaultPrevented).toBe(true)
+      await new Promise(r => setTimeout(r, 80))
+    })
+
+    expect(onZooming).toHaveBeenCalledWith(true)
+    expect(getImageScale()).toBeGreaterThan(0.7)
+  })
+
+  it('双指 pinch 缩回 fit 后退出 zoom, viewer 保持打开', async () => {
+    const onZooming = vi.fn()
+    renderMobileSet({ onZooming })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+    prepareViewerImage()
+
+    await act(async () => {
+      dispatchTouch('touchstart', [{ x: 350, y: 300 }, { x: 650, y: 300 }])
+      dispatchTouch('touchmove', [{ x: 300, y: 300 }, { x: 700, y: 300 }])
+      await new Promise(r => setTimeout(r, 80))
+      dispatchTouch('touchmove', [{ x: 450, y: 300 }, { x: 550, y: 300 }])
+      dispatchTouch('touchend', [{ x: 450, y: 300 }, { x: 550, y: 300 }])
+      await new Promise(r => setTimeout(r, 80))
+    })
+
+    expect(document.getElementById('zmage')).toBeTruthy()
+    expect(onZooming).toHaveBeenCalledWith(false)
+    expect(getImageScale()).toBeLessThanOrEqual(0.51)
+  })
+
+  it('pinch 序列中抬起一根手指后不退化成 swipe 翻页', async () => {
+    const onSwitching = vi.fn()
+    renderMobileSet({ onSwitching })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+    prepareViewerImage()
+
+    await act(async () => {
+      dispatchTouch('touchstart', [{ x: 350, y: 300 }, { x: 650, y: 300 }])
+      dispatchTouch('touchmove', [{ x: 300, y: 300 }, { x: 700, y: 300 }])
+      dispatchTouch('touchend', { x: 700, y: 300 }, [{ x: 300, y: 300 }])
+      dispatchTouch('touchmove', { x: 80, y: 305 })
+      dispatchTouch('touchend', { x: 80, y: 305 })
+      await new Promise(r => setTimeout(r, 120))
+    })
+
+    expect(onSwitching).not.toHaveBeenCalled()
+    expect((document.getElementById('zmageImage') as HTMLImageElement).src).toContain('mobile-a.jpg')
+  })
+
+  it('pinchZoom=false 时双指触摸不退化成 swipe 翻页', async () => {
+    const onSwitching = vi.fn()
+    renderMobileSet({ gesture: { pinchZoom: false, doubleTapZoom: false }, onSwitching })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+    prepareViewerImage()
+
+    await act(async () => {
+      dispatchTouch('touchstart', [{ x: 350, y: 300 }, { x: 650, y: 300 }])
+      const move = dispatchTouch('touchmove', [{ x: 80, y: 305 }, { x: 680, y: 305 }])
+      dispatchTouch('touchend', [{ x: 80, y: 305 }, { x: 680, y: 305 }])
+      expect(move.defaultPrevented).toBe(false)
+      await new Promise(r => setTimeout(r, 120))
+    })
+
+    expect(onSwitching).not.toHaveBeenCalled()
+    expect((document.getElementById('zmageImage') as HTMLImageElement).src).toContain('mobile-a.jpg')
+  })
+
+  it('单指双击在 mobile 模式进入 zoom, 并以第二次 tap 位置作为缩放中心', async () => {
+    const onZooming = vi.fn()
+    renderMobileSet({ onZooming })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+    prepareViewerImage()
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 760, y: 300 })
+      dispatchTouch('touchend', { x: 760, y: 300 })
+      await new Promise(r => setTimeout(r, 80))
+      dispatchTouch('touchstart', { x: 760, y: 300 })
+      dispatchTouch('touchend', { x: 760, y: 300 })
+      await new Promise(r => setTimeout(r, 120))
+    })
+
+    expect(document.getElementById('zmageViewport')?.style.touchAction).toBe('none')
+    expect(onZooming).toHaveBeenCalledWith(true)
+    expect(getImageScale()).toBeCloseTo(1, 2)
+    expect(getImageTranslate().x).toBeLessThan(-200)
+
+    await act(async () => {
+      fireEvent.click(document.getElementById('zmageImage') as HTMLImageElement)
+      await new Promise(r => setTimeout(r, 80))
+    })
+    expect(onZooming).not.toHaveBeenCalledWith(false)
+    expect(getImageScale()).toBeCloseTo(1, 2)
+  })
+
+  it('zoom 态下单指双击退出 zoom, 回到默认 fit 视图', async () => {
+    const onZooming = vi.fn()
+    renderMobileSet({ onZooming })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+    prepareViewerImage()
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 60))
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 120))
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 60))
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 120))
+    })
+
+    expect(onZooming).toHaveBeenCalledWith(true)
+    expect(onZooming).toHaveBeenCalledWith(false)
+    expect(getImageScale()).toBeLessThanOrEqual(0.51)
+  })
+
+  it('zoom 态下单指拖曳平移当前图片', async () => {
+    renderMobileSet()
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+    prepareViewerImage()
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 60))
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 420))
+    })
+
+    expect(getImageScale()).toBeCloseTo(1, 2)
+    const before = getImageTranslate()
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      const move = dispatchTouch('touchmove', { x: 570, y: 340 })
+      dispatchTouch('touchend', { x: 570, y: 340 })
+      expect(move.defaultPrevented).toBe(true)
+      await new Promise(r => setTimeout(r, 50))
+    })
+
+    const after = getImageTranslate()
+    expect(after.x).toBeGreaterThan(before.x + 40)
+    expect(after.y).toBeGreaterThan(before.y + 20)
+    expect(getImageScale()).toBeCloseTo(1, 2)
+  })
+
+  it('zoom 态下单指拖曳到边缘时允许阻尼越界, 松手后回弹到边界内', async () => {
+    renderMobileSet()
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+    prepareViewerImage()
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 60))
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 420))
+    })
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchmove', { x: 1200, y: 300 })
+      await new Promise(r => setTimeout(r, 20))
+    })
+
+    const during = getImageTranslate()
+    expect(during.x).toBeGreaterThan(550)
+    expect(during.x).toBeLessThan(700)
+
+    await act(async () => {
+      dispatchTouch('touchend', { x: 1200, y: 300 })
+      await new Promise(r => setTimeout(r, 50))
+    })
+
+    expect(getImageTranslate().x).toBeLessThanOrEqual(550)
+  })
+
+  it('zoom 退出时不以 zoom scale 首帧挂载侧边预热图', async () => {
+    renderMobileSet()
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+    prepareViewerImage()
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 60))
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 500))
+    })
+    expect(getImageScale()).toBeCloseTo(1, 2)
+
+    await act(async () => {
+      fireEvent.click(document.getElementById('zmageImage') as HTMLImageElement)
+    })
+
+    const immediateSideScales = getSideImages().map(getElementScale)
+    expect(immediateSideScales.every(scale => scale <= 0.55)).toBe(true)
+
+    await wait(80)
+    const settledSideScales = getSideImages().map(getElementScale)
+    expect(settledSideScales.length).toBeGreaterThan(0)
+    expect(settledSideScales.every(scale => scale <= 0.55)).toBe(true)
+  })
+
+  it('gesture.doubleTapZoom=false 时单指双击不进入 zoom', async () => {
+    const onZooming = vi.fn()
+    renderMobileSet({ gesture: { doubleTapZoom: false }, onZooming })
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+    prepareViewerImage()
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 80))
+      dispatchTouch('touchstart', { x: 500, y: 300 })
+      dispatchTouch('touchend', { x: 500, y: 300 })
+      await new Promise(r => setTimeout(r, 120))
+    })
+
+    expect(onZooming).not.toHaveBeenCalled()
+    expect(getImageScale()).toBeLessThanOrEqual(0.51)
   })
 
   it('desktop preset 不注册 Phase 1 touch listeners', async () => {
@@ -574,6 +915,24 @@ describe('Zmage mobile gesture Phase 1', () => {
     expect(document.getElementById('zmage')).toBeNull()
   })
 
+  it('mobile 纵向拖曳退出时 backdrop 立即开始 fadeout', async () => {
+    renderMobileSet()
+    fireEvent.click(screen.getByAltText('mobile-gesture'))
+    await wait(50)
+
+    await act(async () => {
+      dispatchTouch('touchstart', { x: 100, y: 100 })
+      dispatchTouch('touchmove', { x: 102, y: 220 })
+      dispatchTouch('touchend', { x: 102, y: 220 })
+      await new Promise(r => setTimeout(r, 30))
+    })
+
+    const background = document.getElementById('zmageBackground') as HTMLDivElement
+    expect(background).toBeTruthy()
+    expect(background.style.opacity).toBe('0')
+    expect(background.style.transitionDelay).toBe('0s')
+  })
+
   it('mobile 纵向拖曳退出从松手位置续接 out 动画, 不先回中心', async () => {
     renderMobileSet()
     fireEvent.click(screen.getByAltText('mobile-gesture'))
@@ -630,6 +989,194 @@ describe('Zmage mobile gesture Phase 1', () => {
     expect(onSwitching).not.toHaveBeenCalled()
     expect(onBrowsing).not.toHaveBeenCalledWith(false)
     expect(document.getElementById('zmage')).toBeTruthy()
+  })
+})
+
+describe('Zmage controller Phase 5', () => {
+  const wait = async (ms: number) => {
+    await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+
+  type ControllerRenderParameters = Parameters<NonNullable<ControllerSet['render']>>[0]
+
+  it('controller 默认 placement 为 top-right', async () => {
+    render(<Zmage src={SRC} alt="controller-placement-default" preset="desktop" />)
+    fireEvent.click(screen.getByAltText('controller-placement-default'))
+    await wait(50)
+
+    expect(document.getElementById('zmageControl')?.dataset.placement).toBe('top-right')
+  })
+
+  it('controller.placement 支持 bottom-center', async () => {
+    render(<Zmage src={SRC} alt="controller-placement-bottom" controller={{ placement: 'bottom-center' }} />)
+    fireEvent.click(screen.getByAltText('controller-placement-bottom'))
+    await wait(50)
+
+    expect(document.getElementById('zmageControl')?.dataset.placement).toBe('bottom-center')
+  })
+
+  it('controller.placement 运行时非法值回退到 top-right', async () => {
+    render(<Zmage src={SRC} alt="controller-placement-invalid" controller={{ placement: 'bad-place' } as any} />)
+    fireEvent.click(screen.getByAltText('controller-placement-invalid'))
+    await wait(50)
+
+    expect(document.getElementById('zmageControl')?.dataset.placement).toBe('top-right')
+  })
+
+  it('controller.placement 只移动 toolbar, 不移动翻页和分页节点', async () => {
+    render(
+      <Zmage
+        src="https://example.com/controller-a.jpg"
+        alt="controller-placement-scope"
+        loop={false}
+        controller={{ placement: 'left-center' }}
+        set={[
+          { src: 'https://example.com/controller-a.jpg' },
+          { src: 'https://example.com/controller-b.jpg' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-placement-scope'))
+    await wait(50)
+
+    expect(document.getElementById('zmageControl')?.dataset.placement).toBe('left-center')
+    expect(document.getElementById('zmageControlFlipRight')).toBeTruthy()
+    expect(document.getElementById('zmageControlPagination')).toBeTruthy()
+  })
+
+  it('controller.placement 不破坏 animate.browsing=false 的无动画契约', async () => {
+    render(
+      <Zmage
+        src={SRC}
+        alt="controller-placement-no-anim"
+        controller={{ placement: 'bottom-left' }}
+        animate={{ browsing: false }}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-placement-no-anim'))
+    await wait(0)
+
+    expect(document.getElementById('zmageControl')?.style.transition).toBe('none')
+    expect(document.getElementById('zmageControl')?.dataset.placement).toBe('bottom-left')
+  })
+
+  it('controller=false 不渲染默认控制器且不调用 controller.render', async () => {
+    const renderController = vi.fn(() => <button>custom</button>)
+    render(<Zmage src={SRC} alt="controller-render-false" controller={false} />)
+    render(<Zmage src={SRC} alt="controller-render-unused" controller={{ render: renderController }} />)
+    fireEvent.click(screen.getByAltText('controller-render-false'))
+    await wait(50)
+
+    expect(document.getElementById('zmageControl')).toBeNull()
+    expect(renderController).not.toHaveBeenCalled()
+  })
+
+  it('controller.render 接收公开状态并可关闭 viewer', async () => {
+    const renderController = vi.fn(({ state, actions }: ControllerRenderParameters) => (
+      <button
+        data-testid="custom-close"
+        data-page={state.page}
+        data-total={state.total}
+        onClick={actions.close}
+      >
+        close
+      </button>
+    ))
+    render(<Zmage src={SRC} alt="controller-render-close" controller={{ render: renderController }} />)
+    fireEvent.click(screen.getByAltText('controller-render-close'))
+    await wait(50)
+
+    expect(renderController.mock.calls.at(-1)?.[0].state).toMatchObject({
+      page: 0,
+      total: 1,
+      canPrev: false,
+      canNext: false,
+      canDownload: true,
+      placement: 'top-right',
+    })
+
+    fireEvent.click(screen.getByTestId('custom-close'))
+    await wait(500)
+    expect(document.getElementById('zmage')).toBeNull()
+  })
+
+  it('controller.render actions.next 沿用现有翻页逻辑', async () => {
+    const onSwitching = vi.fn()
+    const renderController = ({ actions }: ControllerRenderParameters) => (
+      <button data-testid="custom-next" onClick={actions.next}>next</button>
+    )
+    render(
+      <Zmage
+        src="https://example.com/controller-a.jpg"
+        alt="controller-render-next"
+        onSwitching={onSwitching}
+        controller={{ render: renderController }}
+        set={[
+          { src: 'https://example.com/controller-a.jpg' },
+          { src: 'https://example.com/controller-b.jpg' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-render-next'))
+    await wait(50)
+    fireEvent.click(screen.getByTestId('custom-next'))
+    await wait(80)
+
+    expect(onSwitching).toHaveBeenCalledWith(1)
+    expect((document.getElementById('zmageImage') as HTMLImageElement).src).toContain('controller-b.jpg')
+  })
+
+  it('controller.render actions.toPage 支持直接跳页', async () => {
+    const renderController = ({ actions }: ControllerRenderParameters) => (
+      <button data-testid="custom-page" onClick={() => actions.toPage(1)}>page</button>
+    )
+    render(
+      <Zmage
+        src="https://example.com/controller-a.jpg"
+        alt="controller-render-page"
+        controller={{ render: renderController }}
+        set={[
+          { src: 'https://example.com/controller-a.jpg' },
+          { src: 'https://example.com/controller-b.jpg' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-render-page'))
+    await wait(50)
+    fireEvent.click(screen.getByTestId('custom-page'))
+    await wait(80)
+
+    expect((document.getElementById('zmageImage') as HTMLImageElement).src).toContain('controller-b.jpg')
+  })
+
+  it('controller.render 可复用默认 Toolbar slot', async () => {
+    const renderController = ({ slots }: ControllerRenderParameters) => <>{slots.Toolbar}</>
+    render(<Zmage src={SRC} alt="controller-render-slot" controller={{ render: renderController }} />)
+    fireEvent.click(screen.getByAltText('controller-render-slot'))
+    await wait(50)
+
+    expect(document.getElementById('zmageControl')).toBeTruthy()
+    expect(document.getElementById('zmageControlClose')).toBeTruthy()
+  })
+
+  it('controller.render 返回 null 时隐藏全部 controller UI', async () => {
+    render(
+      <Zmage
+        src="https://example.com/controller-a.jpg"
+        alt="controller-render-null"
+        controller={{ render: () => null }}
+        set={[
+          { src: 'https://example.com/controller-a.jpg' },
+          { src: 'https://example.com/controller-b.jpg' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-render-null'))
+    await wait(50)
+
+    expect(document.getElementById('zmageControl')).toBeNull()
+    expect(document.getElementById('zmageControlFlipRight')).toBeNull()
+    expect(document.getElementById('zmageControlPagination')).toBeNull()
   })
 })
 
@@ -692,9 +1239,16 @@ describe('resolvePreset (preset=auto 媒体查询解析)', () => {
     expect(resolvePreset('mobile')).toBe('mobile')
   })
 
-  it('未传 preset 默认 desktop', () => {
+  it('未传 preset 默认按 auto 解析: mobile-like 环境使用 mobile preset', () => {
     stubMatchMedia(true)
+    expect(resolvePreset(undefined)).toBe('mobile')
+    expect(defPropsWithEnv(undefined).gesture.wheelZoom).toBe(false)
+  })
+
+  it('未传 preset 默认按 auto 解析: 非粗指针环境使用 desktop preset', () => {
+    stubMatchMedia(false)
     expect(resolvePreset(undefined)).toBe('desktop')
+    expect(defPropsWithEnv(undefined).gesture.pinchZoom).toBe(false)
   })
 
   it('auto + (pointer:coarse hover:none) → mobile', () => {

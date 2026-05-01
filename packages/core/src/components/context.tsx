@@ -9,7 +9,7 @@ import { FunctionalNormalizedParams, InterfaceAndInteractionParams, LifeCyclePar
 import type { State as BrowsingParams } from './Browser/Browser'
 
 export type { BrowsingParams }
-export type ZoomTrigger = 'control' | 'keyboard' | 'wheel'
+export type ZoomTrigger = 'control' | 'keyboard' | 'wheel' | 'pinch' | 'doubleTap'
 
 export interface ContextType extends BrowsingParams, FunctionalNormalizedParams, InterfaceAndInteractionParams, Pick<LifeCycleParams, 'onError'> {
   // Internal

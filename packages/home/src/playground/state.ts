@@ -1,4 +1,4 @@
-import { PARAM_SCHEMA } from '@/schema/param-schema'
+import { getPresetDefaults, PARAM_SCHEMA } from '@/schema/param-schema'
 
 /**
  * Single source of truth for playground state derivation.
@@ -63,6 +63,21 @@ export const PLAYGROUND_SEED: Record<string, any> = {
   set: DATA_PRESETS[0].set.map(({ ratio: _ratio, ...rest }) => rest),
 }
 
+export const PRESET_DRIVEN_KEYS = ['controller', 'hotKey', 'animate', 'gesture'] as const
+
+export function applyPresetDrivenDefaults (
+  values: Record<string, any>,
+  touched?: ReadonlySet<string>,
+): Record<string, any> {
+  const presetDefaults = getPresetDefaults(values.preset)
+  for (const key of PRESET_DRIVEN_KEYS) {
+    if (!touched?.has(key)) {
+      values[key] = presetDefaults[key]
+    }
+  }
+  return values
+}
+
 /** 检测 values 当前的 src/set 是否完全匹配某个预设 — 用于 toggle 显示 active 态 */
 export function detectActivePreset (values: Record<string, any>): DataPreset['id'] | null {
   for (const preset of DATA_PRESETS) {
@@ -80,18 +95,29 @@ export function detectActivePreset (values: Record<string, any>): DataPreset['id
 export function getInitialValues (): Record<string, any> {
   const v: Record<string, any> = {}
   for (const def of PARAM_SCHEMA) v[def.name] = def.default
+  applyPresetDrivenDefaults(v)
   Object.assign(v, PLAYGROUND_SEED)
   return v
 }
 
-function isSchemaDefault (name: string, value: any): boolean {
+function getEffectiveDefault (name: string, values?: Record<string, any>): unknown {
+  const def = PARAM_SCHEMA.find(d => d.name === name)
+  if (!def) return undefined
+  if (PRESET_DRIVEN_KEYS.includes(name as typeof PRESET_DRIVEN_KEYS[number])) {
+    return getPresetDefaults(values?.preset)[name as typeof PRESET_DRIVEN_KEYS[number]]
+  }
+  return def.default
+}
+
+function isSchemaDefault (name: string, value: any, values?: Record<string, any>): boolean {
   const def = PARAM_SCHEMA.find(d => d.name === name)
   if (!def) return true
   if (value === undefined) return true
+  const defaultValue = getEffectiveDefault(name, values)
   if (typeof value === 'object' && value !== null) {
-    try { return JSON.stringify(value) === JSON.stringify(def.default) } catch { return false }
+    try { return JSON.stringify(value) === JSON.stringify(defaultValue) } catch { return false }
   }
-  return value === def.default
+  return value === defaultValue
 }
 
 function deepEqual (a: any, b: any): boolean {
@@ -119,7 +145,7 @@ export function buildLibProps (
     const v = values[def.name]
     if (def.required) { out[def.name] = v ?? ''; continue }
     if (v === undefined) continue
-    if (isSchemaDefault(def.name, v) && !touched?.has(def.name)) continue
+    if (isSchemaDefault(def.name, v, values) && !touched?.has(def.name)) continue
     out[def.name] = v
   }
   return out

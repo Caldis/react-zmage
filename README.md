@@ -132,7 +132,7 @@ const ref = useRef<HTMLImageElement>(null)
 return <Zmage {...config} ref={ref} />
 ```
 
-`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `HotKey`, `Animate`, `AnimateCoverOptions`, `GestureSet`, `GestureSwipeOptions`, `GestureDragExitOptions`, `GestureWheelZoomOptions`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
+`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `ControllerPlacement`, `ControllerRender`, `ControllerRenderState`, `ControllerRenderActions`, `ControllerRenderSlots`, `HotKey`, `Animate`, `AnimateCoverOptions`, `GestureSet`, `GestureSwipeOptions`, `GestureDragExitOptions`, `GestureWheelZoomOptions`, `GesturePinchZoomOptions`, `GestureDoubleTapZoomOptions`, `GestureTouchAction`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
 
 </details>
 
@@ -168,16 +168,16 @@ API is identical — only the import path changes. The SSR build is platform-neu
 
 | Prop | Type | Default | Notes |
 |---|---|---|---|
-| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'desktop'` | Bundles defaults for `controller`, `hotKey`, `animate`, and `gesture`. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → `mobile`, otherwise `desktop`. SSR / no `matchMedia` falls back to `desktop`. |
+| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'auto'` | Bundles defaults for `controller`, `hotKey`, `animate`, and `gesture`. Omitting `preset` uses `'auto'`. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → `mobile`, otherwise `desktop`. SSR / no `matchMedia` falls back to `desktop`. Use `preset="desktop"` to keep desktop behavior on touch devices. |
 
 ### Functional
 
 | Prop | Type | Default | Notes |
 |---|---|---|---|
-| `controller` | `boolean \| ControllerSet` | preset-driven | Per-button toggles in the top toolbar. Pass `false` to hide all, or a partial object to override individual buttons. |
+| `controller` | `boolean \| ControllerSet` | preset-driven | Toolbar controls. Pass `false` to hide all controls, or a partial object to override buttons, toolbar placement, or the full render function. |
 | `hotKey` | `boolean \| HotKey` | preset-driven | Keyboard shortcuts. |
 | `animate` | `boolean \| Animate` | preset-driven | Open/close, cover-geometry, and page-flip animations. |
-| `gesture` | `boolean \| GestureSet` | preset-driven | Touch and wheel gestures. Pass `false` to disable all gestures, or a partial object to override `swipe` / `dragExit` / `wheelZoom`. |
+| `gesture` | `boolean \| GestureSet` | preset-driven | Touch and wheel gestures. Pass `false` to disable all gestures, or a partial object to override `swipe` / `dragExit` / `wheelZoom` / `pinchZoom` / `doubleTapZoom` / `touchAction`. |
 
 #### `ControllerSet`
 
@@ -196,12 +196,140 @@ interface ControllerSet {
   // visual
   backdrop?:    string                          // control bar bg; falls back to top-level `backdrop`
   color?:       string                          // control bar icon color; falls back to `currentColor`
+  placement?:   ControllerPlacement             // default 'top-right'
+  render?:      ControllerRender                // replace the whole controller UI
+}
+
+type ControllerPlacement =
+  | 'top-right'
+  | 'top-left'
+  | 'bottom-right'
+  | 'bottom-left'
+  | 'top-center'
+  | 'bottom-center'
+  | 'left-center'
+  | 'right-center'
+
+type ControllerRender = (args: {
+  state: ControllerRenderState
+  actions: ControllerRenderActions
+  slots: ControllerRenderSlots
+}) => ReactNode
+
+interface ControllerRenderState {
+  show: boolean
+  zoom: boolean
+  page: number
+  total: number
+  canZoom: boolean
+  canPrev: boolean
+  canNext: boolean
+  canDownload: boolean
+  preset: 'desktop' | 'mobile'
+  placement: ControllerPlacement
+  current?: Set
+}
+
+interface ControllerRenderActions {
+  close: () => void
+  zoom: () => void
+  rotateLeft: () => void
+  rotateRight: () => void
+  prev: () => void
+  next: () => void
+  toPage: (page: number) => void
+  download: () => void
+}
+
+interface ControllerRenderSlots {
+  Toolbar: ReactNode
+  Pagination: ReactNode
+  FlipLeft: ReactNode
+  FlipRight: ReactNode
 }
 ```
 
 > `rotate` and `flip` are umbrella switches — enabling either forces both per-side counterparts on, regardless of those flags.
 
 > `backdrop` and `color` decouple the toolbar from the modal backdrop. Pair them when the modal `backdrop` is dark — e.g. `backdrop="#111"` + `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}` keeps the toolbar legible. Per-button color overrides (e.g. `controller={{ zoom: '#ff8800' }}`) still win over `controller.color`.
+
+> `placement` moves only the toolbar capsule. Side flip buttons and pagination keep their existing positions. `render` receives `{ state, actions, slots }` and replaces the whole controller layer; `slots.Toolbar`, `slots.Pagination`, `slots.FlipLeft`, and `slots.FlipRight` let custom UI reuse the built-in pieces. `controller={false}` disables both built-in slots and `render`.
+
+`render` returns any React node. Return `null` to hide the controller layer, call `actions` to drive the viewer, and read `state` to keep custom UI in sync with page, zoom, placement, and capability flags:
+
+| Path | Type |
+|---|---|
+| `state` | `ControllerRenderState` |
+| `state.show` | `boolean` |
+| `state.zoom` | `boolean` |
+| `state.page` | `number` |
+| `state.total` | `number` |
+| `state.canZoom` | `boolean` |
+| `state.canPrev` | `boolean` |
+| `state.canNext` | `boolean` |
+| `state.canDownload` | `boolean` |
+| `state.preset` | `'desktop' \| 'mobile'` |
+| `state.placement` | `ControllerPlacement` |
+| `state.current` | `Set \| undefined` |
+| `actions` | `ControllerRenderActions` |
+| `actions.close` | `() => void` |
+| `actions.zoom` | `() => void` |
+| `actions.rotateLeft` | `() => void` |
+| `actions.rotateRight` | `() => void` |
+| `actions.prev` | `() => void` |
+| `actions.next` | `() => void` |
+| `actions.toPage` | `(page: number) => void` |
+| `actions.download` | `() => void` |
+| `slots` | `ControllerRenderSlots` |
+| `slots.Toolbar` | `ReactNode` |
+| `slots.Pagination` | `ReactNode` |
+| `slots.FlipLeft` | `ReactNode` |
+| `slots.FlipRight` | `ReactNode` |
+| `return` | `ReactNode` |
+
+```tsx
+<Zmage
+  src="photo.jpg"
+  set={[
+    { src: 'photo.jpg', alt: 'Cover' },
+    { src: 'detail.jpg', alt: 'Detail' },
+  ]}
+  controller={{
+    placement: 'bottom-center',
+    render: ({ state, actions, slots }) => {
+      if (!state.show) return null
+
+      return (
+        <div className="my-zmage-controls" data-placement={state.placement}>
+          <button type="button" disabled={!state.canPrev} onClick={actions.prev}>
+            Prev
+          </button>
+          <span>
+            {state.page + 1} / {state.total}
+          </span>
+          <button type="button" disabled={!state.canNext} onClick={actions.next}>
+            Next
+          </button>
+          <button type="button" disabled={!state.zoom && !state.canZoom} onClick={actions.zoom}>
+            {state.zoom ? 'Fit' : 'Zoom'}
+          </button>
+          {state.canDownload && (
+            <button type="button" onClick={actions.download}>
+              Download
+            </button>
+          )}
+          <button type="button" onClick={actions.close}>
+            Close
+          </button>
+
+          {/* Reuse built-in pieces only where you want them. */}
+          {slots.Pagination}
+        </div>
+      )
+    },
+  }}
+/>
+```
 
 #### Preset defaults
 
@@ -213,9 +341,13 @@ interface ControllerSet {
 | `download` | — | — |
 | `close` | ✅ | ✅ |
 | `flip` | ✅ | — |
+| `placement` | `top-right` | `top-right` |
 | `gesture.swipe` | — | ✅ |
 | `gesture.dragExit` | — | ✅ |
 | `gesture.wheelZoom` | ✅ | — |
+| `gesture.pinchZoom` | — | ✅ |
+| `gesture.doubleTapZoom` | — | ✅ |
+| `gesture.touchAction` | `managed` | `managed` |
 
 #### `HotKey`
 
@@ -285,7 +417,12 @@ interface GestureSet {
   swipe?: boolean | GestureSwipeOptions
   dragExit?: boolean | GestureDragExitOptions
   wheelZoom?: boolean | GestureWheelZoomOptions
+  pinchZoom?: boolean | GesturePinchZoomOptions
+  doubleTapZoom?: boolean | GestureDoubleTapZoomOptions
+  touchAction?: GestureTouchAction
 }
+
+type GestureTouchAction = 'managed' | 'auto' | 'manipulation' | 'none'
 
 interface GestureSwipeOptions {
   threshold?: number    // default 120
@@ -310,9 +447,27 @@ interface GestureWheelZoomOptions {
   reverse?: boolean              // default false
   exitGuardDuration?: number     // default 1000ms; blocks residual wheel after exit
 }
+
+interface GesturePinchZoomOptions {
+  minScale?: 'fit' | number      // default 'fit'
+  maxScale?: number              // default 4
+  resetBelowFit?: boolean        // default true
+  center?: 'gesture' | 'viewport' // default 'gesture'
+}
+
+interface GestureDoubleTapZoomOptions {
+  scale?: number                 // default 1
+  minScale?: 'fit' | number      // default 'fit'
+  maxScale?: number              // default 4
+  center?: 'tap' | 'viewport'    // default 'tap'
+  interval?: number              // default 300ms
+  distance?: number              // default 32px
+}
 ```
 
-Desktop default: `{ swipe: false, dragExit: false, wheelZoom: { step: 0.12, smooth: true, minScale: 'fit', maxScale: 4, center: 'pointer', reverse: false, exitGuardDuration: 1000 } }`. Mobile default enables horizontal drag paging and vertical drag-to-exit with the option defaults above, and disables `wheelZoom`. Wheel zoom is active only while the viewer is already in zoom mode; normal browsing wheel/scroll behavior stays untouched. Zooming out to `minScale` exits zoom immediately; `exitGuardDuration` then blocks residual wheel events for the configured time so trackpad momentum does not scroll/close the page in the same gesture. `gesture={{ swipe: false }}` only disables drag paging; `gesture={{ dragExit: false }}` only disables drag-to-exit; `gesture={{ wheelZoom: false }}` only disables wheel zoom. Single-image viewers ignore horizontal swipe, and zoom mode disables Phase 1 single-finger gestures.
+Desktop default: `{ swipe: false, dragExit: false, wheelZoom: { step: 0.12, smooth: true, minScale: 'fit', maxScale: 4, center: 'pointer', reverse: false, exitGuardDuration: 1000 }, pinchZoom: false, doubleTapZoom: false, touchAction: 'managed' }`. Mobile default enables horizontal drag paging, vertical drag-to-exit, two-finger pinch zoom, and single-finger double-tap zoom with the option defaults above, disables `wheelZoom`, and keeps `touchAction: 'managed'`.
+
+Wheel zoom is active only while the viewer is already in zoom mode; normal browsing wheel/scroll behavior stays untouched. Zooming out to `minScale` exits zoom immediately; `exitGuardDuration` then blocks residual wheel events for the configured time so trackpad momentum does not scroll/close the page in the same gesture. Pinch zoom uses the two-finger midpoint by default; shrinking back to the fit scale exits zoom and recenters the image. Double-tap zoom uses `touch-action` instead of a non-passive `touchend` listener to avoid fighting the browser's default double-tap zoom. `touchAction: 'managed'` resolves to `none` when pinch zoom is active, to `manipulation` for double-tap-only setups, and to `auto` otherwise; explicit `auto` / `manipulation` / `none` values are written as-is. `gesture={{ swipe: false }}` only disables drag paging; `gesture={{ dragExit: false }}` only disables drag-to-exit; `gesture={{ wheelZoom: false }}` only disables wheel zoom; `gesture={{ pinchZoom: false }}` only disables pinch zoom; `gesture={{ doubleTapZoom: false }}` only disables double-tap zoom. Single-image viewers ignore horizontal swipe, and zoom mode disables Phase 1 single-finger drag gestures.
 
 ### Interface & interaction
 

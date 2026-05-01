@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 import { ParamPanel } from '@/playground/ParamPanel'
 import { SlidingPill } from '@/components/ui/SlidingPill'
 import { encodeStateToHash, decodeStateFromHash } from '@/playground/shareState'
-import { getInitialValues } from '@/playground/state'
+import { applyPresetDrivenDefaults, getInitialValues } from '@/playground/state'
 import ComponentMode from './playground/ComponentMode'
 import ImperativeMode from './playground/ImperativeMode'
 import WrapperMode from './playground/WrapperMode'
@@ -32,6 +32,7 @@ export default function Playground () {
     if (typeof window !== 'undefined') {
       const hydrated = decodeStateFromHash(window.location.hash)
       Object.assign(base, hydrated)
+      applyPresetDrivenDefaults(base, new Set(Object.keys(hydrated)))
     }
     return base
   })
@@ -46,9 +47,15 @@ export default function Playground () {
   const [shared, setShared] = React.useState(false)
 
   const onChange = React.useCallback((name: string, value: any) => {
-    setValues(v => ({ ...v, [name]: value }))
+    setValues(v => {
+      const next = { ...v, [name]: value }
+      if (name === 'preset') {
+        applyPresetDrivenDefaults(next, touched)
+      }
+      return next
+    })
     setTouched(t => t.has(name) ? t : new Set(t).add(name))
-  }, [])
+  }, [touched])
 
   const onReset = React.useCallback(() => {
     setValues(getInitialValues())

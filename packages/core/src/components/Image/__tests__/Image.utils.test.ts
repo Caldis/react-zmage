@@ -12,16 +12,23 @@ import {
   getBrowsingStyle,
   getCoverStyle,
   getImageTransition,
+  getNextPinchZoomScale,
   getNextWheelZoomScale,
   getSideImageOffset,
   getSwipeOffset,
+  getTouchDistance,
+  getTouchMidpoint,
+  getZoomScaleRange,
   getZoomingStyle,
   ImageStyleType,
   lerpCoverStyle,
   makeCubicBezierEase,
   normalizeGestureSet,
   normalizeWheelDelta,
+  resistZoomPanStyle,
+  resolveGestureTouchAction,
   selectFlipKind,
+  DoubleTapGesture,
   TouchGesture,
 } from '../Image.utils'
 import { animationCurve, animationDuration, getBrowsingAnimationDuration } from '../../../config/anim'
@@ -631,6 +638,9 @@ describe('normalizeGestureSet (Phase 1 gesture config)', () => {
     swipe: { threshold: 120, velocity: 0.35, axisLock: 1.2, resistance: 0.35 },
     dragExit: { threshold: 80, velocity: 0.35, axisLock: 1.2, opacity: true },
     wheelZoom: { step: 0.12, smooth: true, minScale: 'fit' as const, maxScale: 4, center: 'pointer' as const, reverse: false, exitGuardDuration: 1000 },
+    pinchZoom: { minScale: 'fit' as const, maxScale: 4, resetBelowFit: true, center: 'gesture' as const },
+    doubleTapZoom: { scale: 1, minScale: 'fit' as const, maxScale: 4, center: 'tap' as const, interval: 300, distance: 32 },
+    touchAction: 'managed' as const,
   }
 
   it('undefined 使用 preset fallback 并把 true 归一成 option object', () => {
@@ -638,7 +648,14 @@ describe('normalizeGestureSet (Phase 1 gesture config)', () => {
   })
 
   it('false 归一成所有已实现 key 的显式 false markers', () => {
-    expect(normalizeGestureSet(false, fallback)).toEqual({ swipe: false, dragExit: false, wheelZoom: false })
+    expect(normalizeGestureSet(false, fallback)).toEqual({
+      swipe: false,
+      dragExit: false,
+      wheelZoom: false,
+      pinchZoom: false,
+      doubleTapZoom: false,
+      touchAction: 'auto',
+    })
   })
 
   it('子项 false 只关闭该 gesture, 不影响其它 preset 默认值', () => {
@@ -646,6 +663,9 @@ describe('normalizeGestureSet (Phase 1 gesture config)', () => {
       swipe: false,
       dragExit: fallback.dragExit,
       wheelZoom: fallback.wheelZoom,
+      pinchZoom: fallback.pinchZoom,
+      doubleTapZoom: fallback.doubleTapZoom,
+      touchAction: 'managed',
     })
   })
 
@@ -654,14 +674,27 @@ describe('normalizeGestureSet (Phase 1 gesture config)', () => {
       swipe: fallback.swipe,
       dragExit: { threshold: 120, velocity: 0.35, axisLock: 1.2, opacity: true },
       wheelZoom: fallback.wheelZoom,
+      pinchZoom: fallback.pinchZoom,
+      doubleTapZoom: fallback.doubleTapZoom,
+      touchAction: 'managed',
     })
   })
 
   it('wheelZoom=true 启用默认滚轮缩放配置', () => {
-    expect(normalizeGestureSet({ wheelZoom: true }, { swipe: false, dragExit: false, wheelZoom: false })).toEqual({
+    expect(normalizeGestureSet({ wheelZoom: true }, {
+      swipe: false,
+      dragExit: false,
+      wheelZoom: false,
+      pinchZoom: false,
+      doubleTapZoom: false,
+      touchAction: 'managed',
+    })).toEqual({
       swipe: false,
       dragExit: false,
       wheelZoom: { step: 0.12, smooth: true, minScale: 'fit', maxScale: 4, center: 'pointer', reverse: false, exitGuardDuration: 1000 },
+      pinchZoom: false,
+      doubleTapZoom: false,
+      touchAction: 'managed',
     })
   })
 
@@ -670,7 +703,147 @@ describe('normalizeGestureSet (Phase 1 gesture config)', () => {
       swipe: fallback.swipe,
       dragExit: fallback.dragExit,
       wheelZoom: { step: 0.12, smooth: true, minScale: 'fit', maxScale: 3, center: 'pointer', reverse: false, exitGuardDuration: 1000 },
+      pinchZoom: fallback.pinchZoom,
+      doubleTapZoom: fallback.doubleTapZoom,
+      touchAction: 'managed',
     })
+  })
+
+  it('pinchZoom 和 doubleTapZoom 使用各自默认配置归一化', () => {
+    expect(normalizeGestureSet({ pinchZoom: true, doubleTapZoom: true }, {
+      swipe: false,
+      dragExit: false,
+      wheelZoom: false,
+      pinchZoom: false,
+      doubleTapZoom: false,
+      touchAction: 'managed',
+    })).toEqual({
+      swipe: false,
+      dragExit: false,
+      wheelZoom: false,
+      pinchZoom: { minScale: 'fit', maxScale: 4, resetBelowFit: true, center: 'gesture' },
+      doubleTapZoom: { scale: 1, minScale: 'fit', maxScale: 4, center: 'tap', interval: 300, distance: 32 },
+      touchAction: 'managed',
+    })
+  })
+
+  it('pinchZoom 和 doubleTapZoom object 只覆盖指定 option', () => {
+    expect(normalizeGestureSet({
+      pinchZoom: { maxScale: 3 },
+      doubleTapZoom: { scale: 2, interval: 260 },
+    }, fallback)).toEqual({
+      swipe: fallback.swipe,
+      dragExit: fallback.dragExit,
+      wheelZoom: fallback.wheelZoom,
+      pinchZoom: { minScale: 'fit', maxScale: 3, resetBelowFit: true, center: 'gesture' },
+      doubleTapZoom: { scale: 2, minScale: 'fit', maxScale: 4, center: 'tap', interval: 260, distance: 32 },
+      touchAction: 'managed',
+    })
+  })
+
+  it('touchAction 支持 managed 解析和用户显式覆盖', () => {
+    expect(resolveGestureTouchAction(normalizeGestureSet(undefined, fallback))).toBe('none')
+    expect(resolveGestureTouchAction(normalizeGestureSet({ pinchZoom: false }, fallback))).toBe('manipulation')
+    expect(resolveGestureTouchAction(normalizeGestureSet({ pinchZoom: false, doubleTapZoom: false }, fallback))).toBe('auto')
+    expect(resolveGestureTouchAction(normalizeGestureSet({ touchAction: 'auto' }, fallback))).toBe('auto')
+    expect(resolveGestureTouchAction(normalizeGestureSet({ touchAction: 'manipulation' }, fallback))).toBe('manipulation')
+    expect(resolveGestureTouchAction(normalizeGestureSet({ touchAction: 'none' }, fallback))).toBe('none')
+  })
+})
+
+describe('mobile zoom helpers (Phase 4)', () => {
+  const buildImage = () => {
+    const image = document.createElement('img')
+    Object.defineProperty(image, 'naturalWidth', { value: 2000, configurable: true })
+    Object.defineProperty(image, 'naturalHeight', { value: 1000, configurable: true })
+    return image
+  }
+  const context = {
+    edge: 0,
+    viewportRef: {
+      current: {
+        getBoundingClientRect: () => ({
+          left: 0, top: 0, width: 1000, height: 800,
+          right: 1000, bottom: 800, x: 0, y: 0,
+          toJSON: () => ({}),
+        } as DOMRect),
+      },
+    },
+  } as ContextType
+
+  it('getZoomScaleRange 解析 fit minScale 并限制 maxScale 不小于 minScale', () => {
+    const range = getZoomScaleRange(context, { current: buildImage() }, { minScale: 'fit', maxScale: 0.1 })
+    expect(range.fitScale).toBeCloseTo(0.5, 2)
+    expect(range.minScale).toBeCloseTo(range.fitScale, 5)
+    expect(range.maxScale).toBe(range.minScale)
+  })
+
+  it('getTouchDistance 和 getTouchMidpoint 从两个触点计算距离与中心', () => {
+    const touches = [
+      { clientX: 10, clientY: 20 },
+      { clientX: 40, clientY: 60 },
+    ]
+    expect(getTouchDistance(touches)).toBe(50)
+    expect(getTouchMidpoint(touches)).toEqual({ clientX: 25, clientY: 40 })
+  })
+
+  it('getNextPinchZoomScale 根据双指距离比例缩放并限制范围', () => {
+    expect(getNextPinchZoomScale({
+      baseScale: 1,
+      startDistance: 100,
+      currentDistance: 180,
+      minScale: 0.5,
+      maxScale: 4,
+    })).toBe(1.8)
+    expect(getNextPinchZoomScale({
+      baseScale: 1,
+      startDistance: 100,
+      currentDistance: 10,
+      minScale: 0.5,
+      maxScale: 4,
+    })).toBe(0.5)
+    expect(getNextPinchZoomScale({
+      baseScale: 3,
+      startDistance: 100,
+      currentDistance: 200,
+      minScale: 0.5,
+      maxScale: 4,
+    })).toBe(4)
+  })
+
+  it('resistZoomPanStyle 在缩放边界外应用阻尼, 不直接硬截断', () => {
+    const style = resistZoomPanStyle(context, { current: buildImage() }, {
+      _type: 'zooming',
+      x: 700,
+      y: -220,
+      scale: 1,
+      rotate: 0,
+    })
+
+    expect(style.x).toBeCloseTo(602.5, 5)
+    expect(style.y).toBeCloseTo(-174.5, 5)
+  })
+
+  it('DoubleTapGesture 在时间和距离阈值内接受第二次 tap', () => {
+    let now = 0
+    const gesture = new DoubleTapGesture({ interval: 300, distance: 32 }, { now: () => now })
+    expect(gesture.tap({ x: 100, y: 100 })).toBe(false)
+    now = 240
+    expect(gesture.tap({ x: 120, y: 110 })).toBe(true)
+    now = 280
+    expect(gesture.tap({ x: 120, y: 110 })).toBe(false)
+  })
+
+  it('DoubleTapGesture 拒绝超时或超距的第二次 tap', () => {
+    let now = 0
+    const gesture = new DoubleTapGesture({ interval: 300, distance: 32 }, { now: () => now })
+    expect(gesture.tap({ x: 100, y: 100 })).toBe(false)
+    now = 400
+    expect(gesture.tap({ x: 102, y: 102 })).toBe(false)
+    now = 500
+    expect(gesture.tap({ x: 200, y: 200 })).toBe(false)
+    now = 620
+    expect(gesture.tap({ x: 260, y: 200 })).toBe(false)
   })
 })
 

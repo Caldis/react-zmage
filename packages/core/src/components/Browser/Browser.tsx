@@ -23,7 +23,7 @@ import { getBrowsingAnimationDuration } from '../../config/anim'
 import { probeStylesheet } from '../../utils/styleProbe'
 import { hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
 import { Animate, ControllerSet, FunctionalParams, GestureSet, HotKey, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
-import { normalizeGestureSet } from '../Image/Image.utils'
+import { normalizeGestureSet, resolveGestureTouchAction } from '../Image/Image.utils'
 
 export interface Props extends PresetParams, FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams {
   // Controlled status
@@ -555,6 +555,7 @@ export default class Browser extends React.Component<Props, State> {
               id="zmageViewport"
               ref={this.viewportRef}
               className={style.viewportLayer}
+              style={{ touchAction: resolveGestureTouchAction(gesture) }}
               onClick={this.handleViewportClick}
             >
 
