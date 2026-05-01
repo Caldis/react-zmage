@@ -1,6 +1,17 @@
 ---
 name: release-workflow
-description: Use when the user wants to ship a new version of react-zmage to npm. Strong triggers — "发版" / "我要发版" / "准备发版" / "release a new version" / "publish to npm" / "ship 1.x.y" / "提交推送 我要发版". Also activate when user asks to "bump version" or "tag a release". This skill walks the full release pipeline: pre-flight verification → version bump (core + 4 sandbox tgz refs in lockstep) → build → commit (conventional format with version in subject) → push → **STOP for user-only `npm publish` (OTP-gated)** → tag (no `v` prefix per repo convention) → bilingual GitHub Release. Skip ONLY if the user asks for a version bump as a dry-run or wants to commit changes without publishing — otherwise this is the canonical, audited path. Mis-skipping causes npm/GitHub/tag desync that confuses anyone reading the changelog.
+description: >-
+  Use when the user wants to ship a new version of react-zmage to npm. Strong
+  triggers — "发版" / "我要发版" / "准备发版" / "release a new version" /
+  "publish to npm" / "ship 1.x.y" / "提交推送 我要发版". Also activate when user
+  asks to "bump version" or "tag a release". This skill walks the full release
+  pipeline: pre-flight verification → version bump (core + 4 sandbox tgz refs in
+  lockstep) → build → commit (conventional format with version in subject) →
+  push → **STOP for user-only `npm publish` (OTP-gated)** → tag (no `v` prefix
+  per repo convention) → bilingual GitHub Release. Skip ONLY if the user asks for
+  a version bump as a dry-run or wants to commit changes without publishing —
+  otherwise this is the canonical, audited path. Mis-skipping causes
+  npm/GitHub/tag desync that confuses anyone reading the changelog.
 ---
 
 # Release workflow (react-zmage)
