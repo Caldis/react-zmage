@@ -14,7 +14,6 @@ export const ko: I18nDict = {
   'hero.cta.playground': '지금 체험하기',
   'hero.ai.label': '이 프롬프트를 복사해서 AI 에이전트에 넘겨 주세요',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
-  'hero.ai.build': 'AI Prompt 만들기',
   'hero.ai.quick': '빠른 Prompt 복사',
   'hero.ai.copyLabel': '빠른 AI Prompt 복사',
   'hero.ai.viewLlms': 'llms.txt 보기 →',

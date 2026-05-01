@@ -14,7 +14,6 @@ export const zhCN = {
   'hero.cta.playground': '马上试玩',
   'hero.ai.label': '复制这段 PROMPT, 接下来交给你的 AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
-  'hero.ai.build': '生成专属 Prompt',
   'hero.ai.quick': '复制快速 Prompt',
   'hero.ai.copyLabel': '复制快速 AI Prompt',
   'hero.ai.viewLlms': '查看 llms.txt →',

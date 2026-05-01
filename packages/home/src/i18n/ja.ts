@@ -14,7 +14,6 @@ export const ja: I18nDict = {
   'hero.cta.playground': '今すぐ試す',
   'hero.ai.label': 'このプロンプトをコピーして、AI エージェントに渡してください',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
-  'hero.ai.build': 'AI Prompt を作成',
   'hero.ai.quick': 'クイック Prompt をコピー',
   'hero.ai.copyLabel': 'クイック AI Prompt をコピー',
   'hero.ai.viewLlms': 'llms.txt を表示 →',

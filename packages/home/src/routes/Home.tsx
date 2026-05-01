@@ -133,12 +133,6 @@ function AIDirective () {
             ? <Check className="h-3.5 w-3.5 text-foreground" />
             : <Copy className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100" />}
         </button>
-        <Button variant="outline" size="sm" asChild className="h-8">
-          <Link to="/ai">
-            <Sparkles aria-hidden className="h-3.5 w-3.5" />
-            {t('hero.ai.build')}
-          </Link>
-        </Button>
         <a
           href="/llms.txt"
           target="_blank"

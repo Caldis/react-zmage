@@ -62,8 +62,9 @@ describe('buildAiPrompt', () => {
 
     expect(prompt).toContain('| Coding Tool | Auto |')
     expect(prompt).toContain('| Project Environment | Auto |')
-    expect(prompt).toContain('Inspect the project structure')
-    expect(prompt).toContain('Ask no more than 3 concrete questions')
+    expect(prompt).toContain('turning existing images into a fullscreen')
+    expect(prompt).toContain('Ask the user short follow-up questions until the scope is concrete')
+    expect(prompt).toContain('Implement one pilot change on a representative image path')
   })
 
   it('ignores stale fine-tune choices when setup depth is Auto', () => {

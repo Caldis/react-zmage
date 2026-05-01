@@ -14,7 +14,6 @@ export const fr: I18nDict = {
   'hero.cta.playground': 'Essayer maintenant',
   'hero.ai.label': 'Copiez ce prompt, puis confiez-le à votre AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
-  'hero.ai.build': 'Créer un prompt AI',
   'hero.ai.quick': 'Copier le prompt rapide',
   'hero.ai.copyLabel': 'Copier le prompt AI rapide',
   'hero.ai.viewLlms': 'voir llms.txt →',

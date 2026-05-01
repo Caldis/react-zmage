@@ -23,8 +23,8 @@ function effectiveConfig (config: AiPromptConfig): AiPromptConfig {
 function agentGuidance (config: AiPromptConfig, labels: PromptLabels) {
   if (config.agent === 'auto') {
     return [
-      'Use the workflow that fits your coding agent. Prefer direct file inspection and small, reviewable edits.',
-      'If the agent has tool limits, first ask it to read `llms.txt`, package files, routing files, and the image-rendering components.',
+      'Use the workflow that fits your coding agent, but keep the integration strategy Auto. Prefer project inspection, short user questions, and small, reviewable edits.',
+      'If the agent has tool limits, read `llms.txt` first, then inspect package files, routing files, and the image-rendering components before proposing code changes.',
     ].join('\n')
   }
 
@@ -85,7 +85,7 @@ function modeInstructions (config: AiPromptConfig) {
       '- Imperative: use this when the viewer opens from a button, callback, or non-image event.',
       '- Wrapper: use this when images come from CMS, MDX, markdown, or uncontrolled HTML.',
       '',
-      'Ask at most 3 concise questions only if the right path cannot be inferred from local files.',
+      'Ask concise questions until the implementation scope is clear. Do not ask the user to choose low-level props before reading the project.',
     ].join('\n')
   }
 
@@ -184,13 +184,15 @@ ${agentGuidance(config, labels)}
 
 Before editing code:
 
-1. Inspect the project structure, package manager, React version, routing model, render mode, and CSS entry.
-2. Find all existing image-rendering paths: owned React images, generated HTML, MDX, CMS content, galleries, and buttons that open media.
-3. Give the user a short interactive intake only when local evidence is missing. Ask no more than 3 concrete questions, for example image source, SSR boundary, or desired mobile gestures.
-4. Choose one Zmage mode from the real architecture: Component, Imperative, or Wrapper.
-5. Explain the choice briefly, then implement.
+0. Explain what react-zmage is for: turning existing images into a fullscreen, zoomable, keyboard-navigable viewer. State that your goal is to integrate it into the user's real image surfaces without changing unrelated UI.
+1. Read this canonical reference first, then inspect package files, routing, render mode, CSS entry, and any existing image/viewer conventions in the user's project.
+2. Find the actual image surfaces: owned React images, galleries, generated HTML, CMS/MDX/markdown content, rich text, and buttons or commands that open media.
+3. Classify each target as Component, Imperative, or Wrapper. Explain the classification from project evidence.
+4. Ask the user short follow-up questions until the scope is concrete: which pages/sections, single-image vs gallery behavior, captions, SSR/RSC boundary, theme/backdrop, mobile gestures, rollout priority, and acceptance criteria.
+5. Implement one pilot change on a representative image path. Keep the diff small and ask the user to verify the real visual result.
+6. Incorporate user feedback, adjust the pilot, then apply the confirmed pattern to the remaining agreed scope.
 
-If this setup is Auto, make the choices from the codebase instead of asking the user to decide every prop.
+If this setup is Auto, make technical choices from project evidence and user answers. Do not force the user to decide every prop up front.
 
 ---
 
