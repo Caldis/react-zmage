@@ -430,6 +430,55 @@ Respect reduced motion:
 - Do not store the full prompt in React state.
 - Do not fetch anything at runtime for this page.
 
+## Component Reuse and Extraction
+
+The `/ai` page should reuse existing home-site components as much as possible. Do not hand-roll another set of button, tab, chip, copy, or code-preview styles if the pattern already exists.
+
+Reuse directly:
+
+- `packages/home/src/components/ui/button.tsx` for primary, secondary, icon, and ghost actions.
+- `packages/home/src/components/ui/badge.tsx` for small state labels.
+- `packages/home/src/components/ui/tabs.tsx` plus `packages/home/src/components/ui/SlidingPill.tsx` for segmented choices.
+- `packages/home/src/components/CodeBlock.tsx` for raw prompt preview or copied markdown preview when a code-like frame is needed.
+- `packages/home/src/components/ui/input.tsx` and `packages/home/src/components/ui/label.tsx` for text controls.
+- `packages/home/src/components/ui/tooltip.tsx` for compact option explanations.
+- `packages/home/src/components/ui/separator.tsx` for structural dividers.
+
+Use existing Playground code as implementation precedent:
+
+- `packages/home/src/playground/DataPresetToggle.tsx` already shows how to build a segmented control with Radix Tabs and inherited focus/SlidingPill behavior.
+- `packages/home/src/playground/controls/ScalarControl.tsx` already shows compact segmented controls and color swatches.
+- `packages/home/src/playground/CodeSnippet.tsx` already shows how generated code should be treated as a derived display value rather than editable state.
+
+If the AI page needs a repeated choice group, first extract a shared component instead of duplicating markup in `AISetup.tsx`.
+
+Candidate shared component:
+
+- `packages/home/src/components/ui/segmented-choice.tsx`
+
+Responsibility:
+
+- Render a label, optional description, and a Radix Tabs-backed option set.
+- Use the existing `Tabs`, `TabsList`, `TabsTrigger`, and `SlidingPill`.
+- Support compact and wrapping layouts.
+- Expose controlled `value` and `onValueChange`.
+- Preserve keyboard navigation and focus styles from Radix Tabs.
+
+If this component is created, use it in the new `/ai` page. Also consider migrating `DataPresetToggle` only if the migration is small and behavior-preserving; otherwise leave Playground untouched and use the extracted component only for the new page. The implementation should not turn this feature into a broad Playground refactor.
+
+Copy behavior should also be shared. The current home page has a local `useCopyToClipboard` helper inside `Home.tsx`, and `CodeBlock` has its own copy state. If `/ai` needs the same copy timing, extract a small hook:
+
+- `packages/home/src/lib/useCopyToClipboard.ts`
+
+Responsibility:
+
+- Copy text to the clipboard.
+- Expose copied and error state.
+- Reset copied state after 1500ms.
+- Clean up timers on unmount.
+
+After extraction, update `Home.tsx` to use the shared hook only where it reduces duplication and does not change visible behavior.
+
 ## File Boundaries
 
 Create:
@@ -438,6 +487,8 @@ Create:
 - `packages/home/src/aiPrompt/types.ts`: setup state and option value types.
 - `packages/home/src/aiPrompt/options.ts`: static option definitions and labels.
 - `packages/home/src/aiPrompt/buildPrompt.ts`: pure prompt builder.
+- `packages/home/src/components/ui/segmented-choice.tsx`: shared choice control if existing Tabs primitives are not enough by themselves.
+- `packages/home/src/lib/useCopyToClipboard.ts`: shared copy hook if `/ai` and `Home.tsx` both need the same copy behavior.
 - `packages/home/public/ai-onboarding/prompt-setup.png`: generated illustration.
 
 Modify:
