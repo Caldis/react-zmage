@@ -34,7 +34,11 @@ export const defPreset = {
     controller: { pagination: true, rotate: true, zoom: true, download: false, close: true, flip: true },
     hotKey: { close: true, zoom: true, flip: true, rotate: true, download: false },
     animate: { browsing: true, flip: 'crossFade' as const, cover: { objectFit: true, clip: true, radius: true } },
-    gesture: { swipe: false, dragExit: false },
+    gesture: {
+      swipe: false,
+      dragExit: false,
+      wheelZoom: { step: 0.12, smooth: true, minScale: 'fit' as const, maxScale: 4, center: 'pointer' as const, reverse: false, exitGuardDuration: 1000 },
+    },
   },
   mobile: {
     controller: { pagination: true, rotate: false, zoom: false, download: false, close: true, flip: false },
@@ -43,6 +47,7 @@ export const defPreset = {
     gesture: {
       swipe: { threshold: 120, velocity: 0.35, axisLock: 1.2, resistance: 0.35 },
       dragExit: { threshold: 80, velocity: 0.35, axisLock: 1.2, opacity: true },
+      wheelZoom: false,
     },
   },
 }

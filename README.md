@@ -132,7 +132,7 @@ const ref = useRef<HTMLImageElement>(null)
 return <Zmage {...config} ref={ref} />
 ```
 
-`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `HotKey`, `Animate`, `AnimateCoverOptions`, `GestureSet`, `GestureSwipeOptions`, `GestureDragExitOptions`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
+`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `HotKey`, `Animate`, `AnimateCoverOptions`, `GestureSet`, `GestureSwipeOptions`, `GestureDragExitOptions`, `GestureWheelZoomOptions`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
 
 </details>
 
@@ -177,7 +177,7 @@ API is identical — only the import path changes. The SSR build is platform-neu
 | `controller` | `boolean \| ControllerSet` | preset-driven | Per-button toggles in the top toolbar. Pass `false` to hide all, or a partial object to override individual buttons. |
 | `hotKey` | `boolean \| HotKey` | preset-driven | Keyboard shortcuts. |
 | `animate` | `boolean \| Animate` | preset-driven | Open/close, cover-geometry, and page-flip animations. |
-| `gesture` | `boolean \| GestureSet` | preset-driven | Mobile single-finger gestures. Pass `false` to disable all gestures, or a partial object to override `swipe` / `dragExit`. |
+| `gesture` | `boolean \| GestureSet` | preset-driven | Touch and wheel gestures. Pass `false` to disable all gestures, or a partial object to override `swipe` / `dragExit` / `wheelZoom`. |
 
 #### `ControllerSet`
 
@@ -215,6 +215,7 @@ interface ControllerSet {
 | `flip` | ✅ | — |
 | `gesture.swipe` | — | ✅ |
 | `gesture.dragExit` | — | ✅ |
+| `gesture.wheelZoom` | ✅ | — |
 
 #### `HotKey`
 
@@ -283,6 +284,7 @@ Defaults: desktop = `{ browsing: true, flip: 'crossFade', cover: { objectFit: tr
 interface GestureSet {
   swipe?: boolean | GestureSwipeOptions
   dragExit?: boolean | GestureDragExitOptions
+  wheelZoom?: boolean | GestureWheelZoomOptions
 }
 
 interface GestureSwipeOptions {
@@ -298,9 +300,19 @@ interface GestureDragExitOptions {
   axisLock?: number     // default 1.2
   opacity?: boolean     // default true
 }
+
+interface GestureWheelZoomOptions {
+  step?: number                  // default 0.12
+  smooth?: boolean               // default true
+  minScale?: 'fit' | number      // default 'fit'
+  maxScale?: number              // default 4
+  center?: 'pointer' | 'viewport' // default 'pointer'
+  reverse?: boolean              // default false
+  exitGuardDuration?: number     // default 1000ms; blocks residual wheel after exit
+}
 ```
 
-Desktop default: `{ swipe: false, dragExit: false }`. Mobile default enables horizontal drag paging and vertical drag-to-exit with the option defaults above. `gesture={{ swipe: false }}` only disables drag paging; `gesture={{ dragExit: false }}` only disables drag-to-exit. Single-image viewers ignore horizontal swipe, and zoom mode disables Phase 1 single-finger gestures.
+Desktop default: `{ swipe: false, dragExit: false, wheelZoom: { step: 0.12, smooth: true, minScale: 'fit', maxScale: 4, center: 'pointer', reverse: false, exitGuardDuration: 1000 } }`. Mobile default enables horizontal drag paging and vertical drag-to-exit with the option defaults above, and disables `wheelZoom`. Wheel zoom is active only while the viewer is already in zoom mode; normal browsing wheel/scroll behavior stays untouched. Zooming out to `minScale` exits zoom immediately; `exitGuardDuration` then blocks residual wheel events for the configured time so trackpad momentum does not scroll/close the page in the same gesture. `gesture={{ swipe: false }}` only disables drag paging; `gesture={{ dragExit: false }}` only disables drag-to-exit; `gesture={{ wheelZoom: false }}` only disables wheel zoom. Single-image viewers ignore horizontal swipe, and zoom mode disables Phase 1 single-finger gestures.
 
 ### Interface & interaction
 

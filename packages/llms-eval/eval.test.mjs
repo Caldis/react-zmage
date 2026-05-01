@@ -178,18 +178,25 @@ test('gesture prop wired across types, defaults and llms.txt', () => {
   assert.match(globalTs, /export\s+interface\s+GestureSet\b/, 'GestureSet interface missing in types/global.ts')
   assert.match(globalTs, /export\s+interface\s+GestureSwipeOptions\b/, 'GestureSwipeOptions interface missing in types/global.ts')
   assert.match(globalTs, /export\s+interface\s+GestureDragExitOptions\b/, 'GestureDragExitOptions interface missing in types/global.ts')
+  assert.match(globalTs, /export\s+interface\s+GestureWheelZoomOptions\b/, 'GestureWheelZoomOptions interface missing in types/global.ts')
   assert.match(globalTs, /\bgesture\?:\s*boolean\s*\|\s*GestureSet\b/, 'gesture prop missing from FunctionalParams')
   assert.match(defaultTs, /desktop:[\s\S]*?gesture:[\s\S]*?\bswipe:\s*false\b/, 'desktop gesture.swipe=false missing in default.ts')
   assert.match(defaultTs, /desktop:[\s\S]*?gesture:[\s\S]*?\bdragExit:\s*false\b/, 'desktop gesture.dragExit=false missing in default.ts')
+  assert.match(defaultTs, /desktop:[\s\S]*?gesture:[\s\S]*?\bwheelZoom:\s*\{\s*\.\.\.defaultGestureWheelZoomOptions\s*\}/, 'desktop gesture.wheelZoom should use default options in default.ts')
   assert.match(defaultTs, /defaultGestureSwipeOptions:[\s\S]*?\bthreshold:\s*120\b/, 'default gesture.swipe threshold missing in default.ts')
   assert.match(defaultTs, /defaultGestureDragExitOptions:[\s\S]*?\bthreshold:\s*80\b/, 'default gesture.dragExit threshold missing in default.ts')
+  assert.match(defaultTs, /defaultGestureWheelZoomOptions:[\s\S]*?\bstep:\s*0\.12\b/, 'default gesture.wheelZoom step missing in default.ts')
+  assert.match(defaultTs, /defaultGestureWheelZoomOptions:[\s\S]*?\bmaxScale:\s*4\b/, 'default gesture.wheelZoom maxScale missing in default.ts')
+  assert.match(defaultTs, /defaultGestureWheelZoomOptions:[\s\S]*?\breverse:\s*false\b/, 'default gesture.wheelZoom reverse=false missing in default.ts')
+  assert.match(defaultTs, /defaultGestureWheelZoomOptions:[\s\S]*?\bexitGuardDuration:\s*1000\b/, 'default gesture.wheelZoom exitGuardDuration=1000 missing in default.ts')
   assert.match(defaultTs, /mobile:[\s\S]*?gesture:[\s\S]*?\bswipe:\s*\{\s*\.\.\.defaultGestureSwipeOptions\s*\}/, 'mobile gesture.swipe should use default options in default.ts')
   assert.match(defaultTs, /mobile:[\s\S]*?gesture:[\s\S]*?\bdragExit:\s*\{\s*\.\.\.defaultGestureDragExitOptions\s*\}/, 'mobile gesture.dragExit should use default options in default.ts')
+  assert.match(defaultTs, /mobile:[\s\S]*?gesture:[\s\S]*?\bwheelZoom:\s*false\b/, 'mobile gesture.wheelZoom=false missing in default.ts')
   const gestureLine = llmsTxt.split('\n').find(
     (line) => /^\s*\|\s*`gesture`\s*\|/.test(line)
   )
   assert.ok(gestureLine, 'no API-table row in llms.txt declares the gesture prop')
-  for (const term of ['swipe', 'dragExit', 'threshold', 'velocity', 'axisLock']) {
+  for (const term of ['swipe', 'dragExit', 'wheelZoom', 'threshold', 'velocity', 'axisLock', 'step', 'minScale', 'maxScale', 'reverse', 'exitGuardDuration']) {
     assert.match(gestureLine, new RegExp(`\\b${term}\\b`), `llms.txt gesture row missing ${term}`)
   }
 })
@@ -212,7 +219,7 @@ test('animate.cover wired across types, defaults and llms.txt', () => {
 })
 
 test('public type symbols present in types/global.ts', () => {
-  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'HotKey', 'Animate', 'AnimateCoverOptions', 'GestureSet']) {
+  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'HotKey', 'Animate', 'AnimateCoverOptions', 'GestureSet', 'GestureWheelZoomOptions']) {
     const re = new RegExp(`(?:export\\s+(?:interface|type)\\s+${sym}\\b)`)
     assert.match(globalTs, re, `${sym} not exported from types/global.ts`)
     assert.match(llmsTxt, new RegExp(`\\b${sym}\\b`), `${sym} not mentioned in llms.txt`)

@@ -167,6 +167,218 @@ describe('Zmage StrictMode 双 mount/unmount 不应泄漏副作用', () => {
   })
 })
 
+describe('Zmage desktop wheel zoom Phase 3', () => {
+  const wait = async (ms: number) => {
+    await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+
+  const prepareViewerImage = () => {
+    const image = document.getElementById('zmageImage') as HTMLImageElement | null
+    if (!image) throw new Error('expected #zmageImage to be mounted')
+    Object.defineProperty(image, 'naturalWidth', { value: 2000, configurable: true })
+    Object.defineProperty(image, 'naturalHeight', { value: 1200, configurable: true })
+    fireEvent.load(image)
+    return image
+  }
+
+  const getImageScale = () => {
+    const image = document.getElementById('zmageImage') as HTMLImageElement | null
+    if (!image) throw new Error('expected #zmageImage to be mounted')
+    const match = image.style.transform.match(/scale3d\((-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?), 1\)/)
+    if (!match) throw new Error(`unexpected transform: ${image.style.transform}`)
+    return Number(match[1])
+  }
+
+  const openAndZoomDesktop = async (props: React.ComponentProps<typeof Zmage> = {}) => {
+    const result = render(
+      <Zmage
+        src="https://example.com/wheel-a.jpg"
+        alt="wheel-zoom"
+        preset="desktop"
+        {...props}
+      />
+    )
+    fireEvent.click(screen.getByAltText('wheel-zoom'))
+    await wait(50)
+    prepareViewerImage()
+    fireEvent.keyDown(window, { code: 'Space' })
+    await wait(420)
+    return result
+  }
+
+  const dispatchWheel = (deltaY: number, point = { x: 700, y: 400 }) => {
+    const event = new WheelEvent('wheel', {
+      deltaY,
+      deltaMode: 0,
+      clientX: point.x,
+      clientY: point.y,
+      bubbles: true,
+      cancelable: true,
+    })
+    window.dispatchEvent(event)
+    return event
+  }
+
+  const withWindowListenerCapture = () => {
+    const originalAdd = window.addEventListener.bind(window)
+    const originalRemove = window.removeEventListener.bind(window)
+    const listeners = new Map<string, Set<EventListenerOrEventListenerObject>>()
+    const options = new Map<string, unknown[]>()
+
+    window.addEventListener = vi.fn(((type: string, listener: EventListenerOrEventListenerObject, listenerOptions?: unknown) => {
+      let bucket = listeners.get(type)
+      if (!bucket) {
+        bucket = new Set()
+        listeners.set(type, bucket)
+      }
+      bucket.add(listener)
+      let optionList = options.get(type)
+      if (!optionList) {
+        optionList = []
+        options.set(type, optionList)
+      }
+      optionList.push(listenerOptions)
+      return originalAdd(type, listener, listenerOptions as AddEventListenerOptions)
+    }) as typeof window.addEventListener)
+    window.removeEventListener = vi.fn(((type: string, listener: EventListenerOrEventListenerObject, listenerOptions?: unknown) => {
+      listeners.get(type)?.delete(listener)
+      return originalRemove(type, listener, listenerOptions as EventListenerOptions)
+    }) as typeof window.removeEventListener)
+
+    return {
+      count: (type: string) => listeners.get(type)?.size ?? 0,
+      options: (type: string) => options.get(type) ?? [],
+      restore: () => {
+        window.addEventListener = originalAdd
+        window.removeEventListener = originalRemove
+      },
+    }
+  }
+
+  it('desktop preset 只在进入 zoom 后注册 passive:false wheel listener, 退出 zoom 后清理', async () => {
+    const capture = withWindowListenerCapture()
+    try {
+      const { unmount } = render(<Zmage src="https://example.com/wheel-a.jpg" alt="wheel-zoom" preset="desktop"/>)
+      fireEvent.click(screen.getByAltText('wheel-zoom'))
+      await wait(50)
+      prepareViewerImage()
+      expect(capture.count('wheel')).toBe(0)
+
+      fireEvent.keyDown(window, { code: 'Space' })
+      await wait(50)
+      expect(capture.count('wheel')).toBe(1)
+      expect(capture.options('wheel')).toContainEqual({ passive: false })
+
+      fireEvent.keyDown(window, { code: 'Space' })
+      await wait(50)
+      expect(capture.count('wheel')).toBe(0)
+
+      unmount()
+      await wait(600)
+      expect(capture.count('wheel')).toBe(0)
+    } finally {
+      capture.restore()
+    }
+  })
+
+  it('gesture.wheelZoom=false 时即使进入 zoom 也不注册 wheel listener', async () => {
+    const capture = withWindowListenerCapture()
+    try {
+      const { unmount } = await openAndZoomDesktop({ gesture: { wheelZoom: false } })
+      expect(capture.count('wheel')).toBe(0)
+      unmount()
+      await wait(600)
+    } finally {
+      capture.restore()
+    }
+  })
+
+  it('browsing 态 wheel 不阻止默认滚动行为', async () => {
+    render(<Zmage src="https://example.com/wheel-a.jpg" alt="wheel-zoom" preset="desktop"/>)
+    fireEvent.click(screen.getByAltText('wheel-zoom'))
+    await wait(50)
+
+    const event = dispatchWheel(-100)
+
+    expect(event.defaultPrevented).toBe(false)
+  })
+
+  it('zoom 态 wheel 阻止默认滚动, 放大后 mousemove 不把 scale 拉回 1', async () => {
+    await openAndZoomDesktop({ gesture: { wheelZoom: { smooth: false } } })
+
+    let event!: WheelEvent
+    await act(async () => {
+      event = dispatchWheel(-100)
+    })
+    expect(event.defaultPrevented).toBe(true)
+    await wait(50)
+    const scaleAfterWheel = getImageScale()
+    expect(scaleAfterWheel).toBeGreaterThan(1.05)
+
+    fireEvent.mouseMove(window, { clientX: 100, clientY: 400 })
+    await wait(420)
+
+    expect(getImageScale()).toBeGreaterThan(1.05)
+  })
+
+  it('wheel 缩小到 minScale 时立即退出 zoom, 并在默认保护时间内拦截残留 wheel', async () => {
+    const onZooming = vi.fn()
+    await openAndZoomDesktop({
+      onZooming,
+      gesture: { wheelZoom: { smooth: false, minScale: 1 } },
+    })
+    onZooming.mockClear()
+
+    await act(async () => {
+      dispatchWheel(100)
+    })
+    await wait(50)
+
+    expect(onZooming).toHaveBeenCalledWith(false)
+
+    let guardedEvent!: WheelEvent
+    await act(async () => {
+      guardedEvent = dispatchWheel(100)
+    })
+
+    expect(guardedEvent.defaultPrevented).toBe(true)
+  })
+
+  it('gesture.wheelZoom.exitGuardDuration 控制 wheel 退出 zoom 后的保护时间', async () => {
+    const onZooming = vi.fn()
+    await openAndZoomDesktop({
+      onZooming,
+      gesture: { wheelZoom: { smooth: false, minScale: 1, exitGuardDuration: 50 } },
+    })
+
+    await act(async () => {
+      dispatchWheel(100)
+    })
+    await wait(60)
+
+    let afterGuardEvent!: WheelEvent
+    await act(async () => {
+      afterGuardEvent = dispatchWheel(100)
+    })
+
+    expect(onZooming).toHaveBeenCalledWith(false)
+    expect(afterGuardEvent.defaultPrevented).toBe(false)
+  })
+
+  it('gesture.wheelZoom.reverse=true 时反转滚轮缩放方向', async () => {
+    await openAndZoomDesktop({
+      gesture: { wheelZoom: { smooth: false, minScale: 1, reverse: true } },
+    })
+
+    await act(async () => {
+      dispatchWheel(100)
+    })
+    await wait(50)
+
+    expect(getImageScale()).toBeGreaterThan(1.05)
+  })
+})
+
 describe('Zmage mobile gesture Phase 1', () => {
   const wait = async (ms: number) => {
     await act(async () => { await new Promise(r => setTimeout(r, ms)) })

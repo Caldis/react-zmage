@@ -27,6 +27,7 @@ export type {
   GestureSet,
   GestureSwipeOptions,
   GestureDragExitOptions,
+  GestureWheelZoomOptions,
   HotKey,
   Animate,
   AnimateFlip,

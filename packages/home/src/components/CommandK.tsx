@@ -69,11 +69,19 @@ const SUB_PARAM_ENTRIES: SubEntry[] = [
   // Gesture children — link → /docs#props-gesture.
   { parent: 'gesture', leaf: 'swipe',      labelKey: 'gesture.swipe',      descKey: 'gesture.swipe.desc' },
   { parent: 'gesture', leaf: 'dragExit',   labelKey: 'gesture.dragExit',   descKey: 'gesture.dragExit.desc' },
+  { parent: 'gesture', leaf: 'wheelZoom',  labelKey: 'gesture.wheelZoom',  descKey: 'gesture.wheelZoom.desc' },
   { parent: 'gesture', leaf: 'threshold',  labelKey: 'gesture.threshold',  descKey: 'gesture.threshold.desc' },
   { parent: 'gesture', leaf: 'velocity',   labelKey: 'gesture.velocity',   descKey: 'gesture.velocity.desc' },
   { parent: 'gesture', leaf: 'axisLock',   labelKey: 'gesture.axisLock',   descKey: 'gesture.axisLock.desc' },
   { parent: 'gesture', leaf: 'resistance', labelKey: 'gesture.resistance', descKey: 'gesture.resistance.desc' },
   { parent: 'gesture', leaf: 'opacity',    labelKey: 'gesture.opacity',    descKey: 'gesture.opacity.desc' },
+  { parent: 'gesture', leaf: 'step',       labelKey: 'gesture.wheelZoom.step', descKey: 'gesture.wheelZoom.step.desc' },
+  { parent: 'gesture', leaf: 'smooth',     labelKey: 'gesture.wheelZoom.smooth', descKey: 'gesture.wheelZoom.smooth.desc' },
+  { parent: 'gesture', leaf: 'minScale',   labelKey: 'gesture.wheelZoom.minScale', descKey: 'gesture.wheelZoom.minScale.desc' },
+  { parent: 'gesture', leaf: 'maxScale',   labelKey: 'gesture.wheelZoom.maxScale', descKey: 'gesture.wheelZoom.maxScale.desc' },
+  { parent: 'gesture', leaf: 'center',     labelKey: 'gesture.wheelZoom.center', descKey: 'gesture.wheelZoom.center.desc' },
+  { parent: 'gesture', leaf: 'reverse',    labelKey: 'gesture.wheelZoom.reverse', descKey: 'gesture.wheelZoom.reverse.desc' },
+  { parent: 'gesture', leaf: 'exitGuardDuration', labelKey: 'gesture.wheelZoom.exitGuardDuration', descKey: 'gesture.wheelZoom.exitGuardDuration.desc' },
 ]
 
 // Side-anchor → desc i18n key. Items without an entry fall back to '' (no second line).

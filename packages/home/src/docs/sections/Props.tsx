@@ -44,6 +44,7 @@ const ANIMATE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
 const GESTURE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
   { k: 'swipe', type: 'boolean | GestureSwipeOptions', descKey: 'gesture.swipe.desc' },
   { k: 'dragExit', type: 'boolean | GestureDragExitOptions', descKey: 'gesture.dragExit.desc' },
+  { k: 'wheelZoom', type: 'boolean | GestureWheelZoomOptions', descKey: 'gesture.wheelZoom.desc' },
   { k: 'swipe.threshold', type: 'number', descKey: 'gesture.threshold.desc' },
   { k: 'swipe.velocity', type: 'number', descKey: 'gesture.velocity.desc' },
   { k: 'swipe.axisLock', type: 'number', descKey: 'gesture.axisLock.desc' },
@@ -52,6 +53,13 @@ const GESTURE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
   { k: 'dragExit.velocity', type: 'number', descKey: 'gesture.velocity.desc' },
   { k: 'dragExit.axisLock', type: 'number', descKey: 'gesture.axisLock.desc' },
   { k: 'dragExit.opacity', type: 'boolean', descKey: 'gesture.opacity.desc' },
+  { k: 'wheelZoom.step', type: 'number', descKey: 'gesture.wheelZoom.step.desc' },
+  { k: 'wheelZoom.smooth', type: 'boolean', descKey: 'gesture.wheelZoom.smooth.desc' },
+  { k: 'wheelZoom.minScale', type: "'fit' | number", descKey: 'gesture.wheelZoom.minScale.desc' },
+  { k: 'wheelZoom.maxScale', type: 'number', descKey: 'gesture.wheelZoom.maxScale.desc' },
+  { k: 'wheelZoom.center', type: "'pointer' | 'viewport'", descKey: 'gesture.wheelZoom.center.desc' },
+  { k: 'wheelZoom.reverse', type: 'boolean', descKey: 'gesture.wheelZoom.reverse.desc' },
+  { k: 'wheelZoom.exitGuardDuration', type: 'number', descKey: 'gesture.wheelZoom.exitGuardDuration.desc' },
 ]
 
 const SET_FIELDS: { k: string; type: string; required?: boolean; descKey: I18nKey }[] = [
@@ -80,6 +88,7 @@ const PRESET_ROWS: PresetRow[] = [
   { path: 'animate.cover', label: 'animate.cover.desc' },
   { path: 'gesture.swipe', label: 'gesture.swipe' },
   { path: 'gesture.dragExit', label: 'gesture.dragExit' },
+  { path: 'gesture.wheelZoom', label: 'gesture.wheelZoom' },
 ]
 
 function readPresetValue (preset: 'desktop' | 'mobile', path: string): unknown {

@@ -8,8 +8,8 @@ import { RefObject } from 'react'
 import { getClientHeight, getClientWidth, numberOfStyleUnits } from '../../utils'
 import { animationCurve, animationDuration, animationFunctionOnZooming, animationTransition } from '../../config/anim'
 import type { ContextType } from '../context'
-import { defaultAnimateCoverOptions, defaultGestureDragExitOptions, defaultGestureSwipeOptions } from '../../types/default'
-import { Animate, AnimateCoverOptions, AnimateFlip, GestureDragExitOptions, GestureSet, GestureSwipeOptions } from '../../types/global'
+import { defaultAnimateCoverOptions, defaultGestureDragExitOptions, defaultGestureSwipeOptions, defaultGestureWheelZoomOptions } from '../../types/default'
+import { Animate, AnimateCoverOptions, AnimateFlip, GestureDragExitOptions, GestureSet, GestureSwipeOptions, GestureWheelZoomOptions } from '../../types/global'
 
 export interface ClipInsets {
   top: number
@@ -46,6 +46,10 @@ export interface ViewportRect {
   top: number
   width: number
   height: number
+}
+
+export interface ZoomingStyleOptions {
+  scale?: number
 }
 
 export const getViewportRect = (context?: Pick<ContextType, 'viewportRef'>): ViewportRect => {
@@ -410,10 +414,12 @@ export const getBrowsingStyle = (context: ContextType, imageRef: RefObject<HTMLI
 export const getZoomingStyle = (
   context: ContextType,
   imageRef: RefObject<HTMLImageElement>,
-  pointer: { clientX?: number, clientY?: number } = {}
+  pointer: { clientX?: number, clientY?: number } = {},
+  options: ZoomingStyleOptions = {},
 ): ImageStyleType => {
   const { radius, edge, rotate } = context
   const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
+  const scale = Number.isFinite(options.scale) && (options.scale ?? 0) > 0 ? options.scale as number : 1
   // 随鼠标位移偏移量
   const saveEdge = edge || 50
   const viewport = getViewportRect(context)
@@ -423,21 +429,79 @@ export const getZoomingStyle = (
   const mouseY = pointer.clientY ?? viewport.top + viewHeight / 2
   const localMouseX = mouseX - viewport.left
   const localMouseY = mouseY - viewport.top
-  const rangeX = naturalWidth - viewWidth + (2 * saveEdge)
-  const rangeY = naturalHeight - viewHeight + (2 * saveEdge)
-  const imgPosX = naturalWidth > viewWidth ? ((naturalWidth - viewWidth) / 2 + saveEdge) - (rangeX * (localMouseX / viewWidth)) : 0
-  const imgPosY = naturalHeight > viewHeight ? ((naturalHeight - viewHeight) / 2 + saveEdge) - (rangeY * (localMouseY / viewHeight)) : 0
+  const scaledWidth = naturalWidth * scale
+  const scaledHeight = naturalHeight * scale
+  const rangeX = scaledWidth - viewWidth + (2 * saveEdge)
+  const rangeY = scaledHeight - viewHeight + (2 * saveEdge)
+  const imgPosX = scaledWidth > viewWidth ? ((scaledWidth - viewWidth) / 2 + saveEdge) - (rangeX * (localMouseX / viewWidth)) : 0
+  const imgPosY = scaledHeight > viewHeight ? ((scaledHeight - viewHeight) / 2 + saveEdge) - (rangeY * (localMouseY / viewHeight)) : 0
   // 返回位置
   return {
     _type: 'zooming',
     x: imgPosX,
     y: imgPosY,
     opacity: 1,
-    scale: 1,
+    scale,
     rotate,
     radius,
     clip: getEndpointClip(context),
   }
+}
+
+const WHEEL_LINE_HEIGHT = 16
+
+const clampNumber = (value: number, min: number, max: number) => (
+  Math.min(Math.max(value, min), max)
+)
+
+export const normalizeWheelDelta = (
+  wheel: Pick<WheelEvent, 'deltaY' | 'deltaMode'>,
+  viewport: Pick<ViewportRect, 'height'> = getViewportRect(),
+) => {
+  const deltaY = Number.isFinite(wheel.deltaY) ? wheel.deltaY : 0
+  if (wheel.deltaMode === 1) {
+    return deltaY * WHEEL_LINE_HEIGHT
+  }
+  if (wheel.deltaMode === 2) {
+    return deltaY * viewport.height
+  }
+  return deltaY
+}
+
+export const getNextWheelZoomScale = ({
+  currentScale,
+  pixelDeltaY,
+  step,
+  minScale,
+  maxScale,
+}: {
+  currentScale: number
+  pixelDeltaY: number
+  step: number
+  minScale: number
+  maxScale: number
+}) => {
+  const safeMin = Number.isFinite(minScale) && minScale > 0 ? minScale : 0.01
+  const safeMax = Number.isFinite(maxScale) && maxScale >= safeMin ? maxScale : safeMin
+  const safeCurrent = Number.isFinite(currentScale) && currentScale > 0 ? currentScale : safeMin
+  const safeStep = Number.isFinite(step) && step > 0 ? step : defaultGestureWheelZoomOptions.step
+  const safeDelta = Number.isFinite(pixelDeltaY) ? pixelDeltaY : 0
+  const nextScale = safeCurrent * Math.exp((-safeDelta / 100) * safeStep)
+  return clampNumber(nextScale, safeMin, safeMax)
+}
+
+export const getWheelZoomScaleRange = (
+  context: ContextType,
+  imageRef: RefObject<HTMLImageElement>,
+  options: Required<GestureWheelZoomOptions>,
+) => {
+  const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
+  const minScale = options.minScale === 'fit'
+    ? calcFitScale(naturalWidth, naturalHeight, context.edge ?? 0, getViewportRect(context))
+    : options.minScale
+  const safeMin = Number.isFinite(minScale) && minScale > 0 ? minScale : 1
+  const maxScale = Number.isFinite(options.maxScale) && options.maxScale >= safeMin ? options.maxScale : safeMin
+  return { minScale: safeMin, maxScale }
 }
 
 /* 动画属性 */
@@ -525,7 +589,7 @@ export function getAnimateConfig(
  */
 export const GESTURE_DETECT_FLOOR_PX = 5
 
-type GestureChildOptions = GestureSwipeOptions | GestureDragExitOptions
+type GestureChildOptions = GestureSwipeOptions | GestureDragExitOptions | GestureWheelZoomOptions
 type NormalizedGestureChild<T extends GestureChildOptions> = false | Required<T>
 
 const mergeGestureChild = <T extends GestureChildOptions>(
@@ -550,12 +614,13 @@ export const normalizeGestureSet = (
   fallback: GestureSet = {},
 ): GestureSet => {
   if (gesture === false) {
-    return { swipe: false, dragExit: false }
+    return { swipe: false, dragExit: false, wheelZoom: false }
   }
   const input = gesture && typeof gesture === 'object' ? gesture : {}
   return {
     swipe: mergeGestureChild(fallback.swipe, input.swipe, defaultGestureSwipeOptions),
     dragExit: mergeGestureChild(fallback.dragExit, input.dragExit, defaultGestureDragExitOptions),
+    wheelZoom: mergeGestureChild(fallback.wheelZoom, input.wheelZoom, defaultGestureWheelZoomOptions),
   }
 }
 

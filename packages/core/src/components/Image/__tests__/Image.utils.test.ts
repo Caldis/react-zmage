@@ -12,12 +12,15 @@ import {
   getBrowsingStyle,
   getCoverStyle,
   getImageTransition,
+  getNextWheelZoomScale,
   getSideImageOffset,
   getSwipeOffset,
+  getZoomingStyle,
   ImageStyleType,
   lerpCoverStyle,
   makeCubicBezierEase,
   normalizeGestureSet,
+  normalizeWheelDelta,
   selectFlipKind,
   TouchGesture,
 } from '../Image.utils'
@@ -627,6 +630,7 @@ describe('normalizeGestureSet (Phase 1 gesture config)', () => {
   const fallback = {
     swipe: { threshold: 120, velocity: 0.35, axisLock: 1.2, resistance: 0.35 },
     dragExit: { threshold: 80, velocity: 0.35, axisLock: 1.2, opacity: true },
+    wheelZoom: { step: 0.12, smooth: true, minScale: 'fit' as const, maxScale: 4, center: 'pointer' as const, reverse: false, exitGuardDuration: 1000 },
   }
 
   it('undefined 使用 preset fallback 并把 true 归一成 option object', () => {
@@ -634,13 +638,14 @@ describe('normalizeGestureSet (Phase 1 gesture config)', () => {
   })
 
   it('false 归一成所有已实现 key 的显式 false markers', () => {
-    expect(normalizeGestureSet(false, fallback)).toEqual({ swipe: false, dragExit: false })
+    expect(normalizeGestureSet(false, fallback)).toEqual({ swipe: false, dragExit: false, wheelZoom: false })
   })
 
   it('子项 false 只关闭该 gesture, 不影响其它 preset 默认值', () => {
     expect(normalizeGestureSet({ swipe: false }, fallback)).toEqual({
       swipe: false,
       dragExit: fallback.dragExit,
+      wheelZoom: fallback.wheelZoom,
     })
   })
 
@@ -648,7 +653,85 @@ describe('normalizeGestureSet (Phase 1 gesture config)', () => {
     expect(normalizeGestureSet({ dragExit: { threshold: 120 } }, fallback)).toEqual({
       swipe: fallback.swipe,
       dragExit: { threshold: 120, velocity: 0.35, axisLock: 1.2, opacity: true },
+      wheelZoom: fallback.wheelZoom,
     })
+  })
+
+  it('wheelZoom=true 启用默认滚轮缩放配置', () => {
+    expect(normalizeGestureSet({ wheelZoom: true }, { swipe: false, dragExit: false, wheelZoom: false })).toEqual({
+      swipe: false,
+      dragExit: false,
+      wheelZoom: { step: 0.12, smooth: true, minScale: 'fit', maxScale: 4, center: 'pointer', reverse: false, exitGuardDuration: 1000 },
+    })
+  })
+
+  it('wheelZoom object 只覆盖指定 option', () => {
+    expect(normalizeGestureSet({ wheelZoom: { maxScale: 3 } }, fallback)).toEqual({
+      swipe: fallback.swipe,
+      dragExit: fallback.dragExit,
+      wheelZoom: { step: 0.12, smooth: true, minScale: 'fit', maxScale: 3, center: 'pointer', reverse: false, exitGuardDuration: 1000 },
+    })
+  })
+})
+
+describe('wheel zoom helpers (Phase 3)', () => {
+  const viewport = { left: 0, top: 0, width: 1000, height: 800 }
+
+  it('normalizeWheelDelta 将 line/page delta 归一为像素量', () => {
+    expect(normalizeWheelDelta({ deltaY: 3, deltaMode: 0 })).toBe(3)
+    expect(normalizeWheelDelta({ deltaY: 3, deltaMode: 1 })).toBe(48)
+    expect(normalizeWheelDelta({ deltaY: 1, deltaMode: 2 }, viewport)).toBe(800)
+  })
+
+  it('getNextWheelZoomScale 根据滚轮方向缩放并限制范围', () => {
+    expect(getNextWheelZoomScale({
+      currentScale: 1,
+      pixelDeltaY: -100,
+      step: 0.12,
+      minScale: 0.5,
+      maxScale: 4,
+    })).toBeCloseTo(Math.exp(0.12), 5)
+    expect(getNextWheelZoomScale({
+      currentScale: 1,
+      pixelDeltaY: 1000,
+      step: 0.12,
+      minScale: 0.75,
+      maxScale: 4,
+    })).toBe(0.75)
+    expect(getNextWheelZoomScale({
+      currentScale: 3.95,
+      pixelDeltaY: -1000,
+      step: 0.12,
+      minScale: 0.75,
+      maxScale: 4,
+    })).toBe(4)
+  })
+
+  it('getZoomingStyle 接受目标 scale, 并在缩小到视口内时自动居中该轴', () => {
+    const image = document.createElement('img')
+    Object.defineProperty(image, 'naturalWidth', { value: 2000, configurable: true })
+    Object.defineProperty(image, 'naturalHeight', { value: 600, configurable: true })
+    const context = {
+      edge: 0,
+      radius: 0,
+      rotate: 0,
+      animate: { cover: { clip: true } },
+      viewportRef: {
+        current: {
+          getBoundingClientRect: () => ({
+            left: 0, top: 0, width: 1000, height: 800,
+            right: 1000, bottom: 800, x: 0, y: 0,
+            toJSON: () => ({}),
+          } as DOMRect),
+        },
+      },
+    } as ContextType
+
+    const style = getZoomingStyle(context, { current: image }, { clientX: 1000, clientY: 400 }, { scale: 0.5 })
+
+    expect(style.scale).toBe(0.5)
+    expect(style.x).toBe(0)
+    expect(style.y).toBe(0)
   })
 })
 

@@ -13,6 +13,7 @@ import Loading from './loading'
 // Utils
 import { BrowsingParams, Context, ContextType } from '../context'
 import { animationDuration, getBrowsingAnimationDuration } from '../../config/anim'
+import { defaultGestureWheelZoomOptions } from '../../types/default'
 import {
   appendParams,
   checkImageLoadedComplete,
@@ -33,24 +34,31 @@ import {
   getCurrentImageStyle,
   getImageTransition,
   getLocalRadius,
+  getNextWheelZoomScale,
   getSideImageOffset,
   getViewportRect,
+  getWheelZoomScaleRange,
   getZoomingStyle,
   ImageAnimateType,
   ImageStyleType,
   isZoomMotionPhase,
   lerpCoverStyle,
   MotionPhase,
+  normalizeWheelDelta,
   selectFlipKind,
   TouchGesture,
   TouchGestureResult,
 } from './Image.utils'
+import type { GestureWheelZoomOptions } from '../../types/global'
 
 type PropsType = BrowsingParams
 const ZOOM_FOLLOW_EASE = 0.05
 const ZOOM_FOLLOW_THRESHOLD = 0.35
 const TOUCH_PASSIVE_LISTENER_OPTIONS: AddEventListenerOptions = { passive: true }
 const TOUCH_MOVE_LISTENER_OPTIONS: AddEventListenerOptions = { passive: false }
+const WHEEL_LISTENER_OPTIONS: AddEventListenerOptions = { passive: false }
+const WHEEL_ZOOM_FIT_EPSILON = 0.001
+type NormalizedWheelZoomOptions = Required<GestureWheelZoomOptions>
 
 interface StateType {
   // 加载状态
@@ -82,6 +90,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   initialPageOffset = typeof window !== 'undefined' ? window.pageYOffset : 0
   // 监听状态
   listeningMouseMove: boolean
+  listeningWheelZoom: boolean
   // 图片加载
   imageLoadingTimer: ReturnType<typeof setInterval>
   // 延迟监听器注册的 RAF 句柄 — 卸载时必须 cancel, 否则 StrictMode 双 mount 会泄漏监听
@@ -99,6 +108,9 @@ export default class Image extends React.Component<PropsType, StateType> {
   motionPhase: MotionPhase = 'idle'
   pendingZoomMousePosition?: Coordinate
   zoomPointerPosition?: Coordinate
+  zoomTargetScale?: number
+  wheelZoomExitGuardUntil = 0
+  wheelZoomExitGuardTimer?: ReturnType<typeof setTimeout>
   // Dim 校准 RAF: 切到未渲染过 side 的页面时, 目标页 dims 由 onLoad 才落地, dims 一旦记录,
   // React 会用 ownFitScale 重新计算 transform, CSS transition rule 触发"错误回退 scale → 正确 ownFit"
   // 350ms 动画 (= 用户在 flip='none' 或 swipe 出环跳转下看到的 scale 抖动 bug).
@@ -260,6 +272,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       clearTimeout(this.loadingShowDelayTimer)
       this.loadingShowDelayTimer = undefined
     }
+    this.clearWheelZoomExitGuard()
     this.cancelClosingFollow()
     this.resetZoomMotionState()
     // 取消挂起的 debounce, 避免在已卸载组件上 setState
@@ -274,6 +287,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     }
     window.removeEventListener('resize', this.handleResize)
     window.removeEventListener('mousemove', this.handleMouseMove)
+    window.removeEventListener('wheel', this.handleWheel)
     clearInterval(this.imageLoadingTimer)
   }
 
@@ -288,6 +302,14 @@ export default class Image extends React.Component<PropsType, StateType> {
     } else {
       window.removeEventListener('mousemove', this.handleMouseMove)
       this.listeningMouseMove = false
+    }
+    const shouldListenWheelZoom = show && !!this.getWheelZoomOptions() && (zoom || this.isWheelZoomExitGuardActive())
+    if (shouldListenWheelZoom && !this.listeningWheelZoom) {
+      window.addEventListener('wheel', this.handleWheel, WHEEL_LISTENER_OPTIONS)
+      this.listeningWheelZoom = true
+    } else if (!shouldListenWheelZoom && this.listeningWheelZoom) {
+      window.removeEventListener('wheel', this.handleWheel)
+      this.listeningWheelZoom = false
     }
   }
 
@@ -405,7 +427,55 @@ export default class Image extends React.Component<PropsType, StateType> {
       this.pendingZoomMousePosition = mousePosition
       return
     }
-    const zoomingStyle = getZoomingStyle(this.context, this.imageRef, e)
+    const zoomingStyle = getZoomingStyle(this.context, this.imageRef, e, {
+      scale: this.getCurrentZoomTargetScale(),
+    })
+    this.startZoomFollow(zoomingStyle)
+  }
+  handleWheel = (e: WheelEvent) => {
+    const wheelZoom = this.getWheelZoomOptions()
+    if (!this.context.show || !wheelZoom) {
+      return
+    }
+    if (!this.context.zoom) {
+      if (this.isWheelZoomExitGuardActive()) {
+        e.preventDefault()
+      }
+      return
+    }
+
+    e.preventDefault()
+    const viewport = getViewportRect(this.context)
+    const pixelDeltaY = normalizeWheelDelta(e, viewport)
+    const zoomDeltaY = wheelZoom.reverse ? -pixelDeltaY : pixelDeltaY
+    if (zoomDeltaY === 0) {
+      return
+    }
+
+    const { minScale, maxScale } = getWheelZoomScaleRange(this.context, this.imageRef, wheelZoom)
+    const nextScale = getNextWheelZoomScale({
+      currentScale: this.getCurrentZoomTargetScale(),
+      pixelDeltaY: zoomDeltaY,
+      step: wheelZoom.step,
+      minScale,
+      maxScale,
+    })
+    this.zoomTargetScale = nextScale
+
+    const focus = this.getWheelZoomFocus(e, wheelZoom, viewport)
+    this.zoomPointerPosition = { x: focus.clientX, y: focus.clientY }
+    const zoomingStyle = getZoomingStyle(this.context, this.imageRef, focus, { scale: nextScale })
+    const reachedMinScale = zoomDeltaY > 0 && nextScale <= minScale + WHEEL_ZOOM_FIT_EPSILON
+    if (reachedMinScale) {
+      this.startWheelZoomExitGuard(wheelZoom.exitGuardDuration)
+      this.context.toggleZoom('wheel')
+      return
+    }
+
+    if (wheelZoom.smooth === false) {
+      this.applyZoomStyleImmediately(zoomingStyle)
+      return
+    }
     this.startZoomFollow(zoomingStyle)
   }
   // 加载事件
@@ -521,6 +591,8 @@ export default class Image extends React.Component<PropsType, StateType> {
     this.zoomFollowTargetStyle = undefined
     this.pendingZoomMousePosition = undefined
     this.zoomPointerPosition = undefined
+    this.zoomTargetScale = 1
+    this.clearWheelZoomExitGuard()
     this.motionPhase = 'zoom-enter'
   }
   startKeyboardZoomEnter = () => {
@@ -531,6 +603,8 @@ export default class Image extends React.Component<PropsType, StateType> {
     this.zoomFollowTargetStyle = undefined
     this.pendingZoomMousePosition = undefined
     this.zoomPointerPosition = this.context.zoomPosition
+    this.zoomTargetScale = 1
+    this.clearWheelZoomExitGuard()
     this.motionPhase = 'zoom-enter'
   }
   resetZoomMotionState = () => {
@@ -540,6 +614,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     this.zoomFollowTargetStyle = undefined
     this.pendingZoomMousePosition = undefined
     this.zoomPointerPosition = undefined
+    this.zoomTargetScale = undefined
     if (isZoomMotionPhase(this.motionPhase)) {
       this.motionPhase = 'idle'
     }
@@ -587,11 +662,77 @@ export default class Image extends React.Component<PropsType, StateType> {
       node.style.borderRadius = ''
     }
   }
+  getWheelZoomOptions = (): NormalizedWheelZoomOptions | null => {
+    const wheelZoom = this.context.gesture?.wheelZoom
+    return wheelZoom && typeof wheelZoom === 'object'
+      ? wheelZoom as NormalizedWheelZoomOptions
+      : null
+  }
+  getWheelZoomExitGuardDuration = (duration: number) => (
+    Number.isFinite(duration) && duration >= 0
+      ? duration
+      : defaultGestureWheelZoomOptions.exitGuardDuration
+  )
+  startWheelZoomExitGuard = (duration: number) => {
+    this.clearWheelZoomExitGuard()
+    const guardDuration = this.getWheelZoomExitGuardDuration(duration)
+    if (guardDuration <= 0) return
+    this.wheelZoomExitGuardUntil = Date.now() + guardDuration
+    this.wheelZoomExitGuardTimer = setTimeout(() => {
+      this.wheelZoomExitGuardTimer = undefined
+      this.wheelZoomExitGuardUntil = 0
+      this.updateZoomEventListenerWithState()
+    }, guardDuration)
+  }
+  clearWheelZoomExitGuard = () => {
+    if (this.wheelZoomExitGuardTimer !== undefined) {
+      clearTimeout(this.wheelZoomExitGuardTimer)
+      this.wheelZoomExitGuardTimer = undefined
+    }
+    this.wheelZoomExitGuardUntil = 0
+  }
+  isWheelZoomExitGuardActive = () => Date.now() < this.wheelZoomExitGuardUntil
+  getCurrentZoomTargetScale = () => {
+    const candidates = [
+      this.zoomFollowTargetStyle?.scale,
+      this.zoomTargetScale,
+      this.zoomFollowCurrentStyle?.scale,
+      this.state.currentStyle._type === 'zooming' ? this.state.currentStyle.scale : undefined,
+      1,
+    ]
+    const scale = candidates.find(value => Number.isFinite(value) && (value ?? 0) > 0)
+    return scale ?? 1
+  }
+  getWheelZoomFocus = (
+    e: WheelEvent,
+    wheelZoom: NormalizedWheelZoomOptions,
+    viewport = getViewportRect(this.context),
+  ) => (
+    wheelZoom.center === 'viewport'
+      ? { clientX: viewport.left + viewport.width / 2, clientY: viewport.top + viewport.height / 2 }
+      : { clientX: e.clientX, clientY: e.clientY }
+  )
+  applyZoomStyleImmediately = (zoomingStyle: ImageStyleType) => {
+    const node = this.imageRef.current
+    this.cancelZoomFollowFrame()
+    this.motionPhase = 'zoom-follow'
+    this.zoomFollowCurrentStyle = undefined
+    this.zoomFollowTargetStyle = undefined
+    this.zoomTargetScale = zoomingStyle.scale
+    if (node) {
+      this.setNodeTransitionNone(node)
+      this.setNodeTransform(node, this.getCenterImageTransform(zoomingStyle))
+      node.style.opacity = String(zoomingStyle.opacity ?? 1)
+      this.setNodeClipAndRadius(node, zoomingStyle)
+    }
+    this.setCurrentStyle(zoomingStyle)
+  }
   getZoomingStyleFromKeyboardPosition = () => {
     const zoomPosition = this.zoomPointerPosition || this.context.zoomPosition
+    const scale = this.getCurrentZoomTargetScale()
     return zoomPosition
-      ? getZoomingStyle(this.context, this.imageRef, { clientX: zoomPosition.x, clientY: zoomPosition.y })
-      : getZoomingStyle(this.context, this.imageRef)
+      ? getZoomingStyle(this.context, this.imageRef, { clientX: zoomPosition.x, clientY: zoomPosition.y }, { scale })
+      : getZoomingStyle(this.context, this.imageRef, {}, { scale })
   }
   scheduleZoomEnterComplete = () => {
     this.cancelZoomEnterTimer()
@@ -621,6 +762,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     const node = this.imageRef.current
     this.motionPhase = 'zoom-follow'
     this.zoomFollowTargetStyle = zoomingStyle
+    this.zoomTargetScale = zoomingStyle.scale
     this.zoomFollowCurrentStyle = this.zoomFollowCurrentStyle || (
       this.state.currentStyle._type === 'zooming' ? this.state.currentStyle : zoomingStyle
     )
@@ -647,6 +789,8 @@ export default class Image extends React.Component<PropsType, StateType> {
     this.zoomFollowCurrentStyle = visibleStyle
     this.setNodeTransitionNone(node)
     this.setNodeTransform(node, this.getCenterImageTransform(visibleStyle))
+    node.style.opacity = String(visibleStyle.opacity ?? 1)
+    this.setNodeClipAndRadius(node, visibleStyle)
 
     if (settled) {
       this.zoomFollowCurrentStyle = undefined
@@ -827,7 +971,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     const zoomingStyle = getZoomingStyle(this.context, this.imageRef, {
       clientX: pending.x,
       clientY: pending.y,
-    })
+    }, { scale: this.getCurrentZoomTargetScale() })
     this.startZoomFollow(zoomingStyle)
   }
   getTouchPoint = (e: TouchEvent): Coordinate | null => {

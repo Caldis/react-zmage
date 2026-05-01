@@ -1,3 +1,4 @@
+import { HoverSelect } from '@/components/ui/HoverSelect'
 import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
@@ -19,9 +20,20 @@ type GestureDragExitOptions = {
   opacity?: boolean
 }
 
+type GestureWheelZoomOptions = {
+  step?: number
+  smooth?: boolean
+  minScale?: 'fit' | number
+  maxScale?: number
+  center?: 'pointer' | 'viewport'
+  reverse?: boolean
+  exitGuardDuration?: number
+}
+
 type GestureSet = {
   swipe?: boolean | GestureSwipeOptions
   dragExit?: boolean | GestureDragExitOptions
+  wheelZoom?: boolean | GestureWheelZoomOptions
 }
 
 const DEFAULT_SWIPE: Required<GestureSwipeOptions> = {
@@ -36,6 +48,16 @@ const DEFAULT_DRAG_EXIT: Required<GestureDragExitOptions> = {
   velocity: 0.35,
   axisLock: 1.2,
   opacity: true,
+}
+
+const DEFAULT_WHEEL_ZOOM: Required<GestureWheelZoomOptions> = {
+  step: 0.12,
+  smooth: true,
+  minScale: 'fit',
+  maxScale: 4,
+  center: 'pointer',
+  reverse: false,
+  exitGuardDuration: 1000,
 }
 
 function TipLabel ({ name, descKey }: { name: string; descKey: I18nKey }) {
@@ -86,15 +108,17 @@ export function GestureControl ({ value, onChange }: { value: GestureSet | boole
   const obj: GestureSet = (typeof value === 'object' && value) ? value : {}
   const swipe = (obj.swipe && typeof obj.swipe === 'object') ? { ...DEFAULT_SWIPE, ...obj.swipe } : DEFAULT_SWIPE
   const dragExit = (obj.dragExit && typeof obj.dragExit === 'object') ? { ...DEFAULT_DRAG_EXIT, ...obj.dragExit } : DEFAULT_DRAG_EXIT
+  const wheelZoom = (obj.wheelZoom && typeof obj.wheelZoom === 'object') ? { ...DEFAULT_WHEEL_ZOOM, ...obj.wheelZoom } : DEFAULT_WHEEL_ZOOM
 
   const setSwipe = (next: boolean | GestureSwipeOptions) => onChange({ ...obj, swipe: next })
   const setDragExit = (next: boolean | GestureDragExitOptions) => onChange({ ...obj, dragExit: next })
+  const setWheelZoom = (next: boolean | GestureWheelZoomOptions) => onChange({ ...obj, wheelZoom: next })
 
   return (
     <div className="grid gap-2 text-[11px] leading-tight">
       <label className="flex items-center justify-between gap-3">
         <TipLabel name="gesture" descKey="gesture.desc" />
-        <Switch checked={!disabled} onCheckedChange={checked => onChange(checked ? { swipe: DEFAULT_SWIPE, dragExit: DEFAULT_DRAG_EXIT } : false)} />
+        <Switch checked={!disabled} onCheckedChange={checked => onChange(checked ? { swipe: DEFAULT_SWIPE, dragExit: DEFAULT_DRAG_EXIT, wheelZoom: DEFAULT_WHEEL_ZOOM } : false)} />
       </label>
       {!disabled && (
         <>
@@ -125,6 +149,52 @@ export function GestureControl ({ value, onChange }: { value: GestureSet | boole
                 <label className="flex items-center justify-between gap-3">
                   <TipLabel name="opacity" descKey="gesture.opacity.desc" />
                   <Switch checked={dragExit.opacity !== false} onCheckedChange={checked => setDragExit({ ...dragExit, opacity: checked })} />
+                </label>
+              </div>
+            )}
+          </div>
+          <div className="rounded border border-border/70 p-2">
+            <label className="flex items-center justify-between gap-3">
+              <TipLabel name="wheelZoom" descKey="gesture.wheelZoom.desc" />
+              <Switch checked={obj.wheelZoom !== false} onCheckedChange={checked => setWheelZoom(checked ? wheelZoom : false)} />
+            </label>
+            {obj.wheelZoom !== false && (
+              <div className="mt-2 grid gap-2">
+                <OptionNumber name="step" descKey="gesture.wheelZoom.step.desc" value={wheelZoom.step} min={0.02} max={0.5} step={0.01} onChange={v => setWheelZoom({ ...wheelZoom, step: v })} />
+                <OptionNumber name="maxScale" descKey="gesture.wheelZoom.maxScale.desc" value={wheelZoom.maxScale} min={1} max={8} step={0.25} onChange={v => setWheelZoom({ ...wheelZoom, maxScale: v })} />
+                <label className="grid grid-cols-[72px_1fr] items-center gap-2">
+                  <TipLabel name="minScale" descKey="gesture.wheelZoom.minScale.desc" />
+                  <HoverSelect
+                    value={wheelZoom.minScale === 'fit' ? 'fit' : String(wheelZoom.minScale)}
+                    onValueChange={v => setWheelZoom({ ...wheelZoom, minScale: v === 'fit' ? 'fit' : Number(v) })}
+                    triggerClassName="h-7 text-[11px]"
+                    options={[
+                      { value: 'fit', label: 'fit' },
+                      { value: '0.5', label: '0.5' },
+                      { value: '1', label: '1' },
+                    ]}
+                  />
+                </label>
+                <label className="grid grid-cols-[72px_1fr] items-center gap-2">
+                  <TipLabel name="center" descKey="gesture.wheelZoom.center.desc" />
+                  <HoverSelect
+                    value={wheelZoom.center}
+                    onValueChange={v => setWheelZoom({ ...wheelZoom, center: v as GestureWheelZoomOptions['center'] })}
+                    triggerClassName="h-7 text-[11px]"
+                    options={[
+                      { value: 'pointer', label: 'pointer' },
+                      { value: 'viewport', label: 'viewport' },
+                    ]}
+                  />
+                </label>
+                <label className="flex items-center justify-between gap-3">
+                  <TipLabel name="reverse" descKey="gesture.wheelZoom.reverse.desc" />
+                  <Switch checked={wheelZoom.reverse === true} onCheckedChange={checked => setWheelZoom({ ...wheelZoom, reverse: checked })} />
+                </label>
+                <OptionNumber name="exitGuardDuration" descKey="gesture.wheelZoom.exitGuardDuration.desc" value={wheelZoom.exitGuardDuration} min={0} max={1000} step={50} onChange={v => setWheelZoom({ ...wheelZoom, exitGuardDuration: v })} />
+                <label className="flex items-center justify-between gap-3">
+                  <TipLabel name="smooth" descKey="gesture.wheelZoom.smooth.desc" />
+                  <Switch checked={wheelZoom.smooth !== false} onCheckedChange={checked => setWheelZoom({ ...wheelZoom, smooth: checked })} />
                 </label>
               </div>
             )}

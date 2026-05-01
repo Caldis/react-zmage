@@ -170,6 +170,7 @@ function LiveDemo () {
   // 三张水平排列, 各自原始比例渲染 (不用 object-cover 裁剪) —
   // 这样点击放大时 Zmage 的 cover→browsing 过渡是从真实自然尺寸出发,
   // 不会出现 cover 被裁/contain 后与模态全图比例错位的视觉跳变.
+  // 圆角直接挂在 img 上, 让 viewer 能读取 cover 自身的 radius 并做首帧匹配.
   const set = [
     { src: '/imgSet/childsDream/1.jpg', alt: '童夢 · ONE' },
     { src: '/imgSet/childsDream/2.jpg', alt: '童夢 · TWO' },
@@ -181,10 +182,10 @@ function LiveDemo () {
         {set.map((item, i) => (
           <div
             key={item.src}
-            className="overflow-hidden rounded-2xl border border-border bg-muted/20 shadow-xl shadow-black/30"
+            className="rounded-2xl border border-border bg-muted/20 shadow-xl shadow-black/30"
           >
             <Zmage
-              className="block h-auto w-full"
+              className="block h-auto w-full rounded-2xl"
               src={item.src}
               alt={item.alt}
               backdrop={backdrop}

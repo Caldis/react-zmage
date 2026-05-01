@@ -17,6 +17,7 @@ export function TypeScript () {
   Animate,
   AnimateCoverOptions,
   GestureSet,
+  GestureWheelZoomOptions,
 } from 'react-zmage'
 
 const props: BaseType = {

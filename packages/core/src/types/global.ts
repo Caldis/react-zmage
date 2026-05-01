@@ -137,9 +137,20 @@ export interface GestureDragExitOptions {
   opacity?: boolean
 }
 
+export interface GestureWheelZoomOptions {
+  step?: number
+  smooth?: boolean
+  minScale?: 'fit' | number
+  maxScale?: number
+  center?: 'pointer' | 'viewport'
+  reverse?: boolean
+  exitGuardDuration?: number
+}
+
 export interface GestureSet {
   swipe?: boolean | GestureSwipeOptions
   dragExit?: boolean | GestureDragExitOptions
+  wheelZoom?: boolean | GestureWheelZoomOptions
 }
 
 /**

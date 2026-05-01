@@ -3,7 +3,7 @@
  **/
 
 // Libs
-import { AnimateCoverOptions, AnimateFlip, BaseType, GestureDragExitOptions, GestureSwipeOptions, Preset, Set } from './global'
+import { AnimateCoverOptions, AnimateFlip, BaseType, GestureDragExitOptions, GestureSwipeOptions, GestureWheelZoomOptions, Preset, Set } from './global'
 
 export const defaultGestureSwipeOptions: Required<GestureSwipeOptions> = {
   threshold: 120,
@@ -17,6 +17,16 @@ export const defaultGestureDragExitOptions: Required<GestureDragExitOptions> = {
   velocity: 0.35,
   axisLock: 1.2,
   opacity: true,
+}
+
+export const defaultGestureWheelZoomOptions: Required<GestureWheelZoomOptions> = {
+  step: 0.12,
+  smooth: true,
+  minScale: 'fit',
+  maxScale: 4,
+  center: 'pointer',
+  reverse: false,
+  exitGuardDuration: 1000,
 }
 
 export const defaultAnimateCoverOptions: Required<AnimateCoverOptions> = {
@@ -126,6 +136,7 @@ export const defPreset = {
     gesture: {
       swipe: false,
       dragExit: false,
+      wheelZoom: { ...defaultGestureWheelZoomOptions },
     },
   },
   // 移动端
@@ -153,6 +164,7 @@ export const defPreset = {
     gesture: {
       swipe: { ...defaultGestureSwipeOptions },
       dragExit: { ...defaultGestureDragExitOptions },
+      wheelZoom: false,
     },
   }
 }
