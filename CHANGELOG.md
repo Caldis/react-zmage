@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.7.0
+
 - **feat (preset default)**: omitted `preset` now resolves as `'auto'`, using `(pointer: coarse) and (hover: none)` to choose mobile defaults on touch-first devices and desktop defaults elsewhere. Use `preset="desktop"` to force the old desktop bundle on touch devices.
 - **feat (mobile gestures)**: mobile preset now enables horizontal drag paging, vertical drag-to-exit, pinch zoom, double-tap zoom, managed `touch-action`, and bounce-like pan resistance while zoomed.
 - **feat (wheel zoom)**: desktop preset now supports smooth wheel / trackpad zoom while already zoomed, with configurable direction reversal and a `1000ms` exit guard to prevent residual wheel events after zoom-out.
