@@ -32,7 +32,6 @@ export const SIDEBAR_GROUPS: Group[] = [
     titleKey: 'docs.sidebar.props',
     items: [
       { id: 'props-data', labelKey: 'group.data' },
-      { id: 'props-set', labelKey: 'docs.section.props.set.title' },
       { id: 'props-preset', labelKey: 'group.preset' },
       { id: 'props-preset-bundles', labelKey: 'docs.section.props.preset.title' },
       { id: 'props-interface', labelKey: 'group.interface' },

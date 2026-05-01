@@ -103,7 +103,6 @@ const SIDEBAR_DESC: Record<string, I18nKey> = {
   'modes-wrapper': 'modes.wrapper.desc',
   theming: 'docs.search.desc.theming',
   'props-data': 'docs.search.desc.propsData',
-  'props-set': 'docs.search.desc.propsSet',
   'props-preset': 'docs.search.desc.propsPreset',
   'props-preset-bundles': 'docs.search.desc.propsPresetBundles',
   'props-interface': 'docs.search.desc.propsInterface',

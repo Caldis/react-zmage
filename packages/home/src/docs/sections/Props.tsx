@@ -461,7 +461,6 @@ export function Props () {
       <WrapperScopeDetail />
       <Heading id="props-data" level={3}>{t('group.data')}</Heading>
       <ParamTable group="data" />
-      <Heading id="props-set" level={3}>{t('docs.section.props.set.title')}</Heading>
       <SetDetail />
       <Heading id="props-preset" level={3}>{t('group.preset')}</Heading>
       <ParamTable group="preset" />
