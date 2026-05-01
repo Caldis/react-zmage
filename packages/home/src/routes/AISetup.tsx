@@ -243,8 +243,8 @@ export default function AISetup () {
           />
         )}
         <div className="pointer-events-none absolute inset-0 bg-background/0 dark:bg-background/10" />
-        <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-24 bg-gradient-to-r from-background/20 to-transparent lg:block" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-r from-transparent via-background/45 to-background dark:via-background/65 dark:to-background sm:w-32" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-[calc(var(--spacing)*100)] bg-gradient-to-r from-background/20 to-transparent lg:block" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-[calc(var(--spacing)*100)] bg-gradient-to-r from-transparent via-background/45 to-background dark:via-background/65 dark:to-background" />
       </aside>
     </div>
   )
