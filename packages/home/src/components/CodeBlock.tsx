@@ -4,6 +4,7 @@ import { Copy, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/lib/theme'
+import { useCopyToClipboard } from '@/lib/useCopyToClipboard'
 
 type Props = {
   code: string
@@ -16,11 +17,9 @@ type Props = {
 
 export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true, actions, className }: Props) {
   const { resolved } = useTheme()
-  const [copied, setCopied] = React.useState(false)
-  const onCopy = async () => {
-    await navigator.clipboard.writeText(code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+  const { copied, copy } = useCopyToClipboard()
+  const onCopy = () => {
+    void copy(code)
   }
   const theme = resolved === 'dark' ? themes.vsDark : themes.vsLight
   return (

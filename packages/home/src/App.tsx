@@ -4,6 +4,7 @@ import { useAnalyticsPageviews } from '@/lib/analytics'
 import Home from './routes/Home'
 import Playground from './routes/Playground'
 import Docs from './routes/Docs'
+import AISetup from './routes/AISetup'
 
 export default function App () {
   useAnalyticsPageviews()
@@ -15,6 +16,7 @@ export default function App () {
           <Route path="/" element={<Home />} />
           <Route path="/playground/*" element={<Playground />} />
           <Route path="/docs" element={<Docs />} />
+          <Route path="/ai" element={<AISetup />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>

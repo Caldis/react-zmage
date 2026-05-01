@@ -13,13 +13,13 @@ const here = path.dirname(fileURLToPath(import.meta.url))
 const outputDir = path.join(here, 'output')
 
 const VALID_PROPS = new Set([
-  'src', 'alt', 'txt', 'set', 'defaultPage',
+  'src', 'alt', 'caption', 'set', 'defaultPage',
   'preset',
-  'controller', 'hotKey', 'animate',
-  'hideOnScroll', 'coverVisible', 'backdrop', 'zIndex', 'radius', 'edge', 'loop',
-  'onBrowsing', 'onZooming', 'onSwitching', 'onRotating',
+  'controller', 'hotKey', 'animate', 'gesture',
+  'hideOnScroll', 'hideOnDblClick', 'coverVisible', 'backdrop', 'zIndex', 'radius', 'edge', 'loop', 'loadingDelay',
+  'onBrowsing', 'onZooming', 'onSwitching', 'onRotating', 'onError',
   'browsing',
-  'className', 'style', 'id', 'onClick', 'onLoad', 'onError', 'title', 'role',
+  'className', 'style', 'id', 'onClick', 'onLoad', 'title', 'role',
   'children', 'ref', 'key',
   'width', 'height', 'srcSet', 'sizes', 'loading', 'decoding', 'fetchPriority',
   'crossOrigin', 'referrerPolicy', 'useMap', 'tabIndex', 'draggable',

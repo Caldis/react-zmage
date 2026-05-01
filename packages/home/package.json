@@ -7,7 +7,8 @@
     "build": "rimraf ../../docs/assets ../../docs/index.html ../../docs/404.html && vite build",
     "preview": "vite preview --outDir ../../docs",
     "clean": "rimraf ../../docs",
-    "lint": "eslint \"src/**/*.{ts,tsx}\""
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "test": "vitest run src/aiPrompt/buildPrompt.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
@@ -44,6 +45,7 @@
     "rimraf": "^5.0.10",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.9.3",
-    "vite": "^6.4.2"
+    "vite": "^6.4.2",
+    "vitest": "^3.2.4"
   }
 }
