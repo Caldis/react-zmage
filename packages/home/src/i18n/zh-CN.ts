@@ -136,8 +136,12 @@ export const zhCN = {
   'group.controlled': '受控',
 
   // Common
-  'common.desktopOnly': '仅桌面端',
-  'common.desktopOnly.desc': '该参数仅在桌面端生效, 移动端会忽略',
+  'common.presetScope.desktop.short': 'D',
+  'common.presetScope.desktop.title': '桌面端范围',
+  'common.presetScope.desktop.desc': '偏桌面端的参数。desktop preset 默认启用它, 或者它只在桌面端有实际作用。',
+  'common.presetScope.mobile.short': 'M',
+  'common.presetScope.mobile.title': '移动端范围',
+  'common.presetScope.mobile.desc': '偏移动端或触控的参数。mobile preset 默认启用它, 或者它只在触控交互中有意义。',
   'common.required': '必填',
   'common.default': '默认',
   'common.add': '新增',
