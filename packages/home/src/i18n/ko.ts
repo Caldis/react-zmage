@@ -362,6 +362,12 @@ export const ko: I18nDict = {
   'docs.section.examples.title': '예제',
   'docs.section.examples.singleTitle': '단일 이미지',
   'docs.section.examples.galleryTitle': '다중 이미지 갤러리',
+  'docs.section.examples.mobileTitle': '모바일 제스처',
+  'docs.section.examples.mobileBody': 'mobile preset을 강제로 사용해 터치 기기에서 드래그 전환, 드래그 종료, 핀치 줌, 더블 탭 줌을 확인합니다.',
+  'docs.section.examples.controllerTitle': '사용자 지정 컨트롤러',
+  'docs.section.examples.controllerBody': '컨트롤러를 화면 가장자리로 옮기거나 state와 actions를 받는 render 콜백으로 전체 UI를 교체할 수 있습니다.',
+  'docs.section.examples.coverTitle': '잘린 커버',
+  'docs.section.examples.coverBody': 'object-fit과 border radius를 커버 img 자체에 두면 열리는 첫 프레임이 보이는 크롭과 맞춰집니다.',
 
   'docs.section.typescript.title': 'TypeScript',
   'docs.section.typescript.intro': '타입은 런타임 export와 같은 위치에 있습니다. 전체 prop 유니온 타입은 BaseType입니다:',

@@ -362,6 +362,12 @@ export const es: I18nDict = {
   'docs.section.examples.title': 'Ejemplos',
   'docs.section.examples.singleTitle': 'Imagen única',
   'docs.section.examples.galleryTitle': 'Galería de varias imágenes',
+  'docs.section.examples.mobileTitle': 'Gestos móviles',
+  'docs.section.examples.mobileBody': 'Fuerza el preset mobile para probar arrastre entre páginas, arrastre para salir, pinch zoom y doble toque en dispositivos táctiles.',
+  'docs.section.examples.controllerTitle': 'Controlador personalizado',
+  'docs.section.examples.controllerBody': 'Coloca el controlador en un borde de la pantalla o reemplaza toda la UI con un callback render que recibe state y actions.',
+  'docs.section.examples.coverTitle': 'Portada recortada',
+  'docs.section.examples.coverBody': 'Pon object-fit y border radius en el img de portada para que el primer frame coincida con el recorte visible.',
 
   'docs.section.typescript.title': 'TypeScript',
   'docs.section.typescript.intro': 'Los tipos están junto al export de runtime. La unión completa de props es BaseType:',

@@ -362,6 +362,12 @@ export const de: I18nDict = {
   'docs.section.examples.title': 'Beispiele',
   'docs.section.examples.singleTitle': 'Einzelnes Bild',
   'docs.section.examples.galleryTitle': 'Multi-Bild-Galerie',
+  'docs.section.examples.mobileTitle': 'Mobile Gesten',
+  'docs.section.examples.mobileBody': 'Erzwinge das mobile Preset, um Drag-Paging, Drag-to-exit, Pinch-Zoom und Double-Tap-Zoom auf Touch-Geräten zu testen.',
+  'docs.section.examples.controllerTitle': 'Eigener Controller',
+  'docs.section.examples.controllerBody': 'Platziere den Controller an einem Bildschirmrand oder ersetze die gesamte UI mit einem render-Callback, der state und actions erhält.',
+  'docs.section.examples.coverTitle': 'Zugeschnittenes Cover',
+  'docs.section.examples.coverBody': 'Lege object-fit und border radius direkt auf das Cover-img, damit der erste Öffnungsframe den sichtbaren Zuschnitt trifft.',
 
   'docs.section.typescript.title': 'TypeScript',
   'docs.section.typescript.intro': 'Typen liegen am selben Ort wie der Runtime-Export. Die vollständige Prop-Union ist BaseType:',

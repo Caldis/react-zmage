@@ -362,6 +362,12 @@ export const ja: I18nDict = {
   'docs.section.examples.title': 'サンプル',
   'docs.section.examples.singleTitle': '単一画像',
   'docs.section.examples.galleryTitle': '複数画像ギャラリー',
+  'docs.section.examples.mobileTitle': 'モバイルジェスチャー',
+  'docs.section.examples.mobileBody': 'mobile preset を強制し、タッチ端末でドラッグ切り替え、ドラッグ終了、ピンチズーム、ダブルタップズームを試せます。',
+  'docs.section.examples.controllerTitle': 'カスタムコントローラー',
+  'docs.section.examples.controllerBody': 'コントローラーを画面端へ移動したり、state と actions を受け取る render コールバックで UI 全体を差し替えられます。',
+  'docs.section.examples.coverTitle': 'クロップされたカバー',
+  'docs.section.examples.coverBody': 'object-fit と border radius をカバー img 自体に置くと、開く最初のフレームが見えている切り抜きに一致します。',
 
   'docs.section.typescript.title': 'TypeScript',
   'docs.section.typescript.intro': '型はランタイムのエクスポートと同じ場所に置かれています。完全な prop ユニオン型は BaseType です:',

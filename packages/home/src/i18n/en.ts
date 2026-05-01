@@ -370,6 +370,12 @@ export const en: I18nDict = {
   'docs.section.examples.title': 'Examples',
   'docs.section.examples.singleTitle': 'Single image',
   'docs.section.examples.galleryTitle': 'Multi-image gallery',
+  'docs.section.examples.mobileTitle': 'Mobile gestures',
+  'docs.section.examples.mobileBody': 'Force the mobile preset to try drag paging, drag-to-exit, pinch zoom, and double-tap zoom on touch devices.',
+  'docs.section.examples.controllerTitle': 'Custom controller',
+  'docs.section.examples.controllerBody': 'Place the controller at a screen edge, or replace the full UI with a render callback that receives state and actions.',
+  'docs.section.examples.coverTitle': 'Cropped cover',
+  'docs.section.examples.coverBody': 'Put object-fit and border radius on the cover img itself so the opening frame can match the visible crop.',
 
   'docs.section.typescript.title': 'TypeScript',
   'docs.section.typescript.intro': 'Types are co-located with the runtime export. The full prop union is BaseType:',

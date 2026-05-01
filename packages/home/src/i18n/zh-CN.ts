@@ -386,6 +386,12 @@ export const zhCN = {
   'docs.section.examples.title': '示例',
   'docs.section.examples.singleTitle': '单图',
   'docs.section.examples.galleryTitle': '多图画廊',
+  'docs.section.examples.mobileTitle': '移动端手势',
+  'docs.section.examples.mobileBody': '强制使用 mobile preset,在触控设备上体验拖曳切图、拖曳退出、双指缩放和单指双击缩放。',
+  'docs.section.examples.controllerTitle': '自定义控制器',
+  'docs.section.examples.controllerBody': '可以把控制器放到屏幕边缘,也可以用 render 回调完全替换 UI,回调会收到 state 和 actions。',
+  'docs.section.examples.coverTitle': '裁剪封面',
+  'docs.section.examples.coverBody': '把 object-fit 和圆角放在封面 img 本身,打开时的首帧就能匹配封面可见裁切区域。',
 
   'docs.section.typescript.title': 'TypeScript',
   'docs.section.typescript.intro': '类型与运行时导出位于同一处,完整的属性联合类型为 BaseType:',

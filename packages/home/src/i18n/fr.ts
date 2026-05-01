@@ -362,6 +362,12 @@ export const fr: I18nDict = {
   'docs.section.examples.title': 'Exemples',
   'docs.section.examples.singleTitle': 'Image unique',
   'docs.section.examples.galleryTitle': 'Galerie multi-images',
+  'docs.section.examples.mobileTitle': 'Gestes mobiles',
+  'docs.section.examples.mobileBody': 'Force le preset mobile pour tester le glissement entre images, le glissement pour fermer, le pinch zoom et le double tap sur les appareils tactiles.',
+  'docs.section.examples.controllerTitle': 'Controleur personnalise',
+  'docs.section.examples.controllerBody': 'Place le controleur sur un bord de l\'ecran ou remplace toute l\'UI avec un callback render qui recoit state et actions.',
+  'docs.section.examples.coverTitle': 'Couverture recadree',
+  'docs.section.examples.coverBody': 'Place object-fit et border radius sur le img de couverture pour que la premiere frame corresponde au recadrage visible.',
 
   'docs.section.typescript.title': 'TypeScript',
   'docs.section.typescript.intro': 'Les types sont co-localisés avec l\'export d\'exécution. Le type union complet des props est BaseType :',
