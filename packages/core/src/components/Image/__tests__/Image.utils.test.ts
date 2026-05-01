@@ -407,7 +407,7 @@ describe('getImageTransition 动画边界', () => {
     })).toBeUndefined()
   })
 
-  it("flip='none' 走 fall-through, 不进入 false 短路 (保证 rotate / zoom-toggle / resize 等非翻页 transition 仍生效)", () => {
+  it('flip=\'none\' 走 fall-through, 不进入 false 短路 (保证 rotate / zoom-toggle / resize 等非翻页 transition 仍生效)', () => {
     // 防御 "Bonus B" 草案 (`flip === false || flip === 'none'`) 复活: 此变更会让
     // animate.flip='none' 模式下的旋转 / 窗口 resize / zoom 切换全部变瞬移, 与
     // "flip='none' = 仅页面切换无过渡" 的语义不符.
@@ -577,7 +577,7 @@ describe('getSwipeOffset (swipe 模式 viewport 依赖的 offset)', () => {
 describe('getSideImageOffset (side image 横向 offset)', () => {
   const viewport = { left: 0, top: 0, width: 1000, height: 800 }
 
-  it("非 swipe 模式: 返回 baseOffset 不变 (fade/crossFade/zoom/none/false/undefined)", () => {
+  it('非 swipe 模式: 返回 baseOffset 不变 (fade/crossFade/zoom/none/false/undefined)', () => {
     // 类型签名允许的所有非 swipe 值都应早返回 baseOffset, 文档化"任意 non-swipe 输入安全"契约
     const dims = { w: 500, h: 500 }
     expect(getSideImageOffset({ flipKind: 'crossFade', baseOffset: 30, ownScale: 1, dims, viewport })).toBe(30)

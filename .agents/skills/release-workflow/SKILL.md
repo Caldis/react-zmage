@@ -71,9 +71,12 @@ pnpm --filter react-zmage run build
 pnpm -w run check
 ```
 
-If `sync-public-docs` was triggered earlier in the conversation, also confirm:
-- `git diff llms.txt docs/llms.txt` is empty (vite plugin propagated the change)
+If `sync-public-docs` was triggered earlier in the conversation, or if the release includes user-facing docs / homepage / examples, also confirm:
 - `pnpm --filter react-zmage-home run build` succeeded
+- regenerated `docs/index.html`, `docs/404.html`, and `docs/assets/*` are included when the home bundle changed
+- `git diff llms.txt docs/llms.txt` is empty when root `llms.txt` changed (vite plugin propagated the change)
+- the built docs bundle contains the new public examples or labels (for example, grep the latest `docs/assets/*.js` for the new example headings / i18n strings)
+- `docs/.nojekyll` exists if the repo contains Markdown under `docs/` that Jekyll could parse as Liquid
 
 If anything is red, **fix it before continuing**. A release must be on green.
 
@@ -169,7 +172,27 @@ EOF
 git push origin master
 ```
 
-Capture the resulting commit SHA — Step 7 needs it.
+Capture the resulting commit SHA — later steps need it.
+
+### Step 5.5 — GitHub Actions and Pages gate
+
+After pushing, inspect the workflows for the pushed commit before asking the user to publish to npm:
+
+```bash
+gh run list --commit <commit-sha> --limit 10 --json databaseId,workflowName,status,conclusion,url
+gh run watch <run-id> --exit-status
+```
+
+At minimum, CI must pass. If Pages is triggered, it must also pass unless the release explicitly does not touch public docs or site assets. For any failed run:
+
+```bash
+gh run view <run-id> --json jobs,conclusion,status,url
+gh run view <run-id> --log-failed
+```
+
+Fix the logged root cause locally, run the closest matching verification command, commit the fix, push again, and re-check the new workflow runs. Do **not** continue to npm publish while the release commit or a follow-up fix commit is still red.
+
+If homepage examples / docs changed, verify the deployed site after Pages succeeds. Fetch `https://zmage.caldis.me/` with a no-cache header, extract the current `assets/*.js`, and confirm it contains the expected new example labels in English and Chinese. If Pages is green but the old asset is still served, report the cache delay and retry before calling the website updated.
 
 ### Step 6 — STOP. Tell the user to run npm publish themselves.
 
@@ -276,8 +299,10 @@ Before declaring the release complete:
 
 - [ ] Pre-flight (Step 0): tests / contract / i18n parity / build all green
 - [ ] Version bumped in `packages/core/package.json` AND all 4 `packages/sandbox-*/package.json` `.tgz` paths
+- [ ] If homepage docs/examples changed: home build artifacts are committed, built asset contains the new example labels, and `docs/.nojekyll` exists
 - [ ] Commit subject ends with `(<X.Y.Z>)` matching the bumped version
 - [ ] `git push origin master` succeeded
+- [ ] GitHub Actions for the pushed commit are checked; CI is green, Pages is green when triggered, and failed logs were fixed before publish
 - [ ] User confirmed `npm publish` succeeded (Step 6 hard-stop respected)
 - [ ] Tag created with bare version (no `v` prefix) pointing to the release commit
 - [ ] Tag pushed to origin (`git ls-remote --tags origin` shows it)

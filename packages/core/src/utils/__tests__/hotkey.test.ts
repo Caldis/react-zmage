@@ -7,11 +7,11 @@ import { matchHotKey, matchAnyHotKey, parseHotKey, resolveHotKeyValue, resolveSi
 const ev = (init: KeyboardEventInit & { code: string }) => new KeyboardEvent('keydown', init)
 
 describe('parseHotKey — 单字符短形式归一化', () => {
-  it("'S' → KeyS (大小写不敏感)", () => {
+  it('\'S\' → KeyS (大小写不敏感)', () => {
     expect(parseHotKey('S').code).toBe('KeyS')
     expect(parseHotKey('s').code).toBe('KeyS')
   })
-  it("'1' → Digit1", () => {
+  it('\'1\' → Digit1', () => {
     expect(parseHotKey('1').code).toBe('Digit1')
   })
   it('多字符 e.code 名按字面量保留', () => {
@@ -22,20 +22,20 @@ describe('parseHotKey — 单字符短形式归一化', () => {
 })
 
 describe('parseHotKey — 修饰键解析', () => {
-  it("'Mod+S' → needsMod=true, code=KeyS", () => {
+  it('\'Mod+S\' → needsMod=true, code=KeyS', () => {
     const p = parseHotKey('Mod+S')
     expect(p.needsMod).toBe(true)
     expect(p.code).toBe('KeyS')
   })
-  it("'Cmd' / 'Meta' 等价", () => {
+  it('\'Cmd\' / \'Meta\' 等价', () => {
     expect(parseHotKey('Cmd+S').needsCmd).toBe(true)
     expect(parseHotKey('Meta+S').needsCmd).toBe(true)
   })
-  it("'Ctrl' / 'Control' 等价", () => {
+  it('\'Ctrl\' / \'Control\' 等价', () => {
     expect(parseHotKey('Ctrl+S').needsCtrl).toBe(true)
     expect(parseHotKey('Control+S').needsCtrl).toBe(true)
   })
-  it("'Alt' / 'Option' 等价", () => {
+  it('\'Alt\' / \'Option\' 等价', () => {
     expect(parseHotKey('Alt+S').needsAlt).toBe(true)
     expect(parseHotKey('Option+S').needsAlt).toBe(true)
   })
@@ -48,33 +48,33 @@ describe('parseHotKey — 修饰键解析', () => {
 })
 
 describe('matchHotKey — 基础按键比对', () => {
-  it("'Escape' 匹配 e.code=Escape 且无修饰键", () => {
+  it('\'Escape\' 匹配 e.code=Escape 且无修饰键', () => {
     expect(matchHotKey(ev({ code: 'Escape' }), parseHotKey('Escape'))).toBe(true)
   })
   it('e.code 不一致则不匹配', () => {
     expect(matchHotKey(ev({ code: 'Enter' }), parseHotKey('Escape'))).toBe(false)
   })
-  it("'BracketLeft' 匹配物理 [ 键", () => {
+  it('\'BracketLeft\' 匹配物理 [ 键', () => {
     expect(matchHotKey(ev({ code: 'BracketLeft' }), parseHotKey('BracketLeft'))).toBe(true)
   })
 })
 
 describe('matchHotKey — 严格修饰键拒绝 (防误触)', () => {
-  it("'Space' 不被 'Cmd+Space' (输入法切换) 触发", () => {
+  it('\'Space\' 不被 \'Cmd+Space\' (输入法切换) 触发', () => {
     expect(matchHotKey(ev({ code: 'Space', metaKey: true }), parseHotKey('Space'))).toBe(false)
   })
-  it("'Space' 不被 'Ctrl+Space' 触发", () => {
+  it('\'Space\' 不被 \'Ctrl+Space\' 触发', () => {
     expect(matchHotKey(ev({ code: 'Space', ctrlKey: true }), parseHotKey('Space'))).toBe(false)
   })
-  it("'Space' 不被 'Shift+Space' 触发", () => {
+  it('\'Space\' 不被 \'Shift+Space\' 触发', () => {
     expect(matchHotKey(ev({ code: 'Space', shiftKey: true }), parseHotKey('Space'))).toBe(false)
   })
-  it("'Mod+S' 被 'Cmd+Shift+S' 拒绝 (多了未声明的 Shift)", () => {
+  it('\'Mod+S\' 被 \'Cmd+Shift+S\' 拒绝 (多了未声明的 Shift)', () => {
     expect(matchHotKey(ev({ code: 'KeyS', metaKey: true, shiftKey: true }), parseHotKey('Mod+S'))).toBe(false)
   })
 })
 
-describe("matchHotKey — 'Mod' 跨平台别名", () => {
+describe('matchHotKey — \'Mod\' 跨平台别名', () => {
   it('Mac 路径: metaKey 满足 Mod', () => {
     expect(matchHotKey(ev({ code: 'KeyS', metaKey: true }), parseHotKey('Mod+S'))).toBe(true)
   })
@@ -86,12 +86,12 @@ describe("matchHotKey — 'Mod' 跨平台别名", () => {
   })
 })
 
-describe("matchHotKey — 显式 'Cmd' / 'Ctrl' 锁平台", () => {
-  it("'Cmd+S' 仅 metaKey 满足, ctrlKey 不行", () => {
+describe('matchHotKey — 显式 \'Cmd\' / \'Ctrl\' 锁平台', () => {
+  it('\'Cmd+S\' 仅 metaKey 满足, ctrlKey 不行', () => {
     expect(matchHotKey(ev({ code: 'KeyS', metaKey: true }), parseHotKey('Cmd+S'))).toBe(true)
     expect(matchHotKey(ev({ code: 'KeyS', ctrlKey: true }), parseHotKey('Cmd+S'))).toBe(false)
   })
-  it("'Ctrl+S' 仅 ctrlKey 满足, metaKey 不行", () => {
+  it('\'Ctrl+S\' 仅 ctrlKey 满足, metaKey 不行', () => {
     expect(matchHotKey(ev({ code: 'KeyS', ctrlKey: true }), parseHotKey('Ctrl+S'))).toBe(true)
     expect(matchHotKey(ev({ code: 'KeyS', metaKey: true }), parseHotKey('Ctrl+S'))).toBe(false)
   })

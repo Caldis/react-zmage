@@ -1561,7 +1561,7 @@ describe('Zmage 动画行为', () => {
     }
   })
 
-  it("animate.flip='none' 不渲染 side image, 翻页瞬间替换", async () => {
+  it('animate.flip=\'none\' 不渲染 side image, 翻页瞬间替换', async () => {
     render(
       <Zmage
         src="https://example.com/01.jpg"
@@ -1591,7 +1591,7 @@ describe('Zmage 动画行为', () => {
     expect(imgsAfterFlip[0].src).toContain('02.jpg')
   })
 
-  it("animate.flip='none' 翻页时 caption 不进入 switching 类 (无过渡)", async () => {
+  it('animate.flip=\'none\' 翻页时 caption 不进入 switching 类 (无过渡)', async () => {
     render(
       <Zmage
         src="https://example.com/01.jpg"
@@ -1616,7 +1616,7 @@ describe('Zmage 动画行为', () => {
     expect(cap?.className).not.toMatch(/switch(Fade|CrossFade|Swipe|Zoom)/)
   })
 
-  it("animate.flip='fade' 边图初始 opacity=0, transform 不带 offset", async () => {
+  it('animate.flip=\'fade\' 边图初始 opacity=0, transform 不带 offset', async () => {
     render(
       <Zmage
         src="https://example.com/01.jpg"
@@ -1644,7 +1644,7 @@ describe('Zmage 动画行为', () => {
     expect(sideImage!.style.transform).toMatch(/translate3d\(0px,/)
   })
 
-  it("animate.flip='crossFade' 边图初始带 30px 横向 offset 且 opacity=0", async () => {
+  it('animate.flip=\'crossFade\' 边图初始带 30px 横向 offset 且 opacity=0', async () => {
     render(
       <Zmage
         src="https://example.com/01.jpg"
@@ -1671,7 +1671,7 @@ describe('Zmage 动画行为', () => {
     expect(sideImage!.style.transform).toMatch(/translate3d\(-?30px,/)
   })
 
-  it("animate.flip='zoom' 边图初始 overflow=0.08 (scale 比 center 多 8%)", async () => {
+  it('animate.flip=\'zoom\' 边图初始 overflow=0.08 (scale 比 center 多 8%)', async () => {
     render(
       <Zmage
         src="https://example.com/01.jpg"
@@ -1928,7 +1928,7 @@ describe('Zmage hotKey 旋转 ([ / ]) — desktop preset 默认开启', () => {
     const onRotating = vi.fn()
     render(
       <Zmage src={SRC} alt="rot-custom" preset="desktop"
-             hotKey={{ rotate: false, rotateLeft: 'KeyA' }} onRotating={onRotating}/>
+        hotKey={{ rotate: false, rotateLeft: 'KeyA' }} onRotating={onRotating}/>
     )
     fireEvent.click(screen.getByAltText('rot-custom'))
     await act(async () => { await new Promise(r => setTimeout(r, 50)) })
@@ -2288,7 +2288,7 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
     await act(async () => { await new Promise(r => setTimeout(r, ms)) })
   }
 
-  it("flip='none' 切换 AR 不一致图片 → onLoad 触发 interrupt, 无 350ms scale 动画 (Bug 1)", async () => {
+  it('flip=\'none\' 切换 AR 不一致图片 → onLoad 触发 interrupt, 无 350ms scale 动画 (Bug 1)', async () => {
     const WIDE = 'https://example.com/wide.jpg'
     const TALL = 'https://example.com/tall.jpg'
     const restore = mockImageDimensionsBySrc({
@@ -2348,7 +2348,7 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
     }
   })
 
-  it("flip='swipe' pagination 1→4 跳转 (out-of-ring) 不出现 scale 校准动画 (Bug 2)", async () => {
+  it('flip=\'swipe\' pagination 1→4 跳转 (out-of-ring) 不出现 scale 校准动画 (Bug 2)', async () => {
     const SRCS = Array.from({ length: 6 }, (_, i) => `https://example.com/img${i}.jpg`)
     const dimsMap: Record<string, Dim> = {}
     SRCS.forEach((src, i) => { dimsMap[src] = i % 2 === 0 ? { w: 2000, h: 1000 } : { w: 1000, h: 2000 } })
@@ -2401,7 +2401,7 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
     }
   })
 
-  it("flip='crossFade' in-ring 翻页 (dims 已知) 不触发 interrupt, 留 flip transition 正常播放", async () => {
+  it('flip=\'crossFade\' in-ring 翻页 (dims 已知) 不触发 interrupt, 留 flip transition 正常播放', async () => {
     // 红队关注的关键负向用例: in-ring 翻页时 side 节点已被复用为 center, 此时 dims 已通过
     // side 的 onLoad 落地. 此场景不应进 interrupt 路径, 否则会杀掉合法 crossFade 动画
     // (= 上一次修复"首次切换无动画"反向 bug 的根因).
@@ -2449,7 +2449,7 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
     }
   })
 
-  it("Cover→browsing 动画期间 dims 到达 (慢网首开) 不被 interrupt 误中断", async () => {
+  it('Cover→browsing 动画期间 dims 到达 (慢网首开) 不被 interrupt 误中断', async () => {
     // 验证 pendingDimCalibration 守门正确: 首次开 viewer 没有 page change, 即便 onLoad
     // 在 cover→browsing 350ms 动画 (50-400ms 窗口) 期间触发, interrupt 不应触发.
     // (validator 早期方案的 _type === 'browsing' 守门会在此处误中断 cover→browsing 动画.)
@@ -2532,7 +2532,7 @@ describe('Zmage 跳页与 fade 降级 (Issue 1 / Issue 2)', () => {
     fireEvent.click(dot)
   }
 
-  it("Issue 2: N=6 loop=true 分页器 0→5 走 shortest-path step=-1, 复用预取环 step-1 节点", async () => {
+  it('Issue 2: N=6 loop=true 分页器 0→5 走 shortest-path step=-1, 复用预取环 step-1 节点', async () => {
     const { SRCS, restore } = buildSixSet()
     try {
       render(
@@ -2560,7 +2560,7 @@ describe('Zmage 跳页与 fade 降级 (Issue 1 / Issue 2)', () => {
     }
   })
 
-  it("Issue 1: N=6 loop=true 分页器 0→3 (跳页 |step|=3>2) 给新 center 加 jumpFadeIn class", async () => {
+  it('Issue 1: N=6 loop=true 分页器 0→3 (跳页 |step|=3>2) 给新 center 加 jumpFadeIn class', async () => {
     const { SRCS, restore } = buildSixSet()
     try {
       render(
@@ -2584,7 +2584,7 @@ describe('Zmage 跳页与 fade 降级 (Issue 1 / Issue 2)', () => {
     }
   })
 
-  it("Issue 1 Exception: flip='none' 跳页不加 jumpFadeIn class", async () => {
+  it('Issue 1 Exception: flip=\'none\' 跳页不加 jumpFadeIn class', async () => {
     const { SRCS, restore } = buildSixSet()
     try {
       render(
@@ -2605,7 +2605,7 @@ describe('Zmage 跳页与 fade 降级 (Issue 1 / Issue 2)', () => {
     }
   })
 
-  it("In-range 不退化: N=6 分页器 0→2 (|step|=2 ≤ 2) 走预取环正常 slide", async () => {
+  it('In-range 不退化: N=6 分页器 0→2 (|step|=2 ≤ 2) 走预取环正常 slide', async () => {
     const { SRCS, restore } = buildSixSet()
     try {
       render(
@@ -2632,7 +2632,7 @@ describe('Zmage 跳页与 fade 降级 (Issue 1 / Issue 2)', () => {
     }
   })
 
-  it("StrictMode unmount: jumpFadeTimer 被 clearTimeout 不泄漏", async () => {
+  it('StrictMode unmount: jumpFadeTimer 被 clearTimeout 不泄漏', async () => {
     const { SRCS, restore } = buildSixSet()
     try {
       const { unmount } = render(
@@ -2697,7 +2697,7 @@ describe('Zmage canZoom 切页路径收敛 (#regression-zoom-after-flip)', () =>
     await act(async () => { await new Promise(r => setTimeout(r, ms)) })
   }
 
-  it("从大图 (canZoom=true) 切到小图 (key-reuse 路径) 后, 放大按钮立刻进入禁用态", async () => {
+  it('从大图 (canZoom=true) 切到小图 (key-reuse 路径) 后, 放大按钮立刻进入禁用态', async () => {
     const BIG = 'https://example.com/big.jpg'
     const SMALL = 'https://example.com/small.jpg'
     const restore = mockImageDimensionsBySrc({
@@ -2741,7 +2741,7 @@ describe('Zmage canZoom 切页路径收敛 (#regression-zoom-after-flip)', () =>
     }
   })
 
-  it("从小图 (canZoom=false) 切到大图 (key-reuse 路径) 后, 放大按钮立刻解除禁用", async () => {
+  it('从小图 (canZoom=false) 切到大图 (key-reuse 路径) 后, 放大按钮立刻解除禁用', async () => {
     // 反向案例: 确保收敛是双向的 — 小→大 也能正确更新 canZoom
     const BIG = 'https://example.com/big2.jpg'
     const SMALL = 'https://example.com/small2.jpg'
@@ -2824,7 +2824,7 @@ describe('Zmage Loading 显示策略 (anti-flicker, loadingDelay prop)', () => {
     await act(async () => { await new Promise(r => setTimeout(r, ms)) })
   }
 
-  it("缓存图切页 (fast-path) 全程不显示 Loading", async () => {
+  it('缓存图切页 (fast-path) 全程不显示 Loading', async () => {
     const A = 'https://example.com/cached-a.jpg'
     const B = 'https://example.com/cached-b.jpg'
     const restore = mockImageDimensionsBySrc({
@@ -2859,7 +2859,7 @@ describe('Zmage Loading 显示策略 (anti-flicker, loadingDelay prop)', () => {
     }
   })
 
-  it("loadingDelay prop 生效: 自定义 50ms 延迟下, 未完成图片在 50ms 后显示 Loading", async () => {
+  it('loadingDelay prop 生效: 自定义 50ms 延迟下, 未完成图片在 50ms 后显示 Loading', async () => {
     // 方法: 一张图在 mock 中 (complete=true), 另一张不在 (complete=false → 走 slow path)
     const CACHED = 'https://example.com/cached-2.jpg'
     const UNCACHED = 'https://example.com/uncached-2.jpg'
@@ -2891,7 +2891,7 @@ describe('Zmage Loading 显示策略 (anti-flicker, loadingDelay prop)', () => {
     }
   })
 
-  it("loadingDelay 内 onLoad 触发 → cancel timer, Loading 永不出现 (fast-load)", async () => {
+  it('loadingDelay 内 onLoad 触发 → cancel timer, Loading 永不出现 (fast-load)', async () => {
     // 方法: loadingDelay 较长 (200ms), 切到 fresh-mount, 在 delay 内 fireEvent.load → 应取消 timer
     const A = 'https://example.com/fast-a.jpg'
     const B = 'https://example.com/fast-b.jpg'
@@ -2938,7 +2938,7 @@ describe('Zmage Loading 显示策略 (anti-flicker, loadingDelay prop)', () => {
     }
   })
 
-  it("StrictMode unmount: loadingShowDelayTimer 被 clearTimeout 不泄漏", async () => {
+  it('StrictMode unmount: loadingShowDelayTimer 被 clearTimeout 不泄漏', async () => {
     const A = 'https://example.com/leak-a.jpg'
     const B = 'https://example.com/leak-b.jpg'
     const restore = mockImageDimensionsBySrc({ [A]: { w: 1000, h: 1000 } })  // 仅 A
