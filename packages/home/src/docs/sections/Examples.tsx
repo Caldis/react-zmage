@@ -54,8 +54,8 @@ const CUSTOM_CONTROLLER_CODE = `<Zmage
 />`
 
 const COVER_GEOMETRY_CODE = `<Zmage
-  src="/imgSet/childsDream/9.jpg"
-  alt="童夢 · NINE"
+  src="/imgSet/childsDream/demo.jpg"
+  alt="童夢 · DEMO"
   className="h-64 w-full rounded-2xl object-cover"
   style={{ objectPosition: '35% 50%' }}
   animate={{ cover: { objectFit: true, clip: true, radius: true } }}
@@ -155,8 +155,8 @@ export function Examples () {
       <p className="text-sm text-muted-foreground">{t('docs.section.examples.coverBody')}</p>
       <div className="grid gap-4 md:grid-cols-2">
         <Zmage
-          src="/imgSet/childsDream/9.jpg"
-          alt="童夢 · NINE"
+          src="/imgSet/childsDream/demo.jpg"
+          alt="童夢 · DEMO"
           backdrop={backdrop}
           className="h-64 w-full rounded-2xl object-cover"
           style={{ objectPosition: '35% 50%' }}
