@@ -38,6 +38,7 @@ export const zhCN = {
   'ai.preview.title': 'Setup Prompt',
   'ai.preview.subtitle': '会随左侧选择实时更新',
   'ai.preview.copy': '复制',
+  'ai.preview.expand': '展开',
   'ai.preview.show': '预览 Prompt',
   'ai.preview.hide': '收起预览',
   'ai.option.auto': 'Auto',

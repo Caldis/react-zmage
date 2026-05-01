@@ -37,6 +37,7 @@ export const es: I18nDict = {
   'ai.preview.title': 'Setup prompt',
   'ai.preview.subtitle': 'Se actualiza con tus opciones',
   'ai.preview.copy': 'Copiar',
+  'ai.preview.expand': 'Expandir',
   'ai.preview.show': 'Ver prompt',
   'ai.preview.hide': 'Ocultar vista previa',
   'ai.option.auto': 'Auto',

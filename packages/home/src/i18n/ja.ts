@@ -37,6 +37,7 @@ export const ja: I18nDict = {
   'ai.preview.title': 'Setup prompt',
   'ai.preview.subtitle': '選択に合わせて更新されます',
   'ai.preview.copy': 'コピー',
+  'ai.preview.expand': '展開',
   'ai.preview.show': 'Prompt をプレビュー',
   'ai.preview.hide': 'プレビューを閉じる',
   'ai.option.auto': 'Auto',

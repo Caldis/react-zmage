@@ -37,6 +37,7 @@ export const ko: I18nDict = {
   'ai.preview.title': 'Setup prompt',
   'ai.preview.subtitle': '선택에 따라 업데이트됩니다',
   'ai.preview.copy': '복사',
+  'ai.preview.expand': '펼치기',
   'ai.preview.show': 'Prompt 미리보기',
   'ai.preview.hide': '미리보기 접기',
   'ai.option.auto': 'Auto',
