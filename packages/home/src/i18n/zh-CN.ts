@@ -10,7 +10,7 @@ export const zhCN = {
   'hero.title.line2': '即插即用,零配置',
   'hero.subtitle': '一个轻量 React 组件,把任何图片变成全屏、可键盘导航的查看器。无需 portal,无需状态管线,只需一个 <Zmage>。',
   'hero.cta.start': '快速开始',
-  'hero.cta.playground': '打开调试台',
+  'hero.cta.playground': '马上试玩',
   'hero.ai.label': '复制这段 PROMPT, 接下来交给你的 AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 

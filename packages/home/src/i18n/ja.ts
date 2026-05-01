@@ -10,7 +10,7 @@ export const ja: I18nDict = {
   'hero.title.line2': 'すぐ使える、設定ゼロ。',
   'hero.subtitle': 'どんな画像もフルスクリーン・キーボード操作対応のビューアに変える、軽量な React コンポーネント。Portal 設定も状態管理も不要。<Zmage> ひとつで完結します。',
   'hero.cta.start': 'はじめる',
-  'hero.cta.playground': 'プレイグラウンドを開く',
+  'hero.cta.playground': '今すぐ試す',
   'hero.ai.label': 'このプロンプトをコピーして、AI エージェントに渡してください',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 

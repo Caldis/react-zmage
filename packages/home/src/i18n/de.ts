@@ -10,7 +10,7 @@ export const de: I18nDict = {
   'hero.title.line2': 'Drop-in. Null Konfiguration.',
   'hero.subtitle': 'Eine schlanke React-Komponente, die jedes Bild in einen Vollbild-Viewer mit Tastatursteuerung verwandelt. Kein Portal-Setup. Kein State-Verkabeln. Einfach <Zmage>.',
   'hero.cta.start': 'Loslegen',
-  'hero.cta.playground': 'Playground öffnen',
+  'hero.cta.playground': 'Jetzt ausprobieren',
   'hero.ai.label': 'Kopiere diesen Prompt und übergib ihn deinem AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 

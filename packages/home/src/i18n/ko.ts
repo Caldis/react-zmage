@@ -10,7 +10,7 @@ export const ko: I18nDict = {
   'hero.title.line2': '바로 적용, 설정 불필요.',
   'hero.subtitle': '어떤 이미지든 전체 화면 키보드 내비게이션 뷰어로 바꿔주는 가벼운 React 컴포넌트. Portal 설정도, 상태 배선도 필요 없습니다. <Zmage> 하나면 충분합니다.',
   'hero.cta.start': '시작하기',
-  'hero.cta.playground': '플레이그라운드 열기',
+  'hero.cta.playground': '지금 체험하기',
   'hero.ai.label': '이 프롬프트를 복사해서 AI 에이전트에 넘겨 주세요',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 
@@ -404,6 +404,6 @@ export const ko: I18nDict = {
   'playground.preset.aria': '데이터 프리셋 전환',
   'playground.preset.default.label': '기본',
   'playground.preset.default.hint': '童夢 · 2 장',
-  'playground.preset.testset.label': '테스트 집',
+  'playground.preset.testset.label': '테스트 세트',
   'playground.preset.testset.hint': '6 장 · 비율 + 포맷',
 }

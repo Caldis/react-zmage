@@ -10,7 +10,7 @@ export const es: I18nDict = {
   'hero.title.line2': 'Listo para usar. Sin configuración.',
   'hero.subtitle': 'Un componente React ligero que convierte cualquier imagen en un visor a pantalla completa con navegación por teclado. Sin configurar portales. Sin cablear estado. Solo <Zmage>.',
   'hero.cta.start': 'Empezar',
-  'hero.cta.playground': 'Abrir playground',
+  'hero.cta.playground': 'Probar ahora',
   'hero.ai.label': 'Copia este prompt y pásaselo a tu AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 
@@ -403,7 +403,7 @@ export const es: I18nDict = {
   // Playground data preset toggle
   'playground.preset.aria': 'Cambiar preset de datos',
   'playground.preset.default.label': 'Predeterminado',
-  'playground.preset.default.hint': 'Childs Dream · 2 img',
+  'playground.preset.default.hint': 'Childs Dream · 2 imágenes',
   'playground.preset.testset.label': 'Set de prueba',
-  'playground.preset.testset.hint': '6 imgs · ratios + formatos',
+  'playground.preset.testset.hint': '6 imágenes · ratios + formatos',
 }

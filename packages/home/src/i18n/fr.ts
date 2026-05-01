@@ -10,7 +10,7 @@ export const fr: I18nDict = {
   'hero.title.line2': 'Prêt à l\'emploi. Zéro config.',
   'hero.subtitle': 'Un petit composant React qui transforme n\'importe quelle image en une visionneuse plein écran navigable au clavier. Aucun portail à configurer. Aucune plomberie d\'état. Juste <Zmage>.',
   'hero.cta.start': 'Commencer',
-  'hero.cta.playground': 'Ouvrir le playground',
+  'hero.cta.playground': 'Essayer maintenant',
   'hero.ai.label': 'Copiez ce prompt, puis confiez-le à votre AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 
@@ -403,7 +403,7 @@ export const fr: I18nDict = {
   // Playground data preset toggle
   'playground.preset.aria': 'Changer le preset de données',
   'playground.preset.default.label': 'Par défaut',
-  'playground.preset.default.hint': 'Childs Dream · 2 img',
+  'playground.preset.default.hint': 'Childs Dream · 2 images',
   'playground.preset.testset.label': 'Jeu de test',
-  'playground.preset.testset.hint': '6 imgs · ratios + formats',
+  'playground.preset.testset.hint': '6 images · ratios + formats',
 }

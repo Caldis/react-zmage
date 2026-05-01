@@ -10,7 +10,7 @@ export const en: I18nDict = {
   'hero.title.line2': 'Drop-in. Zero config.',
   'hero.subtitle': 'A tiny React component that turns any image into a fullscreen, keyboard-navigable viewer. No portal setup. No state plumbing. Just <Zmage>.',
   'hero.cta.start': 'Get started',
-  'hero.cta.playground': 'Open playground',
+  'hero.cta.playground': 'Try it now',
   'hero.ai.label': 'Copy this prompt, then hand it to your AI Agent',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
 
