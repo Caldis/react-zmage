@@ -118,7 +118,7 @@ export const zhCN = {
   'pg.preview.tip': '提示:Space 缩放 · ←/→ 翻页 · ESC 关闭',
   'pg.preview.trigger': '触发查看器',
   'pg.params.title': '参数',
-  'pg.params.subtitle': '独立滚动, 不影响右侧预览。',
+  'pg.params.subtitle': '悬停参数名查看说明, 点击书本图标跳转文档。',
   'pg.events.title': '事件',
   'pg.events.subtitle': '生命周期回调输出, 可展开查看完整事件流。',
   'pg.events.empty': '启用任意 lifecycle 回调以查看事件流。',

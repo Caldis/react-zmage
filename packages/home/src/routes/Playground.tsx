@@ -121,7 +121,7 @@ export default function Playground () {
         <aside className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-border bg-card/30">
           <div className="shrink-0 border-b border-border px-4 py-3">
             <h2 className="text-sm font-medium">{t('pg.params.title')}</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">{t('pg.params.subtitle')}</p>
+            <p className="mt-0.5 text-[11px] leading-4 text-muted-foreground/65">{t('pg.params.subtitle')}</p>
           </div>
           <div className="h-[min(70dvh,720px)] overflow-y-auto py-2 lg:h-auto lg:min-h-0 lg:flex-1">
             <ParamPanel values={values} onChange={onChange} />

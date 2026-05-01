@@ -111,7 +111,7 @@ export const fr: I18nDict = {
   'pg.preview.tip': 'Astuce : Espace pour zoomer · ←/→ pour changer de page · ESC pour fermer',
   'pg.preview.trigger': 'Déclencher la visionneuse',
   'pg.params.title': 'Paramètres',
-  'pg.params.subtitle': 'Défile indépendamment sans déplacer l’aperçu.',
+  'pg.params.subtitle': 'Survolez un prop pour l’aide, ou ouvrez sa doc avec l’icône livre.',
   'pg.events.title': 'Événements',
   'pg.events.subtitle': 'Sortie des callbacks de cycle de vie pour cette session.',
   'pg.events.empty': 'Activez n\'importe quel callback de cycle de vie pour voir le flux d\'événements ici.',

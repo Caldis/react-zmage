@@ -111,7 +111,7 @@ export const en: I18nDict = {
   'pg.preview.tip': 'Tip: Space to zoom · ←/→ to flip · ESC to close',
   'pg.preview.trigger': 'Trigger viewer',
   'pg.params.title': 'Parameters',
-  'pg.params.subtitle': 'Scroll independently without moving the preview.',
+  'pg.params.subtitle': 'Hover a prop name for help, or use the book icon to open its docs.',
   'pg.events.title': 'Events',
   'pg.events.subtitle': 'Lifecycle callback output for the current session.',
   'pg.events.empty': 'Enable any lifecycle callback to see events stream here.',

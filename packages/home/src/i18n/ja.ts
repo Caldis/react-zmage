@@ -111,7 +111,7 @@ export const ja: I18nDict = {
   'pg.preview.tip': 'ヒント:Space でズーム · ←/→ でページ送り · ESC で閉じる',
   'pg.preview.trigger': 'ビューアを開く',
   'pg.params.title': 'パラメータ',
-  'pg.params.subtitle': 'プレビューを動かさず、ここだけ独立してスクロールします。',
+  'pg.params.subtitle': 'prop 名にホバーすると説明を表示し、本アイコンから該当 docs を開けます。',
   'pg.events.title': 'イベント',
   'pg.events.subtitle': '現在のセッションのライフサイクル callback 出力です。',
   'pg.events.empty': 'ライフサイクルコールバックを有効にすると、ここにイベントが流れます。',

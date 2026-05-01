@@ -111,7 +111,7 @@ export const ko: I18nDict = {
   'pg.preview.tip': '팁: Space로 줌 · ←/→로 페이지 이동 · ESC로 닫기',
   'pg.preview.trigger': '뷰어 열기',
   'pg.params.title': '파라미터',
-  'pg.params.subtitle': '미리보기를 움직이지 않고 이 영역만 스크롤합니다.',
+  'pg.params.subtitle': 'prop 이름에 hover하면 설명을 보고, 책 아이콘으로 문서를 열 수 있습니다.',
   'pg.events.title': '이벤트',
   'pg.events.subtitle': '현재 세션의 라이프사이클 콜백 출력입니다.',
   'pg.events.empty': '라이프사이클 콜백을 활성화하면 이벤트 스트림이 여기에 표시됩니다.',

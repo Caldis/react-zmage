@@ -111,7 +111,7 @@ export const de: I18nDict = {
   'pg.preview.tip': 'Tipp: Leertaste zum Zoomen · ←/→ zum Blättern · ESC zum Schließen',
   'pg.preview.trigger': 'Viewer öffnen',
   'pg.params.title': 'Parameter',
-  'pg.params.subtitle': 'Scrollt unabhängig, ohne die Vorschau zu bewegen.',
+  'pg.params.subtitle': 'Prop-Namen zeigen Hilfe beim Hover, das Buchsymbol öffnet die Docs.',
   'pg.events.title': 'Events',
   'pg.events.subtitle': 'Lifecycle-Ausgabe für die aktuelle Sitzung.',
   'pg.events.empty': 'Aktiviere einen Lifecycle-Callback, um den Event-Stream hier zu sehen.',
