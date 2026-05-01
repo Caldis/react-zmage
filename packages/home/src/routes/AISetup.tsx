@@ -1,15 +1,8 @@
 import * as React from 'react'
-import { Check, Copy, ExternalLink, Maximize2, Sparkles } from 'lucide-react'
+import { Check, Copy, ExternalLink, Sparkles } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+import { ExpandablePanel } from '@/components/ExpandablePanel'
 import { Label } from '@/components/ui/label'
 import { SegmentedChoice } from '@/components/ui/segmented-choice'
 import { Textarea } from '@/components/ui/textarea'
@@ -179,42 +172,33 @@ export default function AISetup () {
           </div>
 
           <div className="mt-8">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-sm font-medium">{t('ai.preview.title')}</h2>
-                <p className="text-xs text-muted-foreground">{t('ai.preview.subtitle')}</p>
-              </div>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Maximize2 className="h-3.5 w-3.5" />
-                    {t('ai.preview.expand')}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-h-[88dvh] max-w-4xl gap-0 overflow-hidden p-0">
-                  <DialogHeader className="border-b border-border px-5 py-4 pr-12">
-                    <DialogTitle>{t('ai.preview.title')}</DialogTitle>
-                    <DialogDescription>{t('ai.preview.subtitle')}</DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-3 p-5">
-                    <Textarea
-                      readOnly
-                      value={prompt}
-                      className="h-[62dvh] resize-none border-0 bg-muted/30 font-mono text-xs leading-5 shadow-none focus-visible:ring-0 sm:text-sm"
-                    />
-                    <Button onClick={copyPrompt}>
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                      {copied ? t('ai.action.copied') : t('ai.preview.copy')}
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-            <Textarea
-              readOnly
-              value={prompt}
-              aria-label={t('ai.preview.title')}
-              className="h-28 resize-none bg-muted/25 font-mono text-xs leading-5 text-muted-foreground"
+            <ExpandablePanel
+              title={t('ai.preview.title')}
+              description={t('ai.preview.subtitle')}
+              expandLabel={t('ai.preview.expand')}
+              preview={
+                <Textarea
+                  readOnly
+                  value={prompt}
+                  aria-label={t('ai.preview.title')}
+                  className="h-28 resize-none bg-muted/25 font-mono text-xs leading-5 text-muted-foreground"
+                />
+              }
+              expanded={
+                <Textarea
+                  readOnly
+                  value={prompt}
+                  className="h-[62dvh] resize-none border-0 bg-muted/30 font-mono text-xs leading-5 shadow-none focus-visible:ring-0 sm:text-sm"
+                />
+              }
+              footer={
+                <Button onClick={copyPrompt}>
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? t('ai.action.copied') : t('ai.preview.copy')}
+                </Button>
+              }
+              className="border-0 bg-transparent"
+              previewClassName="p-0"
             />
             <div className="mt-4 flex flex-wrap gap-3">
               <Button onClick={copyPrompt} className="min-w-40">

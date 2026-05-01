@@ -1,20 +1,12 @@
 import Zmage from 'react-zmage'
-import { CodeSnippet } from '@/playground/CodeSnippet'
 import { buildLibProps } from '@/playground/state'
 import { useT } from '@/i18n/useT'
-import { EventLog } from '@/playground/EventLog'
 import { useThemedBackdrop } from '@/lib/themedBackdrop'
 
 export default function ComponentMode ({
   values,
-  touched,
-  hideDefaults,
-  onHideDefaultsChange,
 }: {
   values: Record<string, any>
-  touched: ReadonlySet<string>
-  hideDefaults: boolean
-  onHideDefaultsChange: (v: boolean) => void
 }) {
   const { t } = useT()
   const themedBackdrop = useThemedBackdrop()
@@ -30,21 +22,11 @@ export default function ComponentMode ({
     src: cover,
   }
   return (
-    <div className="space-y-6">
-      <CodeSnippet
-        values={values}
-        touched={touched}
-        hideDefaults={hideDefaults}
-        onHideDefaultsChange={onHideDefaultsChange}
-        mode="component"
-      />
-      <div className="rounded-lg border border-border bg-card/30 p-6">
-        <div className="mx-auto max-w-md">
-          <Zmage {...(safeProps as any)} className="w-full rounded-md" />
-        </div>
-        <p className="mt-4 text-center text-xs text-muted-foreground">{t('pg.preview.tip')}</p>
+    <div className="flex h-full min-h-[360px] flex-col items-center justify-center rounded-lg border border-border bg-card/30 p-6 lg:min-h-0">
+      <div className="mx-auto w-full max-w-md">
+        <Zmage {...(safeProps as any)} className="w-full rounded-md" />
       </div>
-      <EventLog />
+      <p className="mt-4 text-center text-xs text-muted-foreground">{t('pg.preview.tip')}</p>
     </div>
   )
 }
