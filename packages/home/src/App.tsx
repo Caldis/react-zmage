@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import { TopNav } from '@/components/TopNav'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { useAnalyticsPageviews } from '@/lib/analytics'
 import Home from './routes/Home'
 import Playground from './routes/Playground'
@@ -9,7 +10,7 @@ import AISetup from './routes/AISetup'
 export default function App () {
   useAnalyticsPageviews()
   return (
-    <>
+    <TooltipProvider delayDuration={300}>
       <TopNav />
       <main className="pt-14">
         <Routes>
@@ -20,6 +21,6 @@ export default function App () {
           <Route path="*" element={<Home />} />
         </Routes>
       </main>
-    </>
+    </TooltipProvider>
   )
 }
