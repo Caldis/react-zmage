@@ -19,6 +19,7 @@ const SWITCH_CLASS_BY_FLIP: Record<Exclude<AnimateFlip, 'none'>, string> = {
   crossFade: 'switchCrossFade',
   swipe: 'switchSwipe',
   zoom: 'switchZoom',
+  blur: 'switchBlur',
 }
 
 const isCaptionObject = (v: CaptionProp | undefined): v is CaptionObject =>

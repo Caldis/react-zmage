@@ -379,6 +379,7 @@ describe('getAnimateConfig 翻页动画参数', () => {
       expect(getAnimateConfig('crossFade')).toEqual({ offset: 30, overflow: 0, opacity: 0 })
       expect(getAnimateConfig('swipe')).toEqual({ offset: 1010, overflow: 0, opacity: 1 })
       expect(getAnimateConfig('zoom')).toEqual({ offset: 0, overflow: 0.08, opacity: 0 })
+      expect(getAnimateConfig('blur')).toEqual({ offset: 0, overflow: 0.018, opacity: 0, blur: 14 })
       expect(getAnimateConfig('none')).toEqual({ offset: 0, overflow: 0, opacity: 0 })
       expect(getAnimateConfig(false)).toEqual({ offset: 0, overflow: 0, opacity: 0 })
       expect(getAnimateConfig()).toEqual({ offset: 0, overflow: 0, opacity: 0 })

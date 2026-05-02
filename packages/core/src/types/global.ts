@@ -268,6 +268,7 @@ export type AnimateFlip =
   | 'crossFade' // 交叉渐变
   | 'swipe'     // 翻页
   | 'zoom'      // 缩放
+  | 'blur'      // 失焦淡入淡出
   | 'none'      // 无动画 (瞬间切换, 不渲染相邻页, caption 也无过渡)
 export interface AnimateCoverOptions {
   // 读取 cover 的 object-fit / object-position, 修正 cover 裁切场景的初始几何

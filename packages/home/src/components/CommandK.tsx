@@ -59,7 +59,7 @@ const SUB_PARAM_ENTRIES: SubEntry[] = [
   { parent: 'hotkey', leaf: 'flipRight', labelKey: 'hotkey.flipRight', descKey: 'hotkey.flipRight.desc', parentDisplay: 'hotKey' },
 
   // Animate children — link → /docs#props-animate.
-  // browsing/flip/cover are sub-keys; the four flip animation values are values you can pass.
+  // browsing/flip/cover are sub-keys; the flip animation values are values you can pass.
   { parent: 'animate', leaf: 'browsing', labelKey: 'animate.browsing.desc', descKey: 'animate.browsing.desc' },
   { parent: 'animate', leaf: 'flip',     labelKey: 'animate.flip.desc',     descKey: 'animate.flip.desc' },
   { parent: 'animate', leaf: 'cover',    labelKey: 'animate.cover.desc',    descKey: 'animate.cover.desc' },
@@ -67,6 +67,7 @@ const SUB_PARAM_ENTRIES: SubEntry[] = [
   { parent: 'animate', leaf: 'crossFade', labelKey: 'animate.flip.crossFade', descKey: 'animate.flip.desc', isValue: true },
   { parent: 'animate', leaf: 'swipe',     labelKey: 'animate.flip.swipe',     descKey: 'animate.flip.desc', isValue: true },
   { parent: 'animate', leaf: 'zoom',      labelKey: 'animate.flip.zoom',      descKey: 'animate.flip.desc', isValue: true },
+  { parent: 'animate', leaf: 'blur',      labelKey: 'animate.flip.blur',      descKey: 'animate.flip.desc', isValue: true },
 
   // Gesture children — link → /docs#props-gesture.
   { parent: 'gesture', leaf: 'swipe',      labelKey: 'gesture.swipe',      descKey: 'gesture.swipe.desc' },

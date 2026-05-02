@@ -1545,7 +1545,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     let transform, zIndex, pointerEvents, appliedScale
     // 获取动画配置
     // eslint-disable-next-line prefer-const
-    let { offset, overflow, opacity } = animateConfig
+    let { offset, overflow, opacity, blur } = animateConfig
     // 获取触摸配置
     const { touch, opacity: touchOpacity, transition } = touchGesture.getTouchConfig({ resistance: this.getSwipeBoundaryResistance(touchGesture) })
     // 计算样式
@@ -1587,9 +1587,13 @@ export default class Image extends React.Component<PropsType, StateType> {
     const radius = styleForNode.radius ?? 0
     const localRadius = getLocalRadius(radius, appliedScale || 1)
     const clipPath = getClipPath(styleForNode.clip, radius, appliedScale || 1)
+    const filter = typeof blur === 'number'
+      ? isSideImage ? `blur(${blur}px)` : 'blur(0px)'
+      : undefined
     return {
       ...withVendorPrefix({ transform }),
       ...(clipPath ? withVendorPrefix({ clipPath }) : {}),
+      ...(filter ? { filter } : {}),
       ...(typeof styleForNode.radius === 'number' ? { borderRadius: `${localRadius}px` } : {}),
       cursor: zoom ? 'zoom-out' : 'initial',
       zIndex,

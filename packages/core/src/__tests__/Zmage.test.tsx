@@ -2042,8 +2042,32 @@ describe('Zmage 动画行为', () => {
 
     const cap = document.getElementById('zmageCaption')
     expect(cap?.textContent).toBe('second')
-    // switchFade/CrossFade/Swipe/Zoom 类全部不应出现
-    expect(cap?.className).not.toMatch(/switch(Fade|CrossFade|Swipe|Zoom)/)
+    // switchFade/CrossFade/Swipe/Zoom/Blur 类全部不应出现
+    expect(cap?.className).not.toMatch(/switch(Fade|CrossFade|Swipe|Zoom|Blur)/)
+  })
+
+  it('animate.flip=\'blur\' 翻页时 caption 使用 switchBlur 类', async () => {
+    render(
+      <Zmage
+        src="https://example.com/01.jpg"
+        alt="cover"
+        preset="desktop"
+        animate={{ flip: 'blur' }}
+        set={[
+          { src: 'https://example.com/01.jpg', alt: 'p1', caption: 'first' },
+          { src: 'https://example.com/02.jpg', alt: 'p2', caption: 'second' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('cover'))
+    await wait(50)
+
+    clickById('zmageControlFlipRight')
+    await wait(20)
+
+    const cap = document.getElementById('zmageCaption')
+    expect(cap?.textContent).toBe('second')
+    expect(cap?.className).toMatch(/switchBlur/)
   })
 
   it('animate.flip=\'fade\' 边图初始 opacity=0, transform 不带 offset', async () => {
@@ -2124,6 +2148,31 @@ describe('Zmage 动画行为', () => {
     // 阈值 > 1.05 隔离 epsilon, 让 overflow 漂移到 0 时立即失败.
     const m = requireDefined(sideImage.style.transform.match(/scale3d\(([\d.]+),/), 'expected side scale transform')
     expect(Number(m[1])).toBeGreaterThan(1.05)
+  })
+
+  it('animate.flip=\'blur\' 边图初始失焦、淡出，并轻微放大', async () => {
+    render(
+      <Zmage
+        src="https://example.com/01.jpg"
+        alt="cover"
+        preset="desktop"
+        animate={{ flip: 'blur' }}
+        set={[
+          { src: 'https://example.com/01.jpg', alt: 'p1' },
+          { src: 'https://example.com/02.jpg', alt: 'p2' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('cover'))
+    await wait(50)
+
+    const sideImage = requireDefined(Array
+      .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg')), 'expected blur side image')
+    expect(sideImage.style.opacity).toBe('0')
+    expect(sideImage.style.filter).toBe('blur(14px)')
+    const m = requireDefined(sideImage.style.transform.match(/scale3d\(([\d.]+),/), 'expected side scale transform')
+    expect(Number(m[1])).toBeGreaterThan(1.01)
   })
 
   it('Space 触发 zoom 时直接放大到当前鼠标位置', async () => {

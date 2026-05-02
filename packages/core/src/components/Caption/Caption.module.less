@@ -54,6 +54,10 @@
   &.switchZoom {
     animation: capZoom @animationDuration @animationFunction;
   }
+
+  &.switchBlur {
+    animation: capBlur @animationDuration @animationFunction;
+  }
 }
 
 @keyframes capFade {
@@ -98,6 +102,20 @@
 
   to {
     opacity: 1;
+    transform: translate(var(--zmage-caption-translate-x, -50%), 0) scale(1);
+  }
+}
+
+@keyframes capBlur {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translate(var(--zmage-caption-translate-x, -50%), 0) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
     transform: translate(var(--zmage-caption-translate-x, -50%), 0) scale(1);
   }
 }

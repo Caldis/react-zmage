@@ -5,13 +5,14 @@ import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
 
 type AnimateCover = boolean | { objectFit?: boolean; clip?: boolean; radius?: boolean }
-type Animate = { browsing?: boolean; flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'; cover?: AnimateCover; slowMotion?: boolean }
+type Animate = { browsing?: boolean; flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom' | 'blur' | 'none'; cover?: AnimateCover; slowMotion?: boolean }
 
 const FLIP_OPTIONS: { value: NonNullable<Animate['flip']>; labelKey: I18nKey }[] = [
   { value: 'fade', labelKey: 'animate.flip.fade' },
   { value: 'crossFade', labelKey: 'animate.flip.crossFade' },
   { value: 'swipe', labelKey: 'animate.flip.swipe' },
   { value: 'zoom', labelKey: 'animate.flip.zoom' },
+  { value: 'blur', labelKey: 'animate.flip.blur' },
   { value: 'none', labelKey: 'animate.flip.none' },
 ]
 

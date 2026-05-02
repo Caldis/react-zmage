@@ -27,7 +27,6 @@
 - Modify: `packages/home/src/docs/sections/Props.tsx`
 - Modify: `packages/home/src/playground/controls/AnimateControl.tsx`
 - Modify: `packages/home/src/components/CommandK.tsx`
-- Modify: `packages/home/src/schema/param-schema.ts`
 - Modify: `packages/home/src/i18n/en.ts`
 - Modify: `packages/home/src/i18n/de.ts`
 - Modify: `packages/home/src/i18n/es.ts`
@@ -35,6 +34,7 @@
 - Modify: `packages/home/src/i18n/ja.ts`
 - Modify: `packages/home/src/i18n/ko.ts`
 - Modify: `packages/home/src/i18n/zh-CN.ts`
+- Modify: `packages/llms-eval/eval.test.mjs`
 
 ## Task 1: Write failing core tests
 
@@ -130,7 +130,7 @@ expect(cap?.className).not.toMatch(/switch(Fade|CrossFade|Swipe|Zoom|Blur)/)
 Run:
 
 ```bash
-pnpm --filter react-zmage test -- --run src/components/Image/__tests__/Image.utils.test.ts src/__tests__/Zmage.test.tsx
+pnpm --filter react-zmage exec vitest run src/components/Image/__tests__/Image.utils.test.ts src/__tests__/Zmage.test.tsx
 ```
 
 Expected: FAIL because `blur` is not assignable to `AnimateFlip`, `getAnimateConfig('blur')` is not implemented, and `switchBlur` is missing.
@@ -241,7 +241,7 @@ In `Caption.module.less`, add:
 Run:
 
 ```bash
-pnpm --filter react-zmage test -- --run src/components/Image/__tests__/Image.utils.test.ts src/__tests__/Zmage.test.tsx
+pnpm --filter react-zmage exec vitest run src/components/Image/__tests__/Image.utils.test.ts src/__tests__/Zmage.test.tsx
 ```
 
 Expected: PASS.
@@ -255,8 +255,8 @@ Expected: PASS.
 - Modify: `packages/home/src/docs/sections/Props.tsx`
 - Modify: `packages/home/src/playground/controls/AnimateControl.tsx`
 - Modify: `packages/home/src/components/CommandK.tsx`
-- Modify: `packages/home/src/schema/param-schema.ts`
 - Modify: all 7 `packages/home/src/i18n/*.ts`
+- Modify: `packages/llms-eval/eval.test.mjs`
 
 - [ ] **Step 1: Update English docs surfaces**
 
@@ -266,7 +266,7 @@ Add `blur` anywhere the full `animate.flip` union is listed:
 'fade' | 'crossFade' | 'swipe' | 'zoom' | 'blur' | 'none'
 ```
 
-Apply to `README.md`, `docs/llms.txt`, `Props.tsx`, and local home schema/control types.
+Apply to `README.md`, `docs/llms.txt`, `Props.tsx`, and local home control types.
 
 - [ ] **Step 2: Update Chinese README**
 
@@ -303,7 +303,11 @@ Add `animate.flip.blur` in every locale:
 'animate.flip.blur': '블러',
 ```
 
-- [ ] **Step 5: Verify i18n key parity**
+- [ ] **Step 5: Add llms-eval contract assertion**
+
+Add an `llms-eval` assertion that checks `AnimateFlip` includes `blur`, `FLIP_VISUAL.blur` exists, docs mention `'blur'`, and desktop/mobile defaults remain `crossFade` / `swipe`.
+
+- [ ] **Step 6: Verify i18n key parity**
 
 Run:
 
@@ -381,7 +385,7 @@ Expected: only blur flip implementation, docs sync, generated check artifacts if
 Run:
 
 ```bash
-git add docs/superpowers/plans/2026-05-03-blur-flip-implementation.md packages/core/src/types/global.ts packages/core/src/components/Image/Image.utils.ts packages/core/src/components/Image/Image.tsx packages/core/src/components/Image/Image.module.less packages/core/src/config/anim.ts packages/core/src/components/Caption/Caption.tsx packages/core/src/components/Caption/Caption.module.less packages/core/src/components/Image/__tests__/Image.utils.test.ts packages/core/src/__tests__/Zmage.test.tsx README.md README.zh-CN.md docs/llms.txt packages/home/src/docs/sections/Props.tsx packages/home/src/playground/controls/AnimateControl.tsx packages/home/src/components/CommandK.tsx packages/home/src/schema/param-schema.ts packages/home/src/i18n/en.ts packages/home/src/i18n/de.ts packages/home/src/i18n/es.ts packages/home/src/i18n/fr.ts packages/home/src/i18n/ja.ts packages/home/src/i18n/ko.ts packages/home/src/i18n/zh-CN.ts
+git add docs/superpowers/plans/2026-05-03-blur-flip-implementation.md packages/core/src/types/global.ts packages/core/src/components/Image/Image.utils.ts packages/core/src/components/Image/Image.tsx packages/core/src/components/Image/Image.module.less packages/core/src/config/anim.ts packages/core/src/components/Caption/Caption.tsx packages/core/src/components/Caption/Caption.module.less packages/core/src/components/Image/__tests__/Image.utils.test.ts packages/core/src/__tests__/Zmage.test.tsx README.md README.zh-CN.md docs/llms.txt packages/home/src/docs/sections/Props.tsx packages/home/src/playground/controls/AnimateControl.tsx packages/home/src/components/CommandK.tsx packages/home/src/i18n/en.ts packages/home/src/i18n/de.ts packages/home/src/i18n/es.ts packages/home/src/i18n/fr.ts packages/home/src/i18n/ja.ts packages/home/src/i18n/ko.ts packages/home/src/i18n/zh-CN.ts packages/llms-eval/eval.test.mjs
 git commit -m "feat(core): add blur flip animation"
 ```
 

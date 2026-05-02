@@ -251,6 +251,7 @@ export const en: I18nDict = {
   'animate.flip.crossFade': 'Cross fade',
   'animate.flip.swipe': 'Swipe',
   'animate.flip.zoom': 'Zoom',
+  'animate.flip.blur': 'Blur',
   'animate.flip.none': 'None',
   'animate.slowMotion': 'Slow motion',
 
