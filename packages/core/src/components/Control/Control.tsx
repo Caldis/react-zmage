@@ -19,10 +19,21 @@ import {
 } from '../../asserts/icons'
 // Utils
 import { Context } from '../context'
-import { ControllerItem, ControllerPlacement, ControllerRenderActions, ControllerRenderSlots, ControllerRenderState, ControllerSet } from '../../types/global'
+import { getControllerLayoutTargets } from '../Browser/Browser.utils'
+import {
+  ControllerItem,
+  ControllerLayoutInset,
+  ControllerPlacement,
+  ControllerRenderActions,
+  ControllerRenderSlots,
+  ControllerRenderState,
+  ControllerSet
+} from '../../types/global'
 import { cx, downloadFromLink } from '../../utils'
 
 type IconComponent = ComponentType<{ color?: string }>
+type FlipSide = 'left' | 'right'
+type ControllerLayoutInsetObject = Exclude<ControllerLayoutInset, number | string | undefined>
 const CONTROLLER_PLACEMENTS = new Set<ControllerPlacement>([
   'top-right',
   'top-left',
@@ -33,6 +44,7 @@ const CONTROLLER_PLACEMENTS = new Set<ControllerPlacement>([
   'left-center',
   'right-center',
 ])
+const CSS_LENGTH_VALUE_RE = /^([+-]?(?:\d+|\d*\.\d+))(?:[a-z%]*)$/i
 
 function resolveControllerPlacement (placement: ControllerSet['placement']): ControllerPlacement {
   return typeof placement === 'string' && CONTROLLER_PLACEMENTS.has(placement)
@@ -49,6 +61,28 @@ const PLACEMENT_CLASS: Record<ControllerPlacement, string> = {
   'bottom-center': style.bottomCenter,
   'left-center': style.leftCenter,
   'right-center': style.rightCenter,
+}
+
+const isInsetObject = (inset: ControllerLayoutInset | undefined): inset is ControllerLayoutInsetObject => {
+  return !!inset && typeof inset === 'object'
+}
+
+const isNonZeroInsetValue = (value: unknown) => {
+  if (typeof value === 'number') return Number.isFinite(value) && value !== 0
+  if (typeof value !== 'string') return false
+
+  const trimmed = value.trim()
+  if (!trimmed) return false
+
+  const match = trimmed.match(CSS_LENGTH_VALUE_RE)
+  if (match) return Number(match[1]) !== 0
+
+  return true
+}
+
+const hasNonZeroFlipInset = (inset: ControllerLayoutInset | undefined, side: FlipSide) => {
+  if (isInsetObject(inset)) return isNonZeroInsetValue(inset[side])
+  return isNonZeroInsetValue(inset)
 }
 
 function getControllerItem (
@@ -139,6 +173,9 @@ export default function Control () {
     ...browsingItemTransitionStyle,
   }
   const placement = resolveControllerPlacement(controllerParams.placement)
+  const flipLayout = getControllerLayoutTargets(controllerParams.layout, presetIsMobile).flip
+  const flipLeftDetached = hasNonZeroFlipInset(flipLayout?.inset, 'left')
+  const flipRightDetached = hasNonZeroFlipInset(flipLayout?.inset, 'right')
   const handleMobileZoom = () => {
     const current = Array.isArray(set) ? set[page] : undefined
     if (!current) {
@@ -256,7 +293,7 @@ export default function Control () {
       (controllerParams.flipLeft || controllerParams.flip),
       IconArrowLeft,
       'zmageControlFlipLeft',
-      cx(style.flipLeft, { [style.show]: !zoom && show }),
+      cx(style.flipLeft, { [style.show]: !zoom && show, [style.detachedSideButton]: flipLeftDetached }),
       toPrevPage,
       show,
       zoom,
@@ -272,7 +309,7 @@ export default function Control () {
       (controllerParams.flipRight || controllerParams.flip),
       IconArrowRight,
       'zmageControlFlipRight',
-      cx(style.flipRight, { [style.show]: !zoom && show }),
+      cx(style.flipRight, { [style.show]: !zoom && show, [style.detachedSideButton]: flipRightDetached }),
       toNextPage,
       show,
       zoom,

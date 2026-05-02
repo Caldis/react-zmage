@@ -1237,6 +1237,8 @@ describe('Zmage controller Phase 5', () => {
     await wait(50)
 
     const portal = document.getElementById('zmage')
+    const flipLeft = document.getElementById('zmageControlFlipLeft')
+    const flipRight = document.getElementById('zmageControlFlipRight')
     expect(portal?.style.getPropertyValue('--zmage-toolbar-top-offset')).toBe('24px')
     expect(portal?.style.getPropertyValue('--zmage-toolbar-right-offset')).toBe('24px')
     expect(portal?.style.getPropertyValue('--zmage-toolbar-bottom-offset')).toBe('auto')
@@ -1247,6 +1249,8 @@ describe('Zmage controller Phase 5', () => {
     expect(portal?.style.getPropertyValue('--zmage-pagination-left-offset')).toBe('')
     expect(portal?.style.getPropertyValue('--zmage-caption-bottom-offset')).toBe('4rem')
     expect(document.getElementById('zmageControl')?.dataset.placement).toBe('top-right')
+    expect(flipLeft?.className).toContain('detachedSideButton')
+    expect(flipRight?.className).toContain('detachedSideButton')
   })
 
   it('controller.layout.mobile 在 mobile preset 下覆盖基础偏移', async () => {
@@ -1257,6 +1261,7 @@ describe('Zmage controller Phase 5', () => {
         preset="mobile"
         caption="mobile caption"
         controller={{
+          flip: true,
           layout: {
             flip: { inset: 8 },
             pagination: { inset: { bottom: '1rem' } },
@@ -1278,10 +1283,14 @@ describe('Zmage controller Phase 5', () => {
     await wait(50)
 
     const portal = document.getElementById('zmage')
+    const flipLeft = document.getElementById('zmageControlFlipLeft')
+    const flipRight = document.getElementById('zmageControlFlipRight')
     expect(portal?.style.getPropertyValue('--zmage-flip-left-offset')).toBe('2rem')
     expect(portal?.style.getPropertyValue('--zmage-flip-right-offset')).toBe('3rem')
     expect(portal?.style.getPropertyValue('--zmage-pagination-bottom-offset')).toBe('2.75rem')
     expect(portal?.style.getPropertyValue('--zmage-caption-bottom-offset')).toBe('5.25rem')
+    expect(flipLeft?.className).toContain('detachedSideButton')
+    expect(flipRight?.className).toContain('detachedSideButton')
   })
 
   it('controller.layout.flip 对象偏移只影响指定侧按钮', async () => {
@@ -1300,8 +1309,31 @@ describe('Zmage controller Phase 5', () => {
     await wait(50)
 
     const portal = document.getElementById('zmage')
+    const flipLeft = document.getElementById('zmageControlFlipLeft')
+    const flipRight = document.getElementById('zmageControlFlipRight')
     expect(portal?.style.getPropertyValue('--zmage-flip-left-offset')).toBe('2rem')
     expect(portal?.style.getPropertyValue('--zmage-flip-right-offset')).toBe('')
+    expect(flipLeft?.className).toContain('detachedSideButton')
+    expect(flipRight?.className).not.toContain('detachedSideButton')
+  })
+
+  it('controller.layout.flip=0 保持贴边翻页按钮的外侧直角', async () => {
+    render(
+      <Zmage
+        src={SRC}
+        alt="controller-layout-flip-zero"
+        controller={{ layout: { flip: { inset: 0 } } }}
+        set={[
+          { src: SRC },
+          { src: 'https://example.com/controller-layout-flip-zero-b.jpg' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-layout-flip-zero'))
+    await wait(50)
+
+    expect(document.getElementById('zmageControlFlipLeft')?.className).not.toContain('detachedSideButton')
+    expect(document.getElementById('zmageControlFlipRight')?.className).not.toContain('detachedSideButton')
   })
 
   it('controller.placement 不破坏 animate.browsing=false 的无动画契约', async () => {

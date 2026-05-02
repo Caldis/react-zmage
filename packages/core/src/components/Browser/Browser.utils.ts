@@ -100,6 +100,14 @@ const mergeLayoutTargets = (
   return merged
 }
 
+export const getControllerLayoutTargets = (
+  layout: ControllerOverlayLayout | undefined,
+  presetIsMobile: boolean,
+): ControllerLayoutTargets => {
+  if (!layout) return {}
+  return mergeLayoutTargets(layout, presetIsMobile ? layout.mobile : undefined)
+}
+
 const toolbarScalarEdges = (placement: ControllerPlacement | undefined): Edge[] => {
   switch (placement) {
   case 'top-left':
@@ -169,7 +177,7 @@ export const getControllerLayoutStyle = (
   const layout = controller?.layout
   if (!layout) return undefined
 
-  const targets = mergeLayoutTargets(layout, presetIsMobile ? layout.mobile : undefined)
+  const targets = getControllerLayoutTargets(layout, presetIsMobile)
   const style: OverlayStyle = {}
 
   OVERLAY_TARGETS.forEach(target => {

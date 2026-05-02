@@ -38,15 +38,15 @@ const PLACEMENTS = [
 const PLACEMENT_OPTIONS = PLACEMENTS.map((placement) => ({ value: placement, label: placement }))
 const DEFAULT_LAYOUT: ControllerLayout = {
   toolbar: { inset: 12 },
-  flip: { inset: 16 },
+  flip: { inset: 0 },
   pagination: { inset: 24 },
-  caption: { inset: 72 },
+  caption: { inset: 60 },
 }
 const DEFAULT_LAYOUT_INSET: Record<ControllerLayoutTarget, number> = {
   toolbar: 12,
-  flip: 16,
+  flip: 0,
   pagination: 24,
-  caption: 72,
+  caption: 60,
 }
 const LAYOUT_CONTROLS: { target: ControllerLayoutTarget; label: string; descKey: I18nKey; max: number }[] = [
   { target: 'toolbar', label: 'toolbar.inset', descKey: 'controller.layout.toolbarInset.desc', max: 80 },
