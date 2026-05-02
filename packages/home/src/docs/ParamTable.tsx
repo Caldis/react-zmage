@@ -1,5 +1,6 @@
 import { PARAM_SCHEMA, type ParamGroup } from '@/schema/param-schema'
 import { Badge } from '@/components/ui/badge'
+import { PresetScopeBadge } from '@/components/PresetScopeBadge'
 import { useT } from '@/i18n/useT'
 
 const OBJECT_TYPE_NAME: Record<'controller' | 'hotkey' | 'animate' | 'gesture' | 'set', string> = {
@@ -56,7 +57,7 @@ export function ParamTable ({ group }: { group: ParamGroup }) {
               <td className="px-4 py-2.5 align-top">
                 <span className="font-mono">{d.name}</span>
                 {d.required && <Badge variant="destructive" className="ml-1.5 h-4 px-1 text-[9px]">{t('common.required')}</Badge>}
-                {d.desktopOnly && <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[9px]">{t('common.desktopOnly')}</Badge>}
+                {d.presetScope && <PresetScopeBadge scope={d.presetScope} className="ml-1.5" />}
               </td>
               <td className="px-4 py-2.5 align-top font-mono text-xs text-muted-foreground">{inferType(d)}</td>
               <td className="px-4 py-2.5 align-top font-mono text-xs">{fmtDefault(d.default)}</td>

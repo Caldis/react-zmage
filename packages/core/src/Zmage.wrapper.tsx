@@ -8,6 +8,7 @@ import React from 'react'
 import callee from './Zmage.callee'
 // Utils
 import { defProp } from './types/default'
+import { getMotionDurationMultiplierFromEvent } from './config/motion'
 import { BaseType, Set } from './types/global'
 
 type Props = BaseType
@@ -59,14 +60,15 @@ export default class ReactZmageWrapper extends React.Component<Props> {
           const itemAlt = item.getAttribute('alt') || undefined
           const itemCaption = readCaptionFromNode(item)
           const itemSetIndex = findSetIndexBySrc(restProps.set, itemSrc)
-          item.addEventListener('click', () => callee({
+          item.addEventListener('click', (event) => callee({
             ...restProps,
             coverRef: { current: item },
             src: itemSrc,
             alt: itemAlt,
             caption: itemCaption ?? restProps.caption,
             defaultPage: itemSetIndex >= 0 ? itemSetIndex : restProps.defaultPage,
-          }))
+            motionDurationMultiplier: getMotionDurationMultiplierFromEvent(event),
+          } as BaseType & { motionDurationMultiplier: number }))
         }
       })
     }

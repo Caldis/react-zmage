@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { PresetScopeBadge, type PresetScope } from '@/components/PresetScopeBadge'
 import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
 
@@ -97,19 +98,22 @@ const DEFAULT_DOUBLE_TAP_ZOOM: Required<GestureDoubleTapZoomOptions> = {
   distance: 32,
 }
 
-function TipLabel ({ name, descKey }: { name: string; descKey: I18nKey }) {
+function TipLabel ({ name, descKey, scope }: { name: string; descKey: I18nKey; scope?: PresetScope }) {
   const { t } = useT()
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span className="cursor-help font-mono text-muted-foreground decoration-dotted underline-offset-4 hover:underline">
-          {name}
-        </span>
-      </TooltipTrigger>
-      <TooltipContent side="left" className="max-w-[260px] text-xs">
-        {t(descKey)}
-      </TooltipContent>
-    </Tooltip>
+    <span className="inline-flex min-w-0 items-center gap-1">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="cursor-help font-mono text-muted-foreground decoration-dotted underline-offset-4 hover:underline">
+            {name}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent side="left" className="max-w-[260px] text-xs">
+          {t(descKey)}
+        </TooltipContent>
+      </Tooltip>
+      {scope && <PresetScopeBadge scope={scope} />}
+    </span>
   )
 }
 
@@ -165,7 +169,7 @@ export function GestureControl ({ value, onChange }: { value: GestureSet | boole
       {!disabled && (
         <>
           <label className="grid grid-cols-[72px_1fr] items-center gap-2 rounded border border-border/70 p-2">
-            <TipLabel name="touchAction" descKey="gesture.touchAction.desc" />
+            <TipLabel name="touchAction" descKey="gesture.touchAction.desc" scope="mobile" />
             <HoverSelect
               value={touchAction}
               onValueChange={v => onChange({ ...obj, touchAction: v as GestureTouchAction })}
@@ -180,7 +184,7 @@ export function GestureControl ({ value, onChange }: { value: GestureSet | boole
           </label>
           <div className="rounded border border-border/70 p-2">
             <label className="flex items-center justify-between gap-3">
-              <TipLabel name="swipe" descKey="gesture.swipe.desc" />
+              <TipLabel name="swipe" descKey="gesture.swipe.desc" scope="mobile" />
               <Switch checked={obj.swipe !== false} onCheckedChange={checked => setSwipe(checked ? swipe : false)} />
             </label>
             {obj.swipe !== false && (
@@ -194,7 +198,7 @@ export function GestureControl ({ value, onChange }: { value: GestureSet | boole
           </div>
           <div className="rounded border border-border/70 p-2">
             <label className="flex items-center justify-between gap-3">
-              <TipLabel name="dragExit" descKey="gesture.dragExit.desc" />
+              <TipLabel name="dragExit" descKey="gesture.dragExit.desc" scope="mobile" />
               <Switch checked={obj.dragExit !== false} onCheckedChange={checked => setDragExit(checked ? dragExit : false)} />
             </label>
             {obj.dragExit !== false && (
@@ -211,7 +215,7 @@ export function GestureControl ({ value, onChange }: { value: GestureSet | boole
           </div>
           <div className="rounded border border-border/70 p-2">
             <label className="flex items-center justify-between gap-3">
-              <TipLabel name="pinchZoom" descKey="gesture.pinchZoom.desc" />
+              <TipLabel name="pinchZoom" descKey="gesture.pinchZoom.desc" scope="mobile" />
               <Switch checked={obj.pinchZoom !== false} onCheckedChange={checked => setPinchZoom(checked ? pinchZoom : false)} />
             </label>
             {obj.pinchZoom !== false && (
@@ -251,7 +255,7 @@ export function GestureControl ({ value, onChange }: { value: GestureSet | boole
           </div>
           <div className="rounded border border-border/70 p-2">
             <label className="flex items-center justify-between gap-3">
-              <TipLabel name="doubleTapZoom" descKey="gesture.doubleTapZoom.desc" />
+              <TipLabel name="doubleTapZoom" descKey="gesture.doubleTapZoom.desc" scope="mobile" />
               <Switch checked={obj.doubleTapZoom !== false} onCheckedChange={checked => setDoubleTapZoom(checked ? doubleTapZoom : false)} />
             </label>
             {obj.doubleTapZoom !== false && (
@@ -290,7 +294,7 @@ export function GestureControl ({ value, onChange }: { value: GestureSet | boole
           </div>
           <div className="rounded border border-border/70 p-2">
             <label className="flex items-center justify-between gap-3">
-              <TipLabel name="wheelZoom" descKey="gesture.wheelZoom.desc" />
+              <TipLabel name="wheelZoom" descKey="gesture.wheelZoom.desc" scope="desktop" />
               <Switch checked={obj.wheelZoom !== false} onCheckedChange={checked => setWheelZoom(checked ? wheelZoom : false)} />
             </label>
             {obj.wheelZoom !== false && (

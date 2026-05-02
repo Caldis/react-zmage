@@ -4,7 +4,7 @@
 
 **Goal:** Build the `/ai` AI Prompt Setup page, reuse existing home UI primitives, keep the homepage quick prompt, generate a gpt-image-2 illustration, and fix the stale onboarding rubric prop list.
 
-**Architecture:** Put prompt semantics in `packages/home/src/aiPrompt/*` as pure data and a pure builder. Put reusable UI in `packages/home/src/components/ui/*` and `packages/home/src/lib/useCopyToClipboard.ts`. Keep `AISetup.tsx` focused on page state, layout, and composition.
+**Architecture:** Put prompt semantics in `packages/home/src/aiPrompt/*` as pure data and a pure builder. Pass translated option labels into the builder so copied prompts contain user-facing labels, not raw internal enum values. Put reusable UI in `packages/home/src/components/ui/*` and `packages/home/src/lib/useCopyToClipboard.ts`. Keep `AISetup.tsx` focused on page state, layout, and composition.
 
 **Tech Stack:** React 19, Vite, React Router, Radix Tabs, Tailwind CSS v4 utilities, lucide-react icons, prism-react-renderer, static public assets, node:test for existing llms-eval checks.
 
@@ -18,6 +18,8 @@
 - `packages/home/src/aiPrompt/types.ts`: value unions and `AiPromptConfig`.
 - `packages/home/src/aiPrompt/options.ts`: module-level option definitions.
 - `packages/home/src/aiPrompt/buildPrompt.ts`: pure prompt builder and dynamic guidance helpers.
+- `packages/home/src/aiPrompt/buildPrompt.test.ts`: focused Vitest coverage for Auto labels and fine-tune guidance.
+- `packages/home/package.json`: add a home-local `test` script and Vitest dev dependency if needed.
 - `packages/home/src/routes/AISetup.tsx`: `/ai` page layout and local state.
 - `packages/home/src/App.tsx`: route registration.
 - `packages/home/src/components/TopNav.tsx`: top nav and mobile nav link.
@@ -26,6 +28,16 @@
 - `packages/home/src/i18n/*.ts`: add nav, page, option, action, and error copy in all seven locales.
 - `packages/home/public/ai-onboarding/prompt-setup.png`: generated gpt-image-2 illustration.
 - `packages/llms-eval/agent-onboarding/rubric.mjs`: remove stale `txt` prop from `VALID_PROPS`.
+
+## Review Corrections Applied
+
+- Do not hide the fine-tune region with `hidden`; collapse it with animatable grid rows, opacity, and transform.
+- Do not put only `max-h` on `CodeBlock`; wrap prompt preview in a vertical scroll container.
+- Do not write raw enum values such as `next-rsc` or `wrapper-caption` into the generated prompt; pass translated labels to `buildAiPrompt`.
+- Keep a mobile-friendly collapsed preview control so the long prompt does not dominate narrow screens.
+- Treat `gpt-image-2` generation as a real asset step, and validate that the PNG exists and is non-trivial before final build.
+- Register `/ai` before the catch-all route.
+- Keep `onError` once in the llms-eval valid prop set.
 
 ## Task 1: Shared UI Primitives And Copy Hook
 
@@ -240,6 +252,8 @@ Expected: build passes, with `docs/index.html`, `docs/404.html`, and `docs/asset
 - Create: `packages/home/src/aiPrompt/types.ts`
 - Create: `packages/home/src/aiPrompt/options.ts`
 - Create: `packages/home/src/aiPrompt/buildPrompt.ts`
+- Create: `packages/home/src/aiPrompt/buildPrompt.test.ts`
+- Modify: `packages/home/package.json`
 
 - [ ] **Step 1: Create setup types**
 
@@ -267,6 +281,15 @@ export type AiPromptConfig = {
   imageSource: ImageSource
   interaction: InteractionProfile
   projectDescription: string
+}
+
+export type PromptLabels = {
+  agent: Record<AgentTool, string>
+  depth: Record<SetupDepth, string>
+  environment: Record<ProjectEnvironment, string>
+  mode: Record<UsageMode, string>
+  imageSource: Record<ImageSource, string>
+  interaction: Record<InteractionProfile, string>
 }
 
 export type PromptChoiceOption<T extends string> = {
@@ -341,14 +364,14 @@ export const INTERACTION_OPTIONS: readonly PromptChoiceOption<InteractionProfile
 
 - [ ] **Step 3: Create the prompt builder**
 
-Create `packages/home/src/aiPrompt/buildPrompt.ts`:
+Create `packages/home/src/aiPrompt/buildPrompt.ts`. The builder stays pure, but it receives translated labels from the route so prompt text matches the current UI language and does not leak internal enum values.
 
 ```ts
-import type { AiPromptConfig } from './types'
+import type { AiPromptConfig, PromptLabels } from './types'
 
 const CANONICAL_REFERENCE = 'https://zmage.caldis.me/llms.txt'
 
-const displayValue = (value: string) => value || 'Auto'
+const displayChoice = <T extends string>(value: T, labels: Record<T, string>) => labels[value] ?? value
 const projectDescription = (value: string) => value.trim() || '(Not provided)'
 
 function modeInstructions (config: AiPromptConfig) {
@@ -427,7 +450,7 @@ function propGuidance (config: AiPromptConfig) {
   return lines.join('\n')
 }
 
-export function buildAiPrompt (config: AiPromptConfig) {
+export function buildAiPrompt (config: AiPromptConfig, labels: PromptLabels) {
   return `> **Canonical reference:** ${CANONICAL_REFERENCE}
 >
 > If anything below looks outdated or contradicts real package behavior, fetch that URL first. It is the source of truth for react-zmage usage modes, props, defaults, SSR entry, and common pitfalls. Report staleness back to the user.
@@ -440,12 +463,12 @@ export function buildAiPrompt (config: AiPromptConfig) {
 
 | Setting | Value |
 |---------|-------|
-| Coding Tool | ${displayValue(config.agent)} |
-| Project Environment | ${displayValue(config.environment)} |
-| Setup Depth | ${displayValue(config.depth)} |
-| Usage Mode | ${displayValue(config.mode)} |
-| Image Source | ${displayValue(config.imageSource)} |
-| Interaction Detail | ${displayValue(config.interaction)} |
+| Coding Tool | ${displayChoice(config.agent, labels.agent)} |
+| Project Environment | ${displayChoice(config.environment, labels.environment)} |
+| Setup Depth | ${displayChoice(config.depth, labels.depth)} |
+| Usage Mode | ${displayChoice(config.mode, labels.mode)} |
+| Image Source | ${displayChoice(config.imageSource, labels.imageSource)} |
+| Interaction Detail | ${displayChoice(config.interaction, labels.interaction)} |
 
 **Project Description:** ${projectDescription(config.projectDescription)}
 
@@ -538,6 +561,32 @@ Return:
 }
 ```
 
+- [ ] **Step 4: Add focused prompt builder tests**
+
+Create `packages/home/src/aiPrompt/buildPrompt.test.ts` with Vitest assertions that:
+
+- Auto choices render as translated labels, not raw enum values.
+- Fine-tuned choices such as `next-rsc`, `wrapper-caption`, and `no-browsing-animation` render with human labels in the configuration table.
+- Auto mode guidance tells the downstream Agent to inspect the project before asking questions.
+
+Add a home-local test script:
+
+```json
+"test": "vitest run src/aiPrompt/buildPrompt.test.ts"
+```
+
+Add `vitest` to `packages/home/package.json` dev dependencies only if `pnpm --filter react-zmage-home exec vitest --version` cannot resolve it.
+
+- [ ] **Step 5: Run prompt builder tests**
+
+Run:
+
+```bash
+pnpm --filter react-zmage-home run test
+```
+
+Expected: focused tests pass.
+
 ## Task 3: AI Setup Route UI
 
 **Files:**
@@ -570,7 +619,7 @@ import {
   MODE_OPTIONS,
 } from '@/aiPrompt/options'
 import { buildAiPrompt } from '@/aiPrompt/buildPrompt'
-import type { AiPromptConfig, PromptChoiceOption } from '@/aiPrompt/types'
+import type { AiPromptConfig, PromptChoiceOption, PromptLabels } from '@/aiPrompt/types'
 import type { I18nKey } from '@/i18n/dict'
 
 const DEFAULT_CONFIG: AiPromptConfig = {
@@ -594,13 +643,30 @@ function translateOptions<T extends string> (
   }))
 }
 
+function promptLabels (t: (key: I18nKey) => string): PromptLabels {
+  const fromOptions = <T extends string>(options: readonly PromptChoiceOption<T>[]) => Object.fromEntries(
+    options.map(option => [option.value, t(option.labelKey as I18nKey)]),
+  ) as Record<T, string>
+
+  return {
+    agent: fromOptions(AGENT_OPTIONS),
+    depth: fromOptions(DEPTH_OPTIONS),
+    environment: fromOptions(ENVIRONMENT_OPTIONS),
+    mode: fromOptions(MODE_OPTIONS),
+    imageSource: fromOptions(IMAGE_SOURCE_OPTIONS),
+    interaction: fromOptions(INTERACTION_OPTIONS),
+  }
+}
+
 export default function AISetup () {
   const { t } = useT()
   const [config, setConfig] = React.useState<AiPromptConfig>(DEFAULT_CONFIG)
   const [imageHidden, setImageHidden] = React.useState(false)
+  const [previewOpen, setPreviewOpen] = React.useState(false)
   const { copied, error, copy } = useCopyToClipboard()
 
-  const prompt = React.useMemo(() => buildAiPrompt(config), [config])
+  const labels = React.useMemo(() => promptLabels(t), [t])
+  const prompt = React.useMemo(() => buildAiPrompt(config, labels), [config, labels])
   const fineTune = config.depth === 'fine'
 
   const setField = React.useCallback(<K extends keyof AiPromptConfig>(key: K, value: AiPromptConfig[K]) => {
@@ -647,31 +713,41 @@ export default function AISetup () {
             )}
           </div>
 
-          <div className={cn('grid gap-6 transition-[opacity,transform] duration-200 motion-reduce:transition-none', fineTune ? 'opacity-100' : 'pointer-events-none hidden opacity-0')}>
-            <SegmentedChoice
-              label={t('ai.field.environment')}
-              value={config.environment}
-              options={translateOptions(ENVIRONMENT_OPTIONS, t)}
-              onValueChange={(value) => setField('environment', value)}
-            />
-            <SegmentedChoice
-              label={t('ai.field.mode')}
-              value={config.mode}
-              options={translateOptions(MODE_OPTIONS, t)}
-              onValueChange={(value) => setField('mode', value)}
-            />
-            <SegmentedChoice
-              label={t('ai.field.imageSource')}
-              value={config.imageSource}
-              options={translateOptions(IMAGE_SOURCE_OPTIONS, t)}
-              onValueChange={(value) => setField('imageSource', value)}
-            />
-            <SegmentedChoice
-              label={t('ai.field.interaction')}
-              value={config.interaction}
-              options={translateOptions(INTERACTION_OPTIONS, t)}
-              onValueChange={(value) => setField('interaction', value)}
-            />
+          <div
+            className={cn(
+              'grid transition-[grid-template-rows,opacity,transform] duration-[220ms] ease-out motion-reduce:transition-none',
+              fineTune ? 'grid-rows-[1fr] opacity-100 translate-y-0' : 'pointer-events-none grid-rows-[0fr] opacity-0 translate-y-2',
+            )}
+            aria-hidden={!fineTune}
+          >
+            <div className="min-h-0 overflow-hidden">
+              <div className="grid gap-6 pt-1">
+                <SegmentedChoice
+                  label={t('ai.field.environment')}
+                  value={config.environment}
+                  options={translateOptions(ENVIRONMENT_OPTIONS, t)}
+                  onValueChange={(value) => setField('environment', value)}
+                />
+                <SegmentedChoice
+                  label={t('ai.field.mode')}
+                  value={config.mode}
+                  options={translateOptions(MODE_OPTIONS, t)}
+                  onValueChange={(value) => setField('mode', value)}
+                />
+                <SegmentedChoice
+                  label={t('ai.field.imageSource')}
+                  value={config.imageSource}
+                  options={translateOptions(IMAGE_SOURCE_OPTIONS, t)}
+                  onValueChange={(value) => setField('imageSource', value)}
+                />
+                <SegmentedChoice
+                  label={t('ai.field.interaction')}
+                  value={config.interaction}
+                  options={translateOptions(INTERACTION_OPTIONS, t)}
+                  onValueChange={(value) => setField('interaction', value)}
+                />
+              </div>
+            </div>
           </div>
 
           <div>
@@ -696,12 +772,15 @@ export default function AISetup () {
                 <ExternalLink className="h-4 w-4" />
               </a>
             </Button>
+            <Button variant="outline" className="lg:hidden" onClick={() => setPreviewOpen(current => !current)}>
+              {previewOpen ? t('ai.preview.hide') : t('ai.preview.show')}
+            </Button>
           </div>
           {error && <p className="text-sm text-destructive">{t('ai.copy.error')}</p>}
         </div>
       </section>
 
-      <aside className="min-w-0 lg:sticky lg:top-20 lg:self-start">
+      <aside className={cn('min-w-0 lg:sticky lg:top-20 lg:block lg:self-start', previewOpen ? 'block' : 'hidden')}>
         {!imageHidden && (
           <img
             src="/ai-onboarding/prompt-setup.png"
@@ -718,18 +797,20 @@ export default function AISetup () {
             </div>
           </div>
           <Separator />
-          <CodeBlock
-            code={prompt}
-            language={'markdown' as any}
-            className="max-h-[560px] rounded-none border-0 bg-transparent"
-            actions={(
-              <Button size="sm" variant="outline" onClick={copyPrompt}>
-                {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                {copied ? t('ai.action.copied') : t('ai.preview.copy')}
-              </Button>
-            )}
-            showCopy={false}
-          />
+          <div className="max-h-[560px] overflow-y-auto">
+            <CodeBlock
+              code={prompt}
+              language={'markdown' as any}
+              className="rounded-none border-0 bg-transparent"
+              actions={(
+                <Button size="sm" variant="outline" onClick={copyPrompt}>
+                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? t('ai.action.copied') : t('ai.preview.copy')}
+                </Button>
+              )}
+              showCopy={false}
+            />
+          </div>
         </div>
       </aside>
     </div>
@@ -769,7 +850,7 @@ In `packages/home/src/App.tsx`, add:
 import AISetup from './routes/AISetup'
 ```
 
-Add route before docs:
+Add route before the catch-all route:
 
 ```tsx
 <Route path="/ai" element={<AISetup />} />
@@ -851,6 +932,8 @@ In `packages/home/src/i18n/zh-CN.ts`, add keys near existing nav/hero/page keys:
 'ai.preview.title': 'Setup prompt',
 'ai.preview.subtitle': '会随左侧选择实时更新',
 'ai.preview.copy': '复制',
+'ai.preview.show': '预览 prompt',
+'ai.preview.hide': '收起预览',
 'ai.option.auto': 'Auto',
 'ai.option.other': 'Other',
 'ai.option.agent.codex': 'Codex',
@@ -910,6 +993,8 @@ In `packages/home/src/i18n/en.ts`, add:
 'ai.preview.title': 'Setup prompt',
 'ai.preview.subtitle': 'Updates as you choose options',
 'ai.preview.copy': 'Copy',
+'ai.preview.show': 'Preview prompt',
+'ai.preview.hide': 'Hide preview',
 'ai.option.auto': 'Auto',
 'ai.option.other': 'Other',
 'ai.option.agent.codex': 'Codex',
@@ -969,6 +1054,8 @@ In `packages/home/src/i18n/de.ts`, add:
 'ai.preview.title': 'Setup Prompt',
 'ai.preview.subtitle': 'Aktualisiert sich mit deinen Optionen',
 'ai.preview.copy': 'Kopieren',
+'ai.preview.show': 'Prompt ansehen',
+'ai.preview.hide': 'Vorschau ausblenden',
 'ai.option.auto': 'Auto',
 'ai.option.other': 'Other',
 'ai.option.agent.codex': 'Codex',
@@ -1028,6 +1115,8 @@ In `packages/home/src/i18n/es.ts`, add:
 'ai.preview.title': 'Setup prompt',
 'ai.preview.subtitle': 'Se actualiza con tus opciones',
 'ai.preview.copy': 'Copiar',
+'ai.preview.show': 'Ver prompt',
+'ai.preview.hide': 'Ocultar vista previa',
 'ai.option.auto': 'Auto',
 'ai.option.other': 'Other',
 'ai.option.agent.codex': 'Codex',
@@ -1087,6 +1176,8 @@ In `packages/home/src/i18n/fr.ts`, add:
 'ai.preview.title': 'Setup prompt',
 'ai.preview.subtitle': 'Se met à jour avec vos options',
 'ai.preview.copy': 'Copier',
+'ai.preview.show': 'Voir le prompt',
+'ai.preview.hide': 'Masquer l’aperçu',
 'ai.option.auto': 'Auto',
 'ai.option.other': 'Other',
 'ai.option.agent.codex': 'Codex',
@@ -1146,6 +1237,8 @@ In `packages/home/src/i18n/ja.ts`, add:
 'ai.preview.title': 'Setup prompt',
 'ai.preview.subtitle': '選択に合わせて更新されます',
 'ai.preview.copy': 'コピー',
+'ai.preview.show': 'Prompt をプレビュー',
+'ai.preview.hide': 'プレビューを閉じる',
 'ai.option.auto': 'Auto',
 'ai.option.other': 'Other',
 'ai.option.agent.codex': 'Codex',
@@ -1205,6 +1298,8 @@ In `packages/home/src/i18n/ko.ts`, add:
 'ai.preview.title': 'Setup prompt',
 'ai.preview.subtitle': '선택에 따라 업데이트됩니다',
 'ai.preview.copy': '복사',
+'ai.preview.show': 'Prompt 미리보기',
+'ai.preview.hide': '미리보기 접기',
 'ai.option.auto': 'Auto',
 'ai.option.other': 'Other',
 'ai.option.agent.codex': 'Codex',
@@ -1275,7 +1370,20 @@ Ensure the final file path is:
 packages/home/public/ai-onboarding/prompt-setup.png
 ```
 
-- [ ] **Step 3: Run home build**
+- [ ] **Step 3: Validate the asset exists and is non-trivial**
+
+Run:
+
+```powershell
+$asset = 'packages/home/public/ai-onboarding/prompt-setup.png'
+if (!(Test-Path $asset) -or (Get-Item $asset).Length -lt 100000) {
+  throw "Missing or too-small AI onboarding image: $asset"
+}
+```
+
+Expected: command exits successfully.
+
+- [ ] **Step 4: Run home build**
 
 Run:
 
@@ -1328,7 +1436,7 @@ const VALID_PROPS = new Set([
   'hideOnScroll', 'hideOnDblClick', 'coverVisible', 'backdrop', 'zIndex', 'radius', 'edge', 'loop', 'loadingDelay',
   'onBrowsing', 'onZooming', 'onSwitching', 'onRotating', 'onError',
   'browsing',
-  'className', 'style', 'id', 'onClick', 'onLoad', 'onError', 'title', 'role',
+  'className', 'style', 'id', 'onClick', 'onLoad', 'title', 'role',
   'children', 'ref', 'key',
   'width', 'height', 'srcSet', 'sizes', 'loading', 'decoding', 'fetchPriority',
   'crossOrigin', 'referrerPolicy', 'useMap', 'tabIndex', 'draggable',
@@ -1361,7 +1469,17 @@ pnpm --filter react-zmage-home run build
 
 Expected: build passes.
 
-- [ ] **Step 2: Run llms-eval**
+- [ ] **Step 2: Run home prompt tests**
+
+Run:
+
+```bash
+pnpm --filter react-zmage-home run test
+```
+
+Expected: prompt builder tests pass.
+
+- [ ] **Step 3: Run llms-eval**
 
 Run:
 
@@ -1371,7 +1489,7 @@ pnpm --filter llms-eval run test
 
 Expected: tests pass.
 
-- [ ] **Step 3: Check whitespace**
+- [ ] **Step 4: Check whitespace**
 
 Run:
 
@@ -1381,7 +1499,7 @@ git diff --check
 
 Expected: no output.
 
-- [ ] **Step 4: Review changed files**
+- [ ] **Step 5: Review changed files**
 
 Run:
 
@@ -1394,6 +1512,7 @@ Expected changed file groups:
 
 ```text
 packages/home/src/aiPrompt/*
+packages/home/package.json
 packages/home/src/components/ui/segmented-choice.tsx
 packages/home/src/components/ui/textarea.tsx
 packages/home/src/lib/useCopyToClipboard.ts
@@ -1410,12 +1529,12 @@ docs/*
 
 `docs/*` changes are expected after home build.
 
-- [ ] **Step 5: Commit implementation**
+- [ ] **Step 6: Commit implementation**
 
 Stage only related files:
 
 ```bash
-git add packages/home/src/aiPrompt packages/home/src/components/ui/segmented-choice.tsx packages/home/src/components/ui/textarea.tsx packages/home/src/lib/useCopyToClipboard.ts packages/home/src/routes/AISetup.tsx packages/home/src/App.tsx packages/home/src/components/TopNav.tsx packages/home/src/routes/Home.tsx packages/home/src/components/CodeBlock.tsx packages/home/src/i18n packages/home/public/ai-onboarding packages/llms-eval/agent-onboarding/rubric.mjs docs
+git add packages/home/src/aiPrompt packages/home/package.json pnpm-lock.yaml packages/home/src/components/ui/segmented-choice.tsx packages/home/src/components/ui/textarea.tsx packages/home/src/lib/useCopyToClipboard.ts packages/home/src/routes/AISetup.tsx packages/home/src/App.tsx packages/home/src/components/TopNav.tsx packages/home/src/routes/Home.tsx packages/home/src/components/CodeBlock.tsx packages/home/src/i18n packages/home/public/ai-onboarding packages/llms-eval/agent-onboarding/rubric.mjs docs
 git commit -m "feat(home): add ai prompt onboarding"
 ```
 

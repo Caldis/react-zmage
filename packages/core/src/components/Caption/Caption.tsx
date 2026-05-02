@@ -33,6 +33,7 @@ export default function Caption () {
     zoom,
     presetIsMobile,
     animate,
+    motion,
   } = useContext(Context)
 
   const raw = (Array.isArray(set) ? set[page]?.caption : undefined) as CaptionProp | undefined
@@ -72,8 +73,10 @@ export default function Caption () {
 
   const userStyle = isCaptionObject(raw) ? raw.style : undefined
   const userClassName = isCaptionObject(raw) ? raw.className : undefined
-  const browsingTransitionStyle = animate?.browsing === false && !switching
-    ? { transition: 'none' }
+  const browsingTransitionStyle = !switching
+    ? animate?.browsing === false
+      ? { transition: 'none' }
+      : motion.captionTransition ? { transition: motion.captionTransition } : undefined
     : undefined
 
   const switchClass = switching && flipKind && flipKind !== 'none'

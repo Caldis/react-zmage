@@ -4,6 +4,7 @@ import { Copy, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/lib/theme'
+import { useCopyToClipboard } from '@/lib/useCopyToClipboard'
 
 type Props = {
   code: string
@@ -12,15 +13,14 @@ type Props = {
   /** Rendered in the floating top-right cluster, to the left of the Copy button. */
   actions?: React.ReactNode
   className?: string
+  preClassName?: string
 }
 
-export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true, actions, className }: Props) {
+export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true, actions, className, preClassName }: Props) {
   const { resolved } = useTheme()
-  const [copied, setCopied] = React.useState(false)
-  const onCopy = async () => {
-    await navigator.clipboard.writeText(code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+  const { copied, copy } = useCopyToClipboard()
+  const onCopy = () => {
+    void copy(code)
   }
   const theme = resolved === 'dark' ? themes.vsDark : themes.vsLight
   return (
@@ -44,7 +44,7 @@ export function CodeBlock ({ code, language = 'tsx' as Language, showCopy = true
       <Highlight code={code.trim()} language={language} theme={theme}>
         {({ className: cls, style, tokens, getLineProps, getTokenProps }) => (
           <pre
-            className={cn(cls, 'code-block-scroll m-0 min-w-0 max-w-full flex-1 overflow-x-auto p-4 font-mono text-sm leading-6')}
+            className={cn(cls, 'code-block-scroll m-0 min-w-0 max-w-full flex-1 overflow-auto p-4 font-mono text-sm leading-6', preClassName)}
             style={{ ...style, backgroundColor: 'transparent', background: 'transparent' }}
           >
             {tokens.map((line, i) => (

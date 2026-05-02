@@ -54,8 +54,8 @@ const CUSTOM_CONTROLLER_CODE = `<Zmage
 />`
 
 const COVER_GEOMETRY_CODE = `<Zmage
-  src="/imgSet/childsDream/9.jpg"
-  alt="童夢 · NINE"
+  src="/imgSet/childsDream/demo.jpg"
+  alt="童夢 · DEMO"
   className="h-64 w-full rounded-2xl object-cover"
   style={{ objectPosition: '35% 50%' }}
   animate={{ cover: { objectFit: true, clip: true, radius: true } }}
@@ -68,13 +68,13 @@ export function Examples () {
     <section className="mt-12 space-y-4">
       <Heading id="examples">{t('docs.section.examples.title')}</Heading>
 
-      <h3 className="mt-6 text-lg font-semibold">{t('docs.section.examples.singleTitle')}</h3>
+      <Heading id="examples-single" level={3}>{t('docs.section.examples.singleTitle')}</Heading>
       <div className="grid gap-4 md:grid-cols-2">
         <Zmage src="/imgSet/childsDream/1.jpg" alt="童夢 · ONE" backdrop={backdrop} className="w-full rounded-md" />
         <CodeBlock code={SINGLE_IMAGE_CODE} language={'tsx' as any} />
       </div>
 
-      <h3 className="mt-6 text-lg font-semibold">{t('docs.section.examples.galleryTitle')}</h3>
+      <Heading id="examples-gallery" level={3}>{t('docs.section.examples.galleryTitle')}</Heading>
       <div className="grid gap-4 md:grid-cols-2">
         <Zmage
           src="/imgSet/childsDream/3.jpg"
@@ -90,7 +90,7 @@ export function Examples () {
         <CodeBlock code={GALLERY_CODE} language={'tsx' as any} />
       </div>
 
-      <h3 className="mt-6 text-lg font-semibold">{t('docs.section.examples.mobileTitle')}</h3>
+      <Heading id="examples-mobile" level={3}>{t('docs.section.examples.mobileTitle')}</Heading>
       <p className="text-sm text-muted-foreground">{t('docs.section.examples.mobileBody')}</p>
       <div className="grid gap-4 md:grid-cols-2">
         <Zmage
@@ -109,7 +109,7 @@ export function Examples () {
         <CodeBlock code={MOBILE_GESTURE_CODE} language={'tsx' as any} />
       </div>
 
-      <h3 className="mt-6 text-lg font-semibold">{t('docs.section.examples.controllerTitle')}</h3>
+      <Heading id="examples-controller" level={3}>{t('docs.section.examples.controllerTitle')}</Heading>
       <p className="text-sm text-muted-foreground">{t('docs.section.examples.controllerBody')}</p>
       <div className="grid gap-4 md:grid-cols-2">
         <Zmage
@@ -151,12 +151,12 @@ export function Examples () {
         <CodeBlock code={CUSTOM_CONTROLLER_CODE} language={'tsx' as any} />
       </div>
 
-      <h3 className="mt-6 text-lg font-semibold">{t('docs.section.examples.coverTitle')}</h3>
+      <Heading id="examples-cover" level={3}>{t('docs.section.examples.coverTitle')}</Heading>
       <p className="text-sm text-muted-foreground">{t('docs.section.examples.coverBody')}</p>
       <div className="grid gap-4 md:grid-cols-2">
         <Zmage
-          src="/imgSet/childsDream/9.jpg"
-          alt="童夢 · NINE"
+          src="/imgSet/childsDream/demo.jpg"
+          alt="童夢 · DEMO"
           backdrop={backdrop}
           className="h-64 w-full rounded-2xl object-cover"
           style={{ objectPosition: '35% 50%' }}

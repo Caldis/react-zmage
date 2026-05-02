@@ -1,6 +1,7 @@
 import { Heading } from '@/docs/Heading'
 import { ParamTable } from '@/docs/ParamTable'
 import { CodeBlock } from '@/components/CodeBlock'
+import { PresetScopeBadge, type PresetScope } from '@/components/PresetScopeBadge'
 import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
 import { defPreset } from '@/schema/param-schema'
@@ -73,38 +74,38 @@ const ANIMATE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
   { k: 'cover.radius', type: 'boolean', descKey: 'animate.cover.radius.desc' },
 ]
 
-const GESTURE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
-  { k: 'swipe', type: 'boolean | GestureSwipeOptions', descKey: 'gesture.swipe.desc' },
-  { k: 'dragExit', type: 'boolean | GestureDragExitOptions', descKey: 'gesture.dragExit.desc' },
-  { k: 'wheelZoom', type: 'boolean | GestureWheelZoomOptions', descKey: 'gesture.wheelZoom.desc' },
-  { k: 'pinchZoom', type: 'boolean | GesturePinchZoomOptions', descKey: 'gesture.pinchZoom.desc' },
-  { k: 'doubleTapZoom', type: 'boolean | GestureDoubleTapZoomOptions', descKey: 'gesture.doubleTapZoom.desc' },
-  { k: 'touchAction', type: "'managed' | 'auto' | 'manipulation' | 'none'", descKey: 'gesture.touchAction.desc' },
-  { k: 'swipe.threshold', type: 'number', descKey: 'gesture.threshold.desc' },
-  { k: 'swipe.velocity', type: 'number', descKey: 'gesture.velocity.desc' },
-  { k: 'swipe.axisLock', type: 'number', descKey: 'gesture.axisLock.desc' },
-  { k: 'swipe.resistance', type: 'number', descKey: 'gesture.resistance.desc' },
-  { k: 'dragExit.threshold', type: 'number', descKey: 'gesture.threshold.desc' },
-  { k: 'dragExit.velocity', type: 'number', descKey: 'gesture.velocity.desc' },
-  { k: 'dragExit.axisLock', type: 'number', descKey: 'gesture.axisLock.desc' },
-  { k: 'dragExit.opacity', type: 'boolean', descKey: 'gesture.opacity.desc' },
-  { k: 'wheelZoom.step', type: 'number', descKey: 'gesture.wheelZoom.step.desc' },
-  { k: 'wheelZoom.smooth', type: 'boolean', descKey: 'gesture.wheelZoom.smooth.desc' },
-  { k: 'wheelZoom.minScale', type: "'fit' | number", descKey: 'gesture.wheelZoom.minScale.desc' },
-  { k: 'wheelZoom.maxScale', type: 'number', descKey: 'gesture.wheelZoom.maxScale.desc' },
-  { k: 'wheelZoom.center', type: "'pointer' | 'viewport'", descKey: 'gesture.wheelZoom.center.desc' },
-  { k: 'wheelZoom.reverse', type: 'boolean', descKey: 'gesture.wheelZoom.reverse.desc' },
-  { k: 'wheelZoom.exitGuardDuration', type: 'number', descKey: 'gesture.wheelZoom.exitGuardDuration.desc' },
-  { k: 'pinchZoom.minScale', type: "'fit' | number", descKey: 'gesture.pinchZoom.minScale.desc' },
-  { k: 'pinchZoom.maxScale', type: 'number', descKey: 'gesture.pinchZoom.maxScale.desc' },
-  { k: 'pinchZoom.resetBelowFit', type: 'boolean', descKey: 'gesture.pinchZoom.resetBelowFit.desc' },
-  { k: 'pinchZoom.center', type: "'gesture' | 'viewport'", descKey: 'gesture.pinchZoom.center.desc' },
-  { k: 'doubleTapZoom.scale', type: 'number', descKey: 'gesture.doubleTapZoom.scale.desc' },
-  { k: 'doubleTapZoom.minScale', type: "'fit' | number", descKey: 'gesture.doubleTapZoom.minScale.desc' },
-  { k: 'doubleTapZoom.maxScale', type: 'number', descKey: 'gesture.doubleTapZoom.maxScale.desc' },
-  { k: 'doubleTapZoom.center', type: "'tap' | 'viewport'", descKey: 'gesture.doubleTapZoom.center.desc' },
-  { k: 'doubleTapZoom.interval', type: 'number', descKey: 'gesture.doubleTapZoom.interval.desc' },
-  { k: 'doubleTapZoom.distance', type: 'number', descKey: 'gesture.doubleTapZoom.distance.desc' },
+const GESTURE_KEYS: { k: string; type: string; descKey: I18nKey; scope?: PresetScope }[] = [
+  { k: 'swipe', type: 'boolean | GestureSwipeOptions', descKey: 'gesture.swipe.desc', scope: 'mobile' },
+  { k: 'dragExit', type: 'boolean | GestureDragExitOptions', descKey: 'gesture.dragExit.desc', scope: 'mobile' },
+  { k: 'wheelZoom', type: 'boolean | GestureWheelZoomOptions', descKey: 'gesture.wheelZoom.desc', scope: 'desktop' },
+  { k: 'pinchZoom', type: 'boolean | GesturePinchZoomOptions', descKey: 'gesture.pinchZoom.desc', scope: 'mobile' },
+  { k: 'doubleTapZoom', type: 'boolean | GestureDoubleTapZoomOptions', descKey: 'gesture.doubleTapZoom.desc', scope: 'mobile' },
+  { k: 'touchAction', type: "'managed' | 'auto' | 'manipulation' | 'none'", descKey: 'gesture.touchAction.desc', scope: 'mobile' },
+  { k: 'swipe.threshold', type: 'number', descKey: 'gesture.threshold.desc', scope: 'mobile' },
+  { k: 'swipe.velocity', type: 'number', descKey: 'gesture.velocity.desc', scope: 'mobile' },
+  { k: 'swipe.axisLock', type: 'number', descKey: 'gesture.axisLock.desc', scope: 'mobile' },
+  { k: 'swipe.resistance', type: 'number', descKey: 'gesture.resistance.desc', scope: 'mobile' },
+  { k: 'dragExit.threshold', type: 'number', descKey: 'gesture.threshold.desc', scope: 'mobile' },
+  { k: 'dragExit.velocity', type: 'number', descKey: 'gesture.velocity.desc', scope: 'mobile' },
+  { k: 'dragExit.axisLock', type: 'number', descKey: 'gesture.axisLock.desc', scope: 'mobile' },
+  { k: 'dragExit.opacity', type: 'boolean', descKey: 'gesture.opacity.desc', scope: 'mobile' },
+  { k: 'wheelZoom.step', type: 'number', descKey: 'gesture.wheelZoom.step.desc', scope: 'desktop' },
+  { k: 'wheelZoom.smooth', type: 'boolean', descKey: 'gesture.wheelZoom.smooth.desc', scope: 'desktop' },
+  { k: 'wheelZoom.minScale', type: "'fit' | number", descKey: 'gesture.wheelZoom.minScale.desc', scope: 'desktop' },
+  { k: 'wheelZoom.maxScale', type: 'number', descKey: 'gesture.wheelZoom.maxScale.desc', scope: 'desktop' },
+  { k: 'wheelZoom.center', type: "'pointer' | 'viewport'", descKey: 'gesture.wheelZoom.center.desc', scope: 'desktop' },
+  { k: 'wheelZoom.reverse', type: 'boolean', descKey: 'gesture.wheelZoom.reverse.desc', scope: 'desktop' },
+  { k: 'wheelZoom.exitGuardDuration', type: 'number', descKey: 'gesture.wheelZoom.exitGuardDuration.desc', scope: 'desktop' },
+  { k: 'pinchZoom.minScale', type: "'fit' | number", descKey: 'gesture.pinchZoom.minScale.desc', scope: 'mobile' },
+  { k: 'pinchZoom.maxScale', type: 'number', descKey: 'gesture.pinchZoom.maxScale.desc', scope: 'mobile' },
+  { k: 'pinchZoom.resetBelowFit', type: 'boolean', descKey: 'gesture.pinchZoom.resetBelowFit.desc', scope: 'mobile' },
+  { k: 'pinchZoom.center', type: "'gesture' | 'viewport'", descKey: 'gesture.pinchZoom.center.desc', scope: 'mobile' },
+  { k: 'doubleTapZoom.scale', type: 'number', descKey: 'gesture.doubleTapZoom.scale.desc', scope: 'mobile' },
+  { k: 'doubleTapZoom.minScale', type: "'fit' | number", descKey: 'gesture.doubleTapZoom.minScale.desc', scope: 'mobile' },
+  { k: 'doubleTapZoom.maxScale', type: 'number', descKey: 'gesture.doubleTapZoom.maxScale.desc', scope: 'mobile' },
+  { k: 'doubleTapZoom.center', type: "'tap' | 'viewport'", descKey: 'gesture.doubleTapZoom.center.desc', scope: 'mobile' },
+  { k: 'doubleTapZoom.interval', type: 'number', descKey: 'gesture.doubleTapZoom.interval.desc', scope: 'mobile' },
+  { k: 'doubleTapZoom.distance', type: 'number', descKey: 'gesture.doubleTapZoom.distance.desc', scope: 'mobile' },
 ]
 
 const SET_FIELDS: { k: string; type: string; required?: boolean; descKey: I18nKey }[] = [
@@ -439,9 +440,12 @@ function GestureDetail () {
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {GESTURE_KEYS.map(({ k, type, descKey }) => (
+          {GESTURE_KEYS.map(({ k, type, descKey, scope }) => (
             <tr key={k}>
-              <td className="px-4 py-2.5 font-mono align-top">{k}</td>
+              <td className="px-4 py-2.5 align-top">
+                <span className="font-mono">{k}</span>
+                {scope && <PresetScopeBadge scope={scope} className="ml-1.5" />}
+              </td>
               <td className="px-4 py-2.5 align-top font-mono text-xs text-muted-foreground">{type}</td>
               <td className="px-4 py-2.5 text-muted-foreground">{t(descKey)}</td>
             </tr>
@@ -461,7 +465,6 @@ export function Props () {
       <WrapperScopeDetail />
       <Heading id="props-data" level={3}>{t('group.data')}</Heading>
       <ParamTable group="data" />
-      <Heading id="props-set" level={3}>{t('docs.section.props.set.title')}</Heading>
       <SetDetail />
       <Heading id="props-preset" level={3}>{t('group.preset')}</Heading>
       <ParamTable group="preset" />

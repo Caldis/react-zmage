@@ -4,6 +4,61 @@
 
 The package is published to npm as `react-zmage`. Default export is a `forwardRef` component; static methods on it provide imperative (`Zmage.browsing`) and HTML-wrapper (`Zmage.Wrapper`) usage modes. Styles are exported separately at `react-zmage/style.css`. SSR/RSC consumers use the `react-zmage/ssr` subpath.
 
+> **Canonical reference:** https://zmage.caldis.me/llms.txt
+>
+> If anything below looks outdated or contradicts real package behavior, fetch this URL first. It is the source of truth for react-zmage usage modes, props, defaults, SSR entry, and common pitfalls. Report staleness back to the user.
+
+---
+
+## Agent onboarding workflow (Auto)
+
+Use Auto strategy by default. Do not ask the user to choose low-level props before you understand the project. Your job is to help the user add react-zmage to real image surfaces with the least risky path: inspect the codebase, classify each image surface, ask focused questions, implement one pilot, get feedback, then roll the confirmed pattern out.
+
+### What you are doing
+
+You are integrating a React image viewer. react-zmage turns existing images into a fullscreen, zoomable, keyboard-navigable viewer. It supports three usage modes:
+
+- **Component** for owned React image markup.
+- **Imperative** for buttons, commands, callbacks, or non-image events that should open a viewer.
+- **Wrapper** for uncontrolled HTML such as CMS, MDX, markdown, rich text, or `dangerouslySetInnerHTML`.
+
+The purpose is not to rewrite the user's image system. Preserve existing layout, styling, `alt`, `loading`, sizing, routing, and content behavior unless the user explicitly asks to change them.
+
+### Required workflow
+
+0. Explain the package purpose and the task: add fullscreen image viewing to the user's actual image surfaces while keeping unrelated UI unchanged.
+1. Read this document first, then inspect the user's project docs, package manager, React version, routing, render mode, CSS entry, existing image components, gallery conventions, and any current lightbox/viewer code.
+2. Find every relevant image surface in the requested scope: owned `<img>` / image components, generated HTML, MDX/CMS/markdown content, galleries, captions, thumbnails, and buttons or commands that open media.
+3. Classify each surface before coding:
+   - Component when the project owns the React image markup.
+   - Imperative when the viewer opens from an event handler, command, button, or non-image element.
+   - Wrapper when image HTML is uncontrolled or generated outside React component ownership.
+4. Ask the user concise follow-up questions until the implementation scope is concrete. Useful questions include: which pages or components are in scope, whether images should behave as a gallery, how captions should be sourced, whether SSR/RSC is involved, desired backdrop/theme behavior, mobile gesture expectations, and what the user wants to verify first.
+5. Implement one pilot change on a representative image path. Keep the diff small and tell the user exactly what to test visually.
+6. Apply user feedback to the pilot. Only after the user accepts the pattern, implement the remaining agreed scope.
+
+### Auto decision rules
+
+- Prefer omitted `preset` or `preset="auto"` unless project evidence requires fixed desktop or mobile behavior.
+- Prefer Component mode for normal React-owned `<img>` replacement.
+- Prefer Wrapper mode for CMS/MDX/markdown/rich-text surfaces where child `<img>` nodes already exist.
+- Prefer Imperative mode for command menus, custom thumbnails, buttons, or callback-driven media opening.
+- In SSR, RSC, or code that may run during server render, import from `react-zmage/ssr` and call `Zmage.browsing()` only from a client event/effect.
+- Import `react-zmage/style.css` exactly once from the app-level style entry that the project already uses.
+- For dark UIs, set `backdrop` and controller visual colors deliberately; the default `backdrop` is white.
+- Start with default controller, hotKey, animate, and gesture behavior unless the user's project or feedback requires custom tuning.
+
+### Expected deliverables
+
+When you finish the pilot or rollout, report:
+
+1. Chosen usage mode and why it matches the project.
+2. Install command used or needed.
+3. Files changed.
+4. Where `react-zmage/style.css` is imported.
+5. Any SSR/RSC guard or client-boundary note.
+6. What the user should inspect visually before approving broader rollout.
+
 ## Quick start
 
 ```bash

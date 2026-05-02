@@ -11,32 +11,14 @@ import { Footer } from '@/components/Footer'
 import { useT } from '@/i18n/useT'
 import { cn } from '@/lib/utils'
 import { useThemedBackdrop } from '@/lib/themedBackdrop'
-
-// Shared copy-state hook — single source of truth for Hero's two copyable chips
-// (`NpmChip`, `AIDirective`). Same 1500ms revert window, same timer-cleanup
-// guard against unmount mid-revert. Keeps the two visual chips consistent
-// without forcing them to share rendering code (their layouts diverge).
-function useCopyToClipboard () {
-  const [copied, setCopied] = React.useState(false)
-  const timer = React.useRef<number | undefined>(undefined)
-  React.useEffect(() => () => {
-    if (timer.current !== undefined) window.clearTimeout(timer.current)
-  }, [])
-  const copy = React.useCallback(async (text: string) => {
-    await navigator.clipboard.writeText(text)
-    setCopied(true)
-    if (timer.current !== undefined) window.clearTimeout(timer.current)
-    timer.current = window.setTimeout(() => setCopied(false), 1500)
-  }, [])
-  return { copied, copy }
-}
+import { useCopyToClipboard } from '@/lib/useCopyToClipboard'
 
 function NpmChip () {
   const cmd = 'pnpm add react-zmage'
   const { copied, copy } = useCopyToClipboard()
   return (
     <button
-      onClick={() => copy(cmd)}
+      onClick={() => void copy(cmd)}
       className="group inline-flex max-w-full cursor-pointer items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       <span className="min-w-0 truncate">$ {cmd}</span>
@@ -141,8 +123,8 @@ function AIDirective () {
       </span>
       <div className="flex flex-wrap items-center justify-center gap-2 text-[11px]">
         <button
-          onClick={() => copy(directive)}
-          aria-label="Copy AI assistant directive"
+          onClick={() => void copy(directive)}
+          aria-label={t('hero.ai.copyLabel')}
           className="group inline-flex max-w-full cursor-pointer items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-3 py-1.5 font-mono text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <Bot aria-hidden className="h-3.5 w-3.5 opacity-70" />
@@ -157,7 +139,7 @@ function AIDirective () {
           rel="noreferrer"
           className="text-muted-foreground/70 underline-offset-4 hover:text-foreground hover:underline"
         >
-          view llms.txt →
+          {t('hero.ai.viewLlms')}
         </a>
       </div>
     </div>

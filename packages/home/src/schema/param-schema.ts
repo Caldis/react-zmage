@@ -1,5 +1,6 @@
 import type { BaseType } from 'react-zmage'
 import type { I18nKey } from '@/i18n/dict'
+import type { PresetScope } from '@/components/PresetScopeBadge'
 
 type PresetValue = NonNullable<BaseType['preset']>
 type ResolvedPresetValue = Exclude<PresetValue, 'auto'>
@@ -95,7 +96,7 @@ export type ParamDef<K extends keyof BaseType = keyof BaseType> = {
   default: unknown
   control: ControlKind
   i18n: { labelKey: I18nKey; descKey: I18nKey }
-  desktopOnly?: boolean
+  presetScope?: PresetScope
   required?: boolean
   since?: string
 }
@@ -136,11 +137,11 @@ export const PARAM_SCHEMA: ParamDef[] = [
   { name: 'loop', group: 'interface', default: defProp.loop, control: { kind: 'switch' },
     i18n: { labelKey: 'param.loop.label', descKey: 'param.loop.desc' } },
   // hide-trigger 家族 (用户动作 → 自动关闭)
-  { name: 'hideOnScroll', group: 'interface', default: defProp.hideOnScroll, desktopOnly: true, control: { kind: 'switch' },
+  { name: 'hideOnScroll', group: 'interface', default: defProp.hideOnScroll, presetScope: 'desktop', control: { kind: 'switch' },
     i18n: { labelKey: 'param.hideOnScroll.label', descKey: 'param.hideOnScroll.desc' } },
   { name: 'hideOnDblClick', group: 'interface', default: defProp.hideOnDblClick, control: { kind: 'switch' },
     i18n: { labelKey: 'param.hideOnDblClick.label', descKey: 'param.hideOnDblClick.desc' } },
-  { name: 'coverVisible', group: 'interface', default: defProp.coverVisible, desktopOnly: true, control: { kind: 'switch' },
+  { name: 'coverVisible', group: 'interface', default: defProp.coverVisible, presetScope: 'desktop', control: { kind: 'switch' },
     i18n: { labelKey: 'param.coverVisible.label', descKey: 'param.coverVisible.desc' } },
   { name: 'loadingDelay', group: 'interface', default: defProp.loadingDelay, control: { kind: 'slider', min: 0, max: 1000, step: 50 },
     i18n: { labelKey: 'param.loadingDelay.label', descKey: 'param.loadingDelay.desc' } },

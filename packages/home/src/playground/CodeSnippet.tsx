@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { CodeBlock } from '@/components/CodeBlock'
+import { ExpandablePanel } from '@/components/ExpandablePanel'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { useT } from '@/i18n/useT'
 import { buildLibProps } from '@/playground/state'
 
-type Mode = 'component' | 'imperative' | 'wrapper'
+export type Mode = 'component' | 'imperative' | 'wrapper'
 type GetUmbrellaPhrase = (umbrella: string) => string
 
 type WrapperHtmlImage = {
@@ -174,12 +175,14 @@ export function CodeSnippet ({
   hideDefaults,
   onHideDefaultsChange,
   mode,
+  compact = false,
 }: {
   values: Record<string, any>
   touched: ReadonlySet<string>
   hideDefaults: boolean
   onHideDefaultsChange: (v: boolean) => void
   mode: Mode
+  compact?: boolean
 }) {
   const { t } = useT()
   const getPhrase: GetUmbrellaPhrase = (umbrella) =>
@@ -191,24 +194,56 @@ export function CodeSnippet ({
   const code = mode === 'component' ? renderJsx(props, getPhrase)
     : mode === 'imperative' ? renderImperative(props, getPhrase)
       : renderWrapper(values, props, getPhrase)
-  const id = React.useId()
+  const previewId = React.useId()
+  const expandedId = React.useId()
+  const renderActions = (id: string) => (
+    <div className="flex items-center gap-1.5 whitespace-nowrap">
+      <Label htmlFor={id} className="cursor-pointer text-[11px] text-muted-foreground">
+        {t('pg.code.hideDefaults')}
+      </Label>
+      <Switch
+        id={id}
+        checked={hideDefaults}
+        onCheckedChange={onHideDefaultsChange}
+        className="scale-75 origin-right"
+      />
+    </div>
+  )
+  const actions = renderActions(previewId)
+
+  if (compact) {
+    return (
+      <ExpandablePanel
+        title={t('pg.code.title')}
+        description={t('pg.code.subtitle')}
+        expandLabel={t('common.expand')}
+        preview={
+          <CodeBlock
+            code={code}
+            language={'tsx' as any}
+            actions={actions}
+            className="h-36"
+            preClassName="p-3 pr-44 text-xs leading-5"
+          />
+        }
+        expanded={
+          <CodeBlock
+            code={code}
+            language={'tsx' as any}
+            actions={renderActions(expandedId)}
+            className="h-[62dvh]"
+          />
+        }
+        previewClassName="p-2"
+      />
+    )
+  }
+
   return (
     <CodeBlock
       code={code}
       language={'tsx' as any}
-      actions={
-        <div className="flex items-center gap-1.5">
-          <Label htmlFor={id} className="cursor-pointer text-[11px] text-muted-foreground">
-            {t('pg.code.hideDefaults')}
-          </Label>
-          <Switch
-            id={id}
-            checked={hideDefaults}
-            onCheckedChange={onHideDefaultsChange}
-            className="scale-75 origin-right"
-          />
-        </div>
-      }
+      actions={actions}
     />
   )
 }

@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 const links = [
   { to: '/playground', key: 'nav.playground' as const },
   { to: '/docs', key: 'nav.docs' as const },
+  { to: '/ai', key: 'nav.ai' as const },
 ]
 
 export function TopNav () {

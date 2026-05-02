@@ -1,7 +1,5 @@
 import Zmage from 'react-zmage'
-import { CodeSnippet } from '@/playground/CodeSnippet'
 import { buildLibProps } from '@/playground/state'
-import { EventLog } from '@/playground/EventLog'
 import { useThemedBackdrop } from '@/lib/themedBackdrop'
 
 type RichImage = {
@@ -193,14 +191,8 @@ function RichTextComposition ({ items }: { items: RichImage[] }) {
 
 export default function WrapperMode ({
   values,
-  touched,
-  hideDefaults,
-  onHideDefaultsChange,
 }: {
   values: Record<string, any>
-  touched: ReadonlySet<string>
-  hideDefaults: boolean
-  onHideDefaultsChange: (v: boolean) => void
 }) {
   const themedBackdrop = useThemedBackdrop()
   // livedemo 用不带 touched 的 buildLibProps; wrapper 再剥单图字段 (它从 <img> 自取 src/alt)
@@ -210,20 +202,10 @@ export default function WrapperMode ({
   const galleryItems = getGalleryItems(values)
   const Wrapper = (Zmage as any).Wrapper
   return (
-    <div className="space-y-6">
-      <CodeSnippet
-        values={values}
-        touched={touched}
-        hideDefaults={hideDefaults}
-        onHideDefaultsChange={onHideDefaultsChange}
-        mode="wrapper"
-      />
-      <div className="overflow-hidden rounded-lg border border-border bg-background">
-        <Wrapper {...wrapperProps}>
-          <RichTextComposition items={galleryItems} />
-        </Wrapper>
-      </div>
-      <EventLog />
+    <div className="code-block-scroll h-full min-h-[420px] overflow-auto rounded-lg border border-border bg-background lg:min-h-0">
+      <Wrapper {...wrapperProps}>
+        <RichTextComposition items={galleryItems} />
+      </Wrapper>
     </div>
   )
 }

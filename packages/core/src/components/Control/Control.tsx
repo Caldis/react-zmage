@@ -56,7 +56,7 @@ function getControllerItem (
   Icon: IconComponent,
   id: string,
   className: string,
-  onClick: () => void,
+  onClick: (event: React.MouseEvent<HTMLDivElement>) => void,
   show: boolean,
   zoom: boolean,
   child?: React.JSX.Element,
@@ -74,7 +74,7 @@ function getControllerItem (
       </div>
     )
   } else if (React.isValidElement(item)) {
-    return React.cloneElement(item as React.ReactElement<{ show?: boolean; zoom?: boolean; disabled?: boolean; color?: string; onClick?: () => void }>, { show, zoom, onClick, disabled, color: defaultColor })
+    return React.cloneElement(item as React.ReactElement<{ show?: boolean; zoom?: boolean; disabled?: boolean; color?: string; onClick?: (event: React.MouseEvent<HTMLDivElement>) => void }>, { show, zoom, onClick, disabled, color: defaultColor })
   }
   return null
 }
@@ -92,6 +92,7 @@ export default function Control () {
     backdrop, loop,
     // Status
     show, zoom, page, canZoom, zoomShakeKey,
+    motion,
     // Action
     outBrowsing,
     toPage,
@@ -121,7 +122,12 @@ export default function Control () {
     el.classList.add(style.shake)
   }, [zoomShakeKey])
 
-  const browsingTransitionStyle = animate?.browsing === false ? { transition: 'none' } : undefined
+  const browsingTransitionStyle = animate?.browsing === false
+    ? { transition: 'none' }
+    : motion.controlTransition ? { transition: motion.controlTransition } : undefined
+  const browsingItemTransitionStyle = animate?.browsing === false
+    ? { transition: 'none' }
+    : motion.controlItemTransition ? { transition: motion.controlItemTransition } : undefined
   const placement = resolveControllerPlacement(controllerParams.placement)
   const handleMobileZoom = () => {
     const current = Array.isArray(set) ? set[page] : undefined
@@ -162,7 +168,7 @@ export default function Control () {
           show,
           zoom,
           undefined,
-          browsingTransitionStyle,
+          browsingItemTransitionStyle,
           undefined,
           undefined,
           controllerColor
@@ -178,7 +184,7 @@ export default function Control () {
           show,
           zoom,
           undefined,
-          browsingTransitionStyle,
+          browsingItemTransitionStyle,
           undefined,
           undefined,
           controllerColor
@@ -194,7 +200,7 @@ export default function Control () {
           show,
           zoom,
           undefined,
-          browsingTransitionStyle,
+          browsingItemTransitionStyle,
           undefined,
           undefined,
           controllerColor
@@ -210,7 +216,7 @@ export default function Control () {
           show,
           zoom,
           undefined,
-          browsingTransitionStyle,
+          browsingItemTransitionStyle,
           zoomDisabled,
           zoomButtonRef,
           controllerColor
@@ -226,7 +232,7 @@ export default function Control () {
           show,
           zoom,
           undefined,
-          browsingTransitionStyle,
+          browsingItemTransitionStyle,
           undefined,
           undefined,
           controllerColor
@@ -245,7 +251,7 @@ export default function Control () {
       show,
       zoom,
       undefined,
-      browsingTransitionStyle,
+      browsingItemTransitionStyle,
       undefined,
       undefined,
       controllerColor
@@ -261,7 +267,7 @@ export default function Control () {
       show,
       zoom,
       undefined,
-      browsingTransitionStyle,
+      browsingItemTransitionStyle,
       undefined,
       undefined,
       controllerColor

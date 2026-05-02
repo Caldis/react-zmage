@@ -2,8 +2,8 @@ import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { BookOpen } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { PresetScopeBadge } from '@/components/PresetScopeBadge'
 import { PARAM_SCHEMA, type ParamDef, type ParamGroup } from '@/schema/param-schema'
 import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
@@ -119,17 +119,7 @@ export function ParamPanel ({ values, onChange }: Props) {
                           {t('param.viewInDocs')}
                         </TooltipContent>
                       </Tooltip>
-                      {def.desktopOnly && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Badge variant="secondary" className="h-4 px-1 text-[9px] cursor-help">D</Badge>
-                          </TooltipTrigger>
-                          <TooltipContent side="right" className="max-w-[260px] text-xs">
-                            <div className="font-medium">{t('common.desktopOnly')}</div>
-                            <div className="mt-0.5 text-primary-foreground/80">{t('common.desktopOnly.desc')}</div>
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
+                      {def.presetScope && <PresetScopeBadge scope={def.presetScope} />}
                     </div>
                     <div>{renderControl(def, values[def.name], (v) => onChange(def.name, v))}</div>
                   </div>
