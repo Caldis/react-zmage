@@ -81,7 +81,7 @@ const lessModulePlugin = (): Plugin => {
 
 const baseConfig: Options = {
   entry: ['src/index.ts'],
-  sourcemap: true,
+  sourcemap: false,
   splitting: false,
   target: 'es2019',
   treeshake: true,
@@ -100,10 +100,9 @@ const baseConfig: Options = {
 // React itself no longer ships UMD/IIFE, so a React component lib has no realistic
 // `<script src="…">` consumer. The IIFE bundle was 60% of the npm tarball.
 //
-// SSR config sets `css: false` because the SSR JS doesn't need its own CSS file —
-// the documented stylesheet path is `react-zmage/style.css` which `exports` maps
-// to `dist/index.css`. `dist/ssr/index.css` was a byte-identical duplicate with no
-// `exports` outlet → dead weight, removed.
+// The `react-zmage/ssr` subpath is kept through tiny postbuild stubs that point to
+// the same root bundle. Building the same entry twice produced byte-identical SSR
+// JS files plus maps, which only increased the npm tarball.
 export default defineConfig(() => ([
   {
     ...baseConfig,
@@ -112,20 +111,6 @@ export default defineConfig(() => ([
     dts: false,
     clean: true,
     platform: 'browser',
-    css: true,
-    outExtension ({ format }) {
-      return { js: format === 'cjs' ? '.cjs' : '.mjs' }
-    },
-  },
-  {
-    ...baseConfig,
-    format: ['esm', 'cjs'],
-    outDir: 'dist/ssr',
-    dts: false,
-    clean: false,
-    platform: 'neutral',
-    // `css: false` here is a no-op (the lessModulePlugin emits CSS regardless);
-    // the duplicate `dist/ssr/index.css` is removed by scripts/postbuild-cleanup.mjs.
     css: true,
     outExtension ({ format }) {
       return { js: format === 'cjs' ? '.cjs' : '.mjs' }

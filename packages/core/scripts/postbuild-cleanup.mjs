@@ -1,22 +1,30 @@
 #!/usr/bin/env node
-// Remove dead-weight artifacts that tsup + tsc emit but the published package
-// doesn't reference. Runs at the tail of `pnpm --filter react-zmage build`.
+// Keep the published package lean after tsup + tsc emit. Runs at the tail of
+// `pnpm --filter react-zmage build`.
 
-import { rmSync } from 'node:fs'
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const dist = resolve(here, '..', 'dist')
+const ssr = resolve(dist, 'ssr')
 
-// Both build configs (browser + SSR) bundle the same Less chain, so tsup
-// extracts a byte-identical CSS file for each. Only `dist/index.css` is wired
-// through `package.json` `exports["./style.css"]`; the SSR copy has no outlet
-// and is dead weight. Setting tsup's own `css: false` doesn't suppress this —
-// the lessModulePlugin emits CSS regardless, so we drop the duplicates here.
+// Preserve the public `react-zmage/ssr` subpath without shipping a second copy
+// of the root bundle. The file names remain stable for consumers that resolve
+// the export target directly.
+mkdirSync(ssr, { recursive: true })
+writeFileSync(resolve(ssr, 'index.mjs'), "export { default } from '../index.mjs'\n")
+writeFileSync(resolve(ssr, 'index.cjs'), "module.exports = require('../index.cjs')\n")
+
 const dead = [
+  'index.cjs.map',
+  'index.mjs.map',
+  'index.css.map',
   'ssr/index.css',
   'ssr/index.css.map',
+  'ssr/index.cjs.map',
+  'ssr/index.mjs.map',
 ]
 
 for (const rel of dead) {

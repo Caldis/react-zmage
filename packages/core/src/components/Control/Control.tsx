@@ -4,7 +4,6 @@
  **/
 
 // Libs
-import classnames from 'classnames'
 import React, { ComponentType, CSSProperties, Fragment, RefObject, useContext, useEffect, useRef } from 'react'
 // Style
 import style from './Control.module.less'
@@ -21,7 +20,7 @@ import {
 // Utils
 import { Context } from '../context'
 import { ControllerItem, ControllerPlacement, ControllerRenderActions, ControllerRenderSlots, ControllerRenderState, ControllerSet } from '../../types/global'
-import { downloadFromLink } from '../../utils'
+import { cx, downloadFromLink } from '../../utils'
 
 type IconComponent = ComponentType<{ color?: string }>
 const CONTROLLER_PLACEMENTS = new Set<ControllerPlacement>([
@@ -150,7 +149,7 @@ export default function Control () {
     <div
       id="zmageControl"
       data-placement={placement}
-      className={classnames(style.controls, PLACEMENT_CLASS[placement], { [style.show]: !zoom && show })}
+      className={cx(style.controls, PLACEMENT_CLASS[placement], { [style.show]: !zoom && show })}
       style={{ backgroundColor: effectiveControllerBackdrop, ...browsingTransitionStyle }}
     >
       {
@@ -158,7 +157,7 @@ export default function Control () {
           rotateLeftItem,
           IconRotateLeft,
           'zmageControlRotateLeft',
-          classnames(style.rotateLeft, { [style.show]: !zoom && show }),
+          cx(style.rotateLeft, { [style.show]: !zoom && show }),
           toggleRotate('left'),
           show,
           zoom,
@@ -174,7 +173,7 @@ export default function Control () {
           rotateRightItem,
           IconRotateRight,
           'zmageControlRotateRight',
-          classnames(style.rotateRight, { [style.show]: !zoom && show }),
+          cx(style.rotateRight, { [style.show]: !zoom && show }),
           toggleRotate('right'),
           show,
           zoom,
@@ -190,7 +189,7 @@ export default function Control () {
           controllerParams.download,
           IconDownload,
           'zmageControlDownload',
-          classnames(style.download, { [style.show]: !zoom && show }),
+          cx(style.download, { [style.show]: !zoom && show }),
           () => set[page]?.src && downloadFromLink(set[page].src),
           show,
           zoom,
@@ -206,7 +205,7 @@ export default function Control () {
           controllerParams.zoom,
           IconZoom,
           'zmageControlZoom',
-          classnames(style.zoom, { [style.show]: !zoom && show, [style.disabled]: zoomDisabled }),
+          cx(style.zoom, { [style.show]: !zoom && show, [style.disabled]: zoomDisabled }),
           presetIsMobile ? handleMobileZoom : () => toggleZoom(),
           show,
           zoom,
@@ -222,7 +221,7 @@ export default function Control () {
           controllerParams.close,
           IconClose,
           'zmageControlClose',
-          classnames(style.close, { [style.show]: !zoom && show }),
+          cx(style.close, { [style.show]: !zoom && show }),
           zoom ? () => toggleZoom() : outBrowsing,
           show,
           zoom,
@@ -241,7 +240,7 @@ export default function Control () {
       (controllerParams.flipLeft || controllerParams.flip),
       IconArrowLeft,
       'zmageControlFlipLeft',
-      classnames(style.flipLeft, { [style.show]: !zoom && show }),
+      cx(style.flipLeft, { [style.show]: !zoom && show }),
       toPrevPage,
       show,
       zoom,
@@ -257,7 +256,7 @@ export default function Control () {
       (controllerParams.flipRight || controllerParams.flip),
       IconArrowRight,
       'zmageControlFlipRight',
-      classnames(style.flipRight, { [style.show]: !zoom && show }),
+      cx(style.flipRight, { [style.show]: !zoom && show }),
       toNextPage,
       show,
       zoom,
@@ -274,7 +273,7 @@ export default function Control () {
       : !!controllerParams.pagination && (
         <div
           id="zmageControlPagination"
-          className={classnames(style.pages, { [style.show]: !zoom && show, [style.mobile]: presetIsMobile })}
+          className={cx(style.pages, { [style.show]: !zoom && show, [style.mobile]: presetIsMobile })}
           style={{ backgroundColor: effectiveControllerBackdrop, ...browsingTransitionStyle }}
         >
           {

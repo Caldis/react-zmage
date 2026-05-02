@@ -4,7 +4,6 @@
  **/
 
 // Libs
-import classnames from 'classnames'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 // Style
 import style from './Caption.module.less'
@@ -12,6 +11,7 @@ import style from './Caption.module.less'
 import { Context } from '../context'
 import { AnimateFlip, CaptionObject, CaptionProp } from '../../types/global'
 import { animationDuration } from '../../config/anim'
+import { cx } from '../../utils'
 import { selectFlipKind } from '../Image/Image.utils'
 
 const SWITCH_CLASS_BY_FLIP: Record<Exclude<AnimateFlip, 'none'>, string> = {
@@ -83,7 +83,7 @@ export default function Caption () {
   return (
     <div
       id="zmageCaption"
-      className={classnames(
+      className={cx(
         style.caption,
         { [style.show]: !zoom && show, [style.mobile]: presetIsMobile },
         switchClass,

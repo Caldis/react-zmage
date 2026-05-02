@@ -56,10 +56,6 @@
     "prepack": "node ../../scripts/sync-core-readme.mjs",
     "postpublish": "node ../../scripts/postpublish-llms-reminder.mjs"
   },
-  "dependencies": {
-    "classnames": "^2.5.1",
-    "react-use": "^17.6.0"
-  },
   "peerDependencies": {
     "react": ">=16.8.0 <20",
     "react-dom": ">=16.8.0 <20"
@@ -68,7 +64,6 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
-    "@types/classnames": "^2.3.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^5.62.0",

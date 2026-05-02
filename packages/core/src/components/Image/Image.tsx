@@ -4,7 +4,6 @@
  **/
 
 // Libs
-import classnames from 'classnames'
 import React, { CSSProperties, Fragment } from 'react'
 // Styles
 import style from './Image.module.less'
@@ -18,6 +17,7 @@ import {
   appendParams,
   checkImageLoadedComplete,
   computeMinPageDistance,
+  cx,
   debounce,
   getTargetPage,
   isInteger,
@@ -1511,7 +1511,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     const imageIndexWithStep = pageWithStep + step
     // 計算樣式
     const imageStyle = this.getStyle(step, distance, isSideImage, imageIndex)
-    const imageClass = classnames(style.imageLayer, set[imageIndex].className, {
+    const imageClass = cx(style.imageLayer, set[imageIndex].className, {
       [style.zooming]: zoom,
       [style.invalidate]: invalidate,
     })

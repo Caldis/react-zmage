@@ -3,12 +3,12 @@
  **/
 
 // Libs
-import classnames from 'classnames'
 import React, { Fragment, MouseEventHandler } from 'react'
 // Styles
 import style from './loading.module.less'
 // Icons
 import { IconLoading, IconRefresh } from '../../asserts/icons'
+import { cx } from '../../utils'
 
 type Props = {
   show: boolean
@@ -23,7 +23,7 @@ export default function Loading ({ show, load, invalidate, onReload, backdrop }:
     <Fragment>
       {
         (load || invalidate) &&
-        <div id="zmageLoading" className={classnames(style.loadingContainer, { [style.show]: show })}>
+        <div id="zmageLoading" className={cx(style.loadingContainer, { [style.show]: show })}>
           {
             load &&
             <div className={style.loading}>

@@ -7,6 +7,16 @@ const hasDocument = typeof document !== 'undefined'
 const getDocumentElement = () => hasDocument ? document.documentElement : undefined
 const getBodyElement = () => hasDocument ? document.body : undefined
 
+type ClassValue = string | false | null | undefined | Record<string, unknown>
+
+export const cx = (...values: ClassValue[]) => values.reduce((acc, value) => {
+  if (!value) return acc
+  if (typeof value === 'string') {
+    return value ? acc.concat(value) : acc
+  }
+  return acc.concat(Object.keys(value).filter(key => !!value[key]))
+}, [] as string[]).join(' ')
+
 /**
  * 通过屏幕尺寸以及图片尺寸，计算出图片在屏幕中完整显示的缩放比例
  * @param {number} naturalWidth - 图片原始宽
