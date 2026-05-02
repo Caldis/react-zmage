@@ -1141,6 +1141,12 @@ describe('Zmage controller Phase 5', () => {
     expect(controlStyles).toMatch(/\.blackDot\s*\{[\s\S]*?background:\s*currentcolor;/)
   })
 
+  it('controller.layout.flip 离边圆角态恢复对称 padding, 让箭头居中', () => {
+    const controlStyles = fs.readFileSync('src/components/Control/Control.module.less', 'utf8')
+    expect(controlStyles).toMatch(/\.flipLeft\s*\{[\s\S]*?&\.detachedSideButton\s*\{[\s\S]*?border-radius:\s*0\.5rem;[\s\S]*?padding-left:\s*0\.4rem;/)
+    expect(controlStyles).toMatch(/\.flipRight\s*\{[\s\S]*?&\.detachedSideButton\s*\{[\s\S]*?border-radius:\s*0\.5rem;[\s\S]*?padding-right:\s*0\.4rem;/)
+  })
+
   it('desktop 默认 layout 写入分页和 caption 偏移变量', async () => {
     render(
       <Zmage
