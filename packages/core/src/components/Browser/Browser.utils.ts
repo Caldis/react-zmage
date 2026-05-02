@@ -102,23 +102,23 @@ const mergeLayoutTargets = (
 
 const toolbarScalarEdges = (placement: ControllerPlacement | undefined): Edge[] => {
   switch (placement) {
-    case 'top-left':
-      return ['top', 'left']
-    case 'top-center':
-      return ['top']
-    case 'bottom-right':
-      return ['bottom', 'right']
-    case 'bottom-left':
-      return ['bottom', 'left']
-    case 'bottom-center':
-      return ['bottom']
-    case 'left-center':
-      return ['left']
-    case 'right-center':
-      return ['right']
-    case 'top-right':
-    default:
-      return ['top', 'right']
+  case 'top-left':
+    return ['top', 'left']
+  case 'top-center':
+    return ['top']
+  case 'bottom-right':
+    return ['bottom', 'right']
+  case 'bottom-left':
+    return ['bottom', 'left']
+  case 'bottom-center':
+    return ['bottom']
+  case 'left-center':
+    return ['left']
+  case 'right-center':
+    return ['right']
+  case 'top-right':
+  default:
+    return ['top', 'right']
   }
 }
 
