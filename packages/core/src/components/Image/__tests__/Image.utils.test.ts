@@ -248,6 +248,28 @@ describe('getCoverStyle 跨 viewport 几何', () => {
     expect(style.radius).toBe(12)
   })
 
+  it('普通 rounded 封面也输出 zero clip, 让首帧圆角由 clip-path 接管', () => {
+    setViewport({
+      inner: { w: 1000, h: 800 },
+      client: { w: 1000, h: 800 },
+    })
+
+    const cover = buildCoverImg({
+      left: 400,
+      top: 300,
+      width: 200,
+      height: 100,
+      naturalWidth: 1000,
+      naturalHeight: 500,
+      borderRadius: '16px',
+    })
+    const style = getCoverStyle(buildContext(cover))
+
+    expect(style.scale).toBeCloseTo(0.2, 5)
+    expect(style.clip).toEqual({ top: 0, right: 0, bottom: 0, left: 0 })
+    expect(style.radius).toBe(16)
+  })
+
   it('object-position: 0% 50% 时只裁右侧, transform 使用渲染对象中心', () => {
     setViewport({
       inner: { w: 1000, h: 800 },

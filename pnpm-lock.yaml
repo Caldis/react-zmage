@@ -4137,7 +4137,7 @@ packages:
         optional: true
 
   react-zmage@file:.pack/react-zmage-1.7.0.tgz:
-    resolution: {integrity: sha512-h3E9s9FeJvebnUoivR/K5OvpEdWgwl7a3MzV3g0AiYjj4dADA9DHbY/P5P3qqcpB/fmEHTCU1Y0OtGo/BO10zA==, tarball: file:.pack/react-zmage-1.7.0.tgz}
+    resolution: {integrity: sha512-DJx98flfzJSi4Rs7AQb05rX3ftzCPQHz02XofkRNvYk4bedO2bkAAr6y5hM4DicYtCPknIrwNX0oT2Y8er0Whw==, tarball: file:.pack/react-zmage-1.7.0.tgz}
     version: 1.7.0
     peerDependencies:
       react: '>=16.8.0 <20'

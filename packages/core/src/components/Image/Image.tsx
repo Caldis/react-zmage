@@ -30,6 +30,7 @@ import {
   closingEase,
   DoubleTapGesture,
   getAnimateConfig,
+  getBrowsingStyle,
   getClipPath,
   getCoverStyle,
   getCurrentImageStyle,
@@ -106,6 +107,9 @@ interface StateType {
   imageDimensions: { [imageIndex: number]: { w: number, h: number } },
 }
 
+type CoverFollowPhase = Extract<MotionPhase, 'browsing-follow' | 'closing-follow'>
+type CoverFollowTargetGetter = (from: ImageStyleType) => ImageStyleType
+
 export default class Image extends React.Component<PropsType, StateType> {
 
   // Types
@@ -127,11 +131,13 @@ export default class Image extends React.Component<PropsType, StateType> {
   zoomFollowRaf?: number
   zoomFollowCurrentStyle?: ImageStyleType
   zoomFollowTargetStyle?: ImageStyleType
-  // 关闭路径 RAF: 每帧重读 cover 视口位置作为 target, 解决滚动期间 transition target snapshot 导致的滞后
-  closingFollowRaf?: number
-  closingStartTime?: number
-  closingDuration?: number
-  closingFromStyle?: ImageStyleType
+  // cover 路径 RAF: in/out 共用同一套 cover 几何读取、插值和节点写入逻辑.
+  coverFollowRaf?: number
+  coverFollowStartTime?: number
+  coverFollowDuration?: number
+  coverFollowFromStyle?: ImageStyleType
+  coverFollowCurrentStyle?: ImageStyleType
+  coverFollowTargetGetter?: CoverFollowTargetGetter
   motionPhase: MotionPhase = 'idle'
   pendingZoomMousePosition?: Coordinate
   zoomPointerPosition?: Coordinate
@@ -209,7 +215,11 @@ export default class Image extends React.Component<PropsType, StateType> {
     if (!prevShow && currShow) {
       this.cancelClosingFollow()
     }
+    if (prevRotate !== currRotate && currShow) {
+      this.completeBrowsingFollow()
+    }
     if (!prevZoom && currZoom) {
+      this.cancelCoverFollow()
       if (keyboardZoomEnter) {
         this.startKeyboardZoomEnter()
       } else if (pinchZoomEnter && this.pinchTargetStyle) {
@@ -231,6 +241,8 @@ export default class Image extends React.Component<PropsType, StateType> {
           this.updateCurrentImageStyleForStoredZoom()
         } else if (prevShow !== currShow && animate?.browsing === false) {
           this.updateCurrentImageStyleWithoutBrowsingTransition()
+        } else if (!prevShow && currShow) {
+          this.startBrowsingInTransition()
         } else if (prevShow && !currShow) {
           // 关闭路径: 启动 RAF 实时追踪 cover 视口位置, 避免 350ms transition 期间 target snapshot 导致的滚动滞后
           this.startClosingFollow()
@@ -255,6 +267,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     }
     // 切换页面时
     if (prevPage !== currPage) {
+      this.cancelCoverFollow()
       // #167: 翻页动画下 (fade/crossFade/swipe) side image 节点会被复用为新 center,
       // 它的 src 不变 → 浏览器不再派发 load 事件 → handleImageLoad 不会触发 →
       // 两个副作用必须显式补齐 (handleImageLoad 是这两件事的唯一 onLoad-driven 来源):
@@ -288,6 +301,10 @@ export default class Image extends React.Component<PropsType, StateType> {
       this.pendingDimCalibration = null
       this.cancelScaleCalibrationAnimation()
     }
+    if (this.motionPhase === 'browsing-follow' &&
+        prevState.imageDimensions[currPage] !== this.state.imageDimensions[currPage]) {
+      this.syncBrowsingFollowTarget()
+    }
     // ③ 跳页 fade: 当 page 真正变化, 且最短逻辑距离 > 2 (超出 ±2 预取环) 且非 flip='none' 时,
     // 给新 center 加 jumpFadeIn class 触发 CSS @keyframes (opacity 0→1). loop=true 时通过
     // resolveShortestStep 计算最短距离, 让 N=6 page 0→5 (= -1 wrap) 仍走 in-range 路径不进 fade.
@@ -307,10 +324,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     // 取消所有还未触发的 RAF, 防止 unmount 后再注册监听 (StrictMode 双 mount 泄漏的根因)
     this.pendingRafHandles.forEach(handle => window.cancelAnimationFrame(handle))
     this.pendingRafHandles = []
-    if (this.browsingTransitionRaf !== undefined) {
-      window.cancelAnimationFrame(this.browsingTransitionRaf)
-      this.browsingTransitionRaf = undefined
-    }
+    this.cancelBrowsingTransitionFrame()
     if (this.calibrationRestoreRaf !== undefined) {
       window.cancelAnimationFrame(this.calibrationRestoreRaf)
       this.calibrationRestoreRaf = undefined
@@ -387,17 +401,35 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { touchGesture } = this.state
     const nextStyle = getCurrentImageStyle(this.context, this.imageRef, touchGesture)
     this.motionPhase = 'browsing-instant'
-    this.setCurrentStyle(nextStyle, () => {
-      if (this.browsingTransitionRaf !== undefined) {
-        window.cancelAnimationFrame(this.browsingTransitionRaf)
-      }
-      this.browsingTransitionRaf = window.requestAnimationFrame(() => {
-        this.browsingTransitionRaf = undefined
-        if (this.motionPhase === 'browsing-instant') {
-          this.motionPhase = 'idle'
-        }
-      })
+    this.setCurrentStyle(nextStyle, this.scheduleBrowsingInstantReset)
+  }
+  startBrowsingInTransition = () => {
+    this.debounceUpdateCurrentImageStyle.cancel()
+    const from = this.getCoverTargetStyle(this.getCurrentVisualStyle())
+    this.startCoverFollow({
+      phase: 'browsing-follow',
+      from,
+      getTarget: () => getBrowsingStyle(this.context, this.imageRef),
+      fallback: this.debounceUpdateCurrentImageStyle,
     })
+  }
+  scheduleBrowsingInstantReset = ({ refreshStyle = false }: { refreshStyle?: boolean } = {}) => {
+    this.cancelBrowsingTransitionFrame()
+    this.browsingTransitionRaf = window.requestAnimationFrame(() => {
+      this.browsingTransitionRaf = undefined
+      if (this.motionPhase === 'browsing-instant') {
+        this.motionPhase = 'idle'
+        if (refreshStyle) {
+          this.setCurrentStyle(this.state.currentStyle)
+        }
+      }
+    })
+  }
+  cancelBrowsingTransitionFrame = () => {
+    if (this.browsingTransitionRaf !== undefined) {
+      window.cancelAnimationFrame(this.browsingTransitionRaf)
+      this.browsingTransitionRaf = undefined
+    }
   }
   updateCurrentImageStyleForKeyboardZoom = () => {
     const nextStyle = this.getZoomingStyleFromStoredPosition()
@@ -420,9 +452,9 @@ export default class Image extends React.Component<PropsType, StateType> {
   handleScroll = () => {
     if (this.imageRef.current) {
       const { show } = this.context
-      // 关闭路径下由 RAF (startClosingFollow) 接管整个位置计算 — 此时 inline top 不能再叠加滚动量,
+      // cover-follow RAF 接管整个位置计算时, inline top 不能再叠加滚动量,
       // 否则会与 transform 内的 cover-y 偏移产生双重位移.
-      if (this.motionPhase === 'closing-follow') {
+      if (this.motionPhase === 'closing-follow' || this.motionPhase === 'browsing-follow') {
         return
       }
       this.imageRef.current.style.top = `calc(50% + ${show ? 0 : this.initialPageOffset - window.pageYOffset}px)`
@@ -459,6 +491,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   }
   // 触摸事件
   handleTouchStart = (e: TouchEvent) => {
+    this.completeBrowsingFollow()
     if (this.tryStartPinchGesture(e)) {
       return
     }
@@ -624,7 +657,11 @@ export default class Image extends React.Component<PropsType, StateType> {
   }
   handleImageLoad = () => {
     const { animate, show, zoom } = this.context
-    if (animate?.browsing === false && show && !zoom) {
+    if (this.motionPhase === 'browsing-follow') {
+      // opening RAF 写视觉帧; logical currentStyle 仍要同步到最新浏览态目标,
+      // 否则开场期间的 zoom / fit-scale 判断会拿到 cover/intermediate 几何.
+      this.syncBrowsingFollowTarget()
+    } else if (animate?.browsing === false && show && !zoom) {
       this.updateCurrentImageStyleWithoutBrowsingTransition()
     } else {
       this.debounceUpdateCurrentImageStyle()
@@ -764,6 +801,12 @@ export default class Image extends React.Component<PropsType, StateType> {
     node.style.transition = 'none'
     node.style.setProperty('-webkit-transition', 'none')
   }
+  writeImageStyleToNode = (node: HTMLImageElement, imageStyle: ImageStyleType) => {
+    this.setNodeTransitionNone(node)
+    this.setNodeTransform(node, this.getCenterImageTransform(imageStyle))
+    node.style.opacity = String(imageStyle.opacity ?? 1)
+    this.setNodeClipAndRadius(node, imageStyle)
+  }
   setNodeClipAndRadius = (node: HTMLImageElement, imageStyle: ImageStyleType) => {
     const scale = imageStyle.scale ?? 1
     const clipPath = getClipPath(imageStyle.clip, imageStyle.radius ?? 0, scale)
@@ -838,10 +881,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     this.zoomFollowTargetStyle = undefined
     this.zoomTargetScale = zoomingStyle.scale
     if (node) {
-      this.setNodeTransitionNone(node)
-      this.setNodeTransform(node, this.getCenterImageTransform(zoomingStyle))
-      node.style.opacity = String(zoomingStyle.opacity ?? 1)
-      this.setNodeClipAndRadius(node, zoomingStyle)
+      this.writeImageStyleToNode(node, zoomingStyle)
     }
   }
   applyZoomStyleImmediately = (zoomingStyle: ImageStyleType) => {
@@ -1179,91 +1219,168 @@ export default class Image extends React.Component<PropsType, StateType> {
 
     this.zoomFollowRaf = window.requestAnimationFrame(this.stepZoomFollow)
   }
-  /**
-   * 关闭路径 RAF 追踪
-   *
-   * 关闭动画期间, 用户可能正在快速滚动页面 — 此时 cover 元素在视口中的位置是动态的.
-   * 走 React state + CSS transition 路径会在动画起始时 snapshot cover 视口坐标,
-   * 整个 350ms transition 朝着 stale 位置内插, 视觉上表现为"慢半拍".
-   *
-   * 这套 RAF 每帧都重新调用 getCoverStyle 拿 cover 当前视口位置作为 target,
-   * 然后从 closingFromStyle 用 cubic-bezier easing 插值到 fresh target,
-   * 直接命令式写 inline transform — 绕过 React render + CSS transition 的延迟,
-   * 让追踪精度落到 1 帧以内.
-   */
   startClosingFollow = () => {
-    this.cancelClosingFollow()
-    this.debounceUpdateCurrentImageStyle.cancel()
+    this.startCoverFollow({
+      phase: 'closing-follow',
+      from: this.getCurrentVisualStyle(),
+      getTarget: this.getCoverTargetStyle,
+      fallback: this.debounceUpdateCurrentImageStyle,
+    })
+  }
 
+  /**
+   * in/out 共用的 cover 几何动画.
+   *
+   * - browsing-in: from = 实时 cover, target = 浏览态 fit 几何.
+   * - browsing-out: from = 当前浏览态视觉几何, target = 实时 cover.
+   *
+   * 两个方向都用 RAF 直接写 transform/clip/radius, 保证 cover 检测和节点写入路径一致.
+   * opening 期间 logical currentStyle 保持浏览态目标, 避免 zoom/flip/load 被 cover 首帧污染.
+   */
+  startCoverFollow = ({
+    phase,
+    from,
+    getTarget,
+    fallback,
+  }: {
+    phase: CoverFollowPhase
+    from: ImageStyleType
+    getTarget: CoverFollowTargetGetter
+    fallback: () => void
+  }) => {
+    this.cancelCoverFollow()
+    this.debounceUpdateCurrentImageStyle.cancel()
     const node = this.imageRef.current
     if (!node) {
-      // 没有节点就走原 debounce 路径作为 fallback (理论上 closing 时节点一定存在)
-      this.debounceUpdateCurrentImageStyle()
+      // 理论上 show 切换时节点应存在; 兜底走原更新路径, 避免空 ref 直接丢状态.
+      fallback()
       return
     }
 
-    this.closingStartTime = performance.now()
-    this.closingDuration = getBrowsingAnimationDuration(this.context.presetIsDesktop)
-    this.closingFromStyle = this.getCurrentVisualStyle()
-    this.motionPhase = 'closing-follow'
+    this.coverFollowStartTime = performance.now()
+    this.coverFollowDuration = getBrowsingAnimationDuration(this.context.presetIsDesktop)
+    this.coverFollowFromStyle = from
+    this.coverFollowCurrentStyle = from
+    this.coverFollowTargetGetter = getTarget
+    this.motionPhase = phase
 
-    // scroll handler 之前可能在 inline top 上写了滚动差; RAF 接管位置后必须复位,
-    // 否则 transform 内已经包含 cover 视口偏移, 再叠加 inline top 会导致双重位移.
+    // scroll handler 之前可能在 inline top 上写了滚动差; RAF 接管位置后必须复位.
     node.style.top = '50%'
-    this.setNodeTransitionNone(node)
+    this.writeImageStyleToNode(node, from)
 
-    this.closingFollowRaf = window.requestAnimationFrame(this.stepClosingFollow)
+    const scheduleCoverFrame = () => {
+      const currentNode = this.imageRef.current
+      if (!currentNode || this.motionPhase !== phase || this.coverFollowFromStyle !== from) {
+        return
+      }
+      currentNode.style.top = '50%'
+      this.writeImageStyleToNode(currentNode, this.coverFollowCurrentStyle || from)
+      if (this.coverFollowRaf === undefined) {
+        this.coverFollowRaf = window.requestAnimationFrame(this.stepCoverFollow)
+      }
+    }
+
+    if (phase === 'browsing-follow') {
+      this.setCurrentStyle(getTarget(from), scheduleCoverFrame)
+      return
+    }
+
+    this.setCurrentStyle(from)
+    scheduleCoverFrame()
   }
-  stepClosingFollow = () => {
-    this.closingFollowRaf = undefined
+  stepCoverFollow = () => {
+    this.coverFollowRaf = undefined
     const node = this.imageRef.current
-    const from = this.closingFromStyle
-    const startTime = this.closingStartTime
-    const duration = this.closingDuration
-    if (!node || !from || startTime === undefined || duration === undefined) {
-      this.cancelClosingFollow()
+    const from = this.coverFollowFromStyle
+    const startTime = this.coverFollowStartTime
+    const duration = this.coverFollowDuration
+    const getTarget = this.coverFollowTargetGetter
+    if (!node || !from || startTime === undefined || duration === undefined || !getTarget) {
+      this.cancelCoverFollow()
       return
     }
 
     const rawProgress = Math.min(1, (performance.now() - startTime) / duration)
     const eased = closingEase(rawProgress)
 
-    // 实时读 cover 视口位置 — 这是"零滞后追踪"的关键
-    const target = this.getClosingTargetStyle(from)
+    const target = getTarget(from)
     const visual = lerpCoverStyle(from, target, eased)
 
-    this.setNodeTransitionNone(node)
-    this.setNodeTransform(node, this.getCenterImageTransform(visual))
-    node.style.opacity = String(visual.opacity ?? 1)
-    this.setNodeClipAndRadius(node, visual)
+    this.coverFollowCurrentStyle = visual
+    this.writeImageStyleToNode(node, visual)
 
     if (rawProgress >= 1) {
-      // 落地: 同步 React state, 让后续 render 接管 transform/opacity
-      this.closingFromStyle = undefined
-      this.closingStartTime = undefined
-      this.closingDuration = undefined
+      this.coverFollowFromStyle = undefined
+      this.coverFollowCurrentStyle = undefined
+      this.coverFollowStartTime = undefined
+      this.coverFollowDuration = undefined
+      this.coverFollowTargetGetter = undefined
       this.motionPhase = 'idle'
       this.setCurrentStyle(target)
       return
     }
 
-    this.closingFollowRaf = window.requestAnimationFrame(this.stepClosingFollow)
+    this.coverFollowRaf = window.requestAnimationFrame(this.stepCoverFollow)
   }
-  cancelClosingFollow = () => {
-    if (this.closingFollowRaf !== undefined) {
-      window.cancelAnimationFrame(this.closingFollowRaf)
-      this.closingFollowRaf = undefined
+  syncBrowsingFollowTarget = () => {
+    if (this.motionPhase !== 'browsing-follow') return
+    const from = this.coverFollowFromStyle
+    const getTarget = this.coverFollowTargetGetter
+    if (!from || !getTarget) return
+    const visual = this.coverFollowCurrentStyle || from
+    this.setCurrentStyle(getTarget(from), () => {
+      const node = this.imageRef.current
+      if (!node || this.motionPhase !== 'browsing-follow') return
+      this.writeImageStyleToNode(node, this.coverFollowCurrentStyle || visual)
+    })
+  }
+  completeBrowsingFollow = () => {
+    if (this.motionPhase !== 'browsing-follow') return
+    const from = this.coverFollowFromStyle
+    const getTarget = this.coverFollowTargetGetter
+    if (!from || !getTarget) {
+      this.cancelCoverFollow()
+      return
     }
-    this.closingFromStyle = undefined
-    this.closingStartTime = undefined
-    this.closingDuration = undefined
-    if (this.motionPhase === 'closing-follow') {
+    const target = getTarget(from)
+    this.cancelCoverFollow()
+    const node = this.imageRef.current
+    if (node) {
+      node.style.top = '50%'
+      this.writeImageStyleToNode(node, target)
+    }
+    this.setCurrentStyle(target)
+  }
+  cancelCoverFollow = () => {
+    if (this.coverFollowRaf !== undefined) {
+      window.cancelAnimationFrame(this.coverFollowRaf)
+      this.coverFollowRaf = undefined
+    }
+    this.coverFollowFromStyle = undefined
+    this.coverFollowCurrentStyle = undefined
+    this.coverFollowStartTime = undefined
+    this.coverFollowDuration = undefined
+    this.coverFollowTargetGetter = undefined
+    if (this.motionPhase === 'closing-follow' || this.motionPhase === 'browsing-follow') {
       this.motionPhase = 'idle'
     }
   }
+  cancelClosingFollow = () => {
+    this.cancelCoverFollow()
+  }
   getCurrentVisualStyle = (): ImageStyleType => {
-    const { currentStyle, touchGesture } = this.state
+    const { touchGesture } = this.state
     const { touch, opacity } = touchGesture.getTouchConfig()
+    if ((this.motionPhase === 'closing-follow' || this.motionPhase === 'browsing-follow') &&
+        this.coverFollowCurrentStyle) {
+      return {
+        ...this.coverFollowCurrentStyle,
+        x: (this.coverFollowCurrentStyle.x ?? 0) + touch.x,
+        y: this.coverFollowCurrentStyle.y + touch.y,
+        opacity: opacity ?? this.coverFollowCurrentStyle.opacity,
+      }
+    }
+    const { currentStyle } = this.state
     return {
       ...currentStyle,
       x: (currentStyle.x ?? 0) + touch.x,
@@ -1271,7 +1388,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       opacity: opacity ?? currentStyle.opacity,
     }
   }
-  getClosingTargetStyle = (from: ImageStyleType): ImageStyleType => {
+  getCoverTargetStyle = (from: ImageStyleType): ImageStyleType => {
     const target = getCoverStyle(this.context, this.imageRef, this.state.touchGesture)
     return target._behavior === 'merge' ? { ...from, ...target } : target
   }

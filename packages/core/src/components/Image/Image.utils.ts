@@ -35,6 +35,7 @@ export type ImageRole = 'center' | 'side'
 export type MotionPhase =
   | 'idle'
   | 'browsing-instant'
+  | 'browsing-follow'
   | 'zoom-enter'
   | 'zoom-follow'
   | 'closing-follow'
@@ -97,6 +98,10 @@ const shouldUseClip = (context: ContextType) => {
   const coverOptions = normalizeAnimateCoverOptions(context.animate)
   return coverOptions !== false && coverOptions.clip
 }
+
+const getCoverClip = (coverOptions: false | Required<AnimateCoverOptions>) => (
+  coverOptions && coverOptions.clip ? cloneZeroClip() : undefined
+)
 
 const getEndpointClip = (context: ContextType): ClipInsets | undefined => (
   shouldUseClip(context) ? cloneZeroClip() : undefined
@@ -209,6 +214,9 @@ export const getImageTransition = ({
     return 'none'
   }
   if (role === 'center') {
+    if (motionPhase === 'browsing-follow') {
+      return 'none'
+    }
     if (motionPhase === 'zoom-enter') {
       return zoomTransition
     }
@@ -269,6 +277,7 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
       scale: naturalWidth ? width / naturalWidth : 1,
       rotate: rotate - rotate % 360,
       radius,
+      clip: getCoverClip(coverOptions),
     } : {
       _type: 'cover',
       x: 0,
@@ -339,8 +348,8 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
   }
 }
 
-/* 关闭路径用: 在动画期间逐帧把 from(浏览态)向 to(实时 cover)插值
- * 关键点是 to 由调用方每帧用 getCoverStyle 重算, 保证滚动期间 target 跟得上 cover 视口位置 */
+/* cover 几何 RAF 用: 在动画期间逐帧把 from 向实时 target 插值.
+ * opening target 是浏览态 fit 几何, closing target 是每帧重读的 cover 几何. */
 export const lerpCoverStyle = (from: ImageStyleType, to: ImageStyleType, t: number): ImageStyleType => {
   const lerp = (a: number, b: number) => a + (b - a) * t
   const lerpClip = (fromClip: ClipInsets | undefined, toClip: ClipInsets | undefined): ClipInsets | undefined => {

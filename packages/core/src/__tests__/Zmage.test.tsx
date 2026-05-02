@@ -1330,6 +1330,11 @@ describe('Zmage 动画行为', () => {
   const wait = async (ms: number) => {
     await act(async () => { await new Promise(r => setTimeout(r, ms)) })
   }
+  const parseInlineTranslate = (transform: string) => {
+    const match = transform.match(/translate3d\((-?\d+(?:\.\d+)?)px, (-?\d+(?:\.\d+)?)px, 0px\) scale3d/)
+    if (!match) throw new Error(`unexpected transform: ${transform}`)
+    return { x: Number(match[1]), y: Number(match[2]) }
+  }
 
   it('关闭时按最小角度恢复旋转, 不按累计点击次数反转', async () => {
     render(<Zmage src={SRC} alt="t"/>)
@@ -1436,6 +1441,99 @@ describe('Zmage 动画行为', () => {
       // Visual crop 100px and visual radius 12px at scale .4 become 250px and 30px locally.
       expect(image.style.clipPath).toBe('inset(0px 250px 0px 250px round 30px)')
       expect(image.style.borderRadius).toBe('30px')
+    } finally {
+      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
+      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+    }
+  })
+
+  it('browsing-in 首帧在 viewport ref 可用后重新采样封面几何', async () => {
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+    HTMLElement.prototype.getBoundingClientRect = function () {
+      if ((this as HTMLElement).id === 'zmageViewport') {
+        return {
+          left: 0,
+          top: 0,
+          width: 980,
+          height: 800,
+          right: 980,
+          bottom: 800,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        } as DOMRect
+      }
+      return originalGetBoundingClientRect.call(this)
+    }
+
+    try {
+      render(<Zmage src="https://example.com/rebase.jpg" alt="rebase-cover"/>)
+      const cover = screen.getByAltText('rebase-cover') as HTMLImageElement
+      Object.defineProperty(cover, 'naturalWidth', { value: 1000, configurable: true })
+      Object.defineProperty(cover, 'naturalHeight', { value: 500, configurable: true })
+      cover.style.borderRadius = '10px'
+      cover.getBoundingClientRect = () => ({
+        left: 390,
+        top: 300,
+        width: 200,
+        height: 100,
+        right: 590,
+        bottom: 400,
+        x: 390,
+        y: 300,
+        toJSON: () => ({}),
+      } as DOMRect)
+
+      fireEvent.click(cover)
+      await wait(30)
+
+      const image = document.getElementById('zmageImage') as HTMLImageElement
+      expect(image.style.transform).toContain('translate3d(0px, -50px, 0px)')
+      expect(image.style.clipPath).toBe('inset(0px 0px 0px 0px round 50px)')
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect
+      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
+      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+    }
+  })
+
+  it('browsing-in 使用 RAF 从封面几何插值到浏览几何, 不在 debounce 后直接跳终点', async () => {
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+
+    try {
+      render(<Zmage src="https://example.com/open-follow.jpg" alt="open-follow"/>)
+      const cover = screen.getByAltText('open-follow') as HTMLImageElement
+      Object.defineProperty(cover, 'naturalWidth', { value: 1000, configurable: true })
+      Object.defineProperty(cover, 'naturalHeight', { value: 500, configurable: true })
+      cover.getBoundingClientRect = () => ({
+        left: 400,
+        top: 300,
+        width: 200,
+        height: 100,
+        right: 600,
+        bottom: 400,
+        x: 400,
+        y: 300,
+        toJSON: () => ({}),
+      } as DOMRect)
+
+      fireEvent.click(cover)
+      await wait(100)
+      // Browser init 本身用 RAF; 分两段等待, 让 cover-follow 的下一帧真正执行.
+      await wait(40)
+
+      const image = document.getElementById('zmageImage') as HTMLImageElement
+      const translate = parseInlineTranslate(image.style.transform)
+      expect(image.style.transition).toBe('none')
+      expect(translate.y).toBeGreaterThan(-50)
+      expect(translate.y).toBeLessThan(0)
     } finally {
       if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
       if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
@@ -2221,7 +2319,7 @@ describe('Zmage 翻页 fit-scale 跟随当前页比例 (#167)', () => {
       const center0 = document.getElementById('zmageImage') as HTMLImageElement
       expect(center0).toBeTruthy()
       // 触发 load 让 currentStyle 计算 (jsdom 不会自动派发)
-      await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 80)) })
+      await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 420)) })
       const scale0 = parseScale(center0.style.transform)
       expect(scale0).toBeCloseTo(0.512, 2)
 
@@ -2286,6 +2384,11 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
   }
   const wait = async (ms: number) => {
     await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+  const parseInlineTranslate = (transform: string) => {
+    const match = transform.match(/translate3d\((-?\d+(?:\.\d+)?)px, (-?\d+(?:\.\d+)?)px, 0px\) scale3d/)
+    if (!match) throw new Error(`unexpected transform: ${transform}`)
+    return { x: Number(match[1]), y: Number(match[2]) }
   }
 
   it('flip=\'none\' 切换 AR 不一致图片 → onLoad 触发 interrupt, 无 350ms scale 动画 (Bug 1)', async () => {
@@ -2454,13 +2557,32 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
     // 在 cover→browsing 350ms 动画 (50-400ms 窗口) 期间触发, interrupt 不应触发.
     // (validator 早期方案的 _type === 'browsing' 守门会在此处误中断 cover→browsing 动画.)
     const A = 'https://example.com/a.jpg'
-    const restore = mockImageDimensionsBySrc({ [A]: { w: 1000, h: 1000 } })
+    const restore = mockImageDimensionsBySrc({ [A]: { w: 1000, h: 500 } })
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
 
     try {
       render(<Zmage src={A} alt="cover-b" preset="desktop" set={[{ src: A }]}/>)
-      fireEvent.click(screen.getByAltText('cover-b'))
-      // 等 100ms: debounce(50ms) 已 fire → _type 切到 'browsing', cover→browsing 动画在跑.
+      const cover = screen.getByAltText('cover-b') as HTMLImageElement
+      cover.getBoundingClientRect = () => ({
+        left: 400,
+        top: 300,
+        width: 200,
+        height: 100,
+        right: 600,
+        bottom: 400,
+        x: 400,
+        y: 300,
+        toJSON: () => ({}),
+      } as DOMRect)
+
+      fireEvent.click(cover)
+      // 等 100ms: cover→browsing 的共享 RAF 已进入中间帧, 但还未到浏览态终点.
       await wait(100)
+      // Browser init 本身用 RAF; 再等一帧, cover-follow 才会实际推进.
+      await wait(40)
 
       const center = document.getElementById('zmageImage') as HTMLImageElement
       // 模拟慢网下 onLoad 现在才到 (在动画窗口内). 此时没有 page change → pending 仍 null.
@@ -2469,10 +2591,15 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
         await new Promise(r => setTimeout(r, 5))
       })
 
-      // 关键断言: interrupt 不应触发, cover→browsing 动画继续
-      expect(center.style.transition).not.toBe('none')
+      // 关键断言: 首开 onLoad 不应另起 debounce/interrupt 抢写节点; 共享 RAF 继续推进中间帧.
+      const translate = parseInlineTranslate(center.style.transform)
+      expect(center.style.transition).toBe('none')
+      expect(translate.y).toBeGreaterThan(-50)
+      expect(translate.y).toBeLessThan(0)
     } finally {
       restore()
+      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
+      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
     }
   })
 })
