@@ -8,7 +8,7 @@
   <h1>react-zmage</h1>
 
   <p>
-    把任意 <code>&lt;img&gt;</code> 变成全屏、可键盘导航的图片查看器。<br>
+    把任意 <code>&lt;img&gt;</code> 变成可原位展开的全屏 React 图片查看器。<br>
     即插即用，零配置，兼容 React 16.8 → 19。
   </p>
 
@@ -22,7 +22,9 @@
 
   <p>
     <a href="https://zmage.caldis.me">在线 Demo</a> ·
+    <a href="https://zmage.caldis.me/media/react-zmage-demo.mp4">演示视频</a> ·
     <a href="https://zmage.caldis.me/playground">参数调试台</a> ·
+    <a href="https://zmage.caldis.me/use-cases">使用场景</a> ·
     <a href="#api">API</a> ·
     <a href="./AGENTS.md">AGENTS.md</a>
   </p>
@@ -32,7 +34,7 @@
 
 ## 特性
 
-- **`<img>` 即插即用替换**。原生属性（`className`、`style`、`onClick` 等）全部透传到底层 `<img>`，不需要额外的 portal 或状态管线。
+- **`<img>` 原位展开替换**。原生属性（`className`、`style`、`onClick` 等）全部透传到底层 `<img>`，图片会从原位置展开进入全屏查看器。
 - **SSR / RSC 安全**。提供独立的 `react-zmage/ssr` 入口，import 阶段不会触碰 `document`。已在 Next.js 15 App Router、Vite SSR、Express renderToString 上验证。
 - **三种调用方式**。可作为组件、命令式调用（`Zmage.browsing()`），或包裹任意 HTML 子树自动给内部所有 `<img>` 接上查看器。
 

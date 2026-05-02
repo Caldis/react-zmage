@@ -8,7 +8,7 @@ English | [简体中文](./README.zh-CN.md)
   <h1>react-zmage</h1>
 
   <p>
-    Turn any <code>&lt;img&gt;</code> into a fullscreen, keyboard-navigable image viewer.<br>
+    Turn any <code>&lt;img&gt;</code> into an origin-expand fullscreen React image viewer.<br>
     Drop-in. Zero config. React 16.8 → 19.
   </p>
 
@@ -22,7 +22,9 @@ English | [简体中文](./README.zh-CN.md)
 
   <p>
     <a href="https://zmage.caldis.me">Live Demo</a> ·
+    <a href="https://zmage.caldis.me/media/react-zmage-demo.mp4">Demo Video</a> ·
     <a href="https://zmage.caldis.me/playground">Playground</a> ·
+    <a href="https://zmage.caldis.me/use-cases">Use Cases</a> ·
     <a href="#api-reference">API</a> ·
     <a href="./AGENTS.md">AGENTS.md</a>
   </p>
@@ -32,7 +34,7 @@ English | [简体中文](./README.zh-CN.md)
 
 ## Highlights
 
-- **Drop-in `<img>` replacement.** Native props (`className`, `style`, `onClick`, …) pass through to the underlying image. No portals to wire up, no state plumbing.
+- **Origin-expand `<img>` replacement.** Native props (`className`, `style`, `onClick`, …) pass through to the underlying image. Existing images open into a fullscreen viewer from their original position.
 - **SSR / RSC safe.** A separate `react-zmage/ssr` entry avoids touching `document` at import time. Verified against Next.js 15 App Router, Vite SSR, and Express renderToString.
 - **Three call modes.** Use it as a component, call it imperatively (`Zmage.browsing()`), or wrap any HTML subtree to auto-attach the viewer to every `<img>` inside.
 

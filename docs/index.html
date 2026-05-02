@@ -1,35 +1,33 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>react-zmage — Drop-in image zoom for React</title>
-    <meta name="description" content="A drop-in React component that turns any <img> into a fullscreen, keyboard-navigable image viewer. Zero config, supports gallery, imperative API and auto-wrap." />
-    <meta name="keywords" content="react image zoom, react lightbox, react gallery, image viewer component, zoomable image, react-zmage, react fullscreen image, image preview react" />
+    <title>react-zmage - React Image Viewer with Origin Expand Zoom</title>
+    <meta name="description" content="Turn any &lt;img&gt; into an origin-expand fullscreen React image viewer. Supports galleries, keyboard navigation, mobile gestures, Wrapper mode, and SSR/RSC." />
+    <meta name="keywords" content="react image viewer, react image zoom, react lightbox, react image preview, origin expand, fullscreen image viewer, rich text image preview, react-zmage" />
     <meta name="author" content="Caldis" />
     <meta name="robots" content="index,follow" />
     <meta name="theme-color" content="#0a0a0a" />
     <link rel="canonical" href="https://zmage.caldis.me/" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="react-zmage — Drop-in image zoom for React" />
-    <meta property="og:description" content="A drop-in React component that turns any <img> into a fullscreen, keyboard-navigable image viewer." />
+    <meta property="og:title" content="react-zmage - React Image Viewer with Origin Expand Zoom" />
+    <meta property="og:description" content="Turn any &lt;img&gt; into an origin-expand fullscreen React image viewer. Supports galleries, keyboard navigation, mobile gestures, Wrapper mode, and SSR/RSC." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://zmage.caldis.me" />
+    <meta property="og:url" content="https://zmage.caldis.me/" />
     <meta property="og:image" content="https://zmage.caldis.me/logo.png" />
     <meta property="og:site_name" content="react-zmage" />
 
     <!-- Twitter card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="react-zmage — Drop-in image zoom for React" />
-    <meta name="twitter:description" content="A drop-in React component that turns any <img> into a fullscreen, keyboard-navigable image viewer." />
+    <meta name="twitter:title" content="react-zmage - React Image Viewer with Origin Expand Zoom" />
+    <meta name="twitter:description" content="Turn any &lt;img&gt; into an origin-expand fullscreen React image viewer. Supports galleries, keyboard navigation, mobile gestures, Wrapper mode, and SSR/RSC." />
     <meta name="twitter:image" content="https://zmage.caldis.me/logo.png" />
 
-    <!-- hreflang (SPA with client-side i18n; same URL for all locales) -->
-    <link rel="alternate" hreflang="zh-CN" href="https://zmage.caldis.me/" />
-    <link rel="alternate" hreflang="en" href="https://zmage.caldis.me/" />
+    <!-- hreflang (single canonical URL; client-side i18n switches copy after load) -->
     <link rel="alternate" hreflang="x-default" href="https://zmage.caldis.me/" />
 
     <!-- Search-engine verifications -->
@@ -43,15 +41,69 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "SoftwareSourceCode",
-        "name": "react-zmage",
-        "description": "A drop-in React component that turns any <img> into a fullscreen, keyboard-navigable image viewer.",
-        "codeRepository": "https://github.com/Caldis/react-zmage",
-        "programmingLanguage": "TypeScript",
-        "runtimePlatform": "React 16.8+",
-        "license": "https://opensource.org/licenses/MIT",
-        "author": { "@type": "Person", "name": "Caldis" }
-      }
+        "@graph": [
+                {
+                        "@type": "WebSite",
+                        "@id": "https://zmage.caldis.me/#website",
+                        "name": "react-zmage",
+                        "url": "https://zmage.caldis.me/",
+                        "description": "React image viewer for origin-expand fullscreen image preview.",
+                        "inLanguage": "en"
+                },
+                {
+                        "@type": "WebPage",
+                        "@id": "https://zmage.caldis.me/#webpage",
+                        "url": "https://zmage.caldis.me/",
+                        "name": "react-zmage - React Image Viewer with Origin Expand Zoom",
+                        "description": "Turn any \u003cimg> into an origin-expand fullscreen React image viewer. Supports galleries, keyboard navigation, mobile gestures, Wrapper mode, and SSR/RSC.",
+                        "isPartOf": {
+                                "@id": "https://zmage.caldis.me/#website"
+                        },
+                        "about": {
+                                "@id": "https://zmage.caldis.me/#software"
+                        },
+                        "inLanguage": "en"
+                },
+                {
+                        "@type": "SoftwareSourceCode",
+                        "@id": "https://zmage.caldis.me/#software",
+                        "name": "react-zmage",
+                        "url": "https://zmage.caldis.me/",
+                        "description": "react-zmage turns ordinary \u003cimg> elements into an origin-expand fullscreen React image viewer.",
+                        "codeRepository": "https://github.com/Caldis/react-zmage",
+                        "programmingLanguage": "TypeScript",
+                        "runtimePlatform": "React 16.8 through 19",
+                        "license": "https://opensource.org/licenses/MIT",
+                        "author": {
+                                "@type": "Person",
+                                "name": "Caldis"
+                        },
+                        "keywords": [
+                                "React image viewer",
+                                "React image zoom",
+                                "React lightbox",
+                                "React image preview",
+                                "origin expand",
+                                "fullscreen image viewer",
+                                "rich text image preview",
+                                "CMS image preview",
+                                "MDX image viewer",
+                                "Next.js image viewer"
+                        ]
+                },
+                {
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                                {
+                                        "@type": "ListItem",
+                                        "position": 1,
+                                        "name": "Home",
+                                        "item": "https://zmage.caldis.me/"
+                                }
+                        ]
+                }
+        ]
+}
     </script>
 
     <!-- Google tag (gtag.js) -->
@@ -72,10 +124,24 @@
         document.documentElement.classList.toggle('dark', theme === 'dark')
       } catch {}
     </script>
-    <script type="module" crossorigin src="/assets/index-r2jx6PBT.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Be_a4aXi.css">
+    <script type="module" crossorigin src="/assets/index-D2YS31q6.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-57UbSuBP.css">
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <main data-seo-fallback style="max-width: 760px; margin: 72px auto; padding: 0 24px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; line-height: 1.65; color: #f5f5f5; background: #0a0a0a;">
+        <h1 style="font-size: 36px; line-height: 1.15; margin: 0 0 16px;">React image viewer with origin-expand zoom</h1>
+        <p style="font-size: 18px; margin: 0 0 24px; color: #d4d4d4;">react-zmage turns normal img tags into a fullscreen image viewer for blogs, docs, CMS content, and news sites.</p>
+        <nav aria-label="react-zmage links" style="display: flex; flex-wrap: wrap; gap: 12px;">
+          <a href="/" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Home</a>
+          <a href="/docs" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Docs</a>
+          <a href="/playground" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Playground</a>
+          <a href="/playground/wrapper" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Wrapper playground</a>
+          <a href="/use-cases" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Use cases</a>
+          <a href="/ai" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">AI prompt</a>
+          <a href="https://github.com/Caldis/react-zmage" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">GitHub</a>
+        </nav>
+      </main>
+    </div>
   </body>
 </html>

@@ -69,22 +69,25 @@ function Hero () {
           v{zmagePkg.version} · {t('hero.pill')}
         </Badge>
         <div>
-          {/* leading 留够 descender 高度 (g/y/p/q + 角括号下伸); 太紧 (≤1.05) 会被 line-box / overflow-hidden 截掉 */}
-          <h1 className={cn(
-            'font-sans font-semibold tracking-tight',
-            'text-[clamp(2.5rem,7vw,5.5rem)] leading-[1.15]',
-          )}>
-            {t('hero.title.line1')}
-          </h1>
-          {/* h2 多一层 bg-clip-text + text-transparent: 渐变 mask 默认贴 line-box 尾, 紧 leading 时
+          {/* One semantic H1, split visually into two lines for layout and emphasis. */}
+          <h1 className="font-sans font-semibold tracking-tight">
+            {/* leading 留够 descender 高度 (g/y/p/q + 角括号下伸); 太紧 (≤1.05) 会被 line-box / overflow-hidden 截掉 */}
+            <span className={cn(
+              'block',
+              'text-[clamp(2.5rem,7vw,5.5rem)] leading-[1.15]',
+            )}>
+              {t('hero.title.line1')}
+            </span>
+            {/* 第二行多一层 bg-clip-text + text-transparent: 渐变 mask 默认贴 line-box 尾, 紧 leading 时
               descender 会进入透明区直接消失. leading 拉到 1.2 + pb-2 让渐变盒子覆盖下伸. */}
-          <h2 className={cn(
-            'mt-2 bg-clip-text font-sans font-semibold tracking-tight pb-2',
-            'text-[clamp(2rem,5.5vw,4rem)] leading-[1.2]',
-            'bg-gradient-to-br from-foreground to-foreground/40 text-transparent',
-          )}>
-            {t('hero.title.line2')}
-          </h2>
+            <span className={cn(
+              'mt-2 block bg-clip-text pb-2',
+              'text-[clamp(2rem,5.5vw,4rem)] leading-[1.2]',
+              'bg-gradient-to-br from-foreground to-foreground/40 text-transparent',
+            )}>
+              {t('hero.title.line2')}
+            </span>
+          </h1>
         </div>
         <p className="max-w-2xl text-base text-muted-foreground sm:text-lg">
           {t('hero.subtitle')}

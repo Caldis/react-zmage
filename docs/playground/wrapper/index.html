@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>react-zmage Wrapper Playground - Auto-bind Rich Text Images</title>
+    <meta name="description" content="Try Zmage.Wrapper for CMS, MDX, markdown, and rich text pages where existing &lt;img&gt; nodes should become fullscreen image previews." />
+    <meta name="keywords" content="react image viewer, react image zoom, react lightbox, react image preview, origin expand, fullscreen image viewer, rich text image preview, react-zmage" />
+    <meta name="author" content="Caldis" />
+    <meta name="robots" content="index,follow" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="canonical" href="https://zmage.caldis.me/playground/wrapper" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="react-zmage Wrapper Playground - Auto-bind Rich Text Images" />
+    <meta property="og:description" content="Try Zmage.Wrapper for CMS, MDX, markdown, and rich text pages where existing &lt;img&gt; nodes should become fullscreen image previews." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://zmage.caldis.me/playground/wrapper" />
+    <meta property="og:image" content="https://zmage.caldis.me/logo.png" />
+    <meta property="og:site_name" content="react-zmage" />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="react-zmage Wrapper Playground - Auto-bind Rich Text Images" />
+    <meta name="twitter:description" content="Try Zmage.Wrapper for CMS, MDX, markdown, and rich text pages where existing &lt;img&gt; nodes should become fullscreen image previews." />
+    <meta name="twitter:image" content="https://zmage.caldis.me/logo.png" />
+
+    <!-- hreflang (single canonical URL; client-side i18n switches copy after load) -->
+    <link rel="alternate" hreflang="x-default" href="https://zmage.caldis.me/" />
+
+    <!-- Search-engine verifications -->
+    <meta name="baidu-site-verification" content="9qj6NCtojt" />
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+                {
+                        "@type": "WebSite",
+                        "@id": "https://zmage.caldis.me/#website",
+                        "name": "react-zmage",
+                        "url": "https://zmage.caldis.me/",
+                        "description": "React image viewer for origin-expand fullscreen image preview.",
+                        "inLanguage": "en"
+                },
+                {
+                        "@type": "WebPage",
+                        "@id": "https://zmage.caldis.me/playground/wrapper#webpage",
+                        "url": "https://zmage.caldis.me/playground/wrapper",
+                        "name": "react-zmage Wrapper Playground - Auto-bind Rich Text Images",
+                        "description": "Try Zmage.Wrapper for CMS, MDX, markdown, and rich text pages where existing \u003cimg> nodes should become fullscreen image previews.",
+                        "isPartOf": {
+                                "@id": "https://zmage.caldis.me/#website"
+                        },
+                        "about": {
+                                "@id": "https://zmage.caldis.me/#software"
+                        },
+                        "inLanguage": "en"
+                },
+                {
+                        "@type": "SoftwareSourceCode",
+                        "@id": "https://zmage.caldis.me/#software",
+                        "name": "react-zmage",
+                        "url": "https://zmage.caldis.me/",
+                        "description": "react-zmage turns ordinary \u003cimg> elements into an origin-expand fullscreen React image viewer.",
+                        "codeRepository": "https://github.com/Caldis/react-zmage",
+                        "programmingLanguage": "TypeScript",
+                        "runtimePlatform": "React 16.8 through 19",
+                        "license": "https://opensource.org/licenses/MIT",
+                        "author": {
+                                "@type": "Person",
+                                "name": "Caldis"
+                        },
+                        "keywords": [
+                                "React image viewer",
+                                "React image zoom",
+                                "React lightbox",
+                                "React image preview",
+                                "origin expand",
+                                "fullscreen image viewer",
+                                "rich text image preview",
+                                "CMS image preview",
+                                "MDX image viewer",
+                                "Next.js image viewer"
+                        ]
+                },
+                {
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                                {
+                                        "@type": "ListItem",
+                                        "position": 1,
+                                        "name": "Home",
+                                        "item": "https://zmage.caldis.me/"
+                                },
+                                {
+                                        "@type": "ListItem",
+                                        "position": 2,
+                                        "name": "Wrapper mode for rich text images",
+                                        "item": "https://zmage.caldis.me/playground/wrapper"
+                                }
+                        ]
+                }
+        ]
+}
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QGD2YZLLGK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-QGD2YZLLGK', { send_page_view: false });
+    </script>
+
+    <script>
+      // Avoid flash-of-light-theme: resolve theme before paint.
+      try {
+        const stored = localStorage.getItem('zmage.theme')
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        const theme = stored === 'light' ? 'light' : stored === 'dark' ? 'dark' : (prefersDark ? 'dark' : 'light')
+        document.documentElement.classList.toggle('dark', theme === 'dark')
+      } catch {}
+    </script>
+    <script type="module" crossorigin src="/assets/index-D2YS31q6.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-57UbSuBP.css">
+  </head>
+  <body>
+    <div id="app">
+      <main data-seo-fallback style="max-width: 760px; margin: 72px auto; padding: 0 24px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; line-height: 1.65; color: #f5f5f5; background: #0a0a0a;">
+        <h1 style="font-size: 36px; line-height: 1.15; margin: 0 0 16px;">Wrapper mode for rich text images</h1>
+        <p style="font-size: 18px; margin: 0 0 24px; color: #d4d4d4;">Wrap uncontrolled CMS, MDX, markdown, or rich text HTML so existing img nodes can open in the react-zmage fullscreen viewer.</p>
+        <nav aria-label="react-zmage links" style="display: flex; flex-wrap: wrap; gap: 12px;">
+          <a href="/" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Home</a>
+          <a href="/docs" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Docs</a>
+          <a href="/playground" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Playground</a>
+          <a href="/playground/wrapper" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Wrapper playground</a>
+          <a href="/use-cases" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Use cases</a>
+          <a href="/ai" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">AI prompt</a>
+          <a href="https://github.com/Caldis/react-zmage" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">GitHub</a>
+        </nav>
+      </main>
+    </div>
+  </body>
+</html>

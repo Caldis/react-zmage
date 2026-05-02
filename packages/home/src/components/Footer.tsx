@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Link } from 'react-router-dom'
 import { Github } from 'lucide-react'
 import zmagePkg from 'react-zmage/package.json'
 import { useT } from '@/i18n/useT'
@@ -14,6 +15,7 @@ export function Footer () {
             <li><a className="hover:text-foreground" href="https://github.com/Caldis/react-zmage">{t('footer.repo')}</a></li>
             <li><a className="hover:text-foreground" href="https://github.com/Caldis/react-zmage/issues">{t('footer.issues')}</a></li>
             <li><a className="hover:text-foreground" href="https://github.com/Caldis/react-zmage/releases">{t('footer.changelog')}</a></li>
+            <li><Link className="hover:text-foreground" to="/use-cases">{t('footer.useCases')}</Link></li>
           </ul>
         </div>
         <div>
