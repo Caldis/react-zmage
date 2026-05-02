@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.8.1
+
 - **feat (controller layout)**: `controller.layout` now supports `flip` insets, and scalar `inset` values follow each target's natural edge instead of always mapping to bottom.
 
 ## 1.8.0
