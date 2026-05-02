@@ -45,7 +45,9 @@ export default function Portal ({ id, target, zIndex, className, style, children
     }
     styleKeysRef.current.forEach(key => container.style.removeProperty(key))
     styleKeysRef.current = []
-    Object.entries(style || {}).forEach(([key, value]) => {
+    const nextStyle = (style || {}) as Record<string, string | number | null | undefined>
+    Object.keys(nextStyle).forEach(key => {
+      const value = nextStyle[key]
       if (value == null) return
       container.style.setProperty(key, String(value))
       styleKeysRef.current.push(key)
