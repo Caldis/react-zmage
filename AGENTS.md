@@ -7,6 +7,8 @@
 
 如果你发现工作区中有额外变更, 始终假定是另一个 AI Agent 在当前分支中同步工作, 你需要做的是优先处理重突 (如果有) 并遵循工作互不干涉原则
 
+如果非用户主动要求, 不允许在 worktree 上执行改动。
+
 ## What this package does (1 sentence)
 
 A React component that turns any `<img>` into a fullscreen-zoomable, multi-image,
