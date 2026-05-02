@@ -14,5 +14,5 @@ export const animationDurationOnZooming = 0
 // 但 mobile 与 desktop 都必须沿用原始 browsing timing, 避免关闭卸载和图片归位不同步。
 export const getBrowsingAnimationDuration = (_presetIsDesktop: boolean, multiple = 1) => animationDuration * multiple
 
-export const animationTransition = (multiple = 1) => `transform ${animationDuration * multiple}ms ${animationFunction}, opacity ${animationDuration * multiple}ms ${animationFunction}, clip-path ${animationDuration * multiple}ms ${animationFunction}`
+export const animationTransition = (multiple = 1) => `transform ${animationDuration * multiple}ms ${animationFunction}, opacity ${animationDuration * multiple}ms ${animationFunction}, filter ${animationDuration * multiple}ms ${animationFunction}, clip-path ${animationDuration * multiple}ms ${animationFunction}`
 

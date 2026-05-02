@@ -447,7 +447,7 @@ Examples:
 ```ts
 interface Animate {
   browsing?: boolean
-  flip?:     'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'
+  flip?:     'fade' | 'crossFade' | 'swipe' | 'zoom' | 'blur' | 'none'
   cover?:    boolean | AnimateCoverOptions
   slowMotion?: boolean
 }
@@ -459,7 +459,7 @@ interface AnimateCoverOptions {
 }
 ```
 
-Defaults: desktop = `{ browsing: true, flip: 'crossFade', cover: { objectFit: true, clip: true, radius: true }, slowMotion: false }`, mobile = `{ browsing: true, flip: 'swipe', cover: { objectFit: true, clip: true, radius: true }, slowMotion: false }`. `animate.cover` matches the cover image's `object-fit` / `object-position`, clip, and border radius during open / close. Set `animate={{ cover: false }}` for the legacy cover geometry path. `flip: 'none'` skips adjacent-page rendering — page change is an instant swap with no transition. `animate.slowMotion` is off by default; when set to `true`, holding `Shift` while opening or closing slows the full browsing transition to 10x for inspection and demos.
+Defaults: desktop = `{ browsing: true, flip: 'crossFade', cover: { objectFit: true, clip: true, radius: true }, slowMotion: false }`, mobile = `{ browsing: true, flip: 'swipe', cover: { objectFit: true, clip: true, radius: true }, slowMotion: false }`. `animate.cover` matches the cover image's `object-fit` / `object-position`, clip, and border radius during open / close. Set `animate={{ cover: false }}` for the legacy cover geometry path. `flip: 'blur'` uses a soft-focus crossfade for optional page changes, while `flip: 'none'` skips adjacent-page rendering — page change is an instant swap with no transition. `animate.slowMotion` is off by default; when set to `true`, holding `Shift` while opening or closing slows the full browsing transition to 10x for inspection and demos.
 
 `animate.cover` reads the clicked `<img>` itself. It can match `object-fit`, `object-position`, and `border-radius` applied directly to that image; clipping introduced by a parent wrapper (`overflow: hidden`, parent radius, mask, complex `clip-path`, transform, etc.) is not inferred. The geometry math is small, but animating `clip-path: inset(...)` and `border-radius` may repaint and is heavier than pure `transform` / `opacity`, especially on large images, weaker mobile devices, and iOS Safari. For performance-sensitive pages, use `animate={{ cover: { clip: false } }}` or `animate={{ cover: { radius: false } }}`.
 

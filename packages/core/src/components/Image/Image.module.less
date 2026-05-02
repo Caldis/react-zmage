@@ -2,11 +2,11 @@
 
 .imageLayer {
   user-select: none;
-  transition: transform @animationDuration @animationFunction, opacity @animationDuration @animationFunction, clip-path @animationDuration @animationFunction, border-radius @animationDuration @animationFunction;
+  transition: transform @animationDuration @animationFunction, opacity @animationDuration @animationFunction, filter @animationDuration @animationFunction, clip-path @animationDuration @animationFunction, border-radius @animationDuration @animationFunction;
   position: absolute;
   left: 50%;
   top: 50%;
-  will-change: transform, top, opacity, clip-path, border-radius;
+  will-change: transform, top, opacity, filter, clip-path, border-radius;
   // 抵抗消费方全局 img reset (Tailwind preflight / normalize.css / Bootstrap 等):
   // zmage 的 cover-state 几何依赖模态 img 渲染在自然尺寸 (naturalWidth/Height),
   // 然后用 transform: scale(width/naturalWidth) 缩到封面视觉尺寸。若上层把

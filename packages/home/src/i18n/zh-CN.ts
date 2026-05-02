@@ -264,6 +264,7 @@ export const zhCN = {
   'animate.flip.crossFade': '交叉淡入',
   'animate.flip.swipe': '滑动',
   'animate.flip.zoom': '缩放',
+  'animate.flip.blur': '失焦',
   'animate.flip.none': '无',
   'animate.slowMotion': '慢动作',
 

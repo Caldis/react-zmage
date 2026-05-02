@@ -13,6 +13,7 @@ const corePkg = JSON.parse(readFileSync(join(corePkgDir, 'package.json'), 'utf8'
 const globalTs = readFileSync(join(corePkgDir, 'src', 'types', 'global.ts'), 'utf8')
 const defaultTs = readFileSync(join(corePkgDir, 'src', 'types', 'default.ts'), 'utf8')
 const indexTs = readFileSync(join(corePkgDir, 'src', 'index.ts'), 'utf8')
+const imageUtilsTs = readFileSync(join(corePkgDir, 'src', 'components', 'Image', 'Image.utils.ts'), 'utf8')
 
 // --- Static tests ---
 
@@ -292,8 +293,25 @@ test('animate.cover wired across types, defaults and llms.txt', () => {
   }
 })
 
+test('animate.flip blur option wired across types, runtime config and llms.txt', () => {
+  assert.match(globalTs, /export\s+type\s+AnimateFlip\s*=[\s\S]*?\|\s*'blur'/,
+    'AnimateFlip should include blur in types/global.ts')
+  assert.match(imageUtilsTs, /\bblur:\s*\{\s*offset:\s*0,\s*overflow:\s*0\.018,\s*opacity:\s*0,\s*blur:\s*14\s*\}/,
+    'FLIP_VISUAL.blur config missing in Image.utils.ts')
+  assert.match(defaultTs, /desktop:[\s\S]*?animate:[\s\S]*?\bflip:\s*'crossFade'/,
+    'desktop animate.flip default should stay crossFade')
+  assert.match(defaultTs, /mobile:[\s\S]*?animate:[\s\S]*?\bflip:\s*'swipe'/,
+    'mobile animate.flip default should stay swipe')
+  const animateLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|\s*`animate`\s*\|/.test(line)
+  )
+  assert.ok(animateLine, 'no API-table row in llms.txt declares the animate prop')
+  assert.match(animateLine, /'blur'/, 'llms.txt animate row missing blur in animate.flip union')
+  assert.match(animateLine, /soft-focus crossfade/, 'llms.txt animate row should describe blur as soft-focus crossfade')
+})
+
 test('public type symbols present in types/global.ts', () => {
-  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'ControllerPlacement', 'ControllerOverlayLayout', 'ControllerLayoutTargets', 'ControllerLayoutTarget', 'ControllerLayoutInset', 'ControllerLayoutInsetValue', 'ControllerRender', 'ControllerRenderState', 'ControllerRenderActions', 'ControllerRenderSlots', 'HotKey', 'Animate', 'AnimateCoverOptions', 'GestureSet', 'GestureWheelZoomOptions', 'GesturePinchZoomOptions', 'GestureDoubleTapZoomOptions', 'GestureTouchAction']) {
+  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'ControllerPlacement', 'ControllerOverlayLayout', 'ControllerLayoutTargets', 'ControllerLayoutTarget', 'ControllerLayoutInset', 'ControllerLayoutInsetValue', 'ControllerRender', 'ControllerRenderState', 'ControllerRenderActions', 'ControllerRenderSlots', 'HotKey', 'Animate', 'AnimateFlip', 'AnimateCoverOptions', 'GestureSet', 'GestureWheelZoomOptions', 'GesturePinchZoomOptions', 'GestureDoubleTapZoomOptions', 'GestureTouchAction']) {
     const re = new RegExp(`(?:export\\s+(?:interface|type)\\s+${sym}\\b)`)
     assert.match(globalTs, re, `${sym} not exported from types/global.ts`)
     assert.match(llmsTxt, new RegExp(`\\b${sym}\\b`), `${sym} not mentioned in llms.txt`)

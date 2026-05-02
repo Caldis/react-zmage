@@ -383,7 +383,7 @@ interface HotKey {
 ```ts
 interface Animate {
   browsing?: boolean
-  flip?:     'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'
+  flip?:     'fade' | 'crossFade' | 'swipe' | 'zoom' | 'blur' | 'none'
   cover?:    boolean | AnimateCoverOptions
 }
 
@@ -394,7 +394,7 @@ interface AnimateCoverOptions {
 }
 ```
 
-默认值：desktop = `{ browsing: true, flip: 'crossFade', cover: { objectFit: true, clip: true, radius: true } }`，mobile = `{ browsing: true, flip: 'swipe', cover: { objectFit: true, clip: true, radius: true } }`。`animate.cover` 会在打开 / 关闭期间匹配封面图的 `object-fit` / `object-position`、裁切和圆角。传 `animate={{ cover: false }}` 可使用旧版封面几何路径。`flip: 'none'` 跳过相邻页渲染，翻页瞬间替换，无过渡。
+默认值：desktop = `{ browsing: true, flip: 'crossFade', cover: { objectFit: true, clip: true, radius: true } }`，mobile = `{ browsing: true, flip: 'swipe', cover: { objectFit: true, clip: true, radius: true } }`。`animate.cover` 会在打开 / 关闭期间匹配封面图的 `object-fit` / `object-position`、裁切和圆角。传 `animate={{ cover: false }}` 可使用旧版封面几何路径。`flip: 'blur'` 使用柔和失焦淡入淡出作为可选翻页效果；`flip: 'none'` 跳过相邻页渲染，翻页瞬间替换，无过渡。
 
 `animate.cover` 读取被点击的 `<img>` 本身。它能匹配直接作用在这张图片上的 `object-fit`、`object-position` 和 `border-radius`；父元素带来的裁剪（`overflow: hidden`、父级圆角、mask、复杂 `clip-path`、transform 等）不会被推断。几何计算开销很小，但动画 `clip-path: inset(...)` 和 `border-radius` 可能触发重绘，比纯 `transform` / `opacity` 更重，尤其在大图、低端移动设备和 iOS Safari 上更明显。性能敏感页面可使用 `animate={{ cover: { clip: false } }}` 或 `animate={{ cover: { radius: false } }}`。
 

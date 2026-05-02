@@ -650,6 +650,7 @@ export interface ImageAnimateType {
   offset: number
   overflow: number
   opacity: number
+  blur?: number
 }
 
 /**
@@ -663,6 +664,7 @@ const FLIP_VISUAL: Record<AnimateFlip, ImageAnimateType> = {
   crossFade: { offset: CROSS_FADE_OFFSET, overflow: 0,             opacity: 0 },
   swipe:     { offset: 0,                 overflow: 0,             opacity: 1 },
   zoom:      { offset: 0,                 overflow: ZOOM_OVERFLOW, opacity: 0 },
+  blur:      { offset: 0,                 overflow: 0.018,         opacity: 0, blur: 14 },
   // 'none' 仅作类型完备的 fallback: Image.tsx 的 buildImageSeries 在 flip==='none' 时直接 short-circuit, 不会消费此值
   none:      { offset: 0,                 overflow: 0,             opacity: 0 },
 }

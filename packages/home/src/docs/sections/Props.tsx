@@ -68,7 +68,7 @@ const HOTKEY_KEYS: { k: string; descKey: I18nKey }[] = [
 
 const ANIMATE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
   { k: 'browsing', type: 'boolean', descKey: 'animate.browsing.desc' },
-  { k: 'flip', type: "'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'", descKey: 'animate.flip.desc' },
+  { k: 'flip', type: "'fade' | 'crossFade' | 'swipe' | 'zoom' | 'blur' | 'none'", descKey: 'animate.flip.desc' },
   { k: 'slowMotion', type: 'boolean', descKey: 'animate.slowMotion.desc' },
   { k: 'cover', type: 'boolean | AnimateCoverOptions', descKey: 'animate.cover.desc' },
   { k: 'cover.objectFit', type: 'boolean', descKey: 'animate.cover.objectFit.desc' },

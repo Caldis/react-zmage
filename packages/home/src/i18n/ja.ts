@@ -251,6 +251,7 @@ export const ja: I18nDict = {
   'animate.flip.crossFade': 'クロスフェード',
   'animate.flip.swipe': 'スワイプ',
   'animate.flip.zoom': 'ズーム',
+  'animate.flip.blur': 'ぼかし',
   'animate.flip.none': 'なし',
   'animate.slowMotion': 'スローモーション',
 

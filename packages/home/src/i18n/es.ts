@@ -251,6 +251,7 @@ export const es: I18nDict = {
   'animate.flip.crossFade': 'Fundido cruzado',
   'animate.flip.swipe': 'Deslizar',
   'animate.flip.zoom': 'Zoom',
+  'animate.flip.blur': 'Desenfoque',
   'animate.flip.none': 'Ninguno',
   'animate.slowMotion': 'Cámara lenta',
 
