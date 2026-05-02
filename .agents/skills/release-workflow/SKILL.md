@@ -74,7 +74,7 @@ pnpm -w run check
 If `sync-public-docs` was triggered earlier in the conversation, or if the release includes user-facing docs / homepage / examples, also confirm:
 - `pnpm --filter react-zmage-home run build` succeeded
 - regenerated `docs/index.html`, `docs/404.html`, and `docs/assets/*` are included when the home bundle changed
-- `git diff llms.txt docs/llms.txt` is empty when root `llms.txt` changed (vite plugin propagated the change)
+- If `docs/llms.txt` changed, `pnpm --filter llms-eval run test` passed and `docs/llms.txt` is included in the commit
 - the built docs bundle contains the new public examples or labels (for example, grep the latest `docs/assets/*.js` for the new example headings / i18n strings)
 - `docs/.nojekyll` exists if the repo contains Markdown under `docs/` that Jekyll could parse as Liquid
 

@@ -41,7 +41,7 @@
 ## 安装
 
 ```bash
-pnpm add react-zmage    # 或: npm i react-zmage / yarn add react-zmage
+npm install react-zmage    # 或: pnpm add react-zmage / yarn add react-zmage
 ```
 
 ```tsx

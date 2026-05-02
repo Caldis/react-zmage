@@ -9,7 +9,7 @@ import { CodeSnippet, type Mode as PlaygroundMode } from '@/playground/CodeSnipp
 import { EventLog } from '@/playground/EventLog'
 import { SlidingPill } from '@/components/ui/SlidingPill'
 import { encodeStateToHash, decodeStateFromHash } from '@/playground/shareState'
-import { applyPresetDrivenDefaults, getInitialValues } from '@/playground/state'
+import { applyPresetDrivenDefaults, applySiteSlowMotionDefault, getInitialValues } from '@/playground/state'
 import ComponentMode from './playground/ComponentMode'
 import ImperativeMode from './playground/ImperativeMode'
 import WrapperMode from './playground/WrapperMode'
@@ -38,8 +38,10 @@ export default function Playground () {
     const base = getInitialValues()
     if (typeof window !== 'undefined') {
       const hydrated = decodeStateFromHash(window.location.hash)
+      const hydratedKeys = new Set(Object.keys(hydrated))
       Object.assign(base, hydrated)
-      applyPresetDrivenDefaults(base, new Set(Object.keys(hydrated)))
+      applyPresetDrivenDefaults(base, hydratedKeys)
+      applySiteSlowMotionDefault(base, hydratedKeys)
     }
     return base
   })
@@ -58,6 +60,7 @@ export default function Playground () {
       const next = { ...v, [name]: value }
       if (name === 'preset') {
         applyPresetDrivenDefaults(next, touched)
+        applySiteSlowMotionDefault(next, touched)
       }
       return next
     })

@@ -1,6 +1,6 @@
 ---
 name: sync-public-docs
-description: Use when modifying public API in packages/core (types/global.ts, types/default.ts, index.ts, or package.json `exports` field), adding/renaming/removing props, changing default values, before publishing a new react-zmage version, or when the user says "sync docs" / "update public docs" / "propagate this change" / "同步文档" / "更新对外文档" / "准备发版". This skill coordinates four documentation destinations that drift independently — packages/core types & defaults, packages/home docs sections + schema, root llms.txt, and README.md / AGENTS.md. The repo has TS-level guards on type imports and a vite plugin that copies llms.txt to docs/, but defaults values, natural-language docs, README/AGENTS prose, and playground snippets have NO automatic guards — this skill IS the documented process that closes that gap. Trigger it aggressively whenever core's public surface changes; over-triggering is cheap, missed sync causes shipped doc drift.
+description: Use when modifying public API in packages/core (types/global.ts, types/default.ts, index.ts, or package.json `exports` field), adding/renaming/removing props, changing default values, before publishing a new react-zmage version, or when the user says "sync docs" / "update public docs" / "propagate this change" / "同步文档" / "更新对外文档" / "准备发版". This skill coordinates four documentation destinations that drift independently — packages/core types & defaults, packages/home docs sections + schema, docs/llms.txt, and README.md / AGENTS.md. The repo has TS-level guards on type imports, but defaults values, natural-language docs, README/AGENTS prose, llms.txt, and playground snippets have NO automatic guards — this skill IS the documented process that closes that gap. Trigger it aggressively whenever core's public surface changes; over-triggering is cheap, missed sync causes shipped doc drift.
 ---
 
 # Sync public docs (react-zmage)
@@ -15,7 +15,7 @@ The repo has four "outward-facing" documentation surfaces and only two of them a
 | `packages/home/src/schema/param-schema.ts` | imports `BaseType` from `react-zmage` (typed) **but defaults are hand-copied** | ✅ types only; ❌ default values |
 | `packages/home/src/docs/sections/*.tsx` + i18n keys | hand-written prose | ❌ |
 | `packages/home/src/playground/*` + `routes/playground/*` | hand-written examples | ❌ |
-| Root `llms.txt` → `docs/llms.txt` | root file | ✅ vite plugin auto-copies on build |
+| `docs/llms.txt` | checked-in file served as `/llms.txt` | ✅ static contract tests, ❌ content is still hand-written |
 | `packages/llms-eval/eval.test.mjs` (11-item contract) | `llms.txt` ↔ core | ✅ but **manual run only** |
 | `README.md` / `AGENTS.md` | hand-written | ❌ |
 
@@ -62,7 +62,7 @@ If nothing on this list moved, **stop here**. Tell the user the change doesn't a
 
 For each change, identify which destinations need updating. Use this map. Each cell = "yes" unless marked `–`.
 
-| Change category | `home/schema` (ParamDef + i18n) | `home/docs/sections` | `home/playground` | root `llms.txt` | `README.md` | `AGENTS.md` | `llms-eval/eval.test.mjs` |
+| Change category | `home/schema` (ParamDef + i18n) | `home/docs/sections` | `home/playground` | `docs/llms.txt` | `README.md` | `AGENTS.md` | `llms-eval/eval.test.mjs` |
 |---|---|---|---|---|---|---|---|
 | **Add prop** | ✓ ParamDef + i18n keys in all 7 `home/src/i18n/*.ts` | ✓ `Props.tsx` table row + `Examples.tsx` if non-trivial usage | ✓ `ParamPanel.tsx` + new control under `playground/controls/` if user-tunable | ✓ API table | ✓ "API > 基础/功能/界面 Props" section + 示例 | ✓ if it changes the public-API contract | ✓ add an assertion proving the prop is documented |
 | **Rename prop** | ✓ ParamDef name + all i18n key referrers | ✓ all sections (`Props`, `Examples`, `Theming`, `Migration`, `FAQ`) — grep the old name | ✓ all `playground/**` and `routes/playground/**` — grep the old name | ✓ | ✓ grep the old name everywhere | ✓ | ✓ |
@@ -108,30 +108,19 @@ Once drafts are approved, write the changes. Prefer parallelism — most destina
 Group rules:
 
 - **Group A (parallel-safe)**: `home/schema/param-schema.ts`, `home/docs/sections/*.tsx`, `home/src/i18n/*.ts`, `README.md`, `AGENTS.md`, `packages/llms-eval/eval.test.mjs` — these don't conflict.
-- **Group B (sequential, single-writer)**: `llms.txt` is one file; one writer.
-- **Skip**: never touch `docs/llms.txt` directly — vite plugin re-copies on next build.
+- **Group B (sequential, single-writer)**: `docs/llms.txt` is one file; one writer.
 
-Dispatch one Agent per destination in Group A in a single tool-call message; do `llms.txt` separately. Each subagent's prompt should include:
+Dispatch one Agent per destination in Group A in a single tool-call message; do `docs/llms.txt` separately. Each subagent's prompt should include:
 
 - The exact draft from Step 3 for that destination
 - An instruction to NOT modify any file outside its assigned destination
-- A reminder that root `llms.txt` is single-source-of-truth (so don't edit `docs/llms.txt`)
+- A reminder that `docs/llms.txt` is the single source of truth served as `/llms.txt`
 
 ### Step 5 — Re-eval the result
 
-**Prerequisite — if root `llms.txt` was edited in Step 4, rebuild home before evaluating:**
-
-```bash
-pnpm --filter react-zmage-home run build
-```
-
-This triggers the `copy-llms-txt` vite plugin in `packages/home/vite.config.mts`, which copies the new root `llms.txt` into `docs/llms.txt`. **Without this step the public-facing `zmage.caldis.me/llms.txt` (served by GitHub Pages from `docs/`) stays on the old version even after your commit lands** — the eval would pass against the source-of-truth file but real LLM consumers would still read the stale one. Verify with `git diff llms.txt docs/llms.txt` — must be empty. The behavioral eval below WebFetches the deployed URL, so this matters even pre-deploy if the eval is run after a previous deploy left `docs/llms.txt` shipped.
-
-Then commit `docs/llms.txt` (and any other regenerated `docs/` artefacts) alongside the source change so the deploy carries both.
-
 Two evaluation layers, both in `packages/llms-eval/`:
 
-**Static contract** (always run after the rebuild above):
+**Static contract** (always run after `docs/llms.txt` changes):
 
 ```bash
 pnpm --filter llms-eval run test
@@ -142,7 +131,7 @@ This is the 11-item check that `llms.txt`'s factual claims match core's reality.
 **Behavioral eval** (run when public surface changed materially — new modes, props, subpaths, or anything an AI integrator would notice):
 
 1. Delete `packages/llms-eval/agent-onboarding/output/` and `report.json` from the previous run.
-2. Dispatch a fresh subagent with the brief at `packages/llms-eval/agent-onboarding/prompt.md`. The subagent must obey the META section's information-source constraints (only the deployed `llms.txt` URL, fall back to local root `llms.txt` if WebFetch fails, no other repo files, no GitHub).
+2. Dispatch a fresh subagent with the brief at `packages/llms-eval/agent-onboarding/prompt.md`. The subagent must obey the META section's information-source constraints (only the deployed `llms.txt` URL, fall back to local `docs/llms.txt` if WebFetch fails, no other repo files, no GitHub).
 3. Run `node packages/llms-eval/agent-onboarding/rubric.mjs` to score the output (target ≥ 90/100).
 4. Read `packages/llms-eval/agent-onboarding/output/SELF_CRITIQUE.md` — this is the *qualitative* signal (rubric-100 doesn't mean docs are good; SELF_CRITIQUE shows what the integrator had to guess).
 
@@ -167,16 +156,14 @@ Before claiming sync is done:
 - [ ] `git diff` shows changes only in destinations from the Step 2 map
 - [ ] `pnpm --filter llms-eval run test` passes 11/11
 - [ ] If behavioral eval was run: rubric ≥ 90 and SELF_CRITIQUE has no "had to guess core API" complaints
-- [ ] No **manual** edits to `docs/llms.txt` (only `pnpm --filter react-zmage-home run build` may touch it)
-- [ ] If root `llms.txt` was edited: home was rebuilt, `git diff llms.txt docs/llms.txt` is empty, **and** `docs/llms.txt` is in the commit alongside the source change (otherwise GitHub Pages keeps serving the old text)
+- [ ] If `docs/llms.txt` changed: `pnpm --filter llms-eval run test` passes and the file is committed (GitHub Pages serves this file directly)
 - [ ] If new public API surface was added: a corresponding contract assertion was added to `packages/llms-eval/eval.test.mjs`
 - [ ] If new i18n prose: keys exist in all 7 language files
 - [ ] If `home/schema/param-schema.ts` `defProp` was edited: the hand-copy comment at the top of that file is still accurate (or removed if values now match core via a real import)
 
 ## Anti-patterns
 
-- **Don't edit `docs/llms.txt` directly.** It's a build artifact. Edit root `llms.txt`; vite plugin copies on next home build.
-- **Don't ship a root `llms.txt` change without rebuilding home.** GitHub Pages serves `docs/`, not the repo root. If you commit a root-only change without the corresponding `docs/llms.txt` update, the deployed site keeps serving the old version until the *next* unrelated home build sweeps it up — which can be weeks of silent staleness.
+- **Don't reintroduce a repo-root `llms.txt`.** GitHub Pages serves `docs/llms.txt` as `/llms.txt`, and `packages/llms-eval` reads that same file.
 - **Don't dispatch one mega-agent for "update everything".** Per-destination subagents stay focused and parallelize. The dispatcher is also the reviewer — one giant write makes review impossible.
 - **Don't skip Step 3 (drafts).** Going straight from diagnosis to writing means review happens after files change, when reverts are expensive.
 - **Don't trust rubric 100/100 alone.** It's a static check. SELF_CRITIQUE is where you find out the docs *technically* match the code but force the reader to guess. Both signals matter.

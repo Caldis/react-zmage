@@ -8,7 +8,7 @@ To make this evaluation meaningful, you must obey these information-source const
 
 ### Allowed information sources
 1. **Primary**: `WebFetch` `https://zmage.caldis.me/llms.txt`
-2. **Fallback** (only if WebFetch fails): `Read` `D:/Code/react-zmage/llms.txt` — this file is byte-identical to the deployed URL, so the test outcome is equivalent.
+2. **Fallback** (only if WebFetch fails): `Read` `D:/Code/react-zmage/docs/llms.txt` — this file is byte-identical to the deployed URL, so the test outcome is equivalent.
 
 ### Forbidden information sources
 - Do **not** Read, Grep, or Glob any file under `D:/Code/react-zmage/packages/`, `apps/`, `docs/`, `README.md`, `AGENTS.md`, `CONTRIBUTING.md`, or any other repo file besides the one llms.txt above.

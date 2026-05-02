@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 1.8.0
+
+- **feat (slow motion)**: added `animate.slowMotion`, off by default, so holding Shift can slow open / close browsing transitions to 10x for demos and inspection.
+- **feat (controller layout)**: added `controller.layout` plus exported layout inset types, allowing toolbar, pagination, and caption overlays to move inward without changing image geometry.
+- **fix (browsing lifecycle)**: isolated imperative `Zmage.browsing()` instances, canceled stale open / close timers, and kept cover visibility stable during rapid open / close / reopen sequences.
+- **fix (first frame)**: browsing-in now waits for viewport geometry and follows the same visual frame source during RAF transitions, preventing first-frame cover offset and late-transition flashing.
+- **chore (package size)**: kept the npm tarball lean by shipping only dist assets and the SSR stub path while preserving public subpaths.
+- **docs / demo**: rebuilt the homepage demo around the Child's Dream image story, documented layout / slow-motion controls, changed install examples to npm-first, and made `docs/llms.txt` the single checked-in llms source.
+
 ## 1.7.0
 
 - **feat (preset default)**: omitted `preset` now resolves as `'auto'`, using `(pointer: coarse) and (hover: none)` to choose mobile defaults on touch-first devices and desktop defaults elsewhere. Use `preset="desktop"` to force the old desktop bundle on touch devices.

@@ -1,8 +1,5 @@
 import { animationDuration, animationFunction, animationTransition, getBrowsingAnimationDuration } from './anim'
-
-// 局部声明 process 仅为 TS 编译期识别; tsup production build 会把
-// process.env.NODE_ENV 静态替换为 "production".
-declare const process: { env: { NODE_ENV?: string } }
+import type { Animate } from '../types/global'
 
 export type MotionTriggerEvent = { shiftKey?: boolean }
 
@@ -20,17 +17,18 @@ export interface MotionRuntime {
 export const motionDefaultDurationMultiplier = 1
 export const motionDevSlowdownMultiplier = 10
 
-const isProductionRuntime = () => process.env.NODE_ENV === 'production'
+export const isSlowMotionEnabled = (animate?: boolean | Pick<Animate, 'slowMotion'> | null) => (
+  animate !== false && typeof animate === 'object' && animate.slowMotion === true
+)
 
 export const normalizeMotionDurationMultiplier = (durationMultiplier?: number) => {
-  if (isProductionRuntime()) return motionDefaultDurationMultiplier
   return durationMultiplier && durationMultiplier > motionDefaultDurationMultiplier
     ? durationMultiplier
     : motionDefaultDurationMultiplier
 }
 
-export const getMotionDurationMultiplierFromEvent = (event?: MotionTriggerEvent | null) => (
-  event?.shiftKey && !isProductionRuntime()
+export const getMotionDurationMultiplierFromEvent = (event?: MotionTriggerEvent | null, slowMotion = false) => (
+  event?.shiftKey && slowMotion
     ? motionDevSlowdownMultiplier
     : motionDefaultDurationMultiplier
 )

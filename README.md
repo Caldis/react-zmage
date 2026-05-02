@@ -41,7 +41,7 @@ English | [简体中文](./README.zh-CN.md)
 ## Install
 
 ```bash
-pnpm add react-zmage    # or: npm i react-zmage / yarn add react-zmage
+npm install react-zmage    # or: pnpm add react-zmage / yarn add react-zmage
 ```
 
 ```tsx
@@ -132,7 +132,7 @@ const ref = useRef<HTMLImageElement>(null)
 return <Zmage {...config} ref={ref} />
 ```
 
-`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `ControllerPlacement`, `ControllerRender`, `ControllerRenderState`, `ControllerRenderActions`, `ControllerRenderSlots`, `HotKey`, `Animate`, `AnimateCoverOptions`, `GestureSet`, `GestureSwipeOptions`, `GestureDragExitOptions`, `GestureWheelZoomOptions`, `GesturePinchZoomOptions`, `GestureDoubleTapZoomOptions`, `GestureTouchAction`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
+`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `ControllerPlacement`, `ControllerOverlayLayout`, `ControllerLayoutTargets`, `ControllerLayoutTarget`, `ControllerLayoutInset`, `ControllerLayoutInsetValue`, `ControllerRender`, `ControllerRenderState`, `ControllerRenderActions`, `ControllerRenderSlots`, `HotKey`, `Animate`, `AnimateCoverOptions`, `GestureSet`, `GestureSwipeOptions`, `GestureDragExitOptions`, `GestureWheelZoomOptions`, `GesturePinchZoomOptions`, `GestureDoubleTapZoomOptions`, `GestureTouchAction`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
 
 </details>
 
@@ -174,7 +174,7 @@ API is identical — only the import path changes. The SSR build is platform-neu
 
 | Prop | Type | Default | Notes |
 |---|---|---|---|
-| `controller` | `boolean \| ControllerSet` | preset-driven | Toolbar controls. Pass `false` to hide all controls, or a partial object to override buttons, toolbar placement, or the full render function. |
+| `controller` | `boolean \| ControllerSet` | preset-driven | Toolbar controls. Pass `false` to hide all controls, or a partial object to override buttons, toolbar placement, overlay layout, or the full render function. |
 | `hotKey` | `boolean \| HotKey` | preset-driven | Keyboard shortcuts. |
 | `animate` | `boolean \| Animate` | preset-driven | Open/close, cover-geometry, and page-flip animations. |
 | `gesture` | `boolean \| GestureSet` | preset-driven | Touch and wheel gestures. Pass `false` to disable all gestures, or a partial object to override `swipe` / `dragExit` / `wheelZoom` / `pinchZoom` / `doubleTapZoom` / `touchAction`. |
@@ -197,6 +197,7 @@ interface ControllerSet {
   backdrop?:    string                          // control bar bg; falls back to top-level `backdrop`
   color?:       string                          // control bar icon color; falls back to `currentColor`
   placement?:   ControllerPlacement             // default 'top-right'
+  layout?:      ControllerOverlayLayout         // toolbar / pagination / caption overlay insets
   render?:      ControllerRender                // replace the whole controller UI
 }
 
@@ -209,6 +210,30 @@ type ControllerPlacement =
   | 'bottom-center'
   | 'left-center'
   | 'right-center'
+
+type ControllerLayoutInsetValue = number | string
+type ControllerLayoutInset =
+  | ControllerLayoutInsetValue
+  | {
+      top?: ControllerLayoutInsetValue
+      right?: ControllerLayoutInsetValue
+      bottom?: ControllerLayoutInsetValue
+      left?: ControllerLayoutInsetValue
+    }
+
+interface ControllerLayoutTarget {
+  inset?: ControllerLayoutInset
+}
+
+interface ControllerLayoutTargets {
+  toolbar?: ControllerLayoutTarget
+  pagination?: ControllerLayoutTarget
+  caption?: ControllerLayoutTarget
+}
+
+interface ControllerOverlayLayout extends ControllerLayoutTargets {
+  mobile?: ControllerLayoutTargets
+}
 
 type ControllerRender = (args: {
   state: ControllerRenderState
@@ -253,7 +278,28 @@ interface ControllerRenderSlots {
 
 > `backdrop` and `color` decouple the toolbar from the modal backdrop. Pair them when the modal `backdrop` is dark — e.g. `backdrop="#111"` + `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}` keeps the toolbar legible. Per-button color overrides (e.g. `controller={{ zoom: '#ff8800' }}`) still win over `controller.color`.
 
-> `placement` moves only the toolbar capsule. Side flip buttons and pagination keep their existing positions. `render` receives `{ state, actions, slots }` and replaces the whole controller layer; `slots.Toolbar`, `slots.Pagination`, `slots.FlipLeft`, and `slots.FlipRight` let custom UI reuse the built-in pieces. `controller={false}` disables both built-in slots and `render`.
+> `placement` moves only the toolbar capsule. Side flip buttons and pagination keep their existing positions. `layout` adjusts overlay insets for the toolbar, pagination, and caption without changing the image animation geometry. A number is treated as px, a string is passed through as a CSS length, and a scalar `inset` maps to `bottom`; `layout.mobile` is merged on top when the resolved preset is mobile. `render` receives `{ state, actions, slots }` and replaces the whole controller layer; `slots.Toolbar`, `slots.Pagination`, `slots.FlipLeft`, and `slots.FlipRight` let custom UI reuse the built-in pieces. `controller={false}` disables both built-in slots and `render`.
+
+```tsx
+<Zmage
+  src="photo.jpg"
+  caption="Long caption"
+  set={[
+    { src: 'photo.jpg', caption: 'Long caption' },
+    { src: 'detail.jpg', caption: 'Detail' },
+  ]}
+  controller={{
+    layout: {
+      pagination: { inset: { bottom: '1.5rem' } },
+      caption: { inset: { bottom: '4rem' } },
+      mobile: {
+        pagination: { inset: { bottom: '2.75rem' } },
+        caption: { inset: { bottom: '5.25rem' } },
+      },
+    },
+  }}
+/>
+```
 
 `render` returns any React node. Return `null` to hide the controller layer, call `actions` to drive the viewer, and read `state` to keep custom UI in sync with page, zoom, placement, and capability flags:
 
@@ -397,6 +443,7 @@ interface Animate {
   browsing?: boolean
   flip?:     'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'
   cover?:    boolean | AnimateCoverOptions
+  slowMotion?: boolean
 }
 
 interface AnimateCoverOptions {
@@ -406,7 +453,7 @@ interface AnimateCoverOptions {
 }
 ```
 
-Defaults: desktop = `{ browsing: true, flip: 'crossFade', cover: { objectFit: true, clip: true, radius: true } }`, mobile = `{ browsing: true, flip: 'swipe', cover: { objectFit: true, clip: true, radius: true } }`. `animate.cover` matches the cover image's `object-fit` / `object-position`, clip, and border radius during open / close. Set `animate={{ cover: false }}` for the legacy cover geometry path. `flip: 'none'` skips adjacent-page rendering — page change is an instant swap with no transition.
+Defaults: desktop = `{ browsing: true, flip: 'crossFade', cover: { objectFit: true, clip: true, radius: true }, slowMotion: false }`, mobile = `{ browsing: true, flip: 'swipe', cover: { objectFit: true, clip: true, radius: true }, slowMotion: false }`. `animate.cover` matches the cover image's `object-fit` / `object-position`, clip, and border radius during open / close. Set `animate={{ cover: false }}` for the legacy cover geometry path. `flip: 'none'` skips adjacent-page rendering — page change is an instant swap with no transition. `animate.slowMotion` is off by default; when set to `true`, holding `Shift` while opening or closing slows the full browsing transition to 10x for inspection and demos.
 
 `animate.cover` reads the clicked `<img>` itself. It can match `object-fit`, `object-position`, and `border-radius` applied directly to that image; clipping introduced by a parent wrapper (`overflow: hidden`, parent radius, mask, complex `clip-path`, transform, etc.) is not inferred. The geometry math is small, but animating `clip-path: inset(...)` and `border-radius` may repaint and is heavier than pure `transform` / `opacity`, especially on large images, weaker mobile devices, and iOS Safari. For performance-sensitive pages, use `animate={{ cover: { clip: false } }}` or `animate={{ cover: { radius: false } }}`.
 

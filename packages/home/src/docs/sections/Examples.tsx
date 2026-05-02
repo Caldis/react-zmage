@@ -3,6 +3,7 @@ import { Heading } from '@/docs/Heading'
 import { CodeBlock } from '@/components/CodeBlock'
 import { useT } from '@/i18n/useT'
 import { useThemedBackdrop } from '@/lib/themedBackdrop'
+import { siteZmageAnimate, withSiteSlowMotion } from '@/lib/zmageSiteConfig'
 
 const SINGLE_IMAGE_CODE = `<Zmage
   src="/imgSet/childsDream/1.jpg"
@@ -70,7 +71,7 @@ export function Examples () {
 
       <Heading id="examples-single" level={3}>{t('docs.section.examples.singleTitle')}</Heading>
       <div className="grid gap-4 md:grid-cols-2">
-        <Zmage src="/imgSet/childsDream/1.jpg" alt="童夢 · ONE" backdrop={backdrop} className="w-full rounded-md" />
+        <Zmage src="/imgSet/childsDream/1.jpg" alt="童夢 · ONE" backdrop={backdrop} animate={siteZmageAnimate} className="w-full rounded-md" />
         <CodeBlock code={SINGLE_IMAGE_CODE} language={'tsx' as any} />
       </div>
 
@@ -80,6 +81,7 @@ export function Examples () {
           src="/imgSet/childsDream/3.jpg"
           alt="童夢 · THREE"
           backdrop={backdrop}
+          animate={siteZmageAnimate}
           className="w-full rounded-md"
           set={[
             { src: '/imgSet/childsDream/3.jpg', alt: '童夢 · THREE' },
@@ -97,6 +99,7 @@ export function Examples () {
           src="/imgSet/childsDream/6.jpg"
           alt="童夢 · SIX"
           backdrop={backdrop}
+          animate={siteZmageAnimate}
           preset="mobile"
           className="h-64 w-full rounded-md object-cover"
           gesture={{
@@ -116,6 +119,7 @@ export function Examples () {
           src="/imgSet/childsDream/7.jpg"
           alt="童夢 · SEVEN"
           backdrop={backdrop}
+          animate={siteZmageAnimate}
           className="h-64 w-full rounded-md object-cover"
           set={[
             { src: '/imgSet/childsDream/7.jpg', alt: '童夢 · SEVEN' },
@@ -160,7 +164,7 @@ export function Examples () {
           backdrop={backdrop}
           className="h-64 w-full rounded-2xl object-cover"
           style={{ objectPosition: '35% 50%' }}
-          animate={{ cover: { objectFit: true, clip: true, radius: true } }}
+          animate={withSiteSlowMotion({ cover: { objectFit: true, clip: true, radius: true } })}
         />
         <CodeBlock code={COVER_GEOMETRY_CODE} language={'tsx' as any} />
       </div>

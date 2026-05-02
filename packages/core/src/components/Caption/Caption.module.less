@@ -3,8 +3,10 @@
 .caption {
   box-sizing: border-box;
   position: absolute;
-  left: 50%;
-  bottom: 3rem;
+  top: var(--zmage-caption-top-offset, auto);
+  right: var(--zmage-caption-right-offset, auto);
+  bottom: var(--zmage-caption-bottom-offset, 3rem);
+  left: var(--zmage-caption-left-offset, 50%);
   z-index: 110;
   max-width: 60vw;
   padding: 0.35rem 0.85rem;
@@ -22,16 +24,16 @@
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   pointer-events: none;
-  transform: translate(-50%, 100px);
+  transform: translate(var(--zmage-caption-translate-x, -50%), 100px);
   transition: transform @animationDuration @animationFunction, opacity @animationDuration @animationFunction;
 
   &.show {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(var(--zmage-caption-translate-x, -50%), 0);
   }
 
   &.mobile {
-    bottom: 4.5rem;
+    bottom: var(--zmage-caption-bottom-offset, 4.5rem);
     max-width: 80vw;
   }
 
@@ -57,45 +59,45 @@
 @keyframes capFade {
   from {
     opacity: 0;
-    transform: translate(-50%, 0);
+    transform: translate(var(--zmage-caption-translate-x, -50%), 0);
   }
 
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(var(--zmage-caption-translate-x, -50%), 0);
   }
 }
 
 @keyframes capCrossFade {
   from {
     opacity: 0;
-    transform: translate(calc(-50% + 24px), 0);
+    transform: translate(calc(var(--zmage-caption-translate-x, -50%) + 24px), 0);
   }
 
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(var(--zmage-caption-translate-x, -50%), 0);
   }
 }
 
 @keyframes capSwipe {
   from {
-    transform: translate(calc(-50% + 60vw), 0);
+    transform: translate(calc(var(--zmage-caption-translate-x, -50%) + 60vw), 0);
   }
 
   to {
-    transform: translate(-50%, 0);
+    transform: translate(var(--zmage-caption-translate-x, -50%), 0);
   }
 }
 
 @keyframes capZoom {
   from {
     opacity: 0;
-    transform: translate(-50%, 0) scale(0.92);
+    transform: translate(var(--zmage-caption-translate-x, -50%), 0) scale(0.92);
   }
 
   to {
     opacity: 1;
-    transform: translate(-50%, 0) scale(1);
+    transform: translate(var(--zmage-caption-translate-x, -50%), 0) scale(1);
   }
 }

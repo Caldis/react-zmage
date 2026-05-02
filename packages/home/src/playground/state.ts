@@ -1,4 +1,5 @@
 import { getPresetDefaults, PARAM_SCHEMA } from '@/schema/param-schema'
+import { withSiteSlowMotion } from '@/lib/zmageSiteConfig'
 
 /**
  * Single source of truth for playground state derivation.
@@ -78,6 +79,16 @@ export function applyPresetDrivenDefaults (
   return values
 }
 
+export function applySiteSlowMotionDefault (
+  values: Record<string, any>,
+  touched?: ReadonlySet<string>,
+): Record<string, any> {
+  if (!touched?.has('animate')) {
+    values.animate = withSiteSlowMotion(values.animate)
+  }
+  return values
+}
+
 /** 检测 values 当前的 src/set 是否完全匹配某个预设 — 用于 toggle 显示 active 态 */
 export function detectActivePreset (values: Record<string, any>): DataPreset['id'] | null {
   for (const preset of DATA_PRESETS) {
@@ -97,6 +108,7 @@ export function getInitialValues (): Record<string, any> {
   for (const def of PARAM_SCHEMA) v[def.name] = def.default
   applyPresetDrivenDefaults(v)
   Object.assign(v, PLAYGROUND_SEED)
+  applySiteSlowMotionDefault(v)
   return v
 }
 

@@ -8,7 +8,7 @@ import React from 'react'
 import callee from './Zmage.callee'
 // Utils
 import { defProp } from './types/default'
-import { getMotionDurationMultiplierFromEvent } from './config/motion'
+import { getMotionDurationMultiplierFromEvent, isSlowMotionEnabled } from './config/motion'
 import { BaseType, Set } from './types/global'
 
 type Props = BaseType
@@ -67,7 +67,7 @@ export default class ReactZmageWrapper extends React.Component<Props> {
             alt: itemAlt,
             caption: itemCaption ?? restProps.caption,
             defaultPage: itemSetIndex >= 0 ? itemSetIndex : restProps.defaultPage,
-            motionDurationMultiplier: getMotionDurationMultiplierFromEvent(event),
+            motionDurationMultiplier: getMotionDurationMultiplierFromEvent(event, isSlowMotionEnabled(restProps.animate)),
           } as BaseType & { motionDurationMultiplier: number }))
         }
       })

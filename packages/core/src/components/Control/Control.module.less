@@ -42,50 +42,50 @@
 }
 
 .topRight {
-  top: 0.6rem;
-  right: 0.6rem;
+  top: var(--zmage-toolbar-top-offset, 0.6rem);
+  right: var(--zmage-toolbar-right-offset, 0.6rem);
   transform: translateX(100%);
 }
 
 .topLeft {
-  top: 0.6rem;
-  left: 0.6rem;
+  top: var(--zmage-toolbar-top-offset, 0.6rem);
+  left: var(--zmage-toolbar-left-offset, 0.6rem);
   transform: translateX(-100%);
 }
 
 .bottomRight {
-  right: 0.6rem;
-  bottom: 0.6rem;
+  right: var(--zmage-toolbar-right-offset, 0.6rem);
+  bottom: var(--zmage-toolbar-bottom-offset, 0.6rem);
   transform: translateX(100%);
 }
 
 .bottomLeft {
-  bottom: 0.6rem;
-  left: 0.6rem;
+  bottom: var(--zmage-toolbar-bottom-offset, 0.6rem);
+  left: var(--zmage-toolbar-left-offset, 0.6rem);
   transform: translateX(-100%);
 }
 
 .topCenter {
-  top: 0.6rem;
-  left: 50%;
+  top: var(--zmage-toolbar-top-offset, 0.6rem);
+  left: var(--zmage-toolbar-left-offset, 50%);
   transform: translate(-50%, -100%);
 }
 
 .bottomCenter {
-  bottom: 0.6rem;
-  left: 50%;
+  bottom: var(--zmage-toolbar-bottom-offset, 0.6rem);
+  left: var(--zmage-toolbar-left-offset, 50%);
   transform: translate(-50%, 100%);
 }
 
 .leftCenter {
-  top: 50%;
-  left: 0.6rem;
+  top: var(--zmage-toolbar-top-offset, 50%);
+  left: var(--zmage-toolbar-left-offset, 0.6rem);
   transform: translate(-100%, -50%);
 }
 
 .rightCenter {
-  top: 50%;
-  right: 0.6rem;
+  top: var(--zmage-toolbar-top-offset, 50%);
+  right: var(--zmage-toolbar-right-offset, 0.6rem);
   transform: translate(100%, -50%);
 }
 
@@ -272,21 +272,23 @@
   box-sizing: border-box;
   display: flex;
   position: absolute;
-  left: 50%;
-  bottom: 0.6rem;
+  top: var(--zmage-pagination-top-offset, auto);
+  right: var(--zmage-pagination-right-offset, auto);
+  bottom: var(--zmage-pagination-bottom-offset, 0.6rem);
+  left: var(--zmage-pagination-left-offset, 50%);
   z-index: 110;
   opacity: 0;
   border-radius: 2rem;
-  transform: translate(-50%, 100px);
+  transform: translate(var(--zmage-pagination-translate-x, -50%), 100px);
   transition: transform @animationDuration @animationFunction, opacity @animationDuration @animationFunction;
 
   &.show {
     opacity: 0.8;
-    transform: translate(-50%, 0);
+    transform: translate(var(--zmage-pagination-translate-x, -50%), 0);
   }
 
   &.mobile {
-    bottom: 2rem;
+    bottom: var(--zmage-pagination-bottom-offset, 2rem);
   }
 
   .dot {

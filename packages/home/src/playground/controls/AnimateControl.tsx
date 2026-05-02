@@ -5,7 +5,7 @@ import { useT } from '@/i18n/useT'
 import type { I18nKey } from '@/i18n/dict'
 
 type AnimateCover = boolean | { objectFit?: boolean; clip?: boolean; radius?: boolean }
-type Animate = { browsing?: boolean; flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'; cover?: AnimateCover }
+type Animate = { browsing?: boolean; flip?: 'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'; cover?: AnimateCover; slowMotion?: boolean }
 
 const FLIP_OPTIONS: { value: NonNullable<Animate['flip']>; labelKey: I18nKey }[] = [
   { value: 'fade', labelKey: 'animate.flip.fade' },
@@ -60,6 +60,10 @@ export function AnimateControl ({ value, onChange }: { value: Animate | boolean 
           triggerClassName="h-7 w-32 text-[11px]"
           options={FLIP_OPTIONS.map(o => ({ value: o.value, label: t(o.labelKey) }))}
         />
+      </label>
+      <label className="flex items-center justify-between gap-3">
+        <TipLabel descKey="animate.slowMotion.desc">slowMotion</TipLabel>
+        <Switch checked={!!obj.slowMotion} onCheckedChange={c => onChange({ ...obj, slowMotion: c })} />
       </label>
       <label className="flex items-center justify-between gap-3">
         <TipLabel descKey="animate.cover.objectFit.desc">cover.objectFit</TipLabel>

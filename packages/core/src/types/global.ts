@@ -72,6 +72,34 @@ export type ControllerPlacement =
   | 'left-center'
   | 'right-center'
 
+export type ControllerLayoutInsetValue = number | string
+
+export type ControllerLayoutInset = ControllerLayoutInsetValue | {
+  top?: ControllerLayoutInsetValue
+  right?: ControllerLayoutInsetValue
+  bottom?: ControllerLayoutInsetValue
+  left?: ControllerLayoutInsetValue
+}
+
+export interface ControllerLayoutTarget {
+  // Overlay inset. A number is px; a string is any CSS length. A scalar value maps to bottom.
+  inset?: ControllerLayoutInset
+}
+
+export interface ControllerLayoutTargets {
+  // Toolbar capsule only. Side flip buttons keep their fixed edge positions.
+  toolbar?: ControllerLayoutTarget
+  // Multi-image pagination dots.
+  pagination?: ControllerLayoutTarget
+  // Viewer caption pill.
+  caption?: ControllerLayoutTarget
+}
+
+export interface ControllerOverlayLayout extends ControllerLayoutTargets {
+  // Optional touch/mobile overrides. Merged on top of the base layout when the resolved preset is mobile.
+  mobile?: ControllerLayoutTargets
+}
+
 export interface ControllerRenderState {
   show: boolean
   zoom: boolean
@@ -137,6 +165,8 @@ export interface ControllerSet {
   color?: string
   // 工具栏位置
   placement?: ControllerPlacement
+  // Overlay 位置微调: 工具栏、分页器、caption 的 inset, 不影响图片动画几何
+  layout?: ControllerOverlayLayout
   // 完全自定义控制器渲染
   render?: ControllerRender
 }
@@ -250,6 +280,8 @@ export interface Animate {
   flip?: AnimateFlip
   // 封面进入/退出几何修正
   cover?: boolean | AnimateCoverOptions
+  // 彩蛋: 按住 Shift 打开/关闭时放慢整条浏览动画管线
+  slowMotion?: boolean
 }
 
 /**

@@ -201,10 +201,10 @@ If this setup is Auto, make technical choices from project evidence and user ans
 Use the package manager already used by the project.
 
 \`\`\`bash
-pnpm add react-zmage
+npm install react-zmage
 \`\`\`
 
-Use npm, yarn, or bun instead if the project uses one of those.
+Use pnpm, yarn, or bun instead if the project uses one of those.
 
 ---
 

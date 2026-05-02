@@ -151,6 +151,7 @@ export const defPreset = {
       browsing: true,
       flip: 'crossFade' as AnimateFlip,
       cover: { ...defaultAnimateCoverOptions },
+      slowMotion: false,
     },
     gesture: {
       swipe: false,
@@ -183,6 +184,7 @@ export const defPreset = {
       browsing: true,
       flip: 'swipe' as AnimateFlip,
       cover: { ...defaultAnimateCoverOptions },
+      slowMotion: false,
     },
     gesture: {
       swipe: { ...defaultGestureSwipeOptions },

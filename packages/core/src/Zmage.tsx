@@ -11,7 +11,7 @@ import wrapper from './Zmage.wrapper'
 import Browser from './components/Browser'
 // Utils
 import { defProp, getConfigFromProps } from './types/default'
-import { getMotionDurationMultiplierFromEvent, motionDefaultDurationMultiplier } from './config/motion'
+import { getMotionDurationMultiplierFromEvent, isSlowMotionEnabled, motionDefaultDurationMultiplier } from './config/motion'
 import { BaseType } from './types/global'
 
 // 已知规划项 (详见 ROADMAP.md):
@@ -92,7 +92,7 @@ class ReactZmage extends React.Component<PropsType, StateType> {
           src={coverProps.src} alt={coverProps.alt}
           onClick={(e) => {
             this.browsingPosition = { x: e.clientX, y: e.clientY }
-            this.motionDurationMultiplier = getMotionDurationMultiplierFromEvent(e)
+            this.motionDurationMultiplier = getMotionDurationMultiplierFromEvent(e, isSlowMotionEnabled(configProps.animate))
             this.inBrowsing()
             typeof coverProps.onClick === 'function' && coverProps.onClick(e)
           }}

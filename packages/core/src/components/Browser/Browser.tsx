@@ -19,10 +19,10 @@ import type { ContextType, ZoomTrigger } from '../context'
 import { disableScroll, downloadFromLink, enableScroll, getTargetPage, resolveShortestStep, unlockTouchInteraction } from '../../utils'
 import { matchAnyHotKey, resolveHotKeyValue, resolveSideBinding } from '../../utils/hotkey'
 import { defPropsWithEnv, resolvePreset } from '../../types/default'
-import { createMotionRuntime, getMotionDurationMultiplierFromEvent, motionDefaultDurationMultiplier, normalizeMotionDurationMultiplier } from '../../config/motion'
+import { createMotionRuntime, getMotionDurationMultiplierFromEvent, isSlowMotionEnabled, motionDefaultDurationMultiplier, normalizeMotionDurationMultiplier } from '../../config/motion'
 import type { MotionTriggerEvent } from '../../config/motion'
 import { probeStylesheet } from '../../utils/styleProbe'
-import { hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
+import { getControllerLayoutStyle, hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
 import { Animate, ControllerSet, FunctionalParams, GestureSet, HotKey, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
 import { normalizeGestureSet, resolveGestureTouchAction } from '../Image/Image.utils'
 
@@ -43,6 +43,8 @@ export interface Props extends PresetParams, FunctionalParams, InterfaceAndInter
 export interface State {
   // 载入
   mounted: boolean
+  // Image 首帧会读取 viewport 几何; 等 ref 落地后再挂载 Image, 避免 fallback 到 document 宽度.
+  viewportReady: boolean
   // 显示
   show: boolean
   // 缩放
@@ -86,6 +88,7 @@ export default class Browser extends React.Component<Props, State> {
   // 异步动作句柄 — 卸载时必须取消, 否则 StrictMode/快速卸载下会在已卸载组件上 setState 并跳过副作用清理
   initRaf?: number
   unInitTimer?: ReturnType<typeof setTimeout>
+  coverHideTimer?: ReturnType<typeof setTimeout>
   listeningMouseMove = false
   lastPointerPosition?: Coordinate
   shiftKeyActive = false
@@ -135,6 +138,7 @@ export default class Browser extends React.Component<Props, State> {
     return {
       // 载入
       mounted: false,
+      viewportReady: false,
       // 显示
       show: false,
       // 缩放
@@ -182,14 +186,9 @@ export default class Browser extends React.Component<Props, State> {
 
   componentWillUnmount () {
     // 卸载前取消所有挂起异步, 避免在已卸载组件上 setState
-    if (this.initRaf !== undefined) {
-      cancelAnimationFrame(this.initRaf)
-      this.initRaf = undefined
-    }
-    if (this.unInitTimer !== undefined) {
-      clearTimeout(this.unInitTimer)
-      this.unInitTimer = undefined
-    }
+    this.cancelInitRaf()
+    this.cancelUnInitTimer()
+    this.clearCoverHideTimer()
     this.stopMouseMoveListener()
     this.unInit({ force: true })
   }
@@ -219,7 +218,42 @@ export default class Browser extends React.Component<Props, State> {
   /**
    * 载入/卸载
    */
+  cancelInitRaf = () => {
+    if (this.initRaf !== undefined) {
+      cancelAnimationFrame(this.initRaf)
+      this.initRaf = undefined
+    }
+  }
+
+  cancelUnInitTimer = () => {
+    if (this.unInitTimer !== undefined) {
+      clearTimeout(this.unInitTimer)
+      this.unInitTimer = undefined
+    }
+  }
+
+  clearCoverHideTimer = () => {
+    if (this.coverHideTimer !== undefined) {
+      clearTimeout(this.coverHideTimer)
+      this.coverHideTimer = undefined
+    }
+  }
+
+  showCoverNow = (coverRef: RefObject<HTMLImageElement>) => {
+    this.clearCoverHideTimer()
+    showCover(coverRef)
+  }
+
+  hideCoverAfterDelay = (coverRef: RefObject<HTMLImageElement>) => {
+    this.clearCoverHideTimer()
+    this.coverHideTimer = hideCover(coverRef, () => {
+      this.coverHideTimer = undefined
+    })
+  }
+
   init = () => {
+    this.cancelInitRaf()
+    this.cancelUnInitTimer()
     const {
       isBrowsingControlled,
       coverRef,
@@ -255,13 +289,15 @@ export default class Browser extends React.Component<Props, State> {
       this.initRaf = window.requestAnimationFrame(() => {
         this.initRaf = undefined
         this.setState({ show: true, zoom: false, rotate: 0, motionDurationMultiplier, zoomTrigger: undefined, zoomPosition: undefined, canZoom: true }, () => {
-          presetIsDesktop && pageIsCover && !coverVisible && hideCover(coverRef)
+          presetIsDesktop && pageIsCover && !coverVisible && this.hideCoverAfterDelay(coverRef)
           !isBrowsingControlled && typeof onBrowsing === 'function' && onBrowsing(true)
         })
       })
     }
   }
   unInit = ({ force } = { force: false }) => {
+    this.cancelInitRaf()
+    this.cancelUnInitTimer()
     const {
       isBrowsingControlled,
       coverRef,
@@ -287,7 +323,7 @@ export default class Browser extends React.Component<Props, State> {
           enableScroll()
         }
       }
-      !pageIsCover && !coverVisible && showCover(coverRef)
+      !pageIsCover && !coverVisible && this.showCoverNow(coverRef)
       this.shiftKeyActive = false
 
       // === 副作用回调 ===
@@ -295,7 +331,7 @@ export default class Browser extends React.Component<Props, State> {
       // 正常关闭路径下放在动画结束后, 保证 UI 一致性
       const finalize = () => {
         presetIsMobile && unlockTouchInteraction()
-        presetIsDesktop && pageIsCover && !coverVisible && showCover(coverRef)
+        presetIsDesktop && pageIsCover && !coverVisible && this.showCoverNow(coverRef)
         !isBrowsingControlled && typeof onBrowsing === 'function' && onBrowsing(false)
       }
 
@@ -313,7 +349,7 @@ export default class Browser extends React.Component<Props, State> {
         this.setState({ show: false, zoom: false, rotate: closingRotate, zoomTrigger: undefined, zoomPosition: undefined }, () => {
           const finishClose = () => {
             this.unInitTimer = undefined
-            this.setState({ mounted: false, rotate: 0, motionDurationMultiplier: motionDefaultDurationMultiplier }, finalize)
+            this.setState({ mounted: false, viewportReady: false, rotate: 0, motionDurationMultiplier: motionDefaultDurationMultiplier }, finalize)
           }
           if (closeDelay === 0) {
             finishClose()
@@ -325,12 +361,20 @@ export default class Browser extends React.Component<Props, State> {
     }
   }
 
+  handleViewportRef = (node: HTMLDivElement | null) => {
+    this.viewportRef.current = node
+    if (node && this.state.mounted && !this.state.viewportReady) {
+      this.setState({ viewportReady: true })
+    }
+  }
+
   /**
    * 事件处理
    */
   handleOutBrowsing = (event?: MotionTriggerEvent) => {
+    const { animate } = this.getPropsWithEnv()
     const motionTrigger = { shiftKey: Boolean(event?.shiftKey || this.shiftKeyActive) }
-    const motionDurationMultiplier = getMotionDurationMultiplierFromEvent(motionTrigger)
+    const motionDurationMultiplier = getMotionDurationMultiplierFromEvent(motionTrigger, isSlowMotionEnabled(animate))
     const close = () => this.props.outBrowsing(motionTrigger)
     if (motionDurationMultiplier !== this.state.motionDurationMultiplier) {
       this.setState({ motionDurationMultiplier }, close)
@@ -540,10 +584,11 @@ export default class Browser extends React.Component<Props, State> {
       // Life cycle
       onError,
     } = this.getPropsWithEnv()
-    const { mounted } = this.state
+    const { mounted, viewportReady } = this.state
 
     const statusValue = { ...this.state }
     const motion = createMotionRuntime(this.state.motionDurationMultiplier)
+    const controllerLayoutStyle = getControllerLayoutStyle(controller, presetIsMobile)
 
     const contextValue = {
       // Internal
@@ -573,14 +618,14 @@ export default class Browser extends React.Component<Props, State> {
       <Context.Provider value={contextValue}>
         {
           mounted &&
-          <Portals id="zmage" zIndex={zIndex} className={style.wrapperLayer}>
+          <Portals id="zmage" zIndex={zIndex} className={style.wrapperLayer} style={controllerLayoutStyle}>
 
             {/*背景层*/}
             <Background {...statusValue}/>
 
             <div
               id="zmageViewport"
-              ref={this.viewportRef}
+              ref={this.handleViewportRef}
               className={style.viewportLayer}
               style={{ touchAction: resolveGestureTouchAction(gesture) }}
               onClick={this.handleViewportClick}
@@ -592,8 +637,8 @@ export default class Browser extends React.Component<Props, State> {
               {/*文案层*/}
               <Caption/>
 
-              {/*图片层*/}
-              <Image {...statusValue}/>
+              {/*图片层: 等 viewport ref 可读后再挂载, 让首帧 cover 几何和 fixed overlay 同源.*/}
+              {viewportReady && <Image {...statusValue}/>}
 
             </div>
 

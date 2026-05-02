@@ -1396,6 +1396,13 @@ export default class Image extends React.Component<PropsType, StateType> {
       opacity: opacity ?? currentStyle.opacity,
     }
   }
+  getRenderCurrentStyle = (): ImageStyleType => {
+    if ((this.motionPhase === 'closing-follow' || this.motionPhase === 'browsing-follow') &&
+        this.coverFollowCurrentStyle) {
+      return this.coverFollowCurrentStyle
+    }
+    return this.state.currentStyle
+  }
   getCoverTargetStyle = (from: ImageStyleType): ImageStyleType => {
     const target = getCoverStyle(this.context, this.imageRef, this.state.touchGesture)
     return target._behavior === 'merge' ? { ...from, ...target } : target
@@ -1540,6 +1547,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   getStyle = (step: number, distance: number, isSideImage: boolean, imageIndex: number): CSSProperties => {
     const { animate, set, zoom, page } = this.context
     const { invalidate, currentStyle, touchGesture, animateConfig } = this.state
+    const renderCurrentStyle = isSideImage ? currentStyle : this.getRenderCurrentStyle()
     const flipKind = selectFlipKind(animate)
     let transform, zIndex, pointerEvents, appliedScale
     // 获取动画配置
@@ -1573,22 +1581,23 @@ export default class Image extends React.Component<PropsType, StateType> {
       // center: browsing 态优先用 set[page] 自己的 fit-scale (跟 side 同源), 翻页瞬间
       // 不出现 scale transition — currentStyle.scale 由 debounce 异步更新, 没赶上当前帧.
       // cover / zoom 态仍用 currentStyle.scale (那时 currentStyle 含 cover-anim / zoom scale 几何).
-      const ownScale = currentStyle._type === 'browsing' ? this.getOwnFitScale(page) : null
-      const centerScale = ownScale ?? (currentStyle.scale ?? 0)
+      const ownScale = renderCurrentStyle._type === 'browsing' ? this.getOwnFitScale(page) : null
+      const centerScale = ownScale ?? (renderCurrentStyle.scale ?? 0)
       appliedScale = centerScale
-      const x = (currentStyle.x || 0) + touch.x
-      const y = currentStyle.y + touch.y
-      transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${centerScale}, ${centerScale}, 1) rotate3d(0, 0, 1, ${currentStyle.rotate}deg)`
+      const x = (renderCurrentStyle.x || 0) + touch.x
+      const y = renderCurrentStyle.y + touch.y
+      transform = `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0px) scale3d(${centerScale}, ${centerScale}, 1) rotate3d(0, 0, 1, ${renderCurrentStyle.rotate}deg)`
       zIndex = 10
-      opacity = touchOpacity ?? currentStyle.opacity ?? 1
+      opacity = touchOpacity ?? renderCurrentStyle.opacity ?? 1
     }
-    const radius = currentStyle.radius ?? 0
+    const styleForNode = isSideImage ? currentStyle : renderCurrentStyle
+    const radius = styleForNode.radius ?? 0
     const localRadius = getLocalRadius(radius, appliedScale || 1)
-    const clipPath = getClipPath(currentStyle.clip, radius, appliedScale || 1)
+    const clipPath = getClipPath(styleForNode.clip, radius, appliedScale || 1)
     return {
       ...withVendorPrefix({ transform }),
       ...(clipPath ? withVendorPrefix({ clipPath }) : {}),
-      ...(typeof currentStyle.radius === 'number' ? { borderRadius: `${localRadius}px` } : {}),
+      ...(typeof styleForNode.radius === 'number' ? { borderRadius: `${localRadius}px` } : {}),
       cursor: zoom ? 'zoom-out' : 'initial',
       zIndex,
       opacity: invalidate ? 0 : opacity,
@@ -1597,7 +1606,7 @@ export default class Image extends React.Component<PropsType, StateType> {
         motionPhase: this.motionPhase,
         touchTransition: transition,
         flip: flipKind,
-        imageType: currentStyle._type,
+        imageType: styleForNode._type,
       }), this.context.motion),
       pointerEvents,
       ...set[page].style,

@@ -20,6 +20,7 @@ const CONTROLLER_KEYS: { k: string; descKey: I18nKey }[] = [
   { k: 'backdrop', descKey: 'controller.backdrop.desc' },
   { k: 'color', descKey: 'controller.color.desc' },
   { k: 'placement', descKey: 'controller.placement.desc' },
+  { k: 'layout', descKey: 'controller.layout.desc' },
   { k: 'render', descKey: 'controller.render.desc' },
 ]
 
@@ -68,6 +69,7 @@ const HOTKEY_KEYS: { k: string; descKey: I18nKey }[] = [
 const ANIMATE_KEYS: { k: string; type: string; descKey: I18nKey }[] = [
   { k: 'browsing', type: 'boolean', descKey: 'animate.browsing.desc' },
   { k: 'flip', type: "'fade' | 'crossFade' | 'swipe' | 'zoom' | 'none'", descKey: 'animate.flip.desc' },
+  { k: 'slowMotion', type: 'boolean', descKey: 'animate.slowMotion.desc' },
   { k: 'cover', type: 'boolean | AnimateCoverOptions', descKey: 'animate.cover.desc' },
   { k: 'cover.objectFit', type: 'boolean', descKey: 'animate.cover.objectFit.desc' },
   { k: 'cover.clip', type: 'boolean', descKey: 'animate.cover.clip.desc' },
@@ -132,6 +134,7 @@ const PRESET_ROWS: PresetRow[] = [
   { path: 'hotKey.download', label: 'hotkey.download' },
   { path: 'animate.browsing', label: 'animate.browsing.desc' },
   { path: 'animate.flip', label: 'animate.flip.desc' },
+  { path: 'animate.slowMotion', label: 'animate.slowMotion.desc' },
   { path: 'animate.cover', label: 'animate.cover.desc' },
   { path: 'gesture.swipe', label: 'gesture.swipe' },
   { path: 'gesture.dragExit', label: 'gesture.dragExit' },
@@ -302,6 +305,26 @@ function ControllerDetail () {
       <p className="-mt-4 mb-6 text-xs text-muted-foreground">
         {t('docs.section.props.controller.umbrella')}
       </p>
+      <h4 className="mt-4 mb-2 text-sm font-semibold">{t('docs.section.props.controller.layoutTitle')}</h4>
+      <p className="mb-2 text-xs text-muted-foreground">{t('docs.section.props.controller.layoutIntro')}</p>
+      <CodeBlock code={`<Zmage
+  src="photo.jpg"
+  caption="Long caption"
+  set={[
+    { src: 'photo.jpg', caption: 'Long caption' },
+    { src: 'detail.jpg', caption: 'Detail' },
+  ]}
+  controller={{
+    layout: {
+      pagination: { inset: { bottom: '1.5rem' } },
+      caption: { inset: { bottom: '4rem' } },
+      mobile: {
+        pagination: { inset: { bottom: '2.75rem' } },
+        caption: { inset: { bottom: '5.25rem' } },
+      },
+    },
+  }}
+/>`} language={'tsx' as any} />
       <h4 className="mt-4 mb-2 text-sm font-semibold">{t('docs.section.props.controller.renderTitle')}</h4>
       <p className="mb-2 text-xs text-muted-foreground">{t('docs.section.props.controller.renderIntro')}</p>
       <TypeOnlyTable typeName="ControllerRender" rows={CONTROLLER_RENDER_ROWS} />

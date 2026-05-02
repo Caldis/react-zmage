@@ -8,7 +8,7 @@ import { createRequire } from 'node:module'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(__dirname, '..', '..')
 const corePkgDir = join(repoRoot, 'packages', 'core')
-const llmsTxt = readFileSync(join(repoRoot, 'llms.txt'), 'utf8')
+const llmsTxt = readFileSync(join(repoRoot, 'docs', 'llms.txt'), 'utf8')
 const corePkg = JSON.parse(readFileSync(join(corePkgDir, 'package.json'), 'utf8'))
 const globalTs = readFileSync(join(corePkgDir, 'src', 'types', 'global.ts'), 'utf8')
 const defaultTs = readFileSync(join(corePkgDir, 'src', 'types', 'default.ts'), 'utf8')
@@ -212,6 +212,24 @@ test('controller placement and custom render API wired across types, defaults an
     'llms.txt controller row should document that returning null hides the custom controller layer')
 })
 
+test('controller overlay layout API wired across types and llms.txt', () => {
+  for (const sym of ['ControllerOverlayLayout', 'ControllerLayoutTargets', 'ControllerLayoutTarget', 'ControllerLayoutInset', 'ControllerLayoutInsetValue']) {
+    assert.match(globalTs, new RegExp(`export\\s+(?:interface|type)\\s+${sym}\\b`), `${sym} missing in types/global.ts`)
+    assert.match(indexTs, new RegExp(`\\b${sym}\\b`), `${sym} missing from public type exports`)
+    assert.match(llmsTxt, new RegExp(`\\b${sym}\\b`), `${sym} missing in llms.txt`)
+  }
+  assert.match(globalTs, /\blayout\?:\s*ControllerOverlayLayout\b/, 'ControllerSet.layout missing in types/global.ts')
+  const controllerLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|\s*`controller`\s*\|/.test(line)
+  )
+  assert.ok(controllerLine, 'no API-table row in llms.txt declares the controller prop')
+  for (const term of ['controller.layout', 'ControllerOverlayLayout', 'toolbar', 'pagination', 'caption', 'layout.mobile']) {
+    assert.match(controllerLine, new RegExp(term), `llms.txt controller row missing ${term}`)
+  }
+  assert.match(controllerLine, /number values are px/, 'llms.txt controller row should document numeric layout units')
+  assert.match(controllerLine, /scalar `inset` maps to `bottom`/, 'llms.txt controller row should document scalar inset semantics')
+})
+
 test('gesture prop wired across types, defaults and llms.txt', () => {
   assert.match(globalTs, /export\s+interface\s+GestureSet\b/, 'GestureSet interface missing in types/global.ts')
   assert.match(globalTs, /export\s+interface\s+GestureSwipeOptions\b/, 'GestureSwipeOptions interface missing in types/global.ts')
@@ -257,22 +275,25 @@ test('gesture prop wired across types, defaults and llms.txt', () => {
 test('animate.cover wired across types, defaults and llms.txt', () => {
   assert.match(globalTs, /export\s+interface\s+AnimateCoverOptions\b/, 'AnimateCoverOptions interface missing in types/global.ts')
   assert.match(globalTs, /\bcover\?:\s*boolean\s*\|\s*AnimateCoverOptions\b/, 'Animate.cover missing from types/global.ts')
+  assert.match(globalTs, /\bslowMotion\?:\s*boolean\b/, 'Animate.slowMotion missing from types/global.ts')
   for (const key of ['objectFit', 'clip', 'radius']) {
     assert.match(defaultTs, new RegExp(`defaultAnimateCoverOptions:[\\s\\S]*?\\b${key}:\\s*true\\b`), `default animate.cover.${key}=true missing in default.ts`)
   }
   assert.match(defaultTs, /desktop:[\s\S]*?animate:[\s\S]*?\bcover:\s*\{\s*\.\.\.defaultAnimateCoverOptions\s*\}/, 'desktop animate.cover should use default options in default.ts')
   assert.match(defaultTs, /mobile:[\s\S]*?animate:[\s\S]*?\bcover:\s*\{\s*\.\.\.defaultAnimateCoverOptions\s*\}/, 'mobile animate.cover should use default options in default.ts')
+  assert.match(defaultTs, /desktop:[\s\S]*?animate:[\s\S]*?\bslowMotion:\s*false\b/, 'desktop animate.slowMotion=false missing in default.ts')
+  assert.match(defaultTs, /mobile:[\s\S]*?animate:[\s\S]*?\bslowMotion:\s*false\b/, 'mobile animate.slowMotion=false missing in default.ts')
   const animateLine = llmsTxt.split('\n').find(
     (line) => /^\s*\|\s*`animate`\s*\|/.test(line)
   )
   assert.ok(animateLine, 'no API-table row in llms.txt declares the animate prop')
-  for (const term of ['AnimateCoverOptions', 'objectFit', 'clip', 'radius', 'legacy cover geometry']) {
+  for (const term of ['AnimateCoverOptions', 'objectFit', 'clip', 'radius', 'legacy cover geometry', 'slowMotion', 'Shift', '10x']) {
     assert.match(animateLine, new RegExp(term), `llms.txt animate row missing ${term}`)
   }
 })
 
 test('public type symbols present in types/global.ts', () => {
-  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'ControllerPlacement', 'ControllerRender', 'ControllerRenderState', 'ControllerRenderActions', 'ControllerRenderSlots', 'HotKey', 'Animate', 'AnimateCoverOptions', 'GestureSet', 'GestureWheelZoomOptions', 'GesturePinchZoomOptions', 'GestureDoubleTapZoomOptions', 'GestureTouchAction']) {
+  for (const sym of ['BaseType', 'Set', 'Preset', 'ControllerSet', 'ControllerPlacement', 'ControllerOverlayLayout', 'ControllerLayoutTargets', 'ControllerLayoutTarget', 'ControllerLayoutInset', 'ControllerLayoutInsetValue', 'ControllerRender', 'ControllerRenderState', 'ControllerRenderActions', 'ControllerRenderSlots', 'HotKey', 'Animate', 'AnimateCoverOptions', 'GestureSet', 'GestureWheelZoomOptions', 'GesturePinchZoomOptions', 'GestureDoubleTapZoomOptions', 'GestureTouchAction']) {
     const re = new RegExp(`(?:export\\s+(?:interface|type)\\s+${sym}\\b)`)
     assert.match(globalTs, re, `${sym} not exported from types/global.ts`)
     assert.match(llmsTxt, new RegExp(`\\b${sym}\\b`), `${sym} not mentioned in llms.txt`)

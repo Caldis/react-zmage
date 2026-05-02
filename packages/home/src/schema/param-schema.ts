@@ -20,7 +20,7 @@ export const defProp = {
   set: [] as { src: string; alt?: string; caption?: string | { text: string; style?: Record<string, unknown>; className?: string } }[],
   defaultPage: 0,
   preset: DEFAULT_PRESET,
-  controller: {} as Record<string, boolean | string>,
+  controller: {} as Record<string, unknown>,
   hotKey: {} as Record<string, boolean>,
   animate: {} as Record<string, unknown>,
   gesture: {} as Record<string, unknown>,
@@ -39,7 +39,7 @@ export const defPreset = {
   desktop: {
     controller: { pagination: true, rotate: true, zoom: true, download: false, close: true, flip: true, placement: 'top-right' as const },
     hotKey: { close: true, zoom: true, flip: true, rotate: true, download: false },
-    animate: { browsing: true, flip: 'crossFade' as const, cover: { objectFit: true, clip: true, radius: true } },
+    animate: { browsing: true, flip: 'crossFade' as const, cover: { objectFit: true, clip: true, radius: true }, slowMotion: false },
     gesture: {
       swipe: false,
       dragExit: false,
@@ -52,7 +52,7 @@ export const defPreset = {
   mobile: {
     controller: { pagination: true, rotate: false, zoom: false, download: false, close: true, flip: false, placement: 'top-right' as const },
     hotKey: { close: false, zoom: false, flip: false, rotate: false, download: false },
-    animate: { browsing: true, flip: 'swipe' as const, cover: { objectFit: true, clip: true, radius: true } },
+    animate: { browsing: true, flip: 'swipe' as const, cover: { objectFit: true, clip: true, radius: true }, slowMotion: false },
     gesture: {
       swipe: { threshold: 120, velocity: 0.35, axisLock: 1.2, resistance: 0.35 },
       dragExit: { threshold: 80, velocity: 0.35, axisLock: 1.2, opacity: true },

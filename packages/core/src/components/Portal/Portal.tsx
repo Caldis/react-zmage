@@ -4,7 +4,7 @@
  **/
 
 // Libs
-import { ReactNode, useLayoutEffect, useMemo } from 'react'
+import { CSSProperties, ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 
 type Props = {
@@ -12,16 +12,19 @@ type Props = {
   target?: HTMLElement
   zIndex?: number
   className?: string
+  style?: CSSProperties
   children: ReactNode
 }
 
-export default function Portal ({ id, target, zIndex, className, children }: Props) {
+export default function Portal ({ id, target, zIndex, className, style, children }: Props) {
   if (typeof document === 'undefined') {
     return null
   }
 
   const parent = target || document.body
   const container = useMemo(() => document.createElement('figure'), [])
+  const [attached, setAttached] = useState(false)
+  const styleKeysRef = useRef<string[]>([])
 
   // Sync attributes when props change
   useLayoutEffect(() => {
@@ -40,14 +43,22 @@ export default function Portal ({ id, target, zIndex, className, children }: Pro
     } else {
       container.style.removeProperty('z-index')
     }
-  }, [id, className, zIndex, container])
+    styleKeysRef.current.forEach(key => container.style.removeProperty(key))
+    styleKeysRef.current = []
+    Object.entries(style || {}).forEach(([key, value]) => {
+      if (value == null) return
+      container.style.setProperty(key, String(value))
+      styleKeysRef.current.push(key)
+    })
+  }, [id, className, zIndex, style, container])
 
   useLayoutEffect(() => {
     parent.appendChild(container)
+    setAttached(true)
     return () => {
       parent.removeChild(container)
     }
   }, [parent, container])
 
-  return ReactDOM.createPortal(children, container)
+  return attached ? ReactDOM.createPortal(children, container) : null
 }

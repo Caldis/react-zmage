@@ -1054,6 +1054,67 @@ describe('Zmage controller Phase 5', () => {
     expect(document.getElementById('zmageControlPagination')).toBeTruthy()
   })
 
+  it('controller.layout 写入 toolbar / pagination / caption 的 overlay 偏移变量', async () => {
+    render(
+      <Zmage
+        src={SRC}
+        alt="controller-layout"
+        caption="layout caption"
+        controller={{
+          placement: 'bottom-center',
+          layout: {
+            toolbar: { inset: { bottom: 24 } },
+            pagination: { inset: { bottom: '2rem' } },
+            caption: { inset: { bottom: '4rem' } },
+          },
+        }}
+        set={[
+          { src: SRC, caption: 'layout caption' },
+          { src: 'https://example.com/controller-layout-b.jpg', caption: 'next' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-layout'))
+    await wait(50)
+
+    const portal = document.getElementById('zmage')
+    expect(portal?.style.getPropertyValue('--zmage-toolbar-bottom-offset')).toBe('24px')
+    expect(portal?.style.getPropertyValue('--zmage-pagination-bottom-offset')).toBe('2rem')
+    expect(portal?.style.getPropertyValue('--zmage-caption-bottom-offset')).toBe('4rem')
+    expect(document.getElementById('zmageControl')?.dataset.placement).toBe('bottom-center')
+  })
+
+  it('controller.layout.mobile 在 mobile preset 下覆盖基础偏移', async () => {
+    render(
+      <Zmage
+        src={SRC}
+        alt="controller-layout-mobile"
+        preset="mobile"
+        caption="mobile caption"
+        controller={{
+          layout: {
+            pagination: { inset: { bottom: '1rem' } },
+            caption: { inset: { bottom: '3rem' } },
+            mobile: {
+              pagination: { inset: { bottom: '2.75rem' } },
+              caption: { inset: { bottom: '5.25rem' } },
+            },
+          },
+        }}
+        set={[
+          { src: SRC, caption: 'mobile caption' },
+          { src: 'https://example.com/controller-layout-mobile-b.jpg', caption: 'next' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-layout-mobile'))
+    await wait(50)
+
+    const portal = document.getElementById('zmage')
+    expect(portal?.style.getPropertyValue('--zmage-pagination-bottom-offset')).toBe('2.75rem')
+    expect(portal?.style.getPropertyValue('--zmage-caption-bottom-offset')).toBe('5.25rem')
+  })
+
   it('controller.placement 不破坏 animate.browsing=false 的无动画契约', async () => {
     render(
       <Zmage
@@ -1393,6 +1454,21 @@ describe('Zmage 动画行为', () => {
     expect(document.getElementById('zmage')).toBeNull()
   })
 
+  it('快速关闭时挂起的 cover hide timer 不应在 showCover 之后把封面重新隐藏', async () => {
+    render(<Zmage src="https://example.com/hide-timer.jpg" alt="hide-timer" animate={{ browsing: false }}/>)
+    const cover = screen.getByAltText('hide-timer') as HTMLImageElement
+
+    fireEvent.click(cover)
+    await wait(50)
+    clickById('zmageControlClose')
+    await wait(0)
+
+    expect(cover.style.visibility).toBe('visible')
+
+    await wait(140)
+    expect(cover.style.visibility).toBe('visible')
+  })
+
   it('animate=false 同时禁用打开和翻页图片过渡', async () => {
     render(
       <Zmage
@@ -1511,6 +1587,65 @@ describe('Zmage 动画行为', () => {
     }
   })
 
+  it('browsing-in 初次 mount 的第一帧直接使用 viewport ref 几何', async () => {
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect
+    const originalRequestAnimationFrame = window.requestAnimationFrame
+    const originalCancelAnimationFrame = window.cancelAnimationFrame
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+    window.requestAnimationFrame = vi.fn(() => 1) as unknown as typeof window.requestAnimationFrame
+    window.cancelAnimationFrame = vi.fn() as unknown as typeof window.cancelAnimationFrame
+    HTMLElement.prototype.getBoundingClientRect = function () {
+      if ((this as HTMLElement).id === 'zmageViewport') {
+        return {
+          left: 0,
+          top: 0,
+          width: 980,
+          height: 800,
+          right: 980,
+          bottom: 800,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        } as DOMRect
+      }
+      return originalGetBoundingClientRect.call(this)
+    }
+
+    try {
+      render(<Zmage src="https://example.com/first-frame.jpg" alt="first-frame-cover"/>)
+      const cover = screen.getByAltText('first-frame-cover') as HTMLImageElement
+      Object.defineProperty(cover, 'naturalWidth', { value: 1000, configurable: true })
+      Object.defineProperty(cover, 'naturalHeight', { value: 500, configurable: true })
+      cover.getBoundingClientRect = () => ({
+        left: 390,
+        top: 300,
+        width: 200,
+        height: 100,
+        right: 590,
+        bottom: 400,
+        x: 390,
+        y: 300,
+        toJSON: () => ({}),
+      } as DOMRect)
+
+      fireEvent.click(cover)
+      await wait(0)
+
+      const image = document.getElementById('zmageImage') as HTMLImageElement
+      expect(image.style.transform).toContain('translate3d(0px, -50px, 0px)')
+      expect(image.style.transition).toBe('none')
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect
+      window.requestAnimationFrame = originalRequestAnimationFrame
+      window.cancelAnimationFrame = originalCancelAnimationFrame
+      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
+      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+    }
+  })
+
   it('browsing-in 使用 RAF 从封面几何插值到浏览几何, 不在 debounce 后直接跳终点', async () => {
     const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
     const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
@@ -1550,9 +1685,70 @@ describe('Zmage 动画行为', () => {
     }
   })
 
-  it('dev 环境按住 Shift 打开时将浏览动画放慢 10 倍', async () => {
+  it('browsing-in RAF 期间父级重渲染仍使用当前视觉帧, 不把中心图跳到终点', async () => {
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+
+    try {
+      const { rerender } = render(
+        <Zmage src="https://example.com/open-rerender.jpg" alt="open-rerender" data-test-marker="a"/>
+      )
+      const cover = screen.getByAltText('open-rerender') as HTMLImageElement
+      Object.defineProperty(cover, 'naturalWidth', { value: 1000, configurable: true })
+      Object.defineProperty(cover, 'naturalHeight', { value: 500, configurable: true })
+      cover.getBoundingClientRect = () => ({
+        left: 400,
+        top: 300,
+        width: 200,
+        height: 100,
+        right: 600,
+        bottom: 400,
+        x: 400,
+        y: 300,
+        toJSON: () => ({}),
+      } as DOMRect)
+
+      fireEvent.click(cover)
+      await wait(100)
+      await wait(40)
+
+      const image = document.getElementById('zmageImage') as HTMLImageElement
+      const before = image.style.transform
+      const beforeTranslate = parseInlineTranslate(before)
+      expect(beforeTranslate.y).toBeGreaterThan(-50)
+      expect(beforeTranslate.y).toBeLessThan(0)
+
+      rerender(
+        <Zmage src="https://example.com/open-rerender.jpg" alt="open-rerender" data-test-marker="b"/>
+      )
+
+      expect(image.style.transform).toBe(before)
+    } finally {
+      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
+      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+    }
+  })
+
+  it('默认关闭 slowMotion 时, dev 环境按住 Shift 打开也不放慢动画', async () => {
     await withNodeEnv('development', async () => {
-      render(<Zmage src="https://example.com/slow-open.jpg" alt="slow-open" caption="slow caption"/>)
+      render(<Zmage src="https://example.com/slow-open-default-off.jpg" alt="slow-open-default-off"/>)
+
+      fireEvent.click(screen.getByAltText('slow-open-default-off'), { shiftKey: true })
+      await wait(50)
+
+      expect(document.getElementById('zmageBackground')?.style.transition).not.toContain('2000ms')
+      expect(document.getElementById('zmageControl')?.style.transition).not.toContain('3500ms')
+
+      clickById('zmageControlClose')
+      await wait(600)
+    })
+  })
+
+  it('animate.slowMotion=true 时按住 Shift 打开会将浏览动画放慢 10 倍', async () => {
+    await withNodeEnv('development', async () => {
+      render(<Zmage src="https://example.com/slow-open.jpg" alt="slow-open" caption="slow caption" animate={{ slowMotion: true }}/>)
 
       fireEvent.click(screen.getByAltText('slow-open'), { shiftKey: true })
       await wait(50)
@@ -1568,24 +1764,24 @@ describe('Zmage 动画行为', () => {
     })
   })
 
-  it('production 环境按住 Shift 打开不会启用慢动作', async () => {
+  it('production 环境只有显式开启 slowMotion 后才响应 Shift 慢动作', async () => {
     await withNodeEnv('production', async () => {
-      render(<Zmage src="https://example.com/slow-open-prod.jpg" alt="slow-open-prod"/>)
+      render(<Zmage src="https://example.com/slow-open-prod.jpg" alt="slow-open-prod" animate={{ slowMotion: true }}/>)
 
       fireEvent.click(screen.getByAltText('slow-open-prod'), { shiftKey: true })
       await wait(50)
 
-      const image = document.getElementById('zmageImage') as HTMLImageElement
-      expect(image.style.transition).not.toContain('3500ms')
+      expect(document.getElementById('zmageBackground')?.style.transition).toContain('2000ms')
+      expect(document.getElementById('zmageControl')?.style.transition).toContain('3500ms')
 
       clickById('zmageControlClose')
       await wait(600)
     })
   })
 
-  it('dev 环境按住 Shift 关闭时等待慢动作完成后再卸载浏览层', async () => {
+  it('animate.slowMotion=true 时按住 Shift 关闭会等待慢动作完成后再卸载浏览层', async () => {
     await withNodeEnv('development', async () => {
-      render(<Zmage src="https://example.com/slow-close.jpg" alt="slow-close"/>)
+      render(<Zmage src="https://example.com/slow-close.jpg" alt="slow-close" animate={{ slowMotion: true }}/>)
 
       fireEvent.click(screen.getByAltText('slow-close'))
       await wait(60)
@@ -1602,12 +1798,13 @@ describe('Zmage 动画行为', () => {
     })
   })
 
-  it('dev 环境自定义 controller 通过 actions.close 关闭时也沿用 Shift 慢动作管线', async () => {
+  it('animate.slowMotion=true 时自定义 controller 通过 actions.close 关闭也沿用 Shift 慢动作管线', async () => {
     await withNodeEnv('development', async () => {
       render(
         <Zmage
           src="https://example.com/slow-render-close.jpg"
           alt="slow-render-close"
+          animate={{ slowMotion: true }}
           controller={{
             render: ({ actions }) => <button type="button" onClick={actions.close}>close</button>
           }}
@@ -2690,6 +2887,58 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
       if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
     }
   })
+
+  it('Cover→browsing 动画期间 onLoad 引发的 React commit 不应短暂写入浏览终点帧', async () => {
+    const A = 'https://example.com/open-load-commit.jpg'
+    const restore = mockImageDimensionsBySrc({ [A]: { w: 1000, h: 500 } })
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+
+    try {
+      render(<Zmage src={A} alt="open-load-commit" preset="desktop" set={[{ src: A }]}/>)
+      const cover = screen.getByAltText('open-load-commit') as HTMLImageElement
+      cover.getBoundingClientRect = () => ({
+        left: 400,
+        top: 300,
+        width: 200,
+        height: 100,
+        right: 600,
+        bottom: 400,
+        x: 400,
+        y: 300,
+        toJSON: () => ({}),
+      } as DOMRect)
+
+      fireEvent.click(cover)
+      await wait(100)
+      await wait(40)
+
+      const center = document.getElementById('zmageImage') as HTMLImageElement
+      const seenTransforms: string[] = []
+      const observer = new MutationObserver(() => {
+        seenTransforms.push(center.style.transform)
+      })
+      observer.observe(center, { attributes: true, attributeFilter: ['style'] })
+
+      await act(async () => {
+        fireEvent.load(center)
+        await new Promise(r => setTimeout(r, 5))
+      })
+      observer.disconnect()
+
+      const terminalWrites = seenTransforms
+        .map(parseInlineTranslate)
+        .filter(({ y }) => y === 0)
+
+      expect(terminalWrites).toHaveLength(0)
+    } finally {
+      restore()
+      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
+      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+    }
+  })
 })
 
 describe('Zmage 跳页与 fade 降级 (Issue 1 / Issue 2)', () => {
@@ -3187,17 +3436,82 @@ describe('Zmage Loading 显示策略 (anti-flicker, loadingDelay prop)', () => {
 })
 
 describe('Zmage 命令式调用', () => {
+  const wait = async (ms: number) => {
+    await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+  }
+  const findImperativeImageBySrc = (srcPart: string) => (
+    Array
+      .from(document.querySelectorAll<HTMLImageElement>('#zmageImage'))
+      .find(img => img.src.includes(srcPart)) ?? null
+  )
+  const waitForElementById = async (id: string, timeout = 600) => {
+    let elapsed = 0
+    while (elapsed <= timeout) {
+      const el = document.getElementById(id)
+      if (el) return el
+      await wait(20)
+      elapsed += 20
+    }
+    throw new Error(`expected #${id} to be in the DOM at this point`)
+  }
+  const waitForImperativeImageBySrc = async (srcPart: string, timeout = 300) => {
+    let elapsed = 0
+    while (elapsed <= timeout) {
+      const img = findImperativeImageBySrc(srcPart)
+      if (img) return img
+      await wait(20)
+      elapsed += 20
+    }
+    return null
+  }
+
   it('Zmage.browsing 返回 destructor 函数; 调用后 portal 节点移除', async () => {
-    const destroy = Zmage.browsing({ src: SRC, alt: 't' })
-    // 等待 inBrowsing 的 requestAnimationFrame
-    await act(async () => { await new Promise(r => setTimeout(r, 50)) })
+    let destroy!: () => void
+    await act(async () => {
+      destroy = Zmage.browsing({ src: SRC, alt: 't' })
+      // 等待 inBrowsing 的 requestAnimationFrame
+      await new Promise(r => setTimeout(r, 50))
+    })
     expect(document.getElementById('zmagePortal')).toBeTruthy()
 
     expect(typeof destroy).toBe('function')
-    destroy?.()
-    // 等待 outBrowsing 的 setTimeout 销毁
-    await act(async () => { await new Promise(r => setTimeout(r, 600)) })
+    await act(async () => {
+      destroy?.()
+      await new Promise(r => setTimeout(r, 0))
+    })
+    // 等待 React root unmount 后的 DOM cleanup
+    await wait(600)
     expect(document.getElementById('zmagePortal')).toBeNull()
+  })
+
+  it('旧命令式实例的关闭 timer 不能卸载新打开的命令式实例', async () => {
+    await act(async () => {
+      Zmage.browsing({ src: 'https://example.com/callee-a.jpg', alt: 'callee-a' })
+      await new Promise(r => setTimeout(r, 100))
+    })
+    fireEvent.click(await waitForElementById('zmageControlClose'))
+    await wait(10)
+
+    let destroySecond!: () => void
+    await act(async () => {
+      destroySecond = Zmage.browsing({ src: 'https://example.com/callee-b.jpg', alt: 'callee-b' })
+      await new Promise(r => setTimeout(r, 20))
+    })
+    const openedSecondImage = await waitForImperativeImageBySrc('callee-b.jpg')
+    expect(openedSecondImage).toBeTruthy()
+    expect(openedSecondImage?.src).toContain('callee-b.jpg')
+
+    await wait(500)
+
+    const secondImage = findImperativeImageBySrc('callee-b.jpg')
+    expect(secondImage).toBeTruthy()
+    expect(secondImage?.src).toContain('callee-b.jpg')
+
+    await act(async () => {
+      destroySecond()
+      await new Promise(r => setTimeout(r, 0))
+    })
+    await wait(50)
   })
 })
 
@@ -3390,6 +3704,7 @@ describe('关闭路径 cover 实时追踪 (RAF)', () => {
       // 再等一段时间, 期间不应有任何卸载 (closing 那个 setTimeout finalize 应该被新 init 接管掉)
       await wait(500)
       expect(document.getElementById('zmage')).toBeTruthy()
+      expect(document.getElementById('zmageImage')).toBeTruthy()
     } finally {
       if (originalClientWidth) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth)
       if (originalClientHeight) Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight)

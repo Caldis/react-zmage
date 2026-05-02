@@ -47,12 +47,24 @@ function formatControllerObject (v: Record<string, any>, getPhrase: GetUmbrellaP
   for (const [k, val] of Object.entries(v)) {
     const parent = UMBRELLA_CHILD_TO_PARENT[k]
     const overridden = !!parent && !!v[parent]
-    const propText = `"${k}": ${JSON.stringify(val)}`
+    const propText = `"${k}": ${reindentMultiline(formatValue(val), '  ')}`
     if (overridden) {
       lines.push(`  // ${propText} | ${getPhrase(parent)}`)
     } else {
       lines.push(`  ${propText},`)
     }
+  }
+  lines.push('}')
+  return lines.join('\n')
+}
+
+function formatPropsObject (props: Record<string, any>, getPhrase: GetUmbrellaPhrase): string {
+  const lines: string[] = ['{']
+  for (const [k, v] of Object.entries(props)) {
+    const valueText = k === 'controller' && v && typeof v === 'object' && !Array.isArray(v)
+      ? formatControllerObject(v, getPhrase)
+      : formatValue(v)
+    lines.push(`  "${k}": ${reindentMultiline(valueText, '  ')},`)
   }
   lines.push('}')
   return lines.join('\n')
@@ -80,17 +92,10 @@ function renderJsx (props: Record<string, any>, getPhrase: GetUmbrellaPhrase) {
 }
 
 function renderImperative (props: Record<string, any>, getPhrase: GetUmbrellaPhrase) {
-  // 整体 JSON.stringify 后, 把 controller 块用 umbrella-aware 格式替换回去.
-  // controller 是扁平对象, 块内不含 `}`, 简单 regex 即可定位.
-  let body = JSON.stringify(props, null, 2)
-  if (props.controller && typeof props.controller === 'object' && !Array.isArray(props.controller)) {
-    const formatted = reindentMultiline(formatControllerObject(props.controller, getPhrase), '  ')
-    body = body.replace(/"controller": \{[^}]*\}/, `"controller": ${formatted}`)
-  }
   return [
     `import Zmage from 'react-zmage'`,
     ``,
-    `Zmage.browsing(${body})`,
+    `Zmage.browsing(${formatPropsObject(props, getPhrase)})`,
   ].join('\n')
 }
 

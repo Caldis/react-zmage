@@ -3,7 +3,7 @@
  **/
 
 // Libs
-import React, { ReactElement, RefObject } from 'react'
+import React, { ReactElement } from 'react'
 import ReactDOM from 'react-dom'
 import * as ReactDOMClient from 'react-dom/client'
 // Components
@@ -11,7 +11,7 @@ import Browser from './components/Browser'
 // Utils
 import { defProp, getConfigFromProps } from './types/default'
 import { getBrowsingAnimationDuration } from './config/anim'
-import { getMotionDurationMultiplierFromEvent } from './config/motion'
+import { getMotionDurationMultiplierFromEvent, isSlowMotionEnabled } from './config/motion'
 import type { MotionTriggerEvent } from './config/motion'
 import { BaseType } from './types/global'
 import { GlobalClickMonitor } from './utils'
@@ -127,7 +127,7 @@ class ReactZmageCallee extends React.Component<Props, State> {
   }
   outBrowsing = (event?: MotionTriggerEvent) => {
     const { destructor } = this.props
-    const motionDurationMultiplier = getMotionDurationMultiplierFromEvent(event)
+    const motionDurationMultiplier = getMotionDurationMultiplierFromEvent(event, isSlowMotionEnabled(this.props.animate))
     this.setState({
       browsing: false
     }, () => {
@@ -165,48 +165,41 @@ class ReactZmageCallee extends React.Component<Props, State> {
   }
 }
 
-// 弹窗对象
-const RENDER: {
-  REF: RefObject<ReactZmageCallee>,
-  CONTAINER: HTMLElement,
-  PORTAL: HTMLElement,
-  UNMOUNT?: () => void,
-} = {
-  REF: React.createRef<ReactZmageCallee>(),
-  CONTAINER: undefined as unknown as HTMLElement,
-  PORTAL: undefined as unknown as HTMLElement,
-}
 // 调用函数
 const callee = (({ coverRef, ...props }: InternalCalleeProps) => {
   const adapter = resolveMountAdapter()
   // Init env
-  RENDER.PORTAL = document.createElement('div')
-  RENDER.PORTAL.id = 'zmagePortal'
-  RENDER.CONTAINER = document.body
-  RENDER.CONTAINER.appendChild(RENDER.PORTAL)
+  const portalEl = document.createElement('div')
+  portalEl.id = 'zmagePortal'
+  const containerEl = document.body
+  containerEl.appendChild(portalEl)
+  const ref = React.createRef<ReactZmageCallee>()
+  let unmount: (() => void) | undefined
+  let destroyed = false
   // Destructor: 卸载 React 树后再移除 DOM 节点
-  const portalEl = RENDER.PORTAL
-  const containerEl = RENDER.CONTAINER
   const destructor = () => {
-    if (RENDER.UNMOUNT) {
-      RENDER.UNMOUNT()
-      RENDER.UNMOUNT = undefined
+    if (destroyed) return
+    destroyed = true
+    if (unmount) {
+      const currentUnmount = unmount
+      unmount = undefined
+      currentUnmount()
     }
     if (portalEl.parentNode === containerEl) {
       containerEl.removeChild(portalEl)
     }
   }
   // Mount target
-  RENDER.UNMOUNT = adapter.mount(
+  unmount = adapter.mount(
     <ReactZmageCallee
-      ref={RENDER.REF}
+      ref={ref}
       coverRef={coverRef}
       destructor={destructor}
       {...props}
     />,
-    RENDER.PORTAL
+    portalEl
   )
-  // Return destructor — 必须返回一个稳定函数, 不能直接返回 RENDER.REF.current?.outBrowsing.
+  // Return destructor — 必须返回一个稳定函数, 不能直接返回 ref.current?.outBrowsing.
   // R17 的 ReactDOM.render 同步 commit, ref 在 mount 时立刻可读;
   // R18+ 的 createRoot.render 异步 commit, callee() 返回时 ref 还是 null,
   // 直接读 .current 会让 R18/19 用户拿到 undefined (历史遗留 bug, 在多版本测试矩阵

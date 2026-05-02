@@ -8,9 +8,9 @@ export function Installation () {
     <section className="mt-12 space-y-4">
       <Heading id="installation">{t('docs.section.installation.title')}</Heading>
       <p>{t('docs.section.installation.intro')}</p>
-      <CodeBlock code={`pnpm add react-zmage
+      <CodeBlock code={`npm install react-zmage
 # or
-npm install react-zmage`} language={'bash' as any} />
+pnpm add react-zmage`} language={'bash' as any} />
       <p>{t('docs.section.installation.then')}</p>
       <CodeBlock code={`import Zmage from 'react-zmage'
 import 'react-zmage/style.css'`} language={'tsx' as any} />

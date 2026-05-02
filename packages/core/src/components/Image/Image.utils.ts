@@ -214,6 +214,9 @@ export const getImageTransition = ({
     return 'none'
   }
   if (role === 'center') {
+    if (imageType === 'cover') {
+      return 'none'
+    }
     if (motionPhase === 'browsing-follow') {
       return 'none'
     }
