@@ -58,7 +58,7 @@ const LAYOUT_CONTROLS: { target: ControllerLayoutTarget; label: string; descKey:
 // lib (Control.tsx) renders left rotate when `rotateLeft || rotate` is truthy.
 // 即 rotate 是 umbrella, 启用时强制覆盖 rotateLeft / rotateRight; flip 同理.
 // 把这层关系映成 disabled state, 让 panel 显式呈现.
-const UMBRELLA: Record<string, string> = {
+const UMBRELLA: Partial<Record<keyof ControllerSet, keyof ControllerSet>> = {
   rotateLeft: 'rotate',
   rotateRight: 'rotate',
   flipLeft: 'flip',
@@ -203,7 +203,7 @@ export function ControllerControl ({ value, onChange }: { value: ControllerSet |
         )}
       </div>
       {KEYS.map(({ key, labelKey, descKey }) => {
-        const umbrella = UMBRELLA[String(key)]
+        const umbrella = UMBRELLA[key]
         const overridden = !!umbrella && !!obj[umbrella]
         return (
           <label
