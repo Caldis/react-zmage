@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **feat (controller layout)**: `controller.layout` now supports `flip` insets, and scalar `inset` values follow each target's natural edge instead of always mapping to bottom.
+
 ## 1.8.0
 
 - **feat (slow motion)**: added `animate.slowMotion`, off by default, so holding Shift can slow open / close browsing transitions to 10x for demos and inspection.

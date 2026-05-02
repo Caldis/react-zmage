@@ -1072,17 +1072,18 @@ describe('Zmage controller Phase 5', () => {
     expect(document.getElementById('zmageControlPagination')).toBeTruthy()
   })
 
-  it('controller.layout 写入 toolbar / pagination / caption 的 overlay 偏移变量', async () => {
+  it('controller.layout 按目标自然边写入 overlay 偏移变量', async () => {
     render(
       <Zmage
         src={SRC}
         alt="controller-layout"
         caption="layout caption"
         controller={{
-          placement: 'bottom-center',
+          placement: 'top-right',
           layout: {
-            toolbar: { inset: { bottom: 24 } },
-            pagination: { inset: { bottom: '2rem' } },
+            toolbar: { inset: 24 },
+            flip: { inset: '1.5rem' },
+            pagination: { inset: 32 },
             caption: { inset: { bottom: '4rem' } },
           },
         }}
@@ -1096,10 +1097,16 @@ describe('Zmage controller Phase 5', () => {
     await wait(50)
 
     const portal = document.getElementById('zmage')
-    expect(portal?.style.getPropertyValue('--zmage-toolbar-bottom-offset')).toBe('24px')
-    expect(portal?.style.getPropertyValue('--zmage-pagination-bottom-offset')).toBe('2rem')
+    expect(portal?.style.getPropertyValue('--zmage-toolbar-top-offset')).toBe('24px')
+    expect(portal?.style.getPropertyValue('--zmage-toolbar-right-offset')).toBe('24px')
+    expect(portal?.style.getPropertyValue('--zmage-toolbar-bottom-offset')).toBe('auto')
+    expect(portal?.style.getPropertyValue('--zmage-toolbar-left-offset')).toBe('auto')
+    expect(portal?.style.getPropertyValue('--zmage-flip-left-offset')).toBe('1.5rem')
+    expect(portal?.style.getPropertyValue('--zmage-flip-right-offset')).toBe('1.5rem')
+    expect(portal?.style.getPropertyValue('--zmage-pagination-bottom-offset')).toBe('32px')
+    expect(portal?.style.getPropertyValue('--zmage-pagination-left-offset')).toBe('')
     expect(portal?.style.getPropertyValue('--zmage-caption-bottom-offset')).toBe('4rem')
-    expect(document.getElementById('zmageControl')?.dataset.placement).toBe('bottom-center')
+    expect(document.getElementById('zmageControl')?.dataset.placement).toBe('top-right')
   })
 
   it('controller.layout.mobile 在 mobile preset 下覆盖基础偏移', async () => {
@@ -1111,9 +1118,11 @@ describe('Zmage controller Phase 5', () => {
         caption="mobile caption"
         controller={{
           layout: {
+            flip: { inset: 8 },
             pagination: { inset: { bottom: '1rem' } },
             caption: { inset: { bottom: '3rem' } },
             mobile: {
+              flip: { inset: { left: '2rem', right: '3rem' } },
               pagination: { inset: { bottom: '2.75rem' } },
               caption: { inset: { bottom: '5.25rem' } },
             },
@@ -1129,8 +1138,30 @@ describe('Zmage controller Phase 5', () => {
     await wait(50)
 
     const portal = document.getElementById('zmage')
+    expect(portal?.style.getPropertyValue('--zmage-flip-left-offset')).toBe('2rem')
+    expect(portal?.style.getPropertyValue('--zmage-flip-right-offset')).toBe('3rem')
     expect(portal?.style.getPropertyValue('--zmage-pagination-bottom-offset')).toBe('2.75rem')
     expect(portal?.style.getPropertyValue('--zmage-caption-bottom-offset')).toBe('5.25rem')
+  })
+
+  it('controller.layout.flip 对象偏移只影响指定侧按钮', async () => {
+    render(
+      <Zmage
+        src={SRC}
+        alt="controller-layout-flip-side"
+        controller={{ layout: { flip: { inset: { left: '2rem' } } } }}
+        set={[
+          { src: SRC },
+          { src: 'https://example.com/controller-layout-flip-side-b.jpg' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-layout-flip-side'))
+    await wait(50)
+
+    const portal = document.getElementById('zmage')
+    expect(portal?.style.getPropertyValue('--zmage-flip-left-offset')).toBe('2rem')
+    expect(portal?.style.getPropertyValue('--zmage-flip-right-offset')).toBe('')
   })
 
   it('controller.placement 不破坏 animate.browsing=false 的无动画契约', async () => {

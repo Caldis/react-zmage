@@ -2,7 +2,7 @@
 import { CSSProperties, RefObject } from 'react'
 // Utils
 import { isInteger } from '../../utils'
-import { ControllerLayoutInset, ControllerLayoutTargets, ControllerOverlayLayout, ControllerSet, Set } from '../../types/global'
+import { ControllerLayoutInset, ControllerLayoutTargets, ControllerOverlayLayout, ControllerPlacement, ControllerSet, Set } from '../../types/global'
 
 /* 计算默认页面 */
 export const pageDefault = (defaultPage: number, set: Set[]) => {
@@ -47,7 +47,7 @@ type Edge = 'top' | 'right' | 'bottom' | 'left'
 type OverlayTarget = keyof ControllerLayoutTargets
 
 const EDGES: Edge[] = ['top', 'right', 'bottom', 'left']
-const OVERLAY_TARGETS: OverlayTarget[] = ['toolbar', 'pagination', 'caption']
+const OVERLAY_TARGETS: OverlayTarget[] = ['toolbar', 'pagination', 'caption', 'flip']
 
 const toCssLength = (value: unknown) => {
   if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`
@@ -55,10 +55,18 @@ const toCssLength = (value: unknown) => {
   return undefined
 }
 
-const normalizeInset = (inset: ControllerLayoutInset | undefined): Partial<Record<Edge, string>> | undefined => {
+const normalizeInset = (
+  inset: ControllerLayoutInset | undefined,
+  scalarEdges: Edge[],
+): Partial<Record<Edge, string>> | undefined => {
   if (typeof inset === 'number' || typeof inset === 'string') {
-    const bottom = toCssLength(inset)
-    return bottom ? { bottom } : undefined
+    const value = toCssLength(inset)
+    if (!value) return undefined
+    const next: Partial<Record<Edge, string>> = {}
+    scalarEdges.forEach(edge => {
+      next[edge] = value
+    })
+    return next
   }
   if (!inset || typeof inset !== 'object') return undefined
   const next: Partial<Record<Edge, string>> = {}
@@ -92,8 +100,41 @@ const mergeLayoutTargets = (
   return merged
 }
 
-const applyInsetVars = (style: OverlayStyle, target: OverlayTarget, inset: ControllerLayoutInset | undefined) => {
-  const edges = normalizeInset(inset)
+const toolbarScalarEdges = (placement: ControllerPlacement | undefined): Edge[] => {
+  switch (placement) {
+    case 'top-left':
+      return ['top', 'left']
+    case 'top-center':
+      return ['top']
+    case 'bottom-right':
+      return ['bottom', 'right']
+    case 'bottom-left':
+      return ['bottom', 'left']
+    case 'bottom-center':
+      return ['bottom']
+    case 'left-center':
+      return ['left']
+    case 'right-center':
+      return ['right']
+    case 'top-right':
+    default:
+      return ['top', 'right']
+  }
+}
+
+const targetScalarEdges = (target: OverlayTarget, placement: ControllerPlacement | undefined): Edge[] => {
+  if (target === 'toolbar') return toolbarScalarEdges(placement)
+  if (target === 'flip') return ['left', 'right']
+  return ['bottom']
+}
+
+const applyInsetVars = (
+  style: OverlayStyle,
+  target: OverlayTarget,
+  inset: ControllerLayoutInset | undefined,
+  scalarEdges: Edge[],
+) => {
+  const edges = normalizeInset(inset, scalarEdges)
   if (!edges) return
 
   EDGES.forEach(edge => {
@@ -102,6 +143,8 @@ const applyInsetVars = (style: OverlayStyle, target: OverlayTarget, inset: Contr
       style[`--zmage-${target}-${edge}-offset`] = value
     }
   })
+
+  if (target === 'flip') return
 
   if (edges.top && !edges.bottom) {
     style[`--zmage-${target}-bottom-offset`] = 'auto'
@@ -130,7 +173,7 @@ export const getControllerLayoutStyle = (
   const style: OverlayStyle = {}
 
   OVERLAY_TARGETS.forEach(target => {
-    applyInsetVars(style, target, targets[target]?.inset)
+    applyInsetVars(style, target, targets[target]?.inset, targetScalarEdges(target, controller.placement))
   })
 
   return Object.keys(style).length > 0 ? style : undefined

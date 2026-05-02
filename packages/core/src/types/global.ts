@@ -82,13 +82,17 @@ export type ControllerLayoutInset = ControllerLayoutInsetValue | {
 }
 
 export interface ControllerLayoutTarget {
-  // Overlay inset. A number is px; a string is any CSS length. A scalar value maps to bottom.
+  // Overlay safe-area inset. A number is px; a string is any CSS length.
+  // Scalar values are consumed by each target's natural edge(s): toolbar by placement,
+  // pagination/caption from bottom, and side flip buttons from left/right.
   inset?: ControllerLayoutInset
 }
 
 export interface ControllerLayoutTargets {
-  // Toolbar capsule only. Side flip buttons keep their fixed edge positions.
+  // Toolbar capsule.
   toolbar?: ControllerLayoutTarget
+  // Side flip buttons. Scalar inset applies to both left and right buttons.
+  flip?: ControllerLayoutTarget
   // Multi-image pagination dots.
   pagination?: ControllerLayoutTarget
   // Viewer caption pill.
@@ -165,7 +169,7 @@ export interface ControllerSet {
   color?: string
   // 工具栏位置
   placement?: ControllerPlacement
-  // Overlay 位置微调: 工具栏、分页器、caption 的 inset, 不影响图片动画几何
+  // Overlay 安全偏移: 工具栏、左右翻页按钮、分页器、caption 的 inset, 不影响图片动画几何
   layout?: ControllerOverlayLayout
   // 完全自定义控制器渲染
   render?: ControllerRender

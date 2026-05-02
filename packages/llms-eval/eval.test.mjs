@@ -223,11 +223,11 @@ test('controller overlay layout API wired across types and llms.txt', () => {
     (line) => /^\s*\|\s*`controller`\s*\|/.test(line)
   )
   assert.ok(controllerLine, 'no API-table row in llms.txt declares the controller prop')
-  for (const term of ['controller.layout', 'ControllerOverlayLayout', 'toolbar', 'pagination', 'caption', 'layout.mobile']) {
+  for (const term of ['controller.layout', 'ControllerOverlayLayout', 'toolbar', 'flip', 'pagination', 'caption', 'layout.mobile']) {
     assert.match(controllerLine, new RegExp(term), `llms.txt controller row missing ${term}`)
   }
   assert.match(controllerLine, /number values are px/, 'llms.txt controller row should document numeric layout units')
-  assert.match(controllerLine, /scalar `inset` maps to `bottom`/, 'llms.txt controller row should document scalar inset semantics')
+  assert.match(controllerLine, /scalar `inset` follows each target's natural edge/, 'llms.txt controller row should document scalar inset semantics')
 })
 
 test('gesture prop wired across types, defaults and llms.txt', () => {

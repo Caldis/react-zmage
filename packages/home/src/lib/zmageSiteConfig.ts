@@ -6,11 +6,11 @@ export const siteZmageAnimate = {
 
 export const siteZmageController = {
   layout: {
-    pagination: { inset: { bottom: '1.35rem' } },
-    caption: { inset: { bottom: '4rem' } },
+    pagination: { inset: '1.35rem' },
+    caption: { inset: '4rem' },
     mobile: {
-      pagination: { inset: { bottom: '2.75rem' } },
-      caption: { inset: { bottom: '5.25rem' } },
+      pagination: { inset: '2.75rem' },
+      caption: { inset: '5.25rem' },
     },
   },
 } satisfies NonNullable<BaseType['controller']>

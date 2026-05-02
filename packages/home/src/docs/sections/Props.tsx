@@ -315,12 +315,15 @@ function ControllerDetail () {
     { src: 'detail.jpg', caption: 'Detail' },
   ]}
   controller={{
+    placement: 'bottom-center',
     layout: {
-      pagination: { inset: { bottom: '1.5rem' } },
-      caption: { inset: { bottom: '4rem' } },
+      toolbar: { inset: '1rem' },
+      flip: { inset: '1rem' },
+      pagination: { inset: '1.5rem' },
+      caption: { inset: '4rem' },
       mobile: {
-        pagination: { inset: { bottom: '2.75rem' } },
-        caption: { inset: { bottom: '5.25rem' } },
+        pagination: { inset: '2.75rem' },
+        caption: { inset: '5.25rem' },
       },
     },
   }}

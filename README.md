@@ -197,7 +197,7 @@ interface ControllerSet {
   backdrop?:    string                          // control bar bg; falls back to top-level `backdrop`
   color?:       string                          // control bar icon color; falls back to `currentColor`
   placement?:   ControllerPlacement             // default 'top-right'
-  layout?:      ControllerOverlayLayout         // toolbar / pagination / caption overlay insets
+  layout?:      ControllerOverlayLayout         // toolbar / flip / pagination / caption overlay safe insets
   render?:      ControllerRender                // replace the whole controller UI
 }
 
@@ -227,6 +227,7 @@ interface ControllerLayoutTarget {
 
 interface ControllerLayoutTargets {
   toolbar?: ControllerLayoutTarget
+  flip?: ControllerLayoutTarget
   pagination?: ControllerLayoutTarget
   caption?: ControllerLayoutTarget
 }
@@ -278,7 +279,7 @@ interface ControllerRenderSlots {
 
 > `backdrop` and `color` decouple the toolbar from the modal backdrop. Pair them when the modal `backdrop` is dark — e.g. `backdrop="#111"` + `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}` keeps the toolbar legible. Per-button color overrides (e.g. `controller={{ zoom: '#ff8800' }}`) still win over `controller.color`.
 
-> `placement` moves only the toolbar capsule. Side flip buttons and pagination keep their existing positions. `layout` adjusts overlay insets for the toolbar, pagination, and caption without changing the image animation geometry. A number is treated as px, a string is passed through as a CSS length, and a scalar `inset` maps to `bottom`; `layout.mobile` is merged on top when the resolved preset is mobile. `render` receives `{ state, actions, slots }` and replaces the whole controller layer; `slots.Toolbar`, `slots.Pagination`, `slots.FlipLeft`, and `slots.FlipRight` let custom UI reuse the built-in pieces. `controller={false}` disables both built-in slots and `render`.
+> `placement` moves only the toolbar capsule. Side flip buttons and pagination keep their existing positions. `layout` adjusts overlay safe insets for the toolbar, side flip buttons, pagination, and caption without changing the image animation geometry. A number is treated as px, a string is passed through as a CSS length, and a scalar `inset` follows each target's natural entry edge: toolbar uses the current `placement`, side flips use left / right, and pagination / caption use bottom. `layout.mobile` is merged on top when the resolved preset is mobile. `render` receives `{ state, actions, slots }` and replaces the whole controller layer; `slots.Toolbar`, `slots.Pagination`, `slots.FlipLeft`, and `slots.FlipRight` let custom UI reuse the built-in pieces. `controller={false}` disables both built-in slots and `render`.
 
 ```tsx
 <Zmage
@@ -289,12 +290,15 @@ interface ControllerRenderSlots {
     { src: 'detail.jpg', caption: 'Detail' },
   ]}
   controller={{
+    placement: 'bottom-center',
     layout: {
-      pagination: { inset: { bottom: '1.5rem' } },
-      caption: { inset: { bottom: '4rem' } },
+      toolbar: { inset: '1rem' },
+      flip: { inset: '1rem' },
+      pagination: { inset: '1.5rem' },
+      caption: { inset: '4rem' },
       mobile: {
-        pagination: { inset: { bottom: '2.75rem' } },
-        caption: { inset: { bottom: '5.25rem' } },
+        pagination: { inset: '2.75rem' },
+        caption: { inset: '5.25rem' },
       },
     },
   }}

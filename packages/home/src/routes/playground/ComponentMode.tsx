@@ -23,10 +23,10 @@ export default function ComponentMode ({
   }
   return (
     <div className="flex h-full min-h-[360px] flex-col items-center justify-center rounded-lg border border-border bg-card/30 p-6 lg:min-h-0">
-      <div className="mx-auto w-full max-w-md">
-        <Zmage {...(safeProps as any)} className="w-full rounded-md" />
+      <div className="flex min-h-0 w-full flex-1 items-center justify-center">
+        <Zmage {...(safeProps as any)} className="max-h-full max-w-full rounded-md object-contain" />
       </div>
-      <p className="mt-4 text-center text-xs text-muted-foreground">{t('pg.preview.tip')}</p>
+      <p className="mt-4 shrink-0 text-center text-xs text-muted-foreground">{t('pg.preview.tip')}</p>
     </div>
   )
 }

@@ -9,7 +9,8 @@ import type { BaseType } from 'react-zmage'
 
 type ControllerSet = NonNullable<Exclude<BaseType['controller'], boolean | undefined>>
 type ControllerLayout = NonNullable<ControllerSet['layout']>
-type ControllerLayoutTarget = 'pagination' | 'caption'
+type ControllerLayoutTarget = 'toolbar' | 'flip' | 'pagination' | 'caption'
+type ControllerLayoutEdge = 'top' | 'right' | 'bottom' | 'left'
 
 const KEYS: { key: keyof ControllerSet; labelKey: I18nKey; descKey: I18nKey }[] = [
   { key: 'pagination', labelKey: 'controller.pagination', descKey: 'controller.pagination.desc' },
@@ -36,9 +37,23 @@ const PLACEMENTS = [
 ] as const
 const PLACEMENT_OPTIONS = PLACEMENTS.map((placement) => ({ value: placement, label: placement }))
 const DEFAULT_LAYOUT: ControllerLayout = {
-  pagination: { inset: { bottom: 24 } },
-  caption: { inset: { bottom: 72 } },
+  toolbar: { inset: 12 },
+  flip: { inset: 16 },
+  pagination: { inset: 24 },
+  caption: { inset: 72 },
 }
+const DEFAULT_LAYOUT_INSET: Record<ControllerLayoutTarget, number> = {
+  toolbar: 12,
+  flip: 16,
+  pagination: 24,
+  caption: 72,
+}
+const LAYOUT_CONTROLS: { target: ControllerLayoutTarget; label: string; descKey: I18nKey; max: number }[] = [
+  { target: 'toolbar', label: 'toolbar.inset', descKey: 'controller.layout.toolbarInset.desc', max: 80 },
+  { target: 'flip', label: 'flip.inset', descKey: 'controller.layout.flipInset.desc', max: 80 },
+  { target: 'pagination', label: 'pagination.inset', descKey: 'controller.layout.paginationInset.desc', max: 120 },
+  { target: 'caption', label: 'caption.inset', descKey: 'controller.layout.captionInset.desc', max: 180 },
+]
 
 // lib (Control.tsx) renders left rotate when `rotateLeft || rotate` is truthy.
 // 即 rotate 是 umbrella, 启用时强制覆盖 rotateLeft / rotateRight; flip 同理.
@@ -50,28 +65,31 @@ const UMBRELLA: Record<string, string> = {
   flipRight: 'flip',
 }
 
-function readBottomInset (layout: ControllerLayout | undefined, target: ControllerLayoutTarget, fallback: number): number {
+function readInset (layout: ControllerLayout | undefined, target: ControllerLayoutTarget, fallback: number): number {
   const inset = layout?.[target]?.inset
   if (typeof inset === 'number') return inset
   if (typeof inset === 'string') return Number.parseFloat(inset) || fallback
-  const bottom = inset?.bottom
-  if (typeof bottom === 'number') return bottom
-  if (typeof bottom === 'string') return Number.parseFloat(bottom) || fallback
+  const preferredEdges: ControllerLayoutEdge[] = target === 'flip'
+    ? ['left', 'right']
+    : target === 'pagination' || target === 'caption'
+      ? ['bottom', 'top', 'left', 'right']
+      : ['top', 'right', 'bottom', 'left']
+  for (const edge of preferredEdges) {
+    const value = inset?.[edge]
+    if (typeof value === 'number') return value
+    if (typeof value === 'string') return Number.parseFloat(value) || fallback
+  }
   return fallback
 }
 
-function writeBottomInset (layout: ControllerLayout | undefined, target: ControllerLayoutTarget, value: number): ControllerLayout {
+function writeInset (layout: ControllerLayout | undefined, target: ControllerLayoutTarget, value: number): ControllerLayout {
   const current = layout || DEFAULT_LAYOUT
   const targetConfig = current[target] || {}
-  const currentInset = targetConfig.inset
   return {
     ...current,
     [target]: {
       ...targetConfig,
-      inset: {
-        ...(currentInset && typeof currentInset === 'object' ? currentInset : {}),
-        bottom: value,
-      },
+      inset: value,
     },
   }
 }
@@ -117,8 +135,8 @@ export function ControllerControl ({ value, onChange }: { value: ControllerSet |
   const { t } = useT()
   const obj: ControllerSet = (typeof value === 'object' && value) ? value : {}
   const layoutEnabled = !!obj.layout
-  const setLayoutBottom = (target: ControllerLayoutTarget, bottom: number) => {
-    onChange({ ...obj, layout: writeBottomInset(obj.layout, target, bottom) })
+  const setLayoutInset = (target: ControllerLayoutTarget, inset: number) => {
+    onChange({ ...obj, layout: writeInset(obj.layout, target, inset) })
   }
 
   return (
@@ -160,44 +178,27 @@ export function ControllerControl ({ value, onChange }: { value: ControllerSet |
         </label>
         {layoutEnabled && (
           <div className="mt-2 grid gap-2 border-t border-border/70 pt-2">
-            <div className="grid gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help font-mono text-[11px] text-muted-foreground decoration-dotted underline-offset-4 hover:underline">
-                    pagination.bottom
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-[260px] text-xs">
-                  {t('controller.layout.paginationBottom.desc')}
-                </TooltipContent>
-              </Tooltip>
-              <NumberControl
-                value={readBottomInset(obj.layout, 'pagination', 24)}
-                min={0}
-                max={120}
-                step={1}
-                onChange={(bottom) => setLayoutBottom('pagination', bottom)}
-              />
-            </div>
-            <div className="grid gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help font-mono text-[11px] text-muted-foreground decoration-dotted underline-offset-4 hover:underline">
-                    caption.bottom
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-[260px] text-xs">
-                  {t('controller.layout.captionBottom.desc')}
-                </TooltipContent>
-              </Tooltip>
-              <NumberControl
-                value={readBottomInset(obj.layout, 'caption', 72)}
-                min={0}
-                max={180}
-                step={1}
-                onChange={(bottom) => setLayoutBottom('caption', bottom)}
-              />
-            </div>
+            {LAYOUT_CONTROLS.map(({ target, label, descKey, max }) => (
+              <div key={target} className="grid gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="cursor-help font-mono text-[11px] text-muted-foreground decoration-dotted underline-offset-4 hover:underline">
+                      {label}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="max-w-[260px] text-xs">
+                    {t(descKey)}
+                  </TooltipContent>
+                </Tooltip>
+                <NumberControl
+                  value={readInset(obj.layout, target, DEFAULT_LAYOUT_INSET[target])}
+                  min={0}
+                  max={max}
+                  step={1}
+                  onChange={(inset) => setLayoutInset(target, inset)}
+                />
+              </div>
+            ))}
           </div>
         )}
       </div>
