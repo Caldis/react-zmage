@@ -2192,6 +2192,7 @@ describe('Zmage 动画行为', () => {
         src="https://example.com/01.jpg"
         alt="cover"
         preset="desktop"
+        edge={0}
         animate={{ flip: 'blur' }}
         set={[
           { src: 'https://example.com/01.jpg', alt: 'p1', caption: 'first' },
@@ -2297,6 +2298,7 @@ describe('Zmage 动画行为', () => {
         src="https://example.com/01.jpg"
         alt="cover"
         preset="desktop"
+        edge={0}
         animate={{ flip: 'blur' }}
         set={[
           { src: 'https://example.com/01.jpg', alt: 'p1' },
