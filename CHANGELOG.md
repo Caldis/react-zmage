@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.8.2
+
+- **feat (blur flip)**: added `animate.flip='blur'` as an optional soft-focus crossfade page transition, with matching caption switching.
+- **visual defaults (desktop)**: desktop preset now applies safer viewer spacing by default (`radius=8`, `edge=30`, pagination inset `24`, caption inset `60`) while mobile keeps the previous edge-to-edge values.
+- **fix (controller contrast)**: controller `color` / `backdrop` now flow through side flip buttons and pagination state, so dark viewer backgrounds can keep controls legible.
+
 ## 1.8.1
 
 - **feat (controller layout)**: `controller.layout` now supports `flip` insets, and scalar `inset` values follow each target's natural edge instead of always mapping to bottom.
