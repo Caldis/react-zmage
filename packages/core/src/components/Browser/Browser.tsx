@@ -19,7 +19,8 @@ import type { ContextType, ZoomTrigger } from '../context'
 import { disableScroll, downloadFromLink, enableScroll, getTargetPage, resolveShortestStep, unlockTouchInteraction } from '../../utils'
 import { matchAnyHotKey, resolveHotKeyValue, resolveSideBinding } from '../../utils/hotkey'
 import { defPropsWithEnv, resolvePreset } from '../../types/default'
-import { getBrowsingAnimationDuration } from '../../config/anim'
+import { createMotionRuntime, getMotionDurationMultiplierFromEvent, motionDefaultDurationMultiplier, normalizeMotionDurationMultiplier } from '../../config/motion'
+import type { MotionTriggerEvent } from '../../config/motion'
 import { probeStylesheet } from '../../utils/styleProbe'
 import { hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
 import { Animate, ControllerSet, FunctionalParams, GestureSet, HotKey, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
@@ -32,7 +33,8 @@ export interface Props extends PresetParams, FunctionalParams, InterfaceAndInter
   // Internal
   coverRef: RefObject<HTMLImageElement>
   coverPos?: Coordinate
-  outBrowsing: () => void
+  outBrowsing: (event?: MotionTriggerEvent) => void
+  motionDurationMultiplier?: number
   // Set Normalized BaseParams
   set: Set[]
   defaultPage: number
@@ -55,6 +57,8 @@ export interface State {
   zoomShakeKey: number
   // 旋转
   rotate: number
+  // 动画调试管线: 1 为正常速度, dev + Shift 时可临时放慢
+  motionDurationMultiplier: number
   // 页数
   page: number
   pageIsCover: boolean
@@ -73,6 +77,7 @@ export default class Browser extends React.Component<Props, State> {
     // Internal
     coverRef: React.createRef(),
     outBrowsing: () => {},
+    motionDurationMultiplier: motionDefaultDurationMultiplier,
     // Data
     defaultPage: 0,
     set: [] as Set[],
@@ -83,6 +88,7 @@ export default class Browser extends React.Component<Props, State> {
   unInitTimer?: ReturnType<typeof setTimeout>
   listeningMouseMove = false
   lastPointerPosition?: Coordinate
+  shiftKeyActive = false
   viewportRef = React.createRef<HTMLDivElement>()
 
   getControllerConfig = (controller: Props['controller'], fallback: ControllerSet): ControllerSet => (
@@ -137,6 +143,8 @@ export default class Browser extends React.Component<Props, State> {
       zoomShakeKey: 0,
       // 旋转
       rotate: 0,
+      // 动画
+      motionDurationMultiplier: motionDefaultDurationMultiplier,
       // 页数
       page,
       pageIsCover,
@@ -230,6 +238,7 @@ export default class Browser extends React.Component<Props, State> {
         // 在 zmage 处于浏览态时被同一次 ESC/方向键关掉。避免 #184 中"按 ESC 退查看器
         // 顺手把承载 zmage 的 modal 也一起关了"的事件流串扰。
         window.addEventListener('keydown', this.handleKeyDown, true)
+        window.addEventListener('keyup', this.handleKeyUp, true)
         this.startMouseMoveListener()
         // Handle scroll from hide to prevent
         if (hideOnScroll) {
@@ -241,10 +250,11 @@ export default class Browser extends React.Component<Props, State> {
         }
       }
       this.lastPointerPosition = coverPos || this.lastPointerPosition
+      const motionDurationMultiplier = normalizeMotionDurationMultiplier(this.props.motionDurationMultiplier)
       // Delay showing the browser
       this.initRaf = window.requestAnimationFrame(() => {
         this.initRaf = undefined
-        this.setState({ show: true, zoom: false, rotate: 0, zoomTrigger: undefined, zoomPosition: undefined, canZoom: true }, () => {
+        this.setState({ show: true, zoom: false, rotate: 0, motionDurationMultiplier, zoomTrigger: undefined, zoomPosition: undefined, canZoom: true }, () => {
           presetIsDesktop && pageIsCover && !coverVisible && hideCover(coverRef)
           !isBrowsingControlled && typeof onBrowsing === 'function' && onBrowsing(true)
         })
@@ -268,6 +278,7 @@ export default class Browser extends React.Component<Props, State> {
       // 这部分必须立即执行, 否则卸载或快速重渲染时会留下监听器/滚动锁
       if (presetIsDesktop) {
         window.removeEventListener('keydown', this.handleKeyDown, true)
+        window.removeEventListener('keyup', this.handleKeyUp, true)
         this.stopMouseMoveListener()
         if (hideOnScroll) {
           window.removeEventListener('scroll', this.handleScroll)
@@ -277,6 +288,7 @@ export default class Browser extends React.Component<Props, State> {
         }
       }
       !pageIsCover && !coverVisible && showCover(coverRef)
+      this.shiftKeyActive = false
 
       // === 副作用回调 ===
       // 强制卸载路径下同步执行, 因为 setState 在卸载组件上会被丢弃
@@ -293,14 +305,15 @@ export default class Browser extends React.Component<Props, State> {
       } else {
         // 正常关闭路径: 走动画时间, 用句柄管理 timeout
         const closingRotate = this.getClosingRotate()
+        const motion = createMotionRuntime(this.state.motionDurationMultiplier)
         // -10ms: 让 React state 在动画快结束时同步, 避免最后一帧的 flicker
         const closeDelay = animate.browsing === false
           ? 0
-          : getBrowsingAnimationDuration(presetIsDesktop) - 10
+          : motion.browsingDuration - 10
         this.setState({ show: false, zoom: false, rotate: closingRotate, zoomTrigger: undefined, zoomPosition: undefined }, () => {
           const finishClose = () => {
             this.unInitTimer = undefined
-            this.setState({ mounted: false, rotate: 0 }, finalize)
+            this.setState({ mounted: false, rotate: 0, motionDurationMultiplier: motionDefaultDurationMultiplier }, finalize)
           }
           if (closeDelay === 0) {
             finishClose()
@@ -315,8 +328,19 @@ export default class Browser extends React.Component<Props, State> {
   /**
    * 事件处理
    */
+  handleOutBrowsing = (event?: MotionTriggerEvent) => {
+    const motionTrigger = { shiftKey: Boolean(event?.shiftKey || this.shiftKeyActive) }
+    const motionDurationMultiplier = getMotionDurationMultiplierFromEvent(motionTrigger)
+    const close = () => this.props.outBrowsing(motionTrigger)
+    if (motionDurationMultiplier !== this.state.motionDurationMultiplier) {
+      this.setState({ motionDurationMultiplier }, close)
+    } else {
+      close()
+    }
+  }
   handleKeyDown = (e: KeyboardEvent) => {
-    const { set, hotKey, loop, outBrowsing } = this.getPropsWithEnv()
+    this.shiftKeyActive = e.shiftKey
+    const { set, hotKey, loop } = this.getPropsWithEnv()
     const { zoom, page, canZoom } = this.state
     // 仅在 zmage 真正消费按键时阻断后续 listeners (#184: 浏览态下 ESC 不再
     // 顺手关掉外层 modal). 不消费时让事件自由冒泡, 由外层处理.
@@ -328,7 +352,7 @@ export default class Browser extends React.Component<Props, State> {
     // 关闭 — 默认 'Escape'
     if (matchAnyHotKey(e, resolveHotKeyValue(hotKey.close, 'Escape'))) {
       consume()
-      zoom ? this.handleToggleZoom() : outBrowsing()
+      zoom ? this.handleToggleZoom() : this.handleOutBrowsing(e)
       return
     }
     // 缩放 — 默认 'Space'
@@ -380,11 +404,13 @@ export default class Browser extends React.Component<Props, State> {
       return
     }
   }
+  handleKeyUp = (e: KeyboardEvent) => {
+    this.shiftKeyActive = e.shiftKey
+  }
   handleScroll = () => {
-    const { outBrowsing } = this.props
     const { show } = this.state
     if (show) {
-      outBrowsing()
+      this.handleOutBrowsing()
     }
   }
   handleMouseMove = (e: MouseEvent) => {
@@ -474,7 +500,7 @@ export default class Browser extends React.Component<Props, State> {
     if (e.target !== e.currentTarget) {
       return
     }
-    this.state.zoom ? this.handleToggleZoom() : this.props.outBrowsing()
+    this.state.zoom ? this.handleToggleZoom() : this.handleOutBrowsing(e)
   }
 
   /**
@@ -502,7 +528,7 @@ export default class Browser extends React.Component<Props, State> {
 
     const {
       // Internal
-      coverRef, coverPos, outBrowsing,
+      coverRef, coverPos,
       // Data
       set,
       // Preset
@@ -517,10 +543,11 @@ export default class Browser extends React.Component<Props, State> {
     const { mounted } = this.state
 
     const statusValue = { ...this.state }
+    const motion = createMotionRuntime(this.state.motionDurationMultiplier)
 
     const contextValue = {
       // Internal
-      coverRef, coverPos, outBrowsing, viewportRef: this.viewportRef,
+      coverRef, coverPos, outBrowsing: this.handleOutBrowsing, viewportRef: this.viewportRef, motion,
       // Data
       set,
       // Preset

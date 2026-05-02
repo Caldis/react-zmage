@@ -10,7 +10,9 @@ import * as ReactDOMClient from 'react-dom/client'
 import Browser from './components/Browser'
 // Utils
 import { defProp, getConfigFromProps } from './types/default'
-import { animationDuration } from './config/anim'
+import { getBrowsingAnimationDuration } from './config/anim'
+import { getMotionDurationMultiplierFromEvent } from './config/motion'
+import type { MotionTriggerEvent } from './config/motion'
 import { BaseType } from './types/global'
 import { GlobalClickMonitor } from './utils'
 
@@ -78,7 +80,10 @@ const resolveMountAdapter = (): MountAdapter => {
   return cachedAdapter
 }
 
-type Props = BaseType;
+type InternalCalleeProps = BaseType & {
+  motionDurationMultiplier?: number
+};
+type Props = InternalCalleeProps;
 
 type State = {
   browsing: boolean;
@@ -120,8 +125,9 @@ class ReactZmageCallee extends React.Component<Props, State> {
       })
     })
   }
-  outBrowsing = () => {
+  outBrowsing = (event?: MotionTriggerEvent) => {
     const { destructor } = this.props
+    const motionDurationMultiplier = getMotionDurationMultiplierFromEvent(event)
     this.setState({
       browsing: false
     }, () => {
@@ -129,7 +135,7 @@ class ReactZmageCallee extends React.Component<Props, State> {
         this.outBrowsingTimer = setTimeout(() => {
           this.outBrowsingTimer = undefined
           destructor()
-        }, animationDuration)
+        }, getBrowsingAnimationDuration(true, motionDurationMultiplier))
       }
     })
   }
@@ -151,6 +157,7 @@ class ReactZmageCallee extends React.Component<Props, State> {
         coverRef={calleeProps.coverRef}
         coverPos={this.showPosition}
         outBrowsing={this.outBrowsing}
+        motionDurationMultiplier={this.props.motionDurationMultiplier}
         // Config
         {...configProps}
       />
@@ -170,7 +177,7 @@ const RENDER: {
   PORTAL: undefined as unknown as HTMLElement,
 }
 // 调用函数
-const callee = ({ coverRef, ...props }: BaseType) => {
+const callee = (({ coverRef, ...props }: InternalCalleeProps) => {
   const adapter = resolveMountAdapter()
   // Init env
   RENDER.PORTAL = document.createElement('div')
@@ -210,6 +217,6 @@ const callee = ({ coverRef, ...props }: BaseType) => {
   // (那条路径在 R18+ concurrent 渲染下时序不稳定, 且对一个被显式调用的 destroy()
   // 来说"立即生效"比"动画退出"语义上更合适, 也避免和调用方自己的 cleanup 编排打架).
   return destructor
-}
+}) as (props: BaseType) => () => void
 
 export default callee

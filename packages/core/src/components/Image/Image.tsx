@@ -12,7 +12,8 @@ import style from './Image.module.less'
 import Loading from './loading'
 // Utils
 import { BrowsingParams, Context, ContextType } from '../context'
-import { animationDuration, getBrowsingAnimationDuration } from '../../config/anim'
+import { animationDuration } from '../../config/anim'
+import { applyMotionTransition } from '../../config/motion'
 import { defaultGestureWheelZoomOptions } from '../../types/default'
 import {
   appendParams,
@@ -236,6 +237,13 @@ export default class Image extends React.Component<PropsType, StateType> {
           this.startClosingFollow()
         } else if (prevZoom && !currZoom) {
           this.updateCurrentImageStyle()
+        } else if (!prevShow && currShow) {
+          // Opening starts from cover geometry. Re-read it after #zmageViewport
+          // exists so fixed-layer measurements do not fall back to document width.
+          this.setCurrentStyle(
+            getCoverStyle(this.context, this.imageRef, this.state.touchGesture),
+            this.debounceUpdateCurrentImageStyle,
+          )
         } else {
           this.debounceUpdateCurrentImageStyle()
         }
@@ -1203,7 +1211,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     }
 
     this.closingStartTime = performance.now()
-    this.closingDuration = getBrowsingAnimationDuration(this.context.presetIsDesktop)
+    this.closingDuration = this.context.motion.browsingDuration
     this.closingFromStyle = this.getCurrentVisualStyle()
     this.motionPhase = 'closing-follow'
 
@@ -1467,13 +1475,13 @@ export default class Image extends React.Component<PropsType, StateType> {
       cursor: zoom ? 'zoom-out' : 'initial',
       zIndex,
       opacity: invalidate ? 0 : opacity,
-      transition: getImageTransition({
+      transition: applyMotionTransition(getImageTransition({
         role: isSideImage ? 'side' : 'center',
         motionPhase: this.motionPhase,
         touchTransition: transition,
         flip: flipKind,
         imageType: currentStyle._type,
-      }),
+      }), this.context.motion),
       pointerEvents,
       ...set[page].style,
     } as CSSProperties

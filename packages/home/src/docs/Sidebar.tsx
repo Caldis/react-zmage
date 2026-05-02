@@ -25,12 +25,23 @@ export const SIDEBAR_GROUPS: Group[] = [
           { id: 'modes-wrapper', labelKey: 'docs.section.modes.wrapperTitle' },
         ],
       },
-      { id: 'theming', labelKey: 'docs.sidebar.theming' },
+      {
+        id: 'theming',
+        labelKey: 'docs.sidebar.theming',
+        items: [
+          { id: 'theming-default', labelKey: 'docs.section.theming.defaultTitle' },
+          { id: 'theming-pattern', labelKey: 'docs.section.theming.patternTitle' },
+          { id: 'theming-imperative', labelKey: 'docs.section.theming.imperativeTitle' },
+          { id: 'theming-icons', labelKey: 'docs.section.theming.iconsTitle' },
+          { id: 'theming-toolbar', labelKey: 'docs.section.theming.toolbarTitle' },
+        ],
+      },
     ],
   },
   {
     titleKey: 'docs.sidebar.props',
     items: [
+      { id: 'props', labelKey: 'docs.section.props.title' },
       { id: 'props-data', labelKey: 'group.data' },
       { id: 'props-preset', labelKey: 'group.preset' },
       { id: 'props-preset-bundles', labelKey: 'docs.section.props.preset.title' },
@@ -46,15 +57,40 @@ export const SIDEBAR_GROUPS: Group[] = [
   {
     titleKey: 'docs.sidebar.recipes',
     items: [
-      { id: 'examples', labelKey: 'docs.sidebar.examples' },
-      { id: 'typescript', labelKey: 'docs.sidebar.typescript' },
+      {
+        id: 'examples',
+        labelKey: 'docs.sidebar.examples',
+        items: [
+          { id: 'examples-single', labelKey: 'docs.section.examples.singleTitle' },
+          { id: 'examples-gallery', labelKey: 'docs.section.examples.galleryTitle' },
+          { id: 'examples-mobile', labelKey: 'docs.section.examples.mobileTitle' },
+          { id: 'examples-controller', labelKey: 'docs.section.examples.controllerTitle' },
+          { id: 'examples-cover', labelKey: 'docs.section.examples.coverTitle' },
+        ],
+      },
     ],
   },
   {
     titleKey: 'docs.sidebar.reference',
     items: [
+      { id: 'typescript', labelKey: 'docs.sidebar.typescript' },
       { id: 'migration', labelKey: 'docs.sidebar.migration' },
-      { id: 'faq', labelKey: 'docs.sidebar.faq' },
+      {
+        id: 'faq',
+        labelKey: 'docs.sidebar.faq',
+        items: [
+          { id: 'faq-tailwind-shrink', labelKey: 'docs.section.faq.tailwind-shrink.q' },
+          { id: 'faq-r19-imperative', labelKey: 'docs.section.faq.r19-imperative.q' },
+          { id: 'faq-wrapper-empty', labelKey: 'docs.section.faq.wrapper-empty.q' },
+          { id: 'faq-vite-esm', labelKey: 'docs.section.faq.vite-esm.q' },
+          { id: 'faq-wrapper-dynamic', labelKey: 'docs.section.faq.wrapper-dynamic.q' },
+          { id: 'faq-lazy-src', labelKey: 'docs.section.faq.lazy-src.q' },
+          { id: 'faq-cover-vs-set', labelKey: 'docs.section.faq.cover-vs-set.q' },
+          { id: 'faq-controlled-mismatch', labelKey: 'docs.section.faq.controlled-mismatch.q' },
+          { id: 'faq-ssr', labelKey: 'docs.section.faq.ssr.q' },
+          { id: 'faq-theme', labelKey: 'docs.section.faq.theme.q' },
+        ],
+      },
     ],
   },
 ]

@@ -17,6 +17,16 @@ function clickById (id: string) {
   fireEvent.click(el)
 }
 
+async function withNodeEnv<T> (nodeEnv: string, task: () => Promise<T>): Promise<T> {
+  const previousNodeEnv = process.env.NODE_ENV
+  process.env.NODE_ENV = nodeEnv
+  try {
+    return await task()
+  } finally {
+    process.env.NODE_ENV = previousNodeEnv
+  }
+}
+
 describe('Zmage 基础组件', () => {
   it('封面 img 可被渲染并附加 zoom-in cursor', () => {
     render(<Zmage src={SRC} alt="t"/>)
@@ -1440,6 +1450,136 @@ describe('Zmage 动画行为', () => {
       if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
       if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
     }
+  })
+
+  it('打开首帧在 viewport ref 挂载后重算 cover 横向坐标', async () => {
+    const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1200 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+    HTMLElement.prototype.getBoundingClientRect = function () {
+      if ((this as HTMLElement).id === 'zmageViewport') {
+        return {
+          left: 100,
+          top: 0,
+          width: 800,
+          height: 800,
+          right: 900,
+          bottom: 800,
+          x: 100,
+          y: 0,
+          toJSON: () => ({}),
+        } as DOMRect
+      }
+      return originalGetBoundingClientRect.call(this)
+    }
+
+    try {
+      render(<Zmage src="https://example.com/viewport-ref.jpg" alt="viewport-ref"/>)
+      const cover = screen.getByAltText('viewport-ref') as HTMLImageElement
+      Object.defineProperty(cover, 'naturalWidth', { value: 1000, configurable: true })
+      Object.defineProperty(cover, 'naturalHeight', { value: 500, configurable: true })
+      cover.getBoundingClientRect = () => ({
+        left: 500,
+        top: 300,
+        width: 200,
+        height: 100,
+        right: 700,
+        bottom: 400,
+        x: 500,
+        y: 300,
+        toJSON: () => ({}),
+      } as DOMRect)
+
+      fireEvent.click(cover)
+      await wait(30)
+
+      const image = document.getElementById('zmageImage') as HTMLImageElement
+      expect(image.style.transform).toContain('translate3d(100px, -50px, 0px)')
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect
+      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
+      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+    }
+  })
+
+  it('dev 环境按住 Shift 打开时将浏览动画放慢 10 倍', async () => {
+    await withNodeEnv('development', async () => {
+      render(<Zmage src="https://example.com/slow-open.jpg" alt="slow-open" caption="slow caption"/>)
+
+      fireEvent.click(screen.getByAltText('slow-open'), { shiftKey: true })
+      await wait(50)
+
+      const image = document.getElementById('zmageImage') as HTMLImageElement
+      expect(image.style.transition).toContain('3500ms')
+      expect(document.getElementById('zmageBackground')?.style.transition).toContain('2000ms')
+      expect(document.getElementById('zmageControl')?.style.transition).toContain('3500ms')
+      expect(document.getElementById('zmageCaption')?.style.transition).toContain('3500ms')
+
+      clickById('zmageControlClose')
+      await wait(600)
+    })
+  })
+
+  it('production 环境按住 Shift 打开不会启用慢动作', async () => {
+    await withNodeEnv('production', async () => {
+      render(<Zmage src="https://example.com/slow-open-prod.jpg" alt="slow-open-prod"/>)
+
+      fireEvent.click(screen.getByAltText('slow-open-prod'), { shiftKey: true })
+      await wait(50)
+
+      const image = document.getElementById('zmageImage') as HTMLImageElement
+      expect(image.style.transition).not.toContain('3500ms')
+
+      clickById('zmageControlClose')
+      await wait(600)
+    })
+  })
+
+  it('dev 环境按住 Shift 关闭时等待慢动作完成后再卸载浏览层', async () => {
+    await withNodeEnv('development', async () => {
+      render(<Zmage src="https://example.com/slow-close.jpg" alt="slow-close"/>)
+
+      fireEvent.click(screen.getByAltText('slow-close'))
+      await wait(60)
+
+      const close = document.getElementById('zmageControlClose')
+      if (!close) throw new Error('expected #zmageControlClose to be in the DOM at this point')
+      fireEvent.click(close, { shiftKey: true })
+
+      await wait(500)
+      expect(document.getElementById('zmage')).toBeTruthy()
+
+      await wait(3300)
+      expect(document.getElementById('zmage')).toBeNull()
+    })
+  })
+
+  it('dev 环境自定义 controller 通过 actions.close 关闭时也沿用 Shift 慢动作管线', async () => {
+    await withNodeEnv('development', async () => {
+      render(
+        <Zmage
+          src="https://example.com/slow-render-close.jpg"
+          alt="slow-render-close"
+          controller={{
+            render: ({ actions }) => <button type="button" onClick={actions.close}>close</button>
+          }}
+        />
+      )
+
+      fireEvent.click(screen.getByAltText('slow-render-close'))
+      await wait(60)
+
+      fireEvent.keyDown(window, { key: 'Shift', code: 'ShiftLeft', shiftKey: true })
+      fireEvent.click(screen.getByText('close'))
+
+      await wait(500)
+      expect(document.getElementById('zmage')).toBeTruthy()
+
+      await wait(3300)
+      expect(document.getElementById('zmage')).toBeNull()
+    })
   })
 
   it('animate.cover=false 时 object-fit 封面沿用旧几何且不写入 clip-path', async () => {
