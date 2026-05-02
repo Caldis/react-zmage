@@ -249,13 +249,6 @@ export default class Image extends React.Component<PropsType, StateType> {
           this.startClosingFollow()
         } else if (prevZoom && !currZoom) {
           this.updateCurrentImageStyle()
-        } else if (!prevShow && currShow) {
-          // Opening starts from cover geometry. Re-read it after #zmageViewport
-          // exists so fixed-layer measurements do not fall back to document width.
-          this.setCurrentStyle(
-            getCoverStyle(this.context, this.imageRef, this.state.touchGesture),
-            this.debounceUpdateCurrentImageStyle,
-          )
         } else {
           this.debounceUpdateCurrentImageStyle()
         }

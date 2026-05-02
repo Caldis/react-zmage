@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Copy, Check, ImageIcon, GalleryHorizontal, Wand2, Code2, Plus, Bot, Sparkles, Keyboard, Mouse, MousePointer2, MousePointerClick, ScanSearch } from 'lucide-react'
+import { ArrowRight, Copy, Check, ImageIcon, GalleryHorizontal, Wand2, Code2, Plus, Bot, Sparkles, Keyboard, Mouse, MousePointer2, MousePointerClick } from 'lucide-react'
 import Zmage from 'react-zmage'
 import zmagePkg from 'react-zmage/package.json'
 import { Badge } from '@/components/ui/badge'

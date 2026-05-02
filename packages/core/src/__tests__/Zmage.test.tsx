@@ -7,7 +7,7 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 import Zmage from '../Zmage'
 import { defPropsWithEnv, resolvePreset } from '../types/default'
 import { pageIsCover } from '../components/Browser/Browser.utils'
-import type { ControllerSet, GestureSet, HotKey } from '../types/global'
+import type { ControllerPlacement, ControllerSet, GestureSet, HotKey } from '../types/global'
 
 const SRC = 'https://example.com/test.jpg'
 
@@ -15,6 +15,23 @@ function clickById (id: string) {
   const el = document.getElementById(id)
   if (!el) throw new Error(`expected #${id} to be in the DOM at this point`)
   fireEvent.click(el)
+}
+
+function restoreDescriptor (target: object, key: PropertyKey, descriptor: PropertyDescriptor | undefined) {
+  if (descriptor) {
+    Object.defineProperty(target, key, descriptor)
+    return
+  }
+
+  Reflect.deleteProperty(target, key)
+}
+
+function requireDefined<T> (value: T | null | undefined, message: string): T {
+  if (value == null) {
+    throw new Error(message)
+  }
+
+  return value
 }
 
 async function withNodeEnv<T> (nodeEnv: string, task: () => Promise<T>): Promise<T> {
@@ -1026,7 +1043,8 @@ describe('Zmage controller Phase 5', () => {
   })
 
   it('controller.placement 运行时非法值回退到 top-right', async () => {
-    render(<Zmage src={SRC} alt="controller-placement-invalid" controller={{ placement: 'bad-place' } as any} />)
+    const invalidPlacement = 'bad-place' as ControllerPlacement
+    render(<Zmage src={SRC} alt="controller-placement-invalid" controller={{ placement: invalidPlacement }} />)
     fireEvent.click(screen.getByAltText('controller-placement-invalid'))
     await wait(50)
 
@@ -1431,8 +1449,8 @@ describe('Zmage 动画行为', () => {
 
     const closingImage = document.getElementById('zmageImage') as HTMLImageElement
     const m = closingImage.style.transform.match(/rotate3d\(0,\s*0,\s*1,\s*([-\d.]+)deg\)/)
-    expect(m).not.toBeNull()
-    const rotateValue = Number(m![1])
+    const rotationMatch = requireDefined(m, 'expected closing rotation transform')
+    const rotateValue = Number(rotationMatch[1])
     // 关键回归: closingRotate = round(450/360)*360 = 360, 朝 360 走 (90deg 短路径), 不会反向 450 度回 0.
     // 任何中间帧 rotate ∈ [360, 450]; 修复前 (transition + React state=360) 与修复后 (RAF lerp) 都满足.
     expect(rotateValue).toBeGreaterThanOrEqual(360)
@@ -1528,8 +1546,8 @@ describe('Zmage 动画行为', () => {
       expect(image.style.clipPath).toBe('inset(0px 250px 0px 250px round 30px)')
       expect(image.style.borderRadius).toBe('30px')
     } finally {
-      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
-      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+      restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
     }
   })
 
@@ -1582,8 +1600,8 @@ describe('Zmage 动画行为', () => {
       expect(image.style.clipPath).toBe('inset(0px 0px 0px 0px round 50px)')
     } finally {
       HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect
-      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
-      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+      restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
     }
   })
 
@@ -1641,8 +1659,8 @@ describe('Zmage 动画行为', () => {
       HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect
       window.requestAnimationFrame = originalRequestAnimationFrame
       window.cancelAnimationFrame = originalCancelAnimationFrame
-      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
-      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+      restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
     }
   })
 
@@ -1680,8 +1698,8 @@ describe('Zmage 动画行为', () => {
       expect(translate.y).toBeGreaterThan(-50)
       expect(translate.y).toBeLessThan(0)
     } finally {
-      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
-      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+      restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
     }
   })
 
@@ -1726,8 +1744,8 @@ describe('Zmage 动画行为', () => {
 
       expect(image.style.transform).toBe(before)
     } finally {
-      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
-      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+      restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
     }
   })
 
@@ -1856,8 +1874,8 @@ describe('Zmage 动画行为', () => {
       expect(image.style.transform).toContain('scale3d(0.2, 0.2, 1)')
       expect(image.style.clipPath).toBe('')
     } finally {
-      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
-      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+      restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
     }
   })
 
@@ -1924,23 +1942,21 @@ describe('Zmage 动画行为', () => {
       fireEvent.click(screen.getByAltText('cover'))
       await wait(60)
 
-      const sideImage = Array
+      const sideImage = requireDefined(Array
         .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-        .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg'))
-      expect(sideImage).toBeTruthy()
+        .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg')), 'expected right side image')
       // step=1 (右侧 side), x = effectiveOffset * 1 ≥ 1010 (= viewport+gap 起步)
-      const m = sideImage!.style.transform.match(/translate3d\((-?[\d.]+)px,/g)
-      expect(m).not.toBeNull()
+      const m = requireDefined(sideImage.style.transform.match(/translate3d\((-?[\d.]+)px,/g), 'expected side translate matches')
       // 第二个 translate3d 是 (x, y, 0); x 从中提取
-      const second = m!.find(s => !s.includes('-50%'))
-      expect(second).toBeDefined()
-      const x = Number(second!.match(/translate3d\(([-\d.]+)px,/)![1])
+      const second = requireDefined(m.find(s => !s.includes('-50%')), 'expected side translate value')
+      const xMatch = requireDefined(second.match(/translate3d\(([-\d.]+)px,/), 'expected side translate x')
+      const x = Number(xMatch[1])
       expect(Math.abs(x)).toBeGreaterThanOrEqual(1010)
     } finally {
-      if (originalNaturalWidth) { Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', originalNaturalWidth) } else { delete (HTMLImageElement.prototype as any).naturalWidth }
-      if (originalNaturalHeight) { Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', originalNaturalHeight) } else { delete (HTMLImageElement.prototype as any).naturalHeight }
-      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
-      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalWidth', originalNaturalWidth)
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalHeight', originalNaturalHeight)
+      restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
     }
   })
 
@@ -2017,14 +2033,13 @@ describe('Zmage 动画行为', () => {
     fireEvent.load(document.getElementById('zmageImage') as HTMLImageElement)
     await wait(60)
 
-    const sideImage = Array
+    const sideImage = requireDefined(Array
       .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg'))
-    expect(sideImage).toBeTruthy()
+      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg')), 'expected fade side image')
     // fade 配置: { offset: 0, overflow: 0, opacity: 0 }
-    expect(sideImage!.style.opacity).toBe('0')
+    expect(sideImage.style.opacity).toBe('0')
     // fade.offset = 0: transform 中横向位移恒为 0px (与 crossFade 区分)
-    expect(sideImage!.style.transform).toMatch(/translate3d\(0px,/)
+    expect(sideImage.style.transform).toMatch(/translate3d\(0px,/)
   })
 
   it('animate.flip=\'crossFade\' 边图初始带 30px 横向 offset 且 opacity=0', async () => {
@@ -2045,13 +2060,12 @@ describe('Zmage 动画行为', () => {
     fireEvent.load(document.getElementById('zmageImage') as HTMLImageElement)
     await wait(60)
 
-    const sideImage = Array
+    const sideImage = requireDefined(Array
       .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg'))
-    expect(sideImage).toBeTruthy()
+      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg')), 'expected crossFade side image')
     // crossFade 配置: { offset: 30, overflow: 0, opacity: 0 }, 右边图 step=-1 时 transform 含 -30px
-    expect(sideImage!.style.opacity).toBe('0')
-    expect(sideImage!.style.transform).toMatch(/translate3d\(-?30px,/)
+    expect(sideImage.style.opacity).toBe('0')
+    expect(sideImage.style.transform).toMatch(/translate3d\(-?30px,/)
   })
 
   it('animate.flip=\'zoom\' 边图初始 overflow=0.08 (scale 比 center 多 8%)', async () => {
@@ -2070,17 +2084,15 @@ describe('Zmage 动画行为', () => {
     fireEvent.click(screen.getByAltText('cover'))
     await wait(50)
 
-    const sideImage = Array
+    const sideImage = requireDefined(Array
       .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg'))
-    expect(sideImage).toBeTruthy()
+      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg')), 'expected zoom side image')
     // zoom 配置: { offset: 0, overflow: 0.08, opacity: 0 }
-    expect(sideImage!.style.opacity).toBe('0')
+    expect(sideImage.style.opacity).toBe('0')
     // jsdom 下 naturalWidth=0 → calcFitScale 返回 1.002 (epsilon), overflow=0.08 应让 scale3d 大于 1.05 (实测 1.082).
     // 阈值 > 1.05 隔离 epsilon, 让 overflow 漂移到 0 时立即失败.
-    const m = sideImage!.style.transform.match(/scale3d\(([\d.]+),/)
-    expect(m).not.toBeNull()
-    expect(Number(m![1])).toBeGreaterThan(1.05)
+    const m = requireDefined(sideImage.style.transform.match(/scale3d\(([\d.]+),/), 'expected side scale transform')
+    expect(Number(m[1])).toBeGreaterThan(1.05)
   })
 
   it('Space 触发 zoom 时直接放大到当前鼠标位置', async () => {
@@ -2555,12 +2567,9 @@ describe('Zmage 翻页 fit-scale 跟随当前页比例 (#167)', () => {
       get () { return lookup(this as HTMLImageElement) !== undefined },
     })
     return () => {
-      if (origW) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', origW)
-      else delete (HTMLImageElement.prototype as any).naturalWidth
-      if (origH) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', origH)
-      else delete (HTMLImageElement.prototype as any).naturalHeight
-      if (origC) Object.defineProperty(HTMLImageElement.prototype, 'complete', origC)
-      else delete (HTMLImageElement.prototype as any).complete
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalWidth', origW)
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalHeight', origH)
+      restoreDescriptor(HTMLImageElement.prototype, 'complete', origC)
     }
   }
 
@@ -2605,7 +2614,7 @@ describe('Zmage 翻页 fit-scale 跟随当前页比例 (#167)', () => {
       expect(center0).toBeTruthy()
       // 触发 load 让 currentStyle 计算 (jsdom 不会自动派发)
       await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 420)) })
-      const scale0 = parseScale(center0.style.transform)
+      const scale0 = requireDefined(parseScale(center0.style.transform), 'expected initial fit scale')
       expect(scale0).toBeCloseTo(0.512, 2)
 
       // 翻页到第二页 (tall 1000x2000): 期望 fit-scale = min(1024/1000, 768/2000) = min(1.024, 0.384) = 0.384
@@ -2617,10 +2626,10 @@ describe('Zmage 翻页 fit-scale 跟随当前页比例 (#167)', () => {
       expect(center1.getAttribute('src')).toContain('tall.jpg')
       // 现有 bug: side image 节点被复用为新 center, src 已就位但浏览器不再触发 load,
       // → currentStyle 保留 0.512. 修复后应该重算到 0.384.
-      const scale1 = parseScale(center1.style.transform)
+      const scale1 = requireDefined(parseScale(center1.style.transform), 'expected next fit scale')
       expect(scale1).toBeCloseTo(0.384, 2)
       // 关键回归断言: 翻页前后 scale 必须发生变化
-      expect(scale1).not.toBeCloseTo(scale0!, 2)
+      expect(scale1).not.toBeCloseTo(scale0, 2)
     } finally {
       restore()
       if (origCW) Object.defineProperty(HTMLElement.prototype, 'clientWidth', origCW)
@@ -2655,12 +2664,9 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
       get () { return lookup(this as HTMLImageElement) !== undefined },
     })
     return () => {
-      if (origW) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', origW)
-      else delete (HTMLImageElement.prototype as any).naturalWidth
-      if (origH) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', origH)
-      else delete (HTMLImageElement.prototype as any).naturalHeight
-      if (origC) Object.defineProperty(HTMLImageElement.prototype, 'complete', origC)
-      else delete (HTMLImageElement.prototype as any).complete
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalWidth', origW)
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalHeight', origH)
+      restoreDescriptor(HTMLImageElement.prototype, 'complete', origC)
     }
   }
   const parseScale = (transform: string): number | null => {
@@ -2818,10 +2824,12 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
       // 预先让 page 0 (cover) 与 page 1 (side) dims 都落地
       const center0 = document.getElementById('zmageImage') as HTMLImageElement
       await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 50)) })
-      const sideB = Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-        .find(img => img.id !== 'zmageImage' && img.src.includes('b.jpg'))
-      expect(sideB).toBeTruthy()
-      await act(async () => { fireEvent.load(sideB!); await new Promise(r => setTimeout(r, 5)) })
+      const sideB = requireDefined(
+        Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+          .find(img => img.id !== 'zmageImage' && img.src.includes('b.jpg')),
+        'expected side image for b.jpg',
+      )
+      await act(async () => { fireEvent.load(sideB); await new Promise(r => setTimeout(r, 5)) })
 
       // 翻页. dims[1] 已知 → cdU ① 把 pendingDimCalibration 设成 null → ② 永不触发.
       clickById('zmageControlFlipRight')
@@ -2883,8 +2891,8 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
       expect(translate.y).toBeLessThan(0)
     } finally {
       restore()
-      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
-      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+      restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
     }
   })
 
@@ -2935,8 +2943,8 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
       expect(terminalWrites).toHaveLength(0)
     } finally {
       restore()
-      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
-      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+      restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
     }
   })
 })
@@ -2969,12 +2977,9 @@ describe('Zmage 跳页与 fade 降级 (Issue 1 / Issue 2)', () => {
       get () { return lookup(this as HTMLImageElement) !== undefined },
     })
     return () => {
-      if (origW) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', origW)
-      else delete (HTMLImageElement.prototype as any).naturalWidth
-      if (origH) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', origH)
-      else delete (HTMLImageElement.prototype as any).naturalHeight
-      if (origC) Object.defineProperty(HTMLImageElement.prototype, 'complete', origC)
-      else delete (HTMLImageElement.prototype as any).complete
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalWidth', origW)
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalHeight', origH)
+      restoreDescriptor(HTMLImageElement.prototype, 'complete', origC)
     }
   }
   const wait = async (ms: number) => {
@@ -3149,12 +3154,9 @@ describe('Zmage canZoom 切页路径收敛 (#regression-zoom-after-flip)', () =>
       get () { return lookup(this as HTMLImageElement) !== undefined },
     })
     return () => {
-      if (origW) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', origW)
-      else delete (HTMLImageElement.prototype as any).naturalWidth
-      if (origH) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', origH)
-      else delete (HTMLImageElement.prototype as any).naturalHeight
-      if (origC) Object.defineProperty(HTMLImageElement.prototype, 'complete', origC)
-      else delete (HTMLImageElement.prototype as any).complete
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalWidth', origW)
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalHeight', origH)
+      restoreDescriptor(HTMLImageElement.prototype, 'complete', origC)
     }
   }
   const wait = async (ms: number) => {
@@ -3276,12 +3278,9 @@ describe('Zmage Loading 显示策略 (anti-flicker, loadingDelay prop)', () => {
       get () { return lookup(this as HTMLImageElement) !== undefined },
     })
     return () => {
-      if (origW) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', origW)
-      else delete (HTMLImageElement.prototype as any).naturalWidth
-      if (origH) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', origH)
-      else delete (HTMLImageElement.prototype as any).naturalHeight
-      if (origC) Object.defineProperty(HTMLImageElement.prototype, 'complete', origC)
-      else delete (HTMLImageElement.prototype as any).complete
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalWidth', origW)
+      restoreDescriptor(HTMLImageElement.prototype, 'naturalHeight', origH)
+      restoreDescriptor(HTMLImageElement.prototype, 'complete', origC)
     }
   }
   const wait = async (ms: number) => {
@@ -3634,8 +3633,8 @@ describe('关闭路径 cover 实时追踪 (RAF)', () => {
       expect(center.style.clipPath).toContain('round')
       expect(center.style.borderRadius).not.toBe('')
     } finally {
-      if (originalClientWidth) { Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth) } else { delete (HTMLElement.prototype as any).clientWidth }
-      if (originalClientHeight) { Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight) } else { delete (HTMLElement.prototype as any).clientHeight }
+      restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
+      restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
     }
   })
 
