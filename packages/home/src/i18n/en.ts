@@ -3,7 +3,7 @@ import type { I18nDict } from './zh-CN'
 export const en: I18nDict = {
   'nav.playground': 'Playground',
   'nav.docs': 'Docs',
-  'nav.ai': 'AI Setup',
+  'nav.ai': 'AI install guide',
   'nav.github': 'GitHub',
 
   'useCases.eyebrow': 'Use cases',
@@ -53,15 +53,15 @@ export const en: I18nDict = {
   'hero.subtitle': 'Turn any <img> into a fullscreen image viewer that expands from its original position, with keyboard, gestures, and multi-image browsing.',
   'hero.cta.start': 'Read docs',
   'hero.cta.playground': 'Play with parameters',
-  'hero.ai.label': 'Copy this prompt, then hand it to your AI Agent',
+  'hero.ai.label': 'AI install guide: read llms.txt first',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
   'hero.ai.quick': 'Copy quick prompt',
   'hero.ai.copyLabel': 'Copy quick AI prompt',
   'hero.ai.viewLlms': 'view llms.txt →',
 
-  'ai.badge': 'Agent Prompt',
-  'ai.title': 'Create your react-zmage Agent Prompt',
-  'ai.subtitle': 'Keep Auto so your agent can inspect the project first, or fine-tune the environment, image source, and interaction strategy before copying.',
+  'ai.badge': 'AI install guide',
+  'ai.title': 'Create a react-zmage agent integration prompt',
+  'ai.subtitle': 'Start from llms.txt. Keep Auto so your agent can inspect the project first, or fine-tune the environment, image source, and interaction strategy before copying.',
   'ai.field.agent': 'Which agent are you using?',
   'ai.field.depth': 'Setup depth',
   'ai.field.environment': 'Project environment',
@@ -432,6 +432,7 @@ export const en: I18nDict = {
 
   'docs.section.installation.title': 'Installation',
   'docs.section.installation.intro': 'Install via your package manager:',
+  'docs.section.installation.agent': 'AI agents should read https://zmage.caldis.me/llms.txt first, then keep basic integrations minimal.',
   'docs.section.installation.then': 'Then import the component and its stylesheet:',
   'docs.section.installation.ssrTitle': 'SSR',
   'docs.section.installation.ssrBody': 'For server-rendered apps, use the /ssr entry to avoid touching document at import time:',

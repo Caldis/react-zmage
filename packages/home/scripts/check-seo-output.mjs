@@ -41,8 +41,8 @@ const routes = [
   },
   {
     path: '/ai',
-    title: 'react-zmage Agent Prompt - Integrate React Image Preview with AI',
-    description: 'Generate a concise agent prompt for adding react-zmage to an existing React, Next.js, CMS, MDX, or rich text image surface.',
+    title: 'react-zmage AI Install Guide - Agent Integration and llms.txt',
+    description: 'Read llms.txt and generate a concise agent prompt for adding react-zmage to an existing React, Next.js, CMS, MDX, or rich text image surface.',
   },
 ]
 
@@ -76,6 +76,7 @@ for (const route of routes) {
   if (!html.includes(`<title>${title}</title>`)) failures.push(`${route.path}: missing route title`)
   if (!html.includes(`<meta name="description" content="${description}" />`)) failures.push(`${route.path}: missing route description`)
   if (!html.includes(`<link rel="canonical" href="${canonical}" />`)) failures.push(`${route.path}: missing route canonical`)
+  if (!html.includes('<link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />')) failures.push(`${route.path}: missing llms.txt alternate link`)
   if (!html.includes(`<meta property="og:url" content="${canonical}" />`)) failures.push(`${route.path}: missing route og:url`)
   if (!html.includes('data-seo-fallback')) failures.push(`${route.path}: missing static SEO fallback`)
   if (!html.includes('"@type": "WebSite"')) failures.push(`${route.path}: missing WebSite schema`)

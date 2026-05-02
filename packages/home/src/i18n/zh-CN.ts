@@ -2,7 +2,7 @@ export const zhCN = {
   // Nav
   'nav.playground': '调试',
   'nav.docs': '文档',
-  'nav.ai': 'AI 接入',
+  'nav.ai': 'AI 接入指南',
   'nav.github': 'GitHub',
 
   // Use cases
@@ -54,16 +54,16 @@ export const zhCN = {
   'hero.subtitle': '把任意 <img> 变成可原位展开的全屏图片查看器,支持键盘、手势和多图浏览。',
   'hero.cta.start': '查看文档',
   'hero.cta.playground': '玩玩各种参数',
-  'hero.ai.label': '复制这段 PROMPT, 接下来交给你的 AI Agent',
+  'hero.ai.label': 'AI 接入指南: 先读 llms.txt',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
   'hero.ai.quick': '复制快速 Prompt',
   'hero.ai.copyLabel': '复制快速 AI Prompt',
   'hero.ai.viewLlms': '查看 llms.txt →',
 
   // AI setup
-  'ai.badge': 'Agent Prompt',
-  'ai.title': '生成你的 react-zmage Agent Prompt',
-  'ai.subtitle': '保留 Auto, 让你的 Agent 先读项目再决定接入方式; 如果你想细控, 也可以手动指定环境、图片来源和交互策略。',
+  'ai.badge': 'AI 接入指南',
+  'ai.title': '生成 react-zmage Agent 接入 Prompt',
+  'ai.subtitle': '先从 llms.txt 开始。保留 Auto, 让你的 Agent 先读项目再决定接入方式; 如果你想细控, 也可以手动指定环境、图片来源和交互策略。',
   'ai.field.agent': '你使用哪个 Agent?',
   'ai.field.depth': '配置深度',
   'ai.field.environment': '项目环境',
@@ -450,6 +450,7 @@ export const zhCN = {
   // Docs sections
   'docs.section.installation.title': '安装',
   'docs.section.installation.intro': '通过包管理器安装:',
+  'docs.section.installation.agent': 'AI Agent 应先阅读 https://zmage.caldis.me/llms.txt, 然后保持基础接入最小化。',
   'docs.section.installation.then': '然后导入组件和样式表:',
   'docs.section.installation.ssrTitle': 'SSR',
   'docs.section.installation.ssrBody': '对于服务端渲染应用,使用 /ssr 入口可避免在 import 阶段触碰 document:',

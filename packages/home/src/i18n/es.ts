@@ -3,7 +3,7 @@ import type { I18nDict } from './zh-CN'
 export const es: I18nDict = {
   'nav.playground': 'Playground',
   'nav.docs': 'Documentación',
-  'nav.ai': 'AI Setup',
+  'nav.ai': 'Guía de instalación AI',
   'nav.github': 'GitHub',
 
   'useCases.eyebrow': 'Casos de uso',
@@ -53,15 +53,15 @@ export const es: I18nDict = {
   'hero.subtitle': 'Convierte cualquier <img> en un visor de pantalla completa que se abre desde su posición original, con teclado, gestos y navegación multiimagen.',
   'hero.cta.start': 'Leer docs',
   'hero.cta.playground': 'Probar parámetros',
-  'hero.ai.label': 'Copia este prompt y pásaselo a tu AI Agent',
+  'hero.ai.label': 'Guía de instalación AI: lee llms.txt primero',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
   'hero.ai.quick': 'Copiar prompt rápido',
   'hero.ai.copyLabel': 'Copiar prompt rápido de AI',
   'hero.ai.viewLlms': 'ver llms.txt →',
 
-  'ai.badge': 'Agent Prompt',
-  'ai.title': 'Crea tu prompt de agente para react-zmage',
-  'ai.subtitle': 'Mantén Auto para que tu agente inspeccione el proyecto primero, o ajusta entorno, fuente de imágenes e interacción antes de copiar.',
+  'ai.badge': 'Guía de instalación AI',
+  'ai.title': 'Crea un prompt de integración para react-zmage',
+  'ai.subtitle': 'Empieza por llms.txt. Mantén Auto para que tu agente inspeccione el proyecto primero, o ajusta entorno, fuente de imágenes e interacción antes de copiar.',
   'ai.field.agent': '¿Qué agente usas?',
   'ai.field.depth': 'Nivel de configuración',
   'ai.field.environment': 'Entorno del proyecto',
@@ -425,6 +425,7 @@ export const es: I18nDict = {
 
   'docs.section.installation.title': 'Instalación',
   'docs.section.installation.intro': 'Instala mediante tu gestor de paquetes:',
+  'docs.section.installation.agent': 'Los AI agents deben leer primero https://zmage.caldis.me/llms.txt y mantener mínima la integración básica.',
   'docs.section.installation.then': 'Después importa el componente y su hoja de estilos:',
   'docs.section.installation.ssrTitle': 'SSR',
   'docs.section.installation.ssrBody': 'Para apps con renderizado en servidor, usa la entrada /ssr para no tocar document al importar:',

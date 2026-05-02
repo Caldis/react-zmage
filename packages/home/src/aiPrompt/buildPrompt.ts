@@ -121,6 +121,10 @@ function modeInstructions (config: AiPromptConfig) {
 function propGuidance (config: AiPromptConfig) {
   const lines = [
     '- Prefer omitted `preset` or `preset="auto"` unless project evidence requires a fixed desktop or mobile setup.',
+    '- Keep optional behavior and UI props at their defaults unless the user asks for them or testing exposes a concrete issue.',
+    '- You may set the top-level `backdrop` to match the host page background color when the default white viewer would clash.',
+    '- Do not set `controller`, `controller.layout`, `edge`, `zIndex`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` during a basic install unless the selected setup or user request specifically requires them.',
+    '- Only configure `controller.color` or `controller.backdrop` when the user asks for controller styling or when controls are visibly illegible after testing.',
   ]
 
   if (config.environment === 'next-rsc' || config.environment === 'ssr') {
@@ -253,7 +257,7 @@ ${propGuidance(activeConfig)}
 - Do not confuse the static method \`Zmage.browsing()\` with the controlled \`browsing\` prop.
 - In Wrapper mode, put \`src\`, \`alt\`, and native image attributes on child \`<img>\` elements, not on \`<Zmage.Wrapper>\`.
 - In Wrapper mode, remember that newly injected images are bound after the wrapper re-renders.
-- For dark UIs, set \`backdrop\` and controller colors deliberately.
+- For non-light UIs, set the top-level \`backdrop\` to match the host page background; do not preemptively customize controller styling.
 - For Next.js App Router or RSC, keep interactive viewer usage inside a client boundary.
 
 ---

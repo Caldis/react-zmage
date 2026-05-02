@@ -3,7 +3,7 @@ import type { I18nDict } from './zh-CN'
 export const ko: I18nDict = {
   'nav.playground': '플레이그라운드',
   'nav.docs': '문서',
-  'nav.ai': 'AI Setup',
+  'nav.ai': 'AI 설치 가이드',
   'nav.github': 'GitHub',
 
   'useCases.eyebrow': '사용 사례',
@@ -53,15 +53,15 @@ export const ko: I18nDict = {
   'hero.subtitle': '임의의 <img>를 원래 위치에서 펼쳐지는 전체 화면 이미지 뷰어로 바꾸고, 키보드·제스처·다중 이미지 탐색을 지원합니다.',
   'hero.cta.start': '문서 보기',
   'hero.cta.playground': '여러 파라미터 체험',
-  'hero.ai.label': '이 프롬프트를 복사해서 AI 에이전트에 넘겨 주세요',
+  'hero.ai.label': 'AI 설치 가이드: 먼저 llms.txt 읽기',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
   'hero.ai.quick': '빠른 Prompt 복사',
   'hero.ai.copyLabel': '빠른 AI Prompt 복사',
   'hero.ai.viewLlms': 'llms.txt 보기 →',
 
-  'ai.badge': 'Agent Prompt',
-  'ai.title': 'react-zmage Agent Prompt 만들기',
-  'ai.subtitle': 'Auto를 유지하면 Agent가 먼저 프로젝트를 확인합니다. 필요하면 환경, 이미지 소스, 인터랙션 전략을 조정한 뒤 복사할 수 있습니다.',
+  'ai.badge': 'AI 설치 가이드',
+  'ai.title': 'react-zmage Agent 통합 Prompt 만들기',
+  'ai.subtitle': 'llms.txt부터 시작하세요. Auto를 유지하면 Agent가 먼저 프로젝트를 확인합니다. 필요하면 환경, 이미지 소스, 인터랙션 전략을 조정한 뒤 복사할 수 있습니다.',
   'ai.field.agent': '어떤 Agent를 사용하나요?',
   'ai.field.depth': '설정 깊이',
   'ai.field.environment': '프로젝트 환경',
@@ -425,6 +425,7 @@ export const ko: I18nDict = {
 
   'docs.section.installation.title': '설치',
   'docs.section.installation.intro': '패키지 매니저로 설치:',
+  'docs.section.installation.agent': 'AI Agent는 먼저 https://zmage.caldis.me/llms.txt 를 읽고, 기본 통합은 최소한으로 유지해야 합니다.',
   'docs.section.installation.then': '컴포넌트와 스타일시트를 가져오기:',
   'docs.section.installation.ssrTitle': 'SSR',
   'docs.section.installation.ssrBody': '서버 렌더링 앱이라면, import 시 document에 접근하지 않는 /ssr 엔트리를 사용하세요:',

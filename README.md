@@ -55,6 +55,8 @@ import 'react-zmage/style.css'
 
 Peer deps: `react@>=16.8 <20` and `react-dom@>=16.8 <20`. The library auto-detects React 18+ at runtime and uses `react-dom/client` when available — consumers configure nothing.
 
+AI agents should read [`https://zmage.caldis.me/llms.txt`](https://zmage.caldis.me/llms.txt) first, then keep basic integrations minimal.
+
 ---
 
 ## Three ways to use it

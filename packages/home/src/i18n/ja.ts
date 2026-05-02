@@ -3,7 +3,7 @@ import type { I18nDict } from './zh-CN'
 export const ja: I18nDict = {
   'nav.playground': 'プレイグラウンド',
   'nav.docs': 'ドキュメント',
-  'nav.ai': 'AI Setup',
+  'nav.ai': 'AI 導入ガイド',
   'nav.github': 'GitHub',
 
   'useCases.eyebrow': 'ユースケース',
@@ -53,15 +53,15 @@ export const ja: I18nDict = {
   'hero.subtitle': '任意の <img> を、元の位置から開くフルスクリーン画像ビューアに変えます。キーボード、ジェスチャー、複数画像の閲覧に対応します。',
   'hero.cta.start': 'ドキュメントを見る',
   'hero.cta.playground': '各種パラメータを試す',
-  'hero.ai.label': 'このプロンプトをコピーして、AI エージェントに渡してください',
+  'hero.ai.label': 'AI 導入ガイド: まず llms.txt を読む',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
   'hero.ai.quick': 'クイック Prompt をコピー',
   'hero.ai.copyLabel': 'クイック AI Prompt をコピー',
   'hero.ai.viewLlms': 'llms.txt を表示 →',
 
-  'ai.badge': 'Agent Prompt',
-  'ai.title': 'react-zmage 用の Agent Prompt を作成',
-  'ai.subtitle': 'Auto のままにすると Agent が先にプロジェクトを確認します。必要なら環境、画像ソース、操作方針を細かく指定できます。',
+  'ai.badge': 'AI 導入ガイド',
+  'ai.title': 'react-zmage の Agent 統合 Prompt を作成',
+  'ai.subtitle': 'まず llms.txt から始めてください。Auto のままにすると Agent が先にプロジェクトを確認します。必要なら環境、画像ソース、操作方針を細かく指定できます。',
   'ai.field.agent': 'どの Agent を使いますか?',
   'ai.field.depth': '設定の深さ',
   'ai.field.environment': 'プロジェクト環境',
@@ -425,6 +425,7 @@ export const ja: I18nDict = {
 
   'docs.section.installation.title': 'インストール',
   'docs.section.installation.intro': 'パッケージマネージャーでインストール:',
+  'docs.section.installation.agent': 'AI Agent はまず https://zmage.caldis.me/llms.txt を読み、基本接続は最小限にしてください。',
   'docs.section.installation.then': 'コンポーネントとスタイルシートをインポート:',
   'docs.section.installation.ssrTitle': 'SSR',
   'docs.section.installation.ssrBody': 'サーバーレンダリングアプリでは、import 時に document に触れない /ssr エントリを使用してください:',

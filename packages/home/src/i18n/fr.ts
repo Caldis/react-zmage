@@ -3,7 +3,7 @@ import type { I18nDict } from './zh-CN'
 export const fr: I18nDict = {
   'nav.playground': 'Playground',
   'nav.docs': 'Documentation',
-  'nav.ai': 'AI Setup',
+  'nav.ai': 'Guide installation IA',
   'nav.github': 'GitHub',
 
   'useCases.eyebrow': 'Cas d\'utilisation',
@@ -53,15 +53,15 @@ export const fr: I18nDict = {
   'hero.subtitle': 'Transformez n\'importe quel <img> en visionneuse plein écran qui s\'ouvre depuis sa position d\'origine, avec clavier, gestes et navigation multi-images.',
   'hero.cta.start': 'Lire la doc',
   'hero.cta.playground': 'Essayer les paramètres',
-  'hero.ai.label': 'Copiez ce prompt, puis confiez-le à votre AI Agent',
+  'hero.ai.label': 'Guide installation IA : lire llms.txt d’abord',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
   'hero.ai.quick': 'Copier le prompt rapide',
   'hero.ai.copyLabel': 'Copier le prompt AI rapide',
   'hero.ai.viewLlms': 'voir llms.txt →',
 
-  'ai.badge': 'Agent Prompt',
-  'ai.title': 'Créez votre prompt agent pour react-zmage',
-  'ai.subtitle': 'Gardez Auto pour laisser votre agent inspecter le projet, ou ajustez l’environnement, la source d’images et les interactions avant de copier.',
+  'ai.badge': 'Guide installation IA',
+  'ai.title': 'Créez un prompt d’intégration react-zmage',
+  'ai.subtitle': 'Commencez par llms.txt. Gardez Auto pour laisser votre agent inspecter le projet, ou ajustez l’environnement, la source d’images et les interactions avant de copier.',
   'ai.field.agent': 'Quel agent utilisez-vous ?',
   'ai.field.depth': 'Niveau de configuration',
   'ai.field.environment': 'Environnement du projet',
@@ -425,6 +425,7 @@ export const fr: I18nDict = {
 
   'docs.section.installation.title': 'Installation',
   'docs.section.installation.intro': 'Installez via votre gestionnaire de paquets :',
+  'docs.section.installation.agent': 'Les agents IA doivent d’abord lire https://zmage.caldis.me/llms.txt, puis garder les intégrations de base minimales.',
   'docs.section.installation.then': 'Puis importez le composant et sa feuille de style :',
   'docs.section.installation.ssrTitle': 'SSR',
   'docs.section.installation.ssrBody': 'Pour les applications rendues côté serveur, utilisez l\'entrée /ssr afin de ne pas toucher à document à l\'import :',

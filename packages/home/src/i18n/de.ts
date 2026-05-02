@@ -3,7 +3,7 @@ import type { I18nDict } from './zh-CN'
 export const de: I18nDict = {
   'nav.playground': 'Playground',
   'nav.docs': 'Dokumentation',
-  'nav.ai': 'AI Setup',
+  'nav.ai': 'AI-Installation',
   'nav.github': 'GitHub',
 
   'useCases.eyebrow': 'Use Cases',
@@ -53,15 +53,15 @@ export const de: I18nDict = {
   'hero.subtitle': 'Mach aus jedem <img> einen Vollbild-Bildviewer, der von seiner ursprünglichen Position aus öffnet und Tastatur, Gesten sowie Bildserien unterstützt.',
   'hero.cta.start': 'Docs lesen',
   'hero.cta.playground': 'Parameter ausprobieren',
-  'hero.ai.label': 'Kopiere diesen Prompt und übergib ihn deinem AI Agent',
+  'hero.ai.label': 'AI-Installationsguide: zuerst llms.txt lesen',
   'hero.ai.directive': 'Read https://zmage.caldis.me/llms.txt to add react-zmage to my project.',
   'hero.ai.quick': 'Schnellen Prompt kopieren',
   'hero.ai.copyLabel': 'Schnellen AI Prompt kopieren',
   'hero.ai.viewLlms': 'llms.txt ansehen →',
 
-  'ai.badge': 'Agent Prompt',
-  'ai.title': 'Erstelle deinen react-zmage Agent Prompt',
-  'ai.subtitle': 'Lass Auto aktiv, damit dein Agent zuerst das Projekt prüft, oder stimme Umgebung, Bildquelle und Interaktion vor dem Kopieren fein ab.',
+  'ai.badge': 'AI-Installationsguide',
+  'ai.title': 'Erstelle einen react-zmage Agent-Integrationsprompt',
+  'ai.subtitle': 'Beginne mit llms.txt. Lass Auto aktiv, damit dein Agent zuerst das Projekt prüft, oder stimme Umgebung, Bildquelle und Interaktion vor dem Kopieren fein ab.',
   'ai.field.agent': 'Welchen Agent verwendest du?',
   'ai.field.depth': 'Setup-Tiefe',
   'ai.field.environment': 'Projektumgebung',
@@ -425,6 +425,7 @@ export const de: I18nDict = {
 
   'docs.section.installation.title': 'Installation',
   'docs.section.installation.intro': 'Über deinen Paketmanager installieren:',
+  'docs.section.installation.agent': 'AI Agents sollten zuerst https://zmage.caldis.me/llms.txt lesen und einfache Integrationen minimal halten.',
   'docs.section.installation.then': 'Anschließend Komponente und Stylesheet importieren:',
   'docs.section.installation.ssrTitle': 'SSR',
   'docs.section.installation.ssrBody': 'Für serverseitig gerenderte Apps verwende den /ssr-Eintrag, um document beim Import nicht zu berühren:',

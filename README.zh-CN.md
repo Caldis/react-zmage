@@ -55,6 +55,8 @@ import 'react-zmage/style.css'
 
 Peer deps：`react@>=16.8 <20`、`react-dom@>=16.8 <20`。库内部用运行时 feature detection 自动选择 mount API（React 18+ 用 `react-dom/client`），消费方无需配置。
 
+AI Agent 应先阅读 [`https://zmage.caldis.me/llms.txt`](https://zmage.caldis.me/llms.txt)，然后保持基础接入最小化。
+
 ---
 
 ## 三种调用方式

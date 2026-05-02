@@ -70,6 +70,23 @@ test('preset default value matches code and llms.txt', () => {
     'llms.txt preset row should document omitted preset behavior')
 })
 
+test('llms.txt tells agents to keep basic integrations minimal', () => {
+  assert.match(llmsTxt, /Minimal integration principles/,
+    'llms.txt should include a minimal integration section for agents')
+  assert.match(llmsTxt, /keep the integration minimal/,
+    'llms.txt should explicitly ask agents to keep integrations minimal')
+  assert.match(llmsTxt, /`Zmage\.Wrapper` with `set`/,
+    'llms.txt should recommend Wrapper + set for existing image lists')
+  assert.match(llmsTxt, /top-level `backdrop`/,
+    'llms.txt should allow only top-level backdrop as a default theme adjustment')
+  for (const prop of ['controller', 'controller.layout', 'edge', 'zIndex', 'animate', 'gesture', 'hotKey', 'radius', 'loop', 'coverVisible', 'hideOnScroll', 'hideOnDblClick']) {
+    assert.ok(llmsTxt.includes(`\`${prop}\``),
+      `llms.txt minimal integration guidance should mention not setting ${prop} by default`)
+  }
+  assert.match(llmsTxt, /Only configure `controller\.color` or `controller\.backdrop`/,
+    'llms.txt should restrict proactive controller visual customization')
+})
+
 test('all packages/... links in llms.txt resolve to local files', () => {
   const re = /\(https:\/\/github\.com\/Caldis\/react-zmage\/blob\/master\/(packages\/[^)]+?)\)/g
   const missing = []

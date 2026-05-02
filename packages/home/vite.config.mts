@@ -97,10 +97,10 @@ const seoRoutes: SeoRoute[] = [
   },
   {
     path: '/ai',
-    title: 'react-zmage Agent Prompt - Integrate React Image Preview with AI',
-    description: 'Generate a concise agent prompt for adding react-zmage to an existing React, Next.js, CMS, MDX, or rich text image surface.',
-    h1: 'react-zmage agent prompt',
-    body: 'Generate a short prompt that tells a coding agent how to inspect your project and integrate react-zmage with the right usage mode.',
+    title: 'react-zmage AI Install Guide - Agent Integration and llms.txt',
+    description: 'Read llms.txt and generate a concise agent prompt for adding react-zmage to an existing React, Next.js, CMS, MDX, or rich text image surface.',
+    h1: 'react-zmage AI install guide',
+    body: 'Read llms.txt or generate a short prompt that tells a coding agent how to inspect your project and integrate react-zmage with the right usage mode.',
     priority: '0.7',
   },
 ]
@@ -238,7 +238,7 @@ function renderFallback (route: SeoRoute) {
     ['Playground', '/playground'],
     ['Wrapper playground', '/playground/wrapper'],
     ['Use cases', '/use-cases'],
-    ['AI prompt', '/ai'],
+    ['AI install guide', '/ai'],
     ['GitHub', 'https://github.com/Caldis/react-zmage'],
   ]
 
