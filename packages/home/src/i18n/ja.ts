@@ -151,12 +151,12 @@ export const ja: I18nDict = {
 
   'feature.dropin.title': '原位置展開',
   'feature.dropin.hint': '画像の位置、サイズ、角丸、切り抜き状態から開き、閉じると同じ場所へ戻ります。',
-  'feature.set.title': '完全なビューア',
-  'feature.set.hint': 'ズーム、回転、ページ送り、ダウンロード、caption が同じ閲覧状態で動きます。',
-  'feature.imperative.title': 'イベントから起動',
-  'feature.imperative.hint': 'カバー画像がなくても callback から開けます。独自ボタンやサードパーティ UI に向いています。',
-  'feature.wrapper.title': 'コンテンツを自動接続',
-  'feature.wrapper.hint': 'Markdown、CMS リッチテキスト、制御できない HTML を包み、内部の <img> からビューアを開けます。',
+  'feature.mobile.title': 'モバイル対応',
+  'feature.mobile.hint': 'Auto preset がタッチ操作を選びます。スワイプで切替、下方向ドラッグで閉じる、ダブルタップ、ピンチズームに対応します。',
+  'feature.set.title': '閲覧操作をまとめて提供',
+  'feature.set.hint': 'ズーム、回転、ページ送り、ダウンロード、caption が同じ閲覧状態で動き、複数画像でも連続します。',
+  'feature.ssr.title': 'SSR/RSC に対応',
+  'feature.ssr.hint': 'Next.js、SSR、RSC ではサーバー安全な入口を使い、viewer の操作はクライアント境界に置けます。',
 
   'modes.title': '今あるページ構造に合わせて接続',
   'modes.component.label': 'コンポーネントモード',

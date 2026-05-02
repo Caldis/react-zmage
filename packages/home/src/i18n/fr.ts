@@ -151,12 +151,12 @@ export const fr: I18nDict = {
 
   'feature.dropin.title': 'Ouverture depuis l\'origine',
   'feature.dropin.hint': 'Ouvre depuis la position, la taille, le rayon et le recadrage de l\'image, puis revient au même endroit.',
-  'feature.set.title': 'Visionneuse complète',
-  'feature.set.hint': 'Zoom, rotation, changement d\'image, téléchargement et captions partagent le même état de navigation.',
-  'feature.imperative.title': 'Déclenchement par événement',
-  'feature.imperative.hint': 'Ouvrez depuis des callbacks même sans image de couverture, idéal pour boutons personnalisés et widgets tiers.',
-  'feature.wrapper.title': 'Contenu lié automatiquement',
-  'feature.wrapper.hint': 'Encapsulez Markdown, rich text CMS ou HTML non contrôlé pour que chaque <img> interne puisse ouvrir la visionneuse.',
+  'feature.mobile.title': 'Compatible mobile',
+  'feature.mobile.hint': 'Le preset Auto choisit les gestes tactiles: glisser entre les images, tirer vers le bas pour fermer, double tap et pinch zoom.',
+  'feature.set.title': 'Outils de navigation complets',
+  'feature.set.hint': 'Zoom, rotation, changement d\'image, telechargement et captions partagent un meme etat, meme dans les sets multi-image.',
+  'feature.ssr.title': 'Compatible SSR/RSC',
+  'feature.ssr.hint': 'Utilisez l\'entree sure cote serveur dans Next.js, SSR ou RSC, puis gardez l\'interaction du viewer dans les frontieres client.',
 
   'modes.title': 'S\'adapte à votre page existante',
   'modes.component.label': 'Mode composant',

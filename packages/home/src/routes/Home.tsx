@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Copy, Check, ImageIcon, GalleryHorizontal, Wand2, Code2, Plus, Bot, Sparkles, Keyboard, Mouse, MousePointer2, MousePointerClick } from 'lucide-react'
+import { ArrowRight, Copy, Check, ImageIcon, GalleryHorizontal, Smartphone, Server, Plus, Bot, Sparkles, Keyboard, Mouse, MousePointer2, MousePointerClick } from 'lucide-react'
 import Zmage from 'react-zmage'
 import zmagePkg from 'react-zmage/package.json'
 import { Badge } from '@/components/ui/badge'
@@ -328,9 +328,9 @@ function LiveDemo () {
 
 const FEATURES = [
   { icon: ImageIcon, titleKey: 'feature.dropin.title' as const, hintKey: 'feature.dropin.hint' as const, code: '<Zmage src="..." />' },
+  { icon: Smartphone, titleKey: 'feature.mobile.title' as const, hintKey: 'feature.mobile.hint' as const, code: '<Zmage preset="auto" src="..." />' },
   { icon: GalleryHorizontal, titleKey: 'feature.set.title' as const, hintKey: 'feature.set.hint' as const, code: '<Zmage src="..." set={[...]} />' },
-  { icon: Code2, titleKey: 'feature.imperative.title' as const, hintKey: 'feature.imperative.hint' as const, code: 'Zmage.browsing({ src })' },
-  { icon: Wand2, titleKey: 'feature.wrapper.title' as const, hintKey: 'feature.wrapper.hint' as const, code: '<Zmage.Wrapper>{children}</Zmage.Wrapper>' },
+  { icon: Server, titleKey: 'feature.ssr.title' as const, hintKey: 'feature.ssr.hint' as const, code: 'import Zmage from \'react-zmage/ssr\'' },
 ]
 
 function FeatureGrid () {

@@ -151,12 +151,12 @@ export const de: I18nDict = {
 
   'feature.dropin.title': 'Ursprungsöffnung',
   'feature.dropin.hint': 'Öffnet aus Position, Größe, Radius und Zuschnitt des Bildes und schließt wieder dorthin zurück.',
-  'feature.set.title': 'Vollständiger Viewer',
-  'feature.set.hint': 'Zoom, Rotation, Blättern, Download und Captions bleiben in einem Browsing-Zustand.',
-  'feature.imperative.title': 'Per Event öffnen',
-  'feature.imperative.hint': 'Auch ohne Cover-Bild aus Callbacks öffnen, ideal für eigene Buttons und Drittanbieter-Widgets.',
-  'feature.wrapper.title': 'Inhalte automatisch binden',
-  'feature.wrapper.hint': 'Markdown, CMS-Rich-Text oder unkontrolliertes HTML umhüllen, damit jedes innere <img> den Viewer erhält.',
+  'feature.mobile.title': 'Mobil kompatibel',
+  'feature.mobile.hint': 'Das Auto-Preset waehlt Touch-Verhalten: Wischen zum Blaettern, nach unten ziehen zum Schliessen, Doppeltipp und Pinch-Zoom.',
+  'feature.set.title': 'Komplette Browsing-Werkzeuge',
+  'feature.set.hint': 'Zoom, Rotation, Blaettern, Download und Captions teilen sich einen Browsing-Zustand, auch in Bildserien.',
+  'feature.ssr.title': 'SSR/RSC-freundlich',
+  'feature.ssr.hint': 'Nutze den server-sicheren Einstieg in Next.js-, SSR- oder RSC-Projekten und halte die Viewer-Interaktion in Client-Boundaries.',
 
   'modes.title': 'Passt zu deiner vorhandenen Seite',
   'modes.component.label': 'Komponentenmodus',

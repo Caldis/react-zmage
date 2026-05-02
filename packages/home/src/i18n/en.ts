@@ -151,12 +151,12 @@ export const en: I18nDict = {
 
   'feature.dropin.title': 'Origin Expand',
   'feature.dropin.hint': 'Open from the image\'s original position, size, radius, and crop; close back to the same place.',
-  'feature.set.title': 'Full viewer',
-  'feature.set.hint': 'Zoom, rotate, flip, download, and captions all stay in one browsing state.',
-  'feature.imperative.title': 'Event-triggered',
-  'feature.imperative.hint': 'Open from callbacks even without a cover image, ideal for custom buttons and third-party widgets.',
-  'feature.wrapper.title': 'Auto-bind content',
-  'feature.wrapper.hint': 'Wrap Markdown, CMS rich text, or uncontrolled HTML so every inner <img> can open in the viewer.',
+  'feature.mobile.title': 'Mobile ready',
+  'feature.mobile.hint': 'Auto preset selects touch behavior: swipe between images, drag down to close, double tap, and pinch zoom.',
+  'feature.set.title': 'Complete browsing tools',
+  'feature.set.hint': 'Zoom, rotate, flip, download, and captions share one browsing state, even across multi-image sets.',
+  'feature.ssr.title': 'SSR/RSC friendly',
+  'feature.ssr.hint': 'Use the server-safe entry in Next.js, SSR, or RSC projects, then keep viewer interaction inside client boundaries.',
 
   'modes.title': 'Fit the page you already have',
   'modes.component.label': 'Component mode',

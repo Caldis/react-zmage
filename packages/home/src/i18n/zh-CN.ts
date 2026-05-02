@@ -155,12 +155,12 @@ export const zhCN = {
   // Feature grid
   'feature.dropin.title': '原位展开',
   'feature.dropin.hint': '从页面原图的位置、尺寸、圆角和裁剪状态进入全屏,关闭时回到原位。',
-  'feature.set.title': '完整查看器',
-  'feature.set.hint': '缩放、旋转、翻页、下载和 caption 走同一套浏览状态。',
-  'feature.imperative.title': '事件触发',
-  'feature.imperative.hint': '没有封面图也能从回调中打开,适合自定义按钮和第三方组件。',
-  'feature.wrapper.title': '自动绑定内容',
-  'feature.wrapper.hint': '包住 Markdown、CMS 富文本或不可控 HTML,内部 <img> 自动获得查看能力。',
+  'feature.mobile.title': '移动端兼容',
+  'feature.mobile.hint': '默认按设备选择交互:触屏端支持滑动翻页、下滑关闭、双击和双指缩放。',
+  'feature.set.title': '浏览操作完整',
+  'feature.set.hint': '缩放、旋转、翻页、下载和 caption 共用同一套浏览状态,多图时也保持连续。',
+  'feature.ssr.title': 'SSR/RSC 友好',
+  'feature.ssr.hint': '提供服务端安全入口,在 Next.js、SSR 或 RSC 项目里可以把交互留给客户端边界。',
 
   // Three modes
   'modes.title': '按你的页面结构接入',

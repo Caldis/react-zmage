@@ -151,12 +151,12 @@ export const es: I18nDict = {
 
   'feature.dropin.title': 'Apertura en origen',
   'feature.dropin.hint': 'Abre desde la posición, tamaño, radio y recorte de la imagen, y vuelve al mismo lugar al cerrar.',
-  'feature.set.title': 'Visor completo',
-  'feature.set.hint': 'Zoom, rotación, cambio de página, descarga y captions comparten el mismo estado de navegación.',
-  'feature.imperative.title': 'Activado por eventos',
-  'feature.imperative.hint': 'Abre desde callbacks incluso sin imagen de portada, ideal para botones propios y widgets externos.',
-  'feature.wrapper.title': 'Contenido auto-vinculado',
-  'feature.wrapper.hint': 'Envuelve Markdown, rich text de CMS o HTML no controlado para que cada <img> interno pueda abrir el visor.',
+  'feature.mobile.title': 'Compatible con movil',
+  'feature.mobile.hint': 'El preset Auto elige interaccion tactil: deslizar entre imagenes, arrastrar hacia abajo para cerrar, doble toque y pinch zoom.',
+  'feature.set.title': 'Herramientas completas',
+  'feature.set.hint': 'Zoom, rotacion, cambio de pagina, descarga y captions comparten un mismo estado, incluso en sets de varias imagenes.',
+  'feature.ssr.title': 'Compatible con SSR/RSC',
+  'feature.ssr.hint': 'Usa la entrada segura para servidor en Next.js, SSR o RSC, y deja la interaccion del visor dentro de fronteras cliente.',
 
   'modes.title': 'Encaja con la página que ya tienes',
   'modes.component.label': 'Modo componente',

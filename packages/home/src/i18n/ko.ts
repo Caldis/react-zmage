@@ -151,12 +151,12 @@ export const ko: I18nDict = {
 
   'feature.dropin.title': '원위치 펼치기',
   'feature.dropin.hint': '이미지의 위치, 크기, 라운드, 잘림 상태에서 열리고 닫을 때 같은 자리로 돌아갑니다.',
-  'feature.set.title': '완전한 뷰어',
-  'feature.set.hint': '줌, 회전, 페이지 이동, 다운로드, caption이 하나의 탐색 상태에서 함께 움직입니다.',
-  'feature.imperative.title': '이벤트로 실행',
-  'feature.imperative.hint': '커버 이미지가 없어도 callback에서 열 수 있어 커스텀 버튼과 서드파티 위젯에 적합합니다.',
-  'feature.wrapper.title': '콘텐츠 자동 연결',
-  'feature.wrapper.hint': 'Markdown, CMS 리치 텍스트, 직접 제어하지 않는 HTML을 감싸 내부 <img>가 뷰어를 열 수 있게 합니다.',
+  'feature.mobile.title': '모바일 호환',
+  'feature.mobile.hint': 'Auto preset이 터치 동작을 선택합니다. 스와이프 이동, 아래로 드래그해 닫기, 더블 탭, 핀치 줌을 지원합니다.',
+  'feature.set.title': '완전한 탐색 도구',
+  'feature.set.hint': '줌, 회전, 페이지 이동, 다운로드, caption이 하나의 탐색 상태를 공유하며 여러 이미지에서도 이어집니다.',
+  'feature.ssr.title': 'SSR/RSC 친화적',
+  'feature.ssr.hint': 'Next.js, SSR, RSC에서는 서버 안전 진입점을 쓰고 viewer 인터랙션은 클라이언트 경계 안에 둘 수 있습니다.',
 
   'modes.title': '이미 있는 페이지 구조에 맞게 연결',
   'modes.component.label': '컴포넌트 모드',
