@@ -113,13 +113,15 @@ const GESTURE_KEYS: { k: string; type: string; descKey: I18nKey; scope?: PresetS
 const SET_FIELDS: { k: string; type: string; required?: boolean; descKey: I18nKey }[] = [
   { k: 'src', type: 'string', required: true, descKey: 'set.src.desc' },
   { k: 'alt', type: 'string', descKey: 'set.alt.desc' },
-  { k: 'caption', type: "string | { text, style?, className? }", descKey: 'set.caption.desc' },
+  { k: 'caption', type: 'string | { text, style?, className? }', descKey: 'set.caption.desc' },
   { k: 'className', type: 'string', descKey: 'set.className.desc' },
   { k: 'style', type: 'CSSStyleDeclaration', descKey: 'set.style.desc' },
 ]
 
 type PresetRow = { path: string; label: I18nKey }
 const PRESET_ROWS: PresetRow[] = [
+  { path: 'radius', label: 'param.radius.label' },
+  { path: 'edge', label: 'param.edge.label' },
   { path: 'controller.pagination', label: 'controller.pagination' },
   { path: 'controller.rotate', label: 'controller.rotate' },
   { path: 'controller.zoom', label: 'controller.zoom' },
@@ -127,6 +129,7 @@ const PRESET_ROWS: PresetRow[] = [
   { path: 'controller.close', label: 'controller.close' },
   { path: 'controller.flip', label: 'controller.flip' },
   { path: 'controller.placement', label: 'controller.placement' },
+  { path: 'controller.layout', label: 'controller.layout' },
   { path: 'hotKey.close', label: 'hotkey.close' },
   { path: 'hotKey.zoom', label: 'hotkey.zoom' },
   { path: 'hotKey.flip', label: 'hotkey.flip' },
@@ -145,9 +148,13 @@ const PRESET_ROWS: PresetRow[] = [
 ]
 
 function readPresetValue (preset: 'desktop' | 'mobile', path: string): unknown {
-  const [group, key] = path.split('.') as ['controller' | 'hotKey' | 'animate' | 'gesture', string]
-  const bucket = defPreset[preset][group] as Record<string, unknown>
-  return bucket[key]
+  return path
+    .split('.')
+    .reduce<unknown>((value, key) => (
+      value && typeof value === 'object'
+        ? (value as Record<string, unknown>)[key]
+        : undefined
+    ), defPreset[preset])
 }
 
 function PresetCell ({ value }: { value: unknown }) {

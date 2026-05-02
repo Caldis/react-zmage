@@ -23,7 +23,7 @@ import { createMotionRuntime, getMotionDurationMultiplierFromEvent, isSlowMotion
 import type { MotionTriggerEvent } from '../../config/motion'
 import { probeStylesheet } from '../../utils/styleProbe'
 import { getControllerLayoutStyle, hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
-import { Animate, ControllerSet, FunctionalParams, GestureSet, HotKey, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
+import { Animate, ControllerLayoutTarget, ControllerLayoutTargets, ControllerOverlayLayout, ControllerSet, FunctionalParams, GestureSet, HotKey, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
 import { normalizeGestureSet, resolveGestureTouchAction } from '../Image/Image.utils'
 
 export interface Props extends PresetParams, FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams {
@@ -67,6 +67,58 @@ export interface State {
   pageWithStep: number
 }
 
+type ControllerLayoutTargetKey = keyof ControllerLayoutTargets
+type ControllerLayoutInsetObject = Exclude<ControllerLayoutTarget['inset'], number | string | undefined>
+
+const CONTROLLER_LAYOUT_TARGETS: ControllerLayoutTargetKey[] = ['toolbar', 'pagination', 'caption', 'flip']
+
+const isLayoutInsetObject = (inset: ControllerLayoutTarget['inset']): inset is ControllerLayoutInsetObject => {
+  return !!inset && typeof inset === 'object'
+}
+
+const mergeControllerLayoutTarget = (
+  fallback: ControllerLayoutTarget | undefined,
+  override: ControllerLayoutTarget | undefined,
+): ControllerLayoutTarget | undefined => {
+  if (!fallback && !override) return undefined
+
+  const next: ControllerLayoutTarget = { ...fallback, ...override }
+  if (isLayoutInsetObject(fallback?.inset) && isLayoutInsetObject(override?.inset)) {
+    next.inset = { ...fallback.inset, ...override.inset }
+  }
+  return next
+}
+
+const mergeControllerLayoutTargets = (
+  fallback: ControllerLayoutTargets | undefined,
+  override: ControllerLayoutTargets | undefined,
+): ControllerLayoutTargets | undefined => {
+  const next: ControllerLayoutTargets = {}
+
+  CONTROLLER_LAYOUT_TARGETS.forEach(target => {
+    const merged = mergeControllerLayoutTarget(fallback?.[target], override?.[target])
+    if (merged) {
+      next[target] = merged
+    }
+  })
+
+  return Object.keys(next).length > 0 ? next : undefined
+}
+
+const mergeControllerLayout = (
+  fallback: ControllerOverlayLayout | undefined,
+  override: ControllerOverlayLayout | undefined,
+): ControllerOverlayLayout | undefined => {
+  const base = mergeControllerLayoutTargets(fallback, override)
+  const mobile = mergeControllerLayoutTargets(fallback?.mobile, override?.mobile)
+
+  if (!base && !mobile) return undefined
+  return {
+    ...base,
+    ...(mobile ? { mobile } : {}),
+  }
+}
+
 export default class Browser extends React.Component<Props, State> {
 
   // Types
@@ -94,9 +146,23 @@ export default class Browser extends React.Component<Props, State> {
   shiftKeyActive = false
   viewportRef = React.createRef<HTMLDivElement>()
 
-  getControllerConfig = (controller: Props['controller'], fallback: ControllerSet): ControllerSet => (
-    controller === false ? {} : { ...fallback, ...(typeof controller === 'object' ? controller : {}) }
-  )
+  getControllerConfig = (controller: Props['controller'], fallback: ControllerSet): ControllerSet => {
+    if (controller === false) return {}
+
+    const override = typeof controller === 'object' ? controller : {}
+    const next: ControllerSet = {
+      ...fallback,
+      ...override,
+    }
+    const layout = mergeControllerLayout(fallback.layout, override.layout)
+    if (layout) {
+      next.layout = layout
+    } else {
+      delete next.layout
+    }
+
+    return next
+  }
 
   getHotKeyConfig = (hotKey: Props['hotKey'], fallback: HotKey): HotKey => (
     hotKey === false ? {} : { ...fallback, ...(typeof hotKey === 'object' ? hotKey : {}) }
@@ -198,7 +264,7 @@ export default class Browser extends React.Component<Props, State> {
    * 如果需要读取 controller / hotKey / animate 需要由此读取
    */
   getPropsWithEnv = () => {
-    const { preset, controller, hotKey, animate, gesture } = this.props
+    const { preset, controller, hotKey, animate, gesture, radius, edge } = this.props
     const defProp = defPropsWithEnv(preset)
     const resolved = resolvePreset(preset)
     return {
@@ -207,6 +273,9 @@ export default class Browser extends React.Component<Props, State> {
       // Preset flags (driven by resolved preset so 'auto' picks the right branch)
       presetIsMobile: resolved === 'mobile',
       presetIsDesktop: resolved === 'desktop',
+      // Preset-aware visual defaults. Explicit 0 must remain a valid override.
+      radius: radius ?? defProp.radius,
+      edge: edge ?? defProp.edge,
       // Control
       controller: this.getControllerConfig(controller, defProp.controller),
       hotKey: this.getHotKeyConfig(hotKey, defProp.hotKey),

@@ -7,7 +7,7 @@ import React from 'react'
 // Components
 import callee from './Zmage.callee'
 // Utils
-import { defProp } from './types/default'
+import { componentDefaultProps } from './types/default'
 import { getMotionDurationMultiplierFromEvent, isSlowMotionEnabled } from './config/motion'
 import { BaseType, Set } from './types/global'
 
@@ -30,7 +30,7 @@ const findSetIndexBySrc = (set: Set[] | undefined, src: string) => {
 export default class ReactZmageWrapper extends React.Component<Props> {
 
   // Default
-  static defaultProps = defProp
+  static defaultProps = componentDefaultProps
 
   // Refs
   wrapperRef = React.createRef<HTMLDivElement>()

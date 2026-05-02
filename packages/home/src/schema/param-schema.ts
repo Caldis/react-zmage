@@ -37,7 +37,21 @@ export const defProp = {
 
 export const defPreset = {
   desktop: {
-    controller: { pagination: true, rotate: true, zoom: true, download: false, close: true, flip: true, placement: 'top-right' as const },
+    radius: 8,
+    edge: 30,
+    controller: {
+      pagination: true,
+      rotate: true,
+      zoom: true,
+      download: false,
+      close: true,
+      flip: true,
+      placement: 'top-right' as const,
+      layout: {
+        pagination: { inset: 24 },
+        caption: { inset: 60 },
+      },
+    },
     hotKey: { close: true, zoom: true, flip: true, rotate: true, download: false },
     animate: { browsing: true, flip: 'crossFade' as const, cover: { objectFit: true, clip: true, radius: true }, slowMotion: false },
     gesture: {
@@ -50,6 +64,8 @@ export const defPreset = {
     },
   },
   mobile: {
+    radius: 0,
+    edge: 0,
     controller: { pagination: true, rotate: false, zoom: false, download: false, close: true, flip: false, placement: 'top-right' as const },
     hotKey: { close: false, zoom: false, flip: false, rotate: false, download: false },
     animate: { browsing: true, flip: 'swipe' as const, cover: { objectFit: true, clip: true, radius: true }, slowMotion: false },
@@ -130,9 +146,9 @@ export const PARAM_SCHEMA: ParamDef[] = [
     i18n: { labelKey: 'param.backdrop.label', descKey: 'param.backdrop.desc' } },
   { name: 'zIndex', group: 'interface', default: defProp.zIndex, control: { kind: 'number' },
     i18n: { labelKey: 'param.zIndex.label', descKey: 'param.zIndex.desc' } },
-  { name: 'radius', group: 'interface', default: defProp.radius, control: { kind: 'slider', min: 0, max: 32, step: 1 },
+  { name: 'radius', group: 'interface', default: defaultPresetValues.radius, control: { kind: 'slider', min: 0, max: 32, step: 1 },
     i18n: { labelKey: 'param.radius.label', descKey: 'param.radius.desc' } },
-  { name: 'edge', group: 'interface', default: defProp.edge, control: { kind: 'slider', min: 0, max: 64, step: 1 },
+  { name: 'edge', group: 'interface', default: defaultPresetValues.edge, control: { kind: 'slider', min: 0, max: 64, step: 1 },
     i18n: { labelKey: 'param.edge.label', descKey: 'param.edge.desc' } },
   { name: 'loop', group: 'interface', default: defProp.loop, control: { kind: 'switch' },
     i18n: { labelKey: 'param.loop.label', descKey: 'param.loop.desc' } },

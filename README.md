@@ -170,7 +170,7 @@ API is identical — only the import path changes. The SSR build is platform-neu
 
 | Prop | Type | Default | Notes |
 |---|---|---|---|
-| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'auto'` | Bundles defaults for `controller`, `hotKey`, `animate`, and `gesture`. Omitting `preset` uses `'auto'`. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → `mobile`, otherwise `desktop`. SSR / no `matchMedia` falls back to `desktop`. Use `preset="desktop"` to keep desktop behavior on touch devices. |
+| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'auto'` | Bundles defaults for `controller`, `hotKey`, `animate`, `gesture`, and preset-aware viewer spacing. Omitting `preset` uses `'auto'`. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → `mobile`, otherwise `desktop`. SSR / no `matchMedia` falls back to `desktop`. Use `preset="desktop"` to keep desktop behavior on touch devices. |
 
 ### Functional
 
@@ -281,7 +281,7 @@ interface ControllerRenderSlots {
 
 > `backdrop` and `color` decouple the toolbar from the modal backdrop. Pair them when the modal `backdrop` is dark — e.g. `backdrop="#111"` + `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}` keeps the toolbar legible. Per-button color overrides (e.g. `controller={{ zoom: '#ff8800' }}`) still win over `controller.color`.
 
-> `placement` moves only the toolbar capsule. Side flip buttons and pagination keep their existing positions. `layout` adjusts overlay safe insets for the toolbar, side flip buttons, pagination, and caption without changing the image animation geometry. A number is treated as px, a string is passed through as a CSS length, and a scalar `inset` follows each target's natural entry edge: toolbar uses the current `placement`, side flips use left / right, and pagination / caption use bottom. `layout.mobile` is merged on top when the resolved preset is mobile. `render` receives `{ state, actions, slots }` and replaces the whole controller layer; `slots.Toolbar`, `slots.Pagination`, `slots.FlipLeft`, and `slots.FlipRight` let custom UI reuse the built-in pieces. `controller={false}` disables both built-in slots and `render`.
+> `placement` moves only the toolbar capsule. Side flip buttons and pagination keep their existing positions. `layout` adjusts overlay safe insets for the toolbar, side flip buttons, pagination, and caption without changing the image animation geometry. A number is treated as px, a string is passed through as a CSS length, and a scalar `inset` follows each target's natural entry edge: toolbar uses the current `placement`, side flips use left / right, and pagination / caption use bottom. The desktop preset sets `pagination.inset=24` and `caption.inset=60`; the mobile preset leaves `layout` unset unless you pass it. `layout.mobile` is merged on top when the resolved preset is mobile. `render` receives `{ state, actions, slots }` and replaces the whole controller layer; `slots.Toolbar`, `slots.Pagination`, `slots.FlipLeft`, and `slots.FlipRight` let custom UI reuse the built-in pieces. `controller={false}` disables both built-in slots and `render`.
 
 ```tsx
 <Zmage
@@ -394,6 +394,10 @@ interface ControllerRenderSlots {
 | `close` | ✅ | ✅ |
 | `flip` | ✅ | — |
 | `placement` | `top-right` | `top-right` |
+| `radius` | `8` | `0` |
+| `edge` | `30` | `0` |
+| `controller.layout.pagination.inset` | `24` | — |
+| `controller.layout.caption.inset` | `60` | — |
 | `gesture.swipe` | — | ✅ |
 | `gesture.dragExit` | — | ✅ |
 | `gesture.wheelZoom` | ✅ | — |
@@ -531,8 +535,8 @@ Wheel zoom is active only while the viewer is already in zoom mode; normal brows
 | `coverVisible` | `boolean` | `false` | Keep the cover `<img>` visible while the modal is open. |
 | `backdrop` | `string` | `'#FFFFFF'` | Viewer backdrop. Any valid CSS color or gradient. **Default is white** — override (`'#111'`, etc.) for dark UIs. |
 | `zIndex` | `number` | `1000` | Portal stacking. |
-| `radius` | `number` | `0` | Image corner radius (px). |
-| `edge` | `number` | `0` | Minimum margin between image and viewport (px). |
+| `radius` | `number` | desktop `8`, mobile `0` | Image corner radius (px). |
+| `edge` | `number` | desktop `30`, mobile `0` | Minimum margin between image and viewport (px). |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
 | `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
 

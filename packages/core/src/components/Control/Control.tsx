@@ -128,6 +128,16 @@ export default function Control () {
   const browsingItemTransitionStyle = animate?.browsing === false
     ? { transition: 'none' }
     : motion.controlItemTransition ? { transition: motion.controlItemTransition } : undefined
+  const controllerChromeStyle: CSSProperties = {
+    backgroundColor: effectiveControllerBackdrop,
+    color: controllerColor,
+    ...browsingTransitionStyle,
+  }
+  const sideButtonStyle: CSSProperties = {
+    backgroundColor: effectiveControllerBackdrop,
+    color: controllerColor,
+    ...browsingItemTransitionStyle,
+  }
   const placement = resolveControllerPlacement(controllerParams.placement)
   const handleMobileZoom = () => {
     const current = Array.isArray(set) ? set[page] : undefined
@@ -156,7 +166,7 @@ export default function Control () {
       id="zmageControl"
       data-placement={placement}
       className={cx(style.controls, PLACEMENT_CLASS[placement], { [style.show]: !zoom && show })}
-      style={{ backgroundColor: effectiveControllerBackdrop, ...browsingTransitionStyle }}
+      style={controllerChromeStyle}
     >
       {
         getControllerItem(
@@ -251,7 +261,7 @@ export default function Control () {
       show,
       zoom,
       undefined,
-      browsingItemTransitionStyle,
+      sideButtonStyle,
       undefined,
       undefined,
       controllerColor
@@ -267,7 +277,7 @@ export default function Control () {
       show,
       zoom,
       undefined,
-      browsingItemTransitionStyle,
+      sideButtonStyle,
       undefined,
       undefined,
       controllerColor
@@ -280,7 +290,7 @@ export default function Control () {
         <div
           id="zmageControlPagination"
           className={cx(style.pages, { [style.show]: !zoom && show, [style.mobile]: presetIsMobile })}
-          style={{ backgroundColor: effectiveControllerBackdrop, ...browsingTransitionStyle }}
+          style={controllerChromeStyle}
         >
           {
             set.map((_, i) =>

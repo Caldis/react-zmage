@@ -4,7 +4,9 @@
 import React, { StrictMode } from 'react'
 import { render, fireEvent, screen, act } from '@testing-library/react'
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
+import fs from 'node:fs'
 import Zmage from '../Zmage'
+import Browser from '../components/Browser'
 import { defPropsWithEnv, resolvePreset } from '../types/default'
 import { pageIsCover } from '../components/Browser/Browser.utils'
 import type { ControllerPlacement, ControllerSet, GestureSet, HotKey } from '../types/global'
@@ -1025,6 +1027,46 @@ describe('Zmage controller Phase 5', () => {
   }
 
   type ControllerRenderParameters = Parameters<NonNullable<ControllerSet['render']>>[0]
+  type BrowserProps = React.ComponentProps<typeof Browser>
+
+  const createBrowser = (props: Partial<BrowserProps> = {}) => new Browser({
+    isBrowsingControlled: false,
+    browsing: false,
+    coverRef: React.createRef<HTMLImageElement>(),
+    outBrowsing: () => {},
+    defaultPage: 0,
+    set: [{ src: SRC }],
+    ...props,
+  } as BrowserProps)
+
+  it('desktop preset 默认 image 安全参数和 overlay 间距, mobile 保持旧值', () => {
+    const desktop = defPropsWithEnv('desktop')
+    const mobile = defPropsWithEnv('mobile')
+
+    expect(desktop.edge).toBe(30)
+    expect(desktop.radius).toBe(8)
+    expect((desktop.controller as ControllerSet).layout).toMatchObject({
+      pagination: { inset: 24 },
+      caption: { inset: 60 },
+    })
+
+    expect(mobile.edge).toBe(0)
+    expect(mobile.radius).toBe(0)
+    expect((mobile.controller as ControllerSet).layout).toBeUndefined()
+  })
+
+  it('Browser 省略 radius/edge 时使用 preset 默认, 显式 0 不被覆盖', () => {
+    const omittedDesktop = createBrowser({ preset: 'desktop', radius: undefined, edge: undefined }).getPropsWithEnv()
+    const explicitDesktop = createBrowser({ preset: 'desktop', radius: 0, edge: 0 }).getPropsWithEnv()
+    const omittedMobile = createBrowser({ preset: 'mobile', radius: undefined, edge: undefined }).getPropsWithEnv()
+
+    expect(omittedDesktop.radius).toBe(8)
+    expect(omittedDesktop.edge).toBe(30)
+    expect(explicitDesktop.radius).toBe(0)
+    expect(explicitDesktop.edge).toBe(0)
+    expect(omittedMobile.radius).toBe(0)
+    expect(omittedMobile.edge).toBe(0)
+  })
 
   it('controller 默认 placement 为 top-right', async () => {
     render(<Zmage src={SRC} alt="controller-placement-default" preset="desktop" />)
@@ -1070,6 +1112,104 @@ describe('Zmage controller Phase 5', () => {
     expect(document.getElementById('zmageControl')?.dataset.placement).toBe('left-center')
     expect(document.getElementById('zmageControlFlipRight')).toBeTruthy()
     expect(document.getElementById('zmageControlPagination')).toBeTruthy()
+  })
+
+  it('controller.backdrop/color 同步覆盖翻页按钮和分页当前点', async () => {
+    render(
+      <Zmage
+        src="https://example.com/controller-a.jpg"
+        alt="controller-contrast"
+        backdrop="rgba(0, 0, 0, 0.72)"
+        controller={{ color: '#f8fafc' }}
+        set={[
+          { src: 'https://example.com/controller-a.jpg' },
+          { src: 'https://example.com/controller-b.jpg' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-contrast'))
+    await wait(50)
+
+    const flipRight = document.getElementById('zmageControlFlipRight')
+    const pagination = document.getElementById('zmageControlPagination')
+
+    expect(flipRight?.style.backgroundColor).toBe('rgba(0, 0, 0, 0.72)')
+    expect(pagination?.style.backgroundColor).toBe('rgba(0, 0, 0, 0.72)')
+    expect(pagination?.style.color).toBe('rgb(248, 250, 252)')
+
+    const controlStyles = fs.readFileSync('src/components/Control/Control.module.less', 'utf8')
+    expect(controlStyles).toMatch(/\.blackDot\s*\{[\s\S]*?background:\s*currentcolor;/)
+  })
+
+  it('desktop 默认 layout 写入分页和 caption 偏移变量', async () => {
+    render(
+      <Zmage
+        src={SRC}
+        alt="controller-layout-default-desktop"
+        preset="desktop"
+        caption="desktop caption"
+        set={[
+          { src: SRC, caption: 'desktop caption' },
+          { src: 'https://example.com/controller-layout-default-b.jpg', caption: 'next' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-layout-default-desktop'))
+    await wait(50)
+
+    const portal = document.getElementById('zmage')
+    expect(portal?.style.getPropertyValue('--zmage-pagination-bottom-offset')).toBe('24px')
+    expect(portal?.style.getPropertyValue('--zmage-caption-bottom-offset')).toBe('60px')
+  })
+
+  it('mobile 默认 layout 不继承 desktop 的 pagination/caption 偏移', async () => {
+    render(
+      <Zmage
+        src={SRC}
+        alt="controller-layout-default-mobile"
+        preset="mobile"
+        caption="mobile caption"
+        set={[
+          { src: SRC, caption: 'mobile caption' },
+          { src: 'https://example.com/controller-layout-default-mobile-b.jpg', caption: 'next' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-layout-default-mobile'))
+    await wait(50)
+
+    const portal = document.getElementById('zmage')
+    expect(portal?.style.getPropertyValue('--zmage-pagination-bottom-offset')).toBe('')
+    expect(portal?.style.getPropertyValue('--zmage-caption-bottom-offset')).toBe('')
+  })
+
+  it('controller.layout 局部覆盖保留 desktop 默认 pagination/caption 间距', async () => {
+    render(
+      <Zmage
+        src={SRC}
+        alt="controller-layout-partial-desktop"
+        preset="desktop"
+        caption="partial caption"
+        controller={{
+          layout: {
+            toolbar: { inset: 12 },
+            pagination: { inset: 36 },
+          },
+        }}
+        set={[
+          { src: SRC, caption: 'partial caption' },
+          { src: 'https://example.com/controller-layout-partial-b.jpg', caption: 'next' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('controller-layout-partial-desktop'))
+    await wait(50)
+
+    const portal = document.getElementById('zmage')
+    expect(portal?.style.getPropertyValue('--zmage-toolbar-top-offset')).toBe('12px')
+    expect(portal?.style.getPropertyValue('--zmage-toolbar-right-offset')).toBe('12px')
+    expect(portal?.style.getPropertyValue('--zmage-pagination-bottom-offset')).toBe('36px')
+    expect(portal?.style.getPropertyValue('--zmage-caption-bottom-offset')).toBe('60px')
   })
 
   it('controller.layout 按目标自然边写入 overlay 偏移变量', async () => {
@@ -2129,6 +2269,7 @@ describe('Zmage 动画行为', () => {
         src="https://example.com/01.jpg"
         alt="cover"
         preset="desktop"
+        edge={0}
         animate={{ flip: 'zoom' }}
         set={[
           { src: 'https://example.com/01.jpg', alt: 'p1' },
@@ -2187,7 +2328,7 @@ describe('Zmage 动画行为', () => {
     Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
 
     try {
-      render(<Zmage src={SRC} alt="keyboard-zoom"/>)
+      render(<Zmage src={SRC} alt="keyboard-zoom" edge={0}/>)
       fireEvent.click(screen.getByAltText('keyboard-zoom'))
       await wait(50)
 
@@ -2680,6 +2821,7 @@ describe('Zmage 翻页 fit-scale 跟随当前页比例 (#167)', () => {
           src={WIDE}
           alt="aspect-flip"
           preset="desktop"
+          edge={0}
           set={[
             { src: WIDE, alt: 'wide' },
             { src: TALL, alt: 'tall' },
@@ -2780,6 +2922,7 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
           src={WIDE}
           alt="bug1"
           preset="desktop"
+          edge={0}
           animate={{ flip: 'none' }}
           set={[
             { src: WIDE, alt: 'wide' },

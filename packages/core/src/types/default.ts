@@ -123,12 +123,22 @@ export const defProp = {
 
 }
 
+// React defaultProps 会在进入 Browser 前把省略值填好。radius / edge 需要按 preset
+// 解析默认值, 所以组件入口要保留 undefined, 交给 Browser.getPropsWithEnv 处理。
+export const componentDefaultProps = {
+  ...defProp,
+  radius: undefined as BaseType['radius'],
+  edge: undefined as BaseType['edge'],
+}
+
 /**
  * 默认预设
  **/
 export const defPreset = {
   // 桌面
   desktop: {
+    radius: 8,
+    edge: 30,
     controller: {
       pagination: true,
       rotate: true,
@@ -137,6 +147,10 @@ export const defPreset = {
       close: true,
       flip: true,
       placement: 'top-right' as const,
+      layout: {
+        pagination: { inset: 24 },
+        caption: { inset: 60 },
+      },
     },
     hotKey: {
       close: true,
@@ -164,6 +178,8 @@ export const defPreset = {
   },
   // 移动端
   mobile: {
+    radius: 0,
+    edge: 0,
     controller: {
       pagination: true,
       rotate: false,

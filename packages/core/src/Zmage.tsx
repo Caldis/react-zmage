@@ -10,7 +10,7 @@ import callee from './Zmage.callee'
 import wrapper from './Zmage.wrapper'
 import Browser from './components/Browser'
 // Utils
-import { defProp, getConfigFromProps } from './types/default'
+import { componentDefaultProps, getConfigFromProps } from './types/default'
 import { getMotionDurationMultiplierFromEvent, isSlowMotionEnabled, motionDefaultDurationMultiplier } from './config/motion'
 import { BaseType } from './types/global'
 
@@ -30,7 +30,7 @@ interface StateType {
 class ReactZmage extends React.Component<PropsType, StateType> {
 
   // Defaults
-  static defaultProps = defProp
+  static defaultProps = componentDefaultProps
 
   // Components
   public static browsing = callee

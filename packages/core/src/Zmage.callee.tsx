@@ -9,7 +9,7 @@ import * as ReactDOMClient from 'react-dom/client'
 // Components
 import Browser from './components/Browser'
 // Utils
-import { defProp, getConfigFromProps } from './types/default'
+import { componentDefaultProps, getConfigFromProps } from './types/default'
 import { getBrowsingAnimationDuration } from './config/anim'
 import { getMotionDurationMultiplierFromEvent, isSlowMotionEnabled } from './config/motion'
 import type { MotionTriggerEvent } from './config/motion'
@@ -91,7 +91,7 @@ type State = {
 
 class ReactZmageCallee extends React.Component<Props, State> {
   // Defaults
-  static defaultProps = defProp
+  static defaultProps = componentDefaultProps
   // Popup Position
   showPosition = CLICK_MONITOR.currentPosition
   // State
