@@ -397,7 +397,7 @@ interface ControllerRenderSlots {
 | `flip` | ✅ | — |
 | `placement` | `top-right` | `top-right` |
 | `radius` | `8` | `0` |
-| `edge` | `30` | `0` |
+| `edge` | `16` | `0` |
 | `controller.layout.pagination.inset` | `24` | — |
 | `controller.layout.caption.inset` | `60` | — |
 | `gesture.swipe` | — | ✅ |
@@ -538,7 +538,7 @@ Wheel zoom is active only while the viewer is already in zoom mode; normal brows
 | `backdrop` | `string` | `'#FFFFFF'` | Viewer backdrop. Any valid CSS color or gradient. **Default is white** — override (`'#111'`, etc.) for dark UIs. |
 | `zIndex` | `number` | `1000` | Portal stacking. |
 | `radius` | `number` | desktop `8`, mobile `0` | Image corner radius (px). |
-| `edge` | `number` | desktop `30`, mobile `0` | Minimum margin between image and viewport (px). |
+| `edge` | `number` | desktop `16`, mobile `0` | Minimum margin between image and viewport (px). |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
 | `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
 

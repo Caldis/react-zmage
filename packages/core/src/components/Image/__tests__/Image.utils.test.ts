@@ -7,6 +7,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
+  calcFitScale,
   closingEase,
   getAnimateConfig,
   getBrowsingStyle,
@@ -18,6 +19,7 @@ import {
   getSwipeOffset,
   getTouchDistance,
   getTouchMidpoint,
+  getZoomPanBounds,
   getZoomScaleRange,
   getZoomingStyle,
   ImageStyleType,
@@ -364,8 +366,35 @@ describe('getCoverStyle 跨 viewport 几何', () => {
       set: [{ src: 'same.jpg' }],
     } as unknown as ContextType, { current: modalImg })
 
-    expect(style.scale).toBeCloseTo(0.502, 5)
+    expect(style.scale).toBeCloseTo(0.5, 5)
     expect(style.clip).toBeUndefined()
+  })
+})
+
+describe('calcFitScale edge 几何', () => {
+  const viewport = { left: 0, top: 0, width: 1000, height: 800 }
+
+  it('宽向受限时保留配置的最小 viewport 边距', () => {
+    const scale = calcFitScale(2000, 1200, 50, viewport)
+    const marginX = (viewport.width - 2000 * scale) / 2
+
+    expect(scale).toBeCloseTo(0.45, 5)
+    expect(marginX).toBeCloseTo(50, 5)
+  })
+
+  it('图片刚好放入 edge-safe 区域时不额外放大', () => {
+    const scale = calcFitScale(940, 600, 30, viewport)
+
+    expect(scale).toBe(1)
+  })
+
+  it('90 度旋转时按旋转后的视觉包围盒保留 edge', () => {
+    const scale = calcFitScale(2000, 1200, 30, viewport, 90)
+    const visualHeight = 2000 * scale
+    const marginY = (viewport.height - visualHeight) / 2
+
+    expect(scale).toBeCloseTo(0.37, 5)
+    expect(marginY).toBeCloseTo(30, 5)
   })
 })
 
@@ -834,7 +863,7 @@ describe('mobile zoom helpers (Phase 4)', () => {
     })).toBe(4)
   })
 
-  it('resistZoomPanStyle 在缩放边界外应用阻尼, 不直接硬截断', () => {
+  it('resistZoomPanStyle 在缩放边界外应用阻尼, 且 edge=0 不额外扩张边界', () => {
     const style = resistZoomPanStyle(context, { current: buildImage() }, {
       _type: 'zooming',
       x: 700,
@@ -843,8 +872,8 @@ describe('mobile zoom helpers (Phase 4)', () => {
       rotate: 0,
     })
 
-    expect(style.x).toBeCloseTo(602.5, 5)
-    expect(style.y).toBeCloseTo(-174.5, 5)
+    expect(style.x).toBeCloseTo(570, 5)
+    expect(style.y).toBeCloseTo(-142, 5)
   })
 
   it('DoubleTapGesture 在时间和距离阈值内接受第二次 tap', () => {
@@ -929,6 +958,31 @@ describe('wheel zoom helpers (Phase 3)', () => {
     expect(style.x).toBe(0)
     expect(style.y).toBe(0)
     expect(style.clip).toBeUndefined()
+  })
+
+  it('getZoomPanBounds 保留显式 edge=0, 不回退成内部默认边界', () => {
+    const image = document.createElement('img')
+    Object.defineProperty(image, 'naturalWidth', { value: 2000, configurable: true })
+    Object.defineProperty(image, 'naturalHeight', { value: 1000, configurable: true })
+    const context = {
+      edge: 0,
+      viewportRef: {
+        current: {
+          getBoundingClientRect: () => ({
+            left: 0, top: 0, width: 1000, height: 800,
+            right: 1000, bottom: 800, x: 0, y: 0,
+            toJSON: () => ({}),
+          } as DOMRect),
+        },
+      },
+    } as ContextType
+
+    const bounds = getZoomPanBounds(context, { current: image }, 1)
+
+    expect(bounds.minX).toBe(-500)
+    expect(bounds.maxX).toBe(500)
+    expect(bounds.minY).toBe(-100)
+    expect(bounds.maxY).toBe(100)
   })
 })
 

@@ -6,6 +6,11 @@
 import { RefObject } from 'react'
 // Utils
 import { getClientHeight, getClientWidth, numberOfStyleUnits } from '../../utils'
+import {
+  calcFitScale as calcViewportFitScale,
+  calcZoomPanBounds as calcZoomPanGeometryBounds,
+  normalizeEdge,
+} from '../../utils/geometry'
 import { animationCurve, animationDuration, animationFunctionOnZooming, animationTransition } from '../../config/anim'
 import type { ContextType } from '../context'
 import { defaultAnimateCoverOptions, defaultGestureDoubleTapZoomOptions, defaultGestureDragExitOptions, defaultGesturePinchZoomOptions, defaultGestureSwipeOptions, defaultGestureWheelZoomOptions } from '../../types/default'
@@ -72,13 +77,9 @@ export const getViewportRect = (context?: Pick<ContextType, 'viewportRef'>): Vie
   }
 }
 
-export const calcFitScale = (naturalWidth: number, naturalHeight: number, edge = 0, viewport = getViewportRect()) => {
-  const figureWidth = naturalWidth + 2 * edge
-  const figureHeight = naturalHeight + 2 * edge
-  const scaleX = figureWidth > viewport.width ? viewport.width / figureWidth : 1
-  const scaleY = figureHeight > viewport.height ? viewport.height / figureHeight : 1
-  return Math.min(scaleX, scaleY) + 0.002
-}
+export const calcFitScale = (naturalWidth: number, naturalHeight: number, edge = 0, viewport = getViewportRect(), rotate = 0) => (
+  calcViewportFitScale(naturalWidth, naturalHeight, edge, viewport, rotate)
+)
 
 export const ZERO_CLIP: ClipInsets = { top: 0, right: 0, bottom: 0, left: 0 }
 
@@ -397,7 +398,7 @@ export const getBrowsingStyle = (context: ContextType, imageRef: RefObject<HTMLI
   const coverIsCurrentImage = !!coverRef.current && coverRef.current.getAttribute('src') === set?.[page]?.src
   const naturalWidth = imageNaturalWidth || (coverIsCurrentImage ? coverRef.current?.naturalWidth : 0) || 0
   const naturalHeight = imageNaturalHeight || (coverIsCurrentImage ? coverRef.current?.naturalHeight : 0) || 0
-  const scale = calcFitScale(naturalWidth, naturalHeight, edge, getViewportRect(context))
+  const scale = calcFitScale(naturalWidth, naturalHeight, edge, getViewportRect(context), rotate)
   return {
     _type: 'browsing',
     x: 0,
@@ -416,11 +417,10 @@ export const getZoomingStyle = (
   pointer: { clientX?: number, clientY?: number } = {},
   options: ZoomingStyleOptions = {},
 ): ImageStyleType => {
-  const { radius, edge, rotate } = context
+  const { radius, rotate } = context
   const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
   const scale = Number.isFinite(options.scale) && (options.scale ?? 0) > 0 ? options.scale as number : 1
   // 随鼠标位移偏移量
-  const saveEdge = edge || 50
   const viewport = getViewportRect(context)
   const viewWidth = viewport.width
   const viewHeight = viewport.height
@@ -428,12 +428,18 @@ export const getZoomingStyle = (
   const mouseY = pointer.clientY ?? viewport.top + viewHeight / 2
   const localMouseX = mouseX - viewport.left
   const localMouseY = mouseY - viewport.top
-  const scaledWidth = naturalWidth * scale
-  const scaledHeight = naturalHeight * scale
-  const rangeX = scaledWidth - viewWidth + (2 * saveEdge)
-  const rangeY = scaledHeight - viewHeight + (2 * saveEdge)
-  const imgPosX = scaledWidth > viewWidth ? ((scaledWidth - viewWidth) / 2 + saveEdge) - (rangeX * (localMouseX / viewWidth)) : 0
-  const imgPosY = scaledHeight > viewHeight ? ((scaledHeight - viewHeight) / 2 + saveEdge) - (rangeY * (localMouseY / viewHeight)) : 0
+  const bounds = calcZoomPanGeometryBounds({
+    naturalWidth,
+    naturalHeight,
+    viewport,
+    scale,
+    edge: getZoomPanEdge(context),
+    rotate,
+  })
+  const ratioX = viewWidth > 0 ? localMouseX / viewWidth : 0.5
+  const ratioY = viewHeight > 0 ? localMouseY / viewHeight : 0.5
+  const imgPosX = bounds.maxX > 0 ? bounds.maxX - ((bounds.maxX - bounds.minX) * ratioX) : 0
+  const imgPosY = bounds.maxY > 0 ? bounds.maxY - ((bounds.maxY - bounds.minY) * ratioY) : 0
   // 返回位置
   return {
     _type: 'zooming',
@@ -450,6 +456,10 @@ const WHEEL_LINE_HEIGHT = 16
 
 const clampNumber = (value: number, min: number, max: number) => (
   Math.min(Math.max(value, min), max)
+)
+
+const getZoomPanEdge = (context: ContextType): number => (
+  normalizeEdge(context.edge ?? 0)
 )
 
 const ZOOM_PAN_BOUNCE_RESISTANCE = 0.35
@@ -472,18 +482,14 @@ export const getZoomPanBounds = (
 ) => {
   const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
   const viewport = getViewportRect(context)
-  const saveEdge = context.edge || 50
-  const safeScale = Number.isFinite(scale) && scale > 0 ? scale : 1
-  const scaledWidth = naturalWidth * safeScale
-  const scaledHeight = naturalHeight * safeScale
-  const maxX = scaledWidth > viewport.width ? (scaledWidth - viewport.width) / 2 + saveEdge : 0
-  const maxY = scaledHeight > viewport.height ? (scaledHeight - viewport.height) / 2 + saveEdge : 0
-  return {
-    minX: -maxX,
-    maxX,
-    minY: -maxY,
-    maxY,
-  }
+  return calcZoomPanGeometryBounds({
+    naturalWidth,
+    naturalHeight,
+    viewport,
+    scale,
+    edge: getZoomPanEdge(context),
+    rotate: context.rotate,
+  })
 }
 
 export const clampZoomPanStyle = (
@@ -530,7 +536,7 @@ export const getZoomScaleRange = (
   options: { minScale?: 'fit' | number, maxScale?: number },
 ): ZoomScaleRange => {
   const { naturalWidth = 0, naturalHeight = 0 } = imageRef.current || {}
-  const fitScale = calcFitScale(naturalWidth, naturalHeight, context.edge ?? 0, getViewportRect(context))
+  const fitScale = calcFitScale(naturalWidth, naturalHeight, context.edge ?? 0, getViewportRect(context), context.rotate ?? 0)
   const minScale = options.minScale === 'fit' || options.minScale == null
     ? fitScale
     : options.minScale

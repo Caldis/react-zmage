@@ -1,15 +1,32 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { calcFitScale, computeMinPageDistance, getTargetPage, resolveShortestStep } from '../../utils'
 
 describe('calcFitScale', () => {
-  it('returns a minimal scale increment when image already fits viewport', () => {
-    expect(calcFitScale(100, 100, 0)).toBeCloseTo(0.002, 5)
+  let originalClientWidthDescriptor: PropertyDescriptor | undefined
+  let originalClientHeightDescriptor: PropertyDescriptor | undefined
+
+  beforeEach(() => {
+    originalClientWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    originalClientHeightDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { value: 1000, configurable: true })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { value: 800, configurable: true })
   })
 
-  it('respects edge padding and keeps scale under or equal to 1', () => {
+  afterEach(() => {
+    if (originalClientWidthDescriptor) Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidthDescriptor)
+    if (originalClientHeightDescriptor) Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeightDescriptor)
+  })
+
+  it('returns 1 when image already fits the edge-safe viewport', () => {
+    expect(calcFitScale(100, 100, 0)).toBe(1)
+  })
+
+  it('respects edge padding as viewport margin', () => {
     const scale = calcFitScale(2000, 1200, 50)
-    expect(scale).toBeLessThanOrEqual(1)
-    expect(scale).toBeGreaterThan(0)
+    const marginX = (1000 - 2000 * scale) / 2
+
+    expect(scale).toBeCloseTo(0.45, 5)
+    expect(marginX).toBeCloseTo(50, 5)
   })
 })
 

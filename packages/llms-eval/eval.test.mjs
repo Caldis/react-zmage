@@ -55,6 +55,18 @@ test('backdrop default value matches code', () => {
     `llms.txt says backdrop ${docMatch[0]} but code says ${codeDefault}`)
 })
 
+test('edge preset defaults match code and llms.txt', () => {
+  const m = defaultTs.match(/desktop:\s*\{[\s\S]*?\bedge:\s*(\d+)/)
+  assert.ok(m, 'desktop edge default not found in default.ts')
+  const codeDefault = Number(m[1])
+  const edgeLine = llmsTxt.split('\n').find(
+    (line) => /^\s*\|/.test(line) && /`zIndex`\s*\/\s*`radius`\s*\/\s*`edge`/.test(line)
+  )
+  assert.ok(edgeLine, 'no API-table row in llms.txt declares the edge default')
+  assert.match(edgeLine, new RegExp(`desktop \`${codeDefault}\`, mobile \`0\``),
+    `llms.txt should document desktop edge ${codeDefault} and mobile edge 0`)
+})
+
 test('preset default value matches code and llms.txt', () => {
   assert.match(defaultTs, /const\s+DEFAULT_PRESET:\s*Preset\s*=\s*'auto'/,
     'default.ts should define DEFAULT_PRESET as auto')

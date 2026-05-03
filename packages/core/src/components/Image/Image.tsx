@@ -17,6 +17,7 @@ import { applyMotionTransition } from '../../config/motion'
 import { defaultGestureWheelZoomOptions } from '../../types/default'
 import {
   appendParams,
+  calcFitGeometry,
   checkImageLoadedComplete,
   computeMinPageDistance,
   cx,
@@ -219,6 +220,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     }
     if (prevRotate !== currRotate && currShow) {
       this.completeBrowsingFollow()
+      this.reportCanZoom()
     }
     if (!prevZoom && currZoom) {
       this.cancelCoverFollow()
@@ -724,8 +726,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     // 不再独靠 500ms polling. 这是 fast-load 场景下"延迟显示"机制能彻底无 flash 的关键.
     this.handleImageLoadEnd()
   }
-  // 把 "图是否大于视口" 的判断上抛给 Browser, 用于 Control 的禁用态和空格键的早返回.
-  // 旋转/dpr 暂不参与计算; 这里只用 naturalWidth/Height vs 布局视口宽高的保守判断.
+  // 把 fit 几何里的 canZoom 上抛给 Browser, 用于 Control 的禁用态和空格键的早返回.
   reportCanZoom = () => {
     const { setCanZoom } = this.context
     if (typeof setCanZoom !== 'function') return
@@ -734,7 +735,15 @@ export default class Image extends React.Component<PropsType, StateType> {
     const { naturalWidth, naturalHeight } = node
     if (!naturalWidth || !naturalHeight) return
     const viewport = getViewportRect(this.context)
-    setCanZoom(naturalWidth > viewport.width || naturalHeight > viewport.height)
+    if (!viewport.width || !viewport.height) return
+    const geometry = calcFitGeometry({
+      naturalWidth,
+      naturalHeight,
+      edge: this.context.edge ?? 0,
+      viewport,
+      rotate: this.context.rotate ?? 0,
+    })
+    setCanZoom(geometry.canZoom)
   }
   handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     this.handleImageLoadEnd({ invalidate: true })
@@ -1583,11 +1592,11 @@ export default class Image extends React.Component<PropsType, StateType> {
   }
   // 给定 set 索引算它自己的 fit-scale (browsing 态用); 没收集到 dimensions 返回 null,
   // 调用方 fallback 到 currentStyle.scale (老行为) 兼容首次渲染前的状态.
-  getOwnFitScale = (imageIndex: number): number | null => {
+  getOwnFitScale = (imageIndex: number, rotate = 0): number | null => {
     const dims = this.state.imageDimensions[imageIndex]
     if (!dims) return null
     const { edge } = this.context
-    return calcFitScale(dims.w, dims.h, edge ?? 0, getViewportRect(this.context))
+    return calcFitScale(dims.w, dims.h, edge ?? 0, getViewportRect(this.context), rotate)
   }
 
   getStyle = (step: number, distance: number, isSideImage: boolean, imageIndex: number): CSSProperties => {
@@ -1627,7 +1636,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       // center: browsing 态优先用 set[page] 自己的 fit-scale (跟 side 同源), 翻页瞬间
       // 不出现 scale transition — currentStyle.scale 由 debounce 异步更新, 没赶上当前帧.
       // cover / zoom 态仍用 currentStyle.scale (那时 currentStyle 含 cover-anim / zoom scale 几何).
-      const ownScale = renderCurrentStyle._type === 'browsing' ? this.getOwnFitScale(page) : null
+      const ownScale = renderCurrentStyle._type === 'browsing' ? this.getOwnFitScale(page, renderCurrentStyle.rotate ?? this.context.rotate ?? 0) : null
       const centerScale = ownScale ?? (renderCurrentStyle.scale ?? 0)
       appliedScale = centerScale
       const x = (renderCurrentStyle.x || 0) + touch.x

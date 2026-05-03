@@ -134,7 +134,7 @@ const [open, setOpen] = useState(false)
 | `hideOnScroll` | `boolean` | `true` | Auto-close on page scroll (desktop only). |
 | `hideOnDblClick` | `boolean` | `false` | Auto-close on image double-click. Off by default to preserve current single-click semantics; turn on to dismiss with a double-click. |
 | `coverVisible` | `boolean` | `false` | Keep the underlying `<img>` visible while the modal is open. |
-| `zIndex` / `radius` / `edge` | `number` | `1000` / desktop `8`, mobile `0` / desktop `30`, mobile `0` | Modal stacking, image corner radius, viewport padding. |
+| `zIndex` / `radius` / `edge` | `number` | `1000` / desktop `8`, mobile `0` / desktop `16`, mobile `0` | Modal stacking, image corner radius, viewport padding. |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
 | `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
 | `onBrowsing` | `(isBrowsing: boolean) => void` | — | Fires on open/close. |

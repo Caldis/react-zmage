@@ -278,8 +278,8 @@ importers:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       react-zmage:
-        specifier: file:..\..\.pack\react-zmage-1.8.3.tgz
-        version: file:.pack/react-zmage-1.8.3.tgz(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: file:..\..\.pack\react-zmage-1.8.4.tgz
+        version: file:.pack/react-zmage-1.8.4.tgz(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
     devDependencies:
       '@types/node':
         specifier: ^20.19.39
@@ -303,8 +303,8 @@ importers:
         specifier: ^17.0.2
         version: 17.0.2(react@17.0.2)
       react-zmage:
-        specifier: file:..\..\.pack\react-zmage-1.8.3.tgz
-        version: file:.pack/react-zmage-1.8.3.tgz(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+        specifier: file:..\..\.pack\react-zmage-1.8.4.tgz
+        version: file:.pack/react-zmage-1.8.4.tgz(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
     devDependencies:
       '@types/react':
         specifier: ^17.0.91
@@ -325,8 +325,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       react-zmage:
-        specifier: file:..\..\.pack\react-zmage-1.8.3.tgz
-        version: file:.pack/react-zmage-1.8.3.tgz(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: file:..\..\.pack\react-zmage-1.8.4.tgz
+        version: file:.pack/react-zmage-1.8.4.tgz(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@types/react':
         specifier: ^18.3.28
@@ -347,8 +347,8 @@ importers:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       react-zmage:
-        specifier: file:..\..\.pack\react-zmage-1.8.3.tgz
-        version: file:.pack/react-zmage-1.8.3.tgz(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: file:..\..\.pack\react-zmage-1.8.4.tgz
+        version: file:.pack/react-zmage-1.8.4.tgz(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
     devDependencies:
       '@types/react':
         specifier: ^19.2.14
@@ -4139,9 +4139,9 @@ packages:
       '@types/react':
         optional: true
 
-  react-zmage@file:.pack/react-zmage-1.8.3.tgz:
-    resolution: {integrity: sha512-EBSUpN3fDyuhqcJmaX9MZxWigNGAvQCnFZyyoTgRydTK+5RznUTunNKKRR3QvKRlXBuAgUx+dRypKijDpSXwSw==, tarball: file:.pack/react-zmage-1.8.3.tgz}
-    version: 1.8.3
+  react-zmage@file:.pack/react-zmage-1.8.4.tgz:
+    resolution: {integrity: sha512-9/TZNgd+4if50EmBTzgSuzaFOeoSW2heVGZ6wfZhmYAEZ0ddI4bw7B+y1pOBHxAHnaSC0KPlnB4ZPrsI3fBE7w==, tarball: file:.pack/react-zmage-1.8.4.tgz}
+    version: 1.8.4
     peerDependencies:
       react: '>=16.8.0 <20'
       react-dom: '>=16.8.0 <20'
@@ -8800,17 +8800,17 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  react-zmage@file:.pack/react-zmage-1.8.3.tgz(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
+  react-zmage@file:.pack/react-zmage-1.8.4.tgz(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
 
-  react-zmage@file:.pack/react-zmage-1.8.3.tgz(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-zmage@file:.pack/react-zmage-1.8.4.tgz(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  react-zmage@file:.pack/react-zmage-1.8.3.tgz(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
+  react-zmage@file:.pack/react-zmage-1.8.4.tgz(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
     dependencies:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)

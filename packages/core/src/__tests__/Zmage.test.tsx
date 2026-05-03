@@ -1090,7 +1090,7 @@ describe('Zmage controller Phase 5', () => {
     const desktop = defPropsWithEnv('desktop')
     const mobile = defPropsWithEnv('mobile')
 
-    expect(desktop.edge).toBe(30)
+    expect(desktop.edge).toBe(16)
     expect(desktop.radius).toBe(8)
     expect((desktop.controller as ControllerSet).layout).toMatchObject({
       pagination: { inset: 24 },
@@ -1108,7 +1108,7 @@ describe('Zmage controller Phase 5', () => {
     const omittedMobile = createBrowser({ preset: 'mobile', radius: undefined, edge: undefined }).getPropsWithEnv()
 
     expect(omittedDesktop.radius).toBe(8)
-    expect(omittedDesktop.edge).toBe(30)
+    expect(omittedDesktop.edge).toBe(16)
     expect(explicitDesktop.radius).toBe(0)
     expect(explicitDesktop.edge).toBe(0)
     expect(omittedMobile.radius).toBe(0)
@@ -2490,8 +2490,8 @@ describe('Zmage 动画行为', () => {
     const sideImage = await waitForViewerSideImage('02.jpg')
     // zoom 配置: { offset: 0, overflow: 0.08, opacity: 0 }
     expect(sideImage.style.opacity).toBe('0')
-    // jsdom 下 naturalWidth=0 → calcFitScale 返回 1.002 (epsilon), overflow=0.08 应让 scale3d 大于 1.05 (实测 1.082).
-    // 阈值 > 1.05 隔离 epsilon, 让 overflow 漂移到 0 时立即失败.
+    // jsdom 下 naturalWidth=0 → fit-scale 回退为 1, overflow=0.08 应让 scale3d 大于 1.05.
+    // 阈值 > 1.05 隔离 fit-scale 细节, 让 overflow 漂移到 0 时立即失败.
     const m = requireDefined(sideImage.style.transform.match(/scale3d\(([\d.]+),/), 'expected side scale transform')
     expect(Number(m[1])).toBeGreaterThan(1.05)
   })
@@ -2544,7 +2544,7 @@ describe('Zmage 动画行为', () => {
 
       const centerImage = document.getElementById('zmageImage') as HTMLImageElement
       expect(centerImage.style.transition).toContain('transform 350ms')
-      expect(centerImage.style.transform).toContain('translate3d(-440px, -112.5px, 0px)')
+      expect(centerImage.style.transform).toContain('translate3d(-400px, -75px, 0px)')
     } finally {
       if (originalNaturalWidth) Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', originalNaturalWidth)
       if (originalNaturalHeight) Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', originalNaturalHeight)
@@ -3665,6 +3665,34 @@ describe('Zmage canZoom 切页路径收敛 (#regression-zoom-after-flip)', () =>
       await wait(20)
 
       // canZoom 应被修正成 true → 按钮解除 disabled
+      expect(zoomBtn.className).not.toContain('disabled')
+    } finally {
+      restore()
+      if (origCW) Object.defineProperty(HTMLElement.prototype, 'clientWidth', origCW)
+      if (origCH) Object.defineProperty(HTMLElement.prototype, 'clientHeight', origCH)
+    }
+  })
+
+  it('图片因 edge-safe 区域被缩小时, canZoom 与 fit-scale 保持一致', async () => {
+    const EDGE_FIT = 'https://example.com/edge-fit.jpg'
+    const restore = mockImageDimensionsBySrc({
+      [EDGE_FIT]: { w: 980, h: 600 },
+    })
+    const origCW = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')
+    const origCH = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 1000 })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 800 })
+
+    try {
+      render(<Zmage src={EDGE_FIT} alt="edge-fit" preset="desktop" edge={30}/>)
+      fireEvent.click(screen.getByAltText('edge-fit'))
+      await wait(50)
+
+      const center = document.getElementById('zmageImage') as HTMLImageElement
+      await act(async () => { fireEvent.load(center); await new Promise(r => setTimeout(r, 50)) })
+
+      const zoomBtn = document.getElementById('zmageControlZoom') as HTMLDivElement
+      expect(zoomBtn).toBeTruthy()
       expect(zoomBtn.className).not.toContain('disabled')
     } finally {
       restore()

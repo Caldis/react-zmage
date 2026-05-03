@@ -138,7 +138,7 @@ export const defPreset = {
   // 桌面
   desktop: {
     radius: 8,
-    edge: 30,
+    edge: 16,
     controller: {
       pagination: true,
       rotate: true,

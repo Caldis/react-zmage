@@ -2,6 +2,9 @@
  * 工具函数
  **/
 
+import { calcFitScale as calcViewportFitScale } from './geometry'
+export { calcFitGeometry, calcZoomPanBounds, getVisualNaturalSize, normalizeEdge } from './geometry'
+
 const hasWindow = typeof window !== 'undefined'
 const hasDocument = typeof document !== 'undefined'
 const getDocumentElement = () => hasDocument ? document.documentElement : undefined
@@ -23,15 +26,12 @@ export const cx = (...values: ClassValue[]) => values.reduce((acc, value) => {
  * @param {number} naturalHeight - 图片原始高
  * @param {number} [edge] - 需要预留的边距
  */
-export const calcFitScale = (naturalWidth: number, naturalHeight: number, edge = 0) => {
-  const clientWidth = getClientWidth()
-  const clientHeight = getClientHeight()
-  const figureWidth = naturalWidth + 2 * edge
-  const figureHeight = naturalHeight + 2 * edge
-  const scaleX = figureWidth > clientWidth ? clientWidth / (naturalWidth + 2 * edge) : 1
-  const scaleY = figureHeight > clientHeight ? clientHeight / (naturalHeight + 2 * edge) : 1
-  return Math.min(scaleX, scaleY) + 0.002 // 防止在高dpi设备出现无法占满边距的问题
-}
+export const calcFitScale = (naturalWidth: number, naturalHeight: number, edge = 0, rotate = 0) => (
+  calcViewportFitScale(naturalWidth, naturalHeight, edge, {
+    width: getClientWidth(),
+    height: getClientHeight(),
+  }, rotate)
+)
 
 /**
  * 屏幕尺寸
