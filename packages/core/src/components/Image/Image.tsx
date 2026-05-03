@@ -120,6 +120,8 @@ export default class Image extends React.Component<PropsType, StateType> {
 
   // Refs
   imageRef = React.createRef<HTMLImageElement>()
+  detachCenterImageAbort?: () => void
+  sideImageAbortCleanups = new Map<string, () => void>()
   // 初始页面高度
   initialPageOffset = typeof window !== 'undefined' ? window.pageYOffset : 0
   // 监听状态
@@ -359,6 +361,10 @@ export default class Image extends React.Component<PropsType, StateType> {
     window.removeEventListener('resize', this.handleResize)
     window.removeEventListener('mousemove', this.handleMouseMove)
     window.removeEventListener('wheel', this.handleWheel)
+    this.detachCenterImageAbort?.()
+    this.detachCenterImageAbort = undefined
+    this.sideImageAbortCleanups.forEach(cleanup => cleanup())
+    this.sideImageAbortCleanups.clear()
     clearInterval(this.imageLoadingTimer)
   }
 
@@ -509,6 +515,27 @@ export default class Image extends React.Component<PropsType, StateType> {
   }
   handleSideImageTerminal = (step: number) => {
     this.markFlipReadyFromStep(step)
+  }
+  setCenterImageRef = (node: HTMLImageElement | null) => {
+    this.detachCenterImageAbort?.()
+    this.detachCenterImageAbort = undefined
+    ;(this.imageRef as React.MutableRefObject<HTMLImageElement | null>).current = node
+    if (!node) return
+
+    node.addEventListener('abort', this.handleImageAbort)
+    this.detachCenterImageAbort = () => node.removeEventListener('abort', this.handleImageAbort)
+  }
+  setSideImageAbortRef = (key: string, step: number) => (node: HTMLImageElement | null) => {
+    const cleanup = this.sideImageAbortCleanups.get(key)
+    if (cleanup) {
+      cleanup()
+      this.sideImageAbortCleanups.delete(key)
+    }
+    if (!node) return
+
+    const handleAbort = () => this.handleSideImageTerminal(step)
+    node.addEventListener('abort', handleAbort)
+    this.sideImageAbortCleanups.set(key, () => node.removeEventListener('abort', handleAbort))
   }
   shouldDeferFlipPreload = () => {
     const { set, animate } = this.context
@@ -1726,17 +1753,16 @@ export default class Image extends React.Component<PropsType, StateType> {
     }
     const centerProps = {
       id: 'zmageImage',
-      ref: this.imageRef,
+      ref: this.setCenterImageRef,
       onLoad: centerOnLoad,
       onError: this.handleImageError,
-      onAbort: this.handleImageAbort,
       onClick: this.handleClick,
       onDoubleClick: this.handleDoubleClick,
     }
     // 構建内容
     if (isSideImage) {
       const sideImageShow = show && !zoom && currentStyle._type !== 'zooming'
-      return sideImageShow && <img key={key} {...commonProps} onError={() => this.handleSideImageTerminal(step)} onAbort={() => this.handleSideImageTerminal(step)}/>
+      return sideImageShow && <img key={key} {...commonProps} ref={this.setSideImageAbortRef(key, step)} onError={() => this.handleSideImageTerminal(step)}/>
     } else {
       return <img key={key} {...commonProps} {...centerProps}/>
     }
