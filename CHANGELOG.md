@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 1.8.4
+
+- **fix (browsing flicker)**: side-image preloading now waits until the initial browsing-in transition has settled. The flicker was not caused by a single image asset alone: on pages with large images or multiple gallery images, adjacent side images could start decoding, laying out, and entering the compositor while the center image was still animating cover geometry (`object-fit`, clip, radius, and transform). That extra work was most visible in the last frames of browsing-in or during viewport resize. Flip controls now stay disabled until the required adjacent image has loaded, preserving flip behavior while reducing first-open rendering pressure.
+- **fix (edge geometry)**: opening, rotation, zoom bounds, and `canZoom` now share the same viewport-fit calculation, so the configured `edge` matches the visible margin across image sizes and viewport ratios.
+- **fix (desktop default)**: desktop `edge` now defaults to `16` instead of `30`, with README, AGENTS, `llms.txt`, playground defaults, and rebuilt website assets kept in sync.
+- **fix (image abort handling)**: viewer-side image abort handling now uses native listeners attached through refs instead of passing `onAbort` through JSX, avoiding JSX lint failures without losing cleanup behavior.
+
 ## 1.8.2
 
 - **feat (blur flip)**: added `animate.flip='blur'` as an optional soft-focus crossfade page transition, with matching caption switching.
