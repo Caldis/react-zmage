@@ -82,8 +82,6 @@ export const calcFitScale = (naturalWidth: number, naturalHeight: number, edge =
 
 export const ZERO_CLIP: ClipInsets = { top: 0, right: 0, bottom: 0, left: 0 }
 
-const cloneZeroClip = (): ClipInsets => ({ ...ZERO_CLIP })
-
 const normalizeAnimateCoverOptions = (animate: Animate | boolean | undefined): false | Required<AnimateCoverOptions> => {
   if (animate === false) return false
   const cover = animate && typeof animate === 'object' ? animate.cover : undefined
@@ -94,17 +92,8 @@ const normalizeAnimateCoverOptions = (animate: Animate | boolean | undefined): f
   return { ...defaultAnimateCoverOptions }
 }
 
-const shouldUseClip = (context: ContextType) => {
-  const coverOptions = normalizeAnimateCoverOptions(context.animate)
-  return coverOptions !== false && coverOptions.clip
-}
-
-const getCoverClip = (coverOptions: false | Required<AnimateCoverOptions>) => (
-  coverOptions && coverOptions.clip ? cloneZeroClip() : undefined
-)
-
-const getEndpointClip = (context: ContextType): ClipInsets | undefined => (
-  shouldUseClip(context) ? cloneZeroClip() : undefined
+const normalizeVisibleClip = (clip: ClipInsets): ClipInsets | undefined => (
+  clip.top || clip.right || clip.bottom || clip.left ? clip : undefined
 )
 
 const parsePositionToken = (
@@ -280,7 +269,6 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
       scale: naturalWidth ? width / naturalWidth : 1,
       rotate: rotate - rotate % 360,
       radius,
-      clip: getCoverClip(coverOptions),
     } : {
       _type: 'cover',
       x: 0,
@@ -307,12 +295,12 @@ export const getCoverStyle = (context: ContextType, _imageRef?: RefObject<HTMLIm
     const objectOffset = parseObjectPosition(objectPosition, freeX, freeY)
     const objectLeft = left + objectOffset.x
     const objectTop = top + objectOffset.y
-    const clip = coverOptions.clip ? {
+    const clip = coverOptions.clip ? normalizeVisibleClip({
       top: toImageLocalInset(top - objectTop, objectScale),
       right: toImageLocalInset(objectLeft + objectWidth - (left + width), objectScale),
       bottom: toImageLocalInset(objectTop + objectHeight - (top + height), objectScale),
       left: toImageLocalInset(left - objectLeft, objectScale),
-    } : undefined
+    }) : undefined
 
     return {
       _type: 'cover',
@@ -418,7 +406,6 @@ export const getBrowsingStyle = (context: ContextType, imageRef: RefObject<HTMLI
     scale,
     rotate,
     radius,
-    clip: getEndpointClip(context),
   }
 }
 
@@ -456,7 +443,6 @@ export const getZoomingStyle = (
     scale,
     rotate,
     radius,
-    clip: getEndpointClip(context),
   }
 }
 

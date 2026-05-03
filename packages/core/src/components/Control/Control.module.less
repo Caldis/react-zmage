@@ -229,6 +229,19 @@
   &.show {
     opacity: 0.8;
   }
+
+  &.disabled {
+    opacity: 0.35 !important;
+    cursor: not-allowed;
+
+    &:hover {
+      opacity: 0.35 !important;
+    }
+
+    &:active {
+      opacity: 0.35 !important;
+    }
+  }
 }
 
 .flipLeft {
@@ -246,6 +259,13 @@
   &.show {
     opacity: 0.8;
     transform: translate(-0.2em) translateY(-50%);
+  }
+
+  &.disabled {
+    &:hover,
+    &:active {
+      transform: translate(-0.2em) translateY(-50%) !important;
+    }
   }
 
   &.detachedSideButton {
@@ -269,6 +289,13 @@
   &.show {
     opacity: 0.8;
     transform: translate(0.2em) translateY(-50%);
+  }
+
+  &.disabled {
+    &:hover,
+    &:active {
+      transform: translate(0.2em) translateY(-50%) !important;
+    }
   }
 
   &.detachedSideButton {

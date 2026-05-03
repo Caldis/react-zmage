@@ -11,6 +11,7 @@ import style from './Image.module.less'
 import Loading from './loading'
 // Utils
 import { BrowsingParams, Context, ContextType } from '../context'
+import type { FlipDirection } from '../context'
 import { animationDuration } from '../../config/anim'
 import { applyMotionTransition } from '../../config/motion'
 import { defaultGestureWheelZoomOptions } from '../../types/default'
@@ -318,6 +319,7 @@ export default class Image extends React.Component<PropsType, StateType> {
         this.applyJumpFadeIn()
       }
     }
+    this.maybeStartFlipPreload()
   }
 
   componentWillUnmount () {
@@ -423,6 +425,7 @@ export default class Image extends React.Component<PropsType, StateType> {
         if (refreshStyle) {
           this.setCurrentStyle(this.state.currentStyle)
         }
+        this.maybeStartFlipPreload()
       }
     })
   }
@@ -447,7 +450,17 @@ export default class Image extends React.Component<PropsType, StateType> {
    **/
   // 页面事件
   handleResize = () => {
-    this.debounceUpdateCurrentImageStyle()
+    const { show, zoom } = this.context
+    if (show && !zoom) {
+      this.debounceUpdateCurrentImageStyle.cancel()
+      if (this.motionPhase === 'browsing-follow') {
+        this.syncBrowsingFollowTarget()
+      } else {
+        this.updateCurrentImageStyleWithoutBrowsingTransition()
+      }
+    } else {
+      this.debounceUpdateCurrentImageStyle()
+    }
     this.reportCanZoom()
   }
   handleScroll = () => {
@@ -484,6 +497,45 @@ export default class Image extends React.Component<PropsType, StateType> {
       return { imageDimensions: { ...prev.imageDimensions, [imageIndex]: { w, h } } }
     })
   }
+  markFlipReadyFromStep = (step: number) => {
+    if (Math.abs(step) !== 1) return
+    this.context.setFlipReady(step < 0 ? -1 : 1)
+  }
+  handleSideImageLoad = (step: number, imageIndex: number, e: React.SyntheticEvent<HTMLImageElement>) => {
+    this.handleRecordImageDimensions(imageIndex, e)
+    this.markFlipReadyFromStep(step)
+  }
+  handleSideImageTerminal = (step: number) => {
+    this.markFlipReadyFromStep(step)
+  }
+  shouldDeferFlipPreload = () => {
+    const { set, animate } = this.context
+    const flipKind = selectFlipKind(animate)
+    return Array.isArray(set) && set.length > 1 && flipKind !== 'none' && flipKind !== false
+  }
+  syncFlipReadyFromLoadedDimensions = () => {
+    const { flipPreloadStarted, loop = false, page, set, setFlipReady } = this.context
+    if (!flipPreloadStarted || !this.shouldDeferFlipPreload()) return
+
+    ;([-1, 1] as FlipDirection[]).forEach(direction => {
+      const imageIndex = getTargetPage(page, set.length, direction, { loop })
+      if (isInteger(imageIndex) && this.state.imageDimensions[imageIndex]) {
+        setFlipReady(direction)
+      }
+    })
+  }
+  maybeStartFlipPreload = () => {
+    const { show, zoom, flipPreloadStarted, startFlipPreload } = this.context
+    if (!show || zoom || !this.shouldDeferFlipPreload()) return
+    if (this.motionPhase === 'browsing-follow' || this.motionPhase === 'closing-follow') return
+    if (this.state.currentStyle._type !== 'browsing') return
+
+    if (!flipPreloadStarted) {
+      startFlipPreload()
+      return
+    }
+    this.syncFlipReadyFromLoadedDimensions()
+  }
   // 双击关闭 (hideOnDblClick=true 时启用)。注: 浏览器在 dblclick 之前会先派发两次 click,
   // 因此在 zoom 态做 dblclick 会先 zoom-out 再 close, 是有意为之的链式动画 — 不再额外门控。
   handleDoubleClick = () => {
@@ -492,7 +544,7 @@ export default class Image extends React.Component<PropsType, StateType> {
   }
   // 触摸事件
   handleTouchStart = (e: TouchEvent) => {
-    this.completeBrowsingFollow()
+    this.completeBrowsingFollow({ startFlipPreload: false })
     if (this.tryStartPinchGesture(e)) {
       return
     }
@@ -1317,7 +1369,8 @@ export default class Image extends React.Component<PropsType, StateType> {
       this.coverFollowDuration = undefined
       this.coverFollowTargetGetter = undefined
       this.motionPhase = 'idle'
-      this.setCurrentStyle(target)
+      this.writeImageStyleToNode(node, target)
+      this.setCurrentStyle(target, this.maybeStartFlipPreload)
       return
     }
 
@@ -1335,7 +1388,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       this.writeImageStyleToNode(node, this.coverFollowCurrentStyle || visual)
     })
   }
-  completeBrowsingFollow = () => {
+  completeBrowsingFollow = ({ startFlipPreload = true }: { startFlipPreload?: boolean } = {}) => {
     if (this.motionPhase !== 'browsing-follow') return
     const from = this.coverFollowFromStyle
     const getTarget = this.coverFollowTargetGetter
@@ -1350,7 +1403,7 @@ export default class Image extends React.Component<PropsType, StateType> {
       node.style.top = '50%'
       this.writeImageStyleToNode(node, target)
     }
-    this.setCurrentStyle(target)
+    this.setCurrentStyle(target, startFlipPreload ? this.maybeStartFlipPreload : undefined)
   }
   cancelCoverFollow = () => {
     if (this.coverFollowRaf !== undefined) {
@@ -1614,10 +1667,10 @@ export default class Image extends React.Component<PropsType, StateType> {
    * 圖片構建
    **/
   buildImageSeries = (edge: 0 | 1 | 2 | 3) => {
-    const { loop = false, set, page, animate } = this.context
+    const { flipPreloadStarted, loop = false, set, page, animate } = this.context
     // animate.flip === 'none' 时跳过相邻页渲染, 翻页通过中心图 key 变化触发瞬间替换 (无 transition).
     const flipKind = selectFlipKind(animate)
-    if (set.length > 1 && flipKind !== 'none') {
+    if (set.length > 1 && flipKind !== 'none' && flipKind !== false && flipPreloadStarted) {
       const rangeList = mirrorRange(edge)
       return rangeList.reduce((acc, step) => {
         // 計算索引
@@ -1628,9 +1681,9 @@ export default class Image extends React.Component<PropsType, StateType> {
         }
         return acc
       }, [] as React.JSX.Element[])
-    } else {
-      return this.buildImage({ step: 0, imageIndex: page })
     }
+    const center = this.buildImage({ step: 0, imageIndex: page })
+    return center ? [center] : []
   }
   buildImage = ({ step = 0, imageIndex = 0 }: { step?: number, imageIndex?: number } = {}) => {
     const { set, show, zoom, page, pageWithStep } = this.context
@@ -1650,7 +1703,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     const key = `${imageIndexWithStep}-${set[imageIndex].src}`
     // side / center 共用同一个 onLoad 收集 dimensions, 让 side image 拿到自己的 fit-scale (#167).
     // center 在收集后还要走 handleImageLoad 维护 currentStyle.
-    const sideOnLoad = (e: React.SyntheticEvent<HTMLImageElement>) => this.handleRecordImageDimensions(imageIndex, e)
+    const sideOnLoad = (e: React.SyntheticEvent<HTMLImageElement>) => this.handleSideImageLoad(step, imageIndex, e)
     const centerOnLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
       this.handleRecordImageDimensions(imageIndex, e)
       this.handleImageLoad()
@@ -1674,7 +1727,7 @@ export default class Image extends React.Component<PropsType, StateType> {
     // 構建内容
     if (isSideImage) {
       const sideImageShow = show && !zoom && currentStyle._type !== 'zooming'
-      return sideImageShow && <img key={key} {...commonProps}/>
+      return sideImageShow && <img key={key} {...commonProps} onError={() => this.handleSideImageTerminal(step)} onAbort={() => this.handleSideImageTerminal(step)}/>
     } else {
       return <img key={key} {...commonProps} {...centerProps}/>
     }

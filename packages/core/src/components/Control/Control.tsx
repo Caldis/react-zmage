@@ -20,6 +20,7 @@ import {
 // Utils
 import { Context } from '../context'
 import { getControllerLayoutTargets } from '../Browser/Browser.utils'
+import { selectFlipKind } from '../Image/Image.utils'
 import {
   ControllerItem,
   ControllerLayoutInset,
@@ -126,6 +127,7 @@ export default function Control () {
     backdrop, loop,
     // Status
     show, zoom, page, canZoom, zoomShakeKey,
+    flipReadyPrev, flipReadyNext,
     motion,
     // Action
     outBrowsing,
@@ -288,34 +290,45 @@ export default function Control () {
     </div>
   ) : null
 
-  const flipLeftSlot = Array.isArray(set) && set.length > 1 && (loop || page !== 0)
+  const total = set.length
+  const current = set[page]
+  const flipKind = selectFlipKind(animate)
+  const flipReadinessRequired = total > 1 && flipKind !== 'none' && flipKind !== false
+  const canPrevByPage = total > 1 && (loop || page > 0)
+  const canNextByPage = total > 1 && (loop || page < total - 1)
+  const canPrev = canPrevByPage && (!flipReadinessRequired || flipReadyPrev)
+  const canNext = canNextByPage && (!flipReadinessRequired || flipReadyNext)
+  const flipLeftDisabled = canPrevByPage && !canPrev
+  const flipRightDisabled = canNextByPage && !canNext
+
+  const flipLeftSlot = canPrevByPage
     ? getControllerItem(
       (controllerParams.flipLeft || controllerParams.flip),
       IconArrowLeft,
       'zmageControlFlipLeft',
-      cx(style.flipLeft, { [style.show]: !zoom && show, [style.detachedSideButton]: flipLeftDetached }),
+      cx(style.flipLeft, { [style.show]: !zoom && show, [style.detachedSideButton]: flipLeftDetached, [style.disabled]: flipLeftDisabled }),
       toPrevPage,
       show,
       zoom,
       undefined,
       sideButtonStyle,
-      undefined,
+      flipLeftDisabled,
       undefined,
       controllerColor
     )
     : null
-  const flipRightSlot = Array.isArray(set) && set.length > 1 && (loop || page !== set.length - 1)
+  const flipRightSlot = canNextByPage
     ? getControllerItem(
       (controllerParams.flipRight || controllerParams.flip),
       IconArrowRight,
       'zmageControlFlipRight',
-      cx(style.flipRight, { [style.show]: !zoom && show, [style.detachedSideButton]: flipRightDetached }),
+      cx(style.flipRight, { [style.show]: !zoom && show, [style.detachedSideButton]: flipRightDetached, [style.disabled]: flipRightDisabled }),
       toNextPage,
       show,
       zoom,
       undefined,
       sideButtonStyle,
-      undefined,
+      flipRightDisabled,
       undefined,
       controllerColor
     )
@@ -340,10 +353,6 @@ export default function Control () {
       ))
     : null
 
-  const total = set.length
-  const current = set[page]
-  const canPrev = total > 1 && (loop || page > 0)
-  const canNext = total > 1 && (loop || page < total - 1)
   const canDownload = typeof current?.src === 'string' && current.src.length > 0
   const actions: ControllerRenderActions = {
     close: outBrowsing,
@@ -353,8 +362,8 @@ export default function Control () {
     },
     rotateLeft: toggleRotate('left'),
     rotateRight: toggleRotate('right'),
-    prev: toPrevPage,
-    next: toNextPage,
+    prev: () => { if (canPrev) toPrevPage() },
+    next: () => { if (canNext) toNextPage() },
     toPage,
     download: () => {
       if (current?.src) downloadFromLink(current.src)

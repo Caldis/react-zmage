@@ -36,6 +36,52 @@ function requireDefined<T> (value: T | null | undefined, message: string): T {
   return value
 }
 
+async function waitMs (ms: number) {
+  await act(async () => { await new Promise(r => setTimeout(r, ms)) })
+}
+
+const getViewerSideImages = () => (
+  Array
+    .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+    .filter(img => img.id !== 'zmageImage')
+)
+
+async function waitForViewerSideImages (timeout = 1000) {
+  let elapsed = 0
+  while (elapsed <= timeout) {
+    const sideImages = getViewerSideImages()
+    if (sideImages.length > 0) return sideImages
+    await waitMs(40)
+    elapsed += 40
+  }
+  throw new Error('expected flip side images after deferred preload')
+}
+
+async function waitForViewerSideImage (srcPart: string, timeout = 1000) {
+  let elapsed = 0
+  while (elapsed <= timeout) {
+    const sideImage = getViewerSideImages().find(img => img.src.includes(srcPart))
+    if (sideImage) return sideImage
+    await waitMs(40)
+    elapsed += 40
+  }
+  throw new Error(`expected flip side image containing ${srcPart}`)
+}
+
+async function loadViewerSideImages (srcPart?: string, timeout = 1000) {
+  if (srcPart) {
+    await waitForViewerSideImage(srcPart, timeout)
+  }
+  const sideImages = srcPart
+    ? getViewerSideImages().filter(img => img.src.includes(srcPart))
+    : await waitForViewerSideImages(timeout)
+  await act(async () => {
+    sideImages.forEach(img => fireEvent.load(img))
+    await new Promise(r => setTimeout(r, 5))
+  })
+  return sideImages
+}
+
 async function withNodeEnv<T> (nodeEnv: string, task: () => Promise<T>): Promise<T> {
   const previousNodeEnv = process.env.NODE_ENV
   process.env.NODE_ENV = nodeEnv
@@ -878,6 +924,7 @@ describe('Zmage mobile gesture Phase 1', () => {
     renderMobileSet({ onSwitching })
     fireEvent.click(screen.getByAltText('mobile-gesture'))
     await wait(50)
+    await loadViewerSideImages('mobile-b.jpg')
 
     await act(async () => {
       dispatchTouch('touchstart', { x: 200, y: 100 })
@@ -1417,6 +1464,7 @@ describe('Zmage controller Phase 5', () => {
     )
     fireEvent.click(screen.getByAltText('controller-render-next'))
     await wait(50)
+    await loadViewerSideImages('controller-b.jpg')
     fireEvent.click(screen.getByTestId('custom-next'))
     await wait(80)
 
@@ -1441,6 +1489,7 @@ describe('Zmage controller Phase 5', () => {
     )
     fireEvent.click(screen.getByAltText('controller-render-page'))
     await wait(50)
+    await loadViewerSideImages('controller-b.jpg')
     fireEvent.click(screen.getByTestId('custom-page'))
     await wait(80)
 
@@ -1613,6 +1662,7 @@ describe('Zmage caption 渲染', () => {
     fireEvent.click(screen.getByAltText('t'))
     await act(async () => { await new Promise(r => setTimeout(r, 50)) })
     expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+    await loadViewerSideImages()
     // 触发右翻按钮 (DOM 事件比 window keydown 在 JSDOM 下更可靠)
     const flipRight = document.getElementById('zmageControlFlipRight')
     if (!flipRight) throw new Error('expected #zmageControlFlipRight in DOM')
@@ -1754,6 +1804,11 @@ describe('Zmage 动画行为', () => {
       // Visual crop 100px and visual radius 12px at scale .4 become 250px and 30px locally.
       expect(image.style.clipPath).toBe('inset(0px 250px 0px 250px round 30px)')
       expect(image.style.borderRadius).toBe('30px')
+
+      await wait(500)
+
+      expect(image.style.clipPath).toBe('')
+      expect(image.style.getPropertyValue('-webkit-clip-path')).toBe('')
     } finally {
       restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
       restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
@@ -1806,11 +1861,61 @@ describe('Zmage 动画行为', () => {
 
       const image = document.getElementById('zmageImage') as HTMLImageElement
       expect(image.style.transform).toContain('translate3d(0px, -50px, 0px)')
-      expect(image.style.clipPath).toBe('inset(0px 0px 0px 0px round 50px)')
+      expect(image.style.clipPath).toBe('')
     } finally {
       HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect
       restoreDescriptor(HTMLElement.prototype, 'clientWidth', originalClientWidth)
       restoreDescriptor(HTMLElement.prototype, 'clientHeight', originalClientHeight)
+    }
+  })
+
+  it('browsing 态 resize 使用 instant 更新, 不触发图片 transition', async () => {
+    const originalClientWidth = Object.getOwnPropertyDescriptor(document.documentElement, 'clientWidth')
+    const originalClientHeight = Object.getOwnPropertyDescriptor(document.documentElement, 'clientHeight')
+    const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect
+    let viewportWidth = 1000
+    Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, get: () => viewportWidth })
+    Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: 800 })
+    HTMLElement.prototype.getBoundingClientRect = function () {
+      if ((this as HTMLElement).id === 'zmageViewport') {
+        return {
+          left: 0,
+          top: 0,
+          width: viewportWidth,
+          height: 800,
+          right: viewportWidth,
+          bottom: 800,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        } as DOMRect
+      }
+      return originalGetBoundingClientRect.call(this)
+    }
+
+    try {
+      render(<Zmage src="https://example.com/resize.jpg" alt="resize-cover" preset="desktop"/>)
+      const cover = screen.getByAltText('resize-cover') as HTMLImageElement
+      Object.defineProperty(cover, 'naturalWidth', { value: 1000, configurable: true })
+      Object.defineProperty(cover, 'naturalHeight', { value: 500, configurable: true })
+
+      fireEvent.click(cover)
+      await wait(500)
+
+      const image = document.getElementById('zmageImage') as HTMLImageElement
+      const before = image.style.transform
+      image.style.transition = ''
+
+      viewportWidth = 500
+      fireEvent(window, new Event('resize'))
+      await wait(20)
+
+      expect(image.style.transform).not.toBe(before)
+      expect(image.style.transition).toBe('none')
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect
+      restoreDescriptor(document.documentElement, 'clientWidth', originalClientWidth)
+      restoreDescriptor(document.documentElement, 'clientHeight', originalClientHeight)
     }
   })
 
@@ -2088,6 +2193,73 @@ describe('Zmage 动画行为', () => {
     }
   })
 
+  it('browsing-in 首开期间不提前挂载 flip side image', async () => {
+    render(
+      <Zmage
+        src="https://example.com/opening-01.jpg"
+        alt="opening-cover"
+        preset="desktop"
+        loop={false}
+        animate={{ flip: 'crossFade' }}
+        set={[
+          { src: 'https://example.com/opening-01.jpg', alt: 'p1' },
+          { src: 'https://example.com/opening-02.jpg', alt: 'p2' },
+        ]}
+      />
+    )
+    fireEvent.click(screen.getByAltText('opening-cover'))
+    await wait(50)
+
+    const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+    expect(imgs.length).toBe(1)
+    expect(imgs[0].id).toBe('zmageImage')
+  })
+
+  it('flip side image 加载完成前禁用翻页, 加载后恢复按钮和方向键', async () => {
+    render(
+      <Zmage
+        src="https://example.com/deferred-01.jpg"
+        alt="deferred-cover"
+        preset="desktop"
+        loop={false}
+        animate={{ flip: 'crossFade' }}
+        hotKey={{ flip: true }}
+        set={[
+          { src: 'https://example.com/deferred-01.jpg', alt: 'p1', caption: 'first' },
+          { src: 'https://example.com/deferred-02.jpg', alt: 'p2', caption: 'second' },
+        ]}
+      />
+    )
+    await act(async () => {
+      fireEvent.click(screen.getByAltText('deferred-cover'))
+      await new Promise(r => setTimeout(r, 60))
+    })
+    await wait(420)
+
+    const flipRight = requireDefined(document.getElementById('zmageControlFlipRight'), 'expected right flip button')
+    const sideImage = requireDefined(
+      Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
+        .find(img => img.id !== 'zmageImage' && img.src.includes('deferred-02.jpg')),
+      'expected deferred right side image after browsing-in settles',
+    )
+
+    expect(flipRight.className).toContain('disabled')
+    fireEvent.keyDown(window, { key: 'ArrowRight', code: 'ArrowRight' })
+    fireEvent.click(flipRight)
+    await wait(50)
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+
+    await act(async () => {
+      fireEvent.load(sideImage)
+      await new Promise(r => setTimeout(r, 5))
+    })
+    expect(document.getElementById('zmageControlFlipRight')?.className).not.toContain('disabled')
+
+    clickById('zmageControlFlipRight')
+    await wait(50)
+    expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
+  })
+
   it('flip 动画复用左右边图节点, 让新旧页面可以执行 transition', async () => {
     render(
       <Zmage
@@ -2104,12 +2276,13 @@ describe('Zmage 动画行为', () => {
     )
     fireEvent.click(screen.getByAltText('cover'))
     await wait(50)
+    const sideImages = await loadViewerSideImages('02.jpg')
+    const nextSideImage = requireDefined(
+      sideImages.find(img => img.style.transform.includes('10px')),
+      'expected right side image',
+    )
 
-    const nextSideImage = Array
-      .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg') && img.style.transform.includes('10px'))
-
-    expect(nextSideImage).toBeTruthy()
+    expect(nextSideImage.style.transform).toContain('10px')
 
     clickById('zmageControlFlipRight')
     await wait(50)
@@ -2151,9 +2324,7 @@ describe('Zmage 动画行为', () => {
       fireEvent.click(screen.getByAltText('cover'))
       await wait(60)
 
-      const sideImage = requireDefined(Array
-        .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-        .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg')), 'expected right side image')
+      const sideImage = await waitForViewerSideImage('02.jpg')
       // step=1 (右侧 side), x = effectiveOffset * 1 ≥ 1010 (= viewport+gap 起步)
       const m = requireDefined(sideImage.style.transform.match(/translate3d\((-?[\d.]+)px,/g), 'expected side translate matches')
       // 第二个 translate3d 是 (x, y, 0); x 从中提取
@@ -2240,6 +2411,7 @@ describe('Zmage 动画行为', () => {
     )
     fireEvent.click(screen.getByAltText('cover'))
     await wait(50)
+    await loadViewerSideImages('02.jpg')
 
     clickById('zmageControlFlipRight')
     await wait(20)
@@ -2267,9 +2439,7 @@ describe('Zmage 动画行为', () => {
     fireEvent.load(document.getElementById('zmageImage') as HTMLImageElement)
     await wait(60)
 
-    const sideImage = requireDefined(Array
-      .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg')), 'expected fade side image')
+    const sideImage = await waitForViewerSideImage('02.jpg')
     // fade 配置: { offset: 0, overflow: 0, opacity: 0 }
     expect(sideImage.style.opacity).toBe('0')
     // fade.offset = 0: transform 中横向位移恒为 0px (与 crossFade 区分)
@@ -2294,9 +2464,7 @@ describe('Zmage 动画行为', () => {
     fireEvent.load(document.getElementById('zmageImage') as HTMLImageElement)
     await wait(60)
 
-    const sideImage = requireDefined(Array
-      .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg')), 'expected crossFade side image')
+    const sideImage = await waitForViewerSideImage('02.jpg')
     // crossFade 配置: { offset: 30, overflow: 0, opacity: 0 }, 右边图 step=-1 时 transform 含 -30px
     expect(sideImage.style.opacity).toBe('0')
     expect(sideImage.style.transform).toMatch(/translate3d\(-?30px,/)
@@ -2319,9 +2487,7 @@ describe('Zmage 动画行为', () => {
     fireEvent.click(screen.getByAltText('cover'))
     await wait(50)
 
-    const sideImage = requireDefined(Array
-      .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg')), 'expected zoom side image')
+    const sideImage = await waitForViewerSideImage('02.jpg')
     // zoom 配置: { offset: 0, overflow: 0.08, opacity: 0 }
     expect(sideImage.style.opacity).toBe('0')
     // jsdom 下 naturalWidth=0 → calcFitScale 返回 1.002 (epsilon), overflow=0.08 应让 scale3d 大于 1.05 (实测 1.082).
@@ -2347,9 +2513,7 @@ describe('Zmage 动画行为', () => {
     fireEvent.click(screen.getByAltText('cover'))
     await wait(50)
 
-    const sideImage = requireDefined(Array
-      .from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-      .find(img => img.id !== 'zmageImage' && img.src.includes('02.jpg')), 'expected blur side image')
+    const sideImage = await waitForViewerSideImage('02.jpg')
     expect(sideImage.style.opacity).toBe('0')
     expect(sideImage.style.filter).toBe('blur(14px)')
     const m = requireDefined(sideImage.style.transform.match(/scale3d\(([\d.]+),/), 'expected side scale transform')
@@ -2504,9 +2668,11 @@ describe('Zmage hotKey 翻页 (umbrella + 单边)', () => {
     fireEvent.click(screen.getByAltText('t'))
     await act(async () => { await new Promise(r => setTimeout(r, 50)) })
     expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+    await loadViewerSideImages()
     // → 翻到 second
     await dispatchArrow('right')
     expect(document.getElementById('zmageCaption')?.textContent).toBe('second')
+    await loadViewerSideImages()
     // ← 翻回 first
     await dispatchArrow('left')
     expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
@@ -2519,6 +2685,7 @@ describe('Zmage hotKey 翻页 (umbrella + 单边)', () => {
     fireEvent.click(screen.getByAltText('t'))
     await act(async () => { await new Promise(r => setTimeout(r, 50)) })
     expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+    await loadViewerSideImages()
     // → 不应翻页 (flipRight=false 且 umbrella flip=false)
     await dispatchArrow('right')
     expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
@@ -2532,6 +2699,7 @@ describe('Zmage hotKey 翻页 (umbrella + 单边)', () => {
     fireEvent.click(screen.getByAltText('t'))
     await act(async () => { await new Promise(r => setTimeout(r, 50)) })
     expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
+    await loadViewerSideImages()
     // ← 不应翻页
     await dispatchArrow('left')
     expect(document.getElementById('zmageCaption')?.textContent).toBe('first')
@@ -2878,6 +3046,7 @@ describe('Zmage 翻页 fit-scale 跟随当前页比例 (#167)', () => {
       await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 420)) })
       const scale0 = requireDefined(parseScale(center0.style.transform), 'expected initial fit scale')
       expect(scale0).toBeCloseTo(0.512, 2)
+      await loadViewerSideImages('tall.jpg')
 
       // 翻页到第二页 (tall 1000x2000): 期望 fit-scale = min(1024/1000, 768/2000) = min(1.024, 0.384) = 0.384
       const flipRight = document.getElementById('zmageControlFlipRight')
@@ -3087,12 +3256,7 @@ describe('Zmage scale 校准 transition 中断 (Bug 1 / Bug 2)', () => {
       // 预先让 page 0 (cover) 与 page 1 (side) dims 都落地
       const center0 = document.getElementById('zmageImage') as HTMLImageElement
       await act(async () => { fireEvent.load(center0); await new Promise(r => setTimeout(r, 50)) })
-      const sideB = requireDefined(
-        Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-          .find(img => img.id !== 'zmageImage' && img.src.includes('b.jpg')),
-        'expected side image for b.jpg',
-      )
-      await act(async () => { fireEvent.load(sideB); await new Promise(r => setTimeout(r, 5)) })
+      await loadViewerSideImages('b.jpg')
 
       // 翻页. dims[1] 已知 → cdU ① 把 pendingDimCalibration 设成 null → ② 永不触发.
       clickById('zmageControlFlipRight')
@@ -3275,9 +3439,7 @@ describe('Zmage 跳页与 fade 降级 (Issue 1 / Issue 2)', () => {
       await wait(50)
 
       // page 0 时 step-1 (loop wrap) 是 page 5 / image 6 (= SRCS[5])
-      const sideStepMinus1 = Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-        .find(img => img.id !== 'zmageImage' && img.src.includes('img5.jpg'))
-      expect(sideStepMinus1).toBeTruthy()
+      const [sideStepMinus1] = await loadViewerSideImages('img5.jpg')
 
       // 分页器跳到 page 5. 修复前 step=+5, pageWithStep+=5, 新 key 与旧 step-1 不对齐 → fresh mount, 无动画 (Issue 2 bug).
       // 修复后 resolveShortestStep(+5,6)=-1, pageWithStep+=-1, 新 center key=(X-1)-img5.jpg 命中旧 step-1 → React 复用.
@@ -3347,9 +3509,7 @@ describe('Zmage 跳页与 fade 降级 (Issue 1 / Issue 2)', () => {
       fireEvent.click(screen.getByAltText('in-range'))
       await wait(50)
 
-      const sideStepPlus2 = Array.from(document.querySelectorAll<HTMLImageElement>('#zmage img'))
-        .find(img => img.id !== 'zmageImage' && img.src.includes('img2.jpg'))
-      expect(sideStepPlus2).toBeTruthy()
+      const sideStepPlus2 = await waitForViewerSideImage('img2.jpg')
 
       await act(async () => { clickPaginationDot(2); await new Promise(r => setTimeout(r, 5)) })
 
@@ -3458,6 +3618,7 @@ describe('Zmage canZoom 切页路径收敛 (#regression-zoom-after-flip)', () =>
       // 切到 page 1 (small). 这是 step+1 in-range, 旧 step+1 side[small] 节点会被 React key 复用
       // 为新 center → src 不变 → 浏览器不派发 onLoad → handleImageLoad 不会调用 reportCanZoom
       // → 修复前 canZoom 卡在 true (bug); 修复后 cdU 路径补的 reportCanZoom 把 canZoom 修成 false.
+      await loadViewerSideImages('small.jpg')
       clickById('zmageControlFlipRight')
       await wait(20)
 
@@ -3499,6 +3660,7 @@ describe('Zmage canZoom 切页路径收敛 (#regression-zoom-after-flip)', () =>
       expect(zoomBtn.className).toContain('disabled')
 
       // 切到 page 1 (big). 同 key-reuse 场景.
+      await loadViewerSideImages('big2.jpg')
       clickById('zmageControlFlipRight')
       await wait(20)
 

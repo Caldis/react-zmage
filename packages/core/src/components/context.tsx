@@ -11,6 +11,7 @@ import type { State as BrowsingParams } from './Browser/Browser'
 
 export type { BrowsingParams }
 export type ZoomTrigger = 'control' | 'keyboard' | 'wheel' | 'pinch' | 'doubleTap'
+export type FlipDirection = -1 | 1
 
 export interface ContextType extends BrowsingParams, FunctionalNormalizedParams, InterfaceAndInteractionParams, Pick<LifeCycleParams, 'onError'> {
   // Internal
@@ -32,6 +33,8 @@ export interface ContextType extends BrowsingParams, FunctionalNormalizedParams,
   toggleZoom: (trigger?: ZoomTrigger) => void
   toggleRotate: (direction: '' | 'left' | 'right') => () => void
   setCanZoom: (canZoom: boolean) => void
+  startFlipPreload: () => void
+  setFlipReady: (direction: FlipDirection, ready?: boolean) => void
 }
 
 export const Context = createContext({} as ContextType)

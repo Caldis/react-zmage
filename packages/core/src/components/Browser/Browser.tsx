@@ -15,7 +15,7 @@ import Image from '../Image'
 import Background from '../Background'
 // Utils
 import { Context } from '../context'
-import type { ContextType, ZoomTrigger } from '../context'
+import type { ContextType, FlipDirection, ZoomTrigger } from '../context'
 import { disableScroll, downloadFromLink, enableScroll, getTargetPage, resolveShortestStep, unlockTouchInteraction } from '../../utils'
 import { matchAnyHotKey, resolveHotKeyValue, resolveSideBinding } from '../../utils/hotkey'
 import { defPropsWithEnv, resolvePreset } from '../../types/default'
@@ -24,7 +24,7 @@ import type { MotionTriggerEvent } from '../../config/motion'
 import { probeStylesheet } from '../../utils/styleProbe'
 import { getControllerLayoutStyle, hideCover, pageIsCover, pageSet, showCover } from './Browser.utils'
 import { Animate, ControllerLayoutTarget, ControllerLayoutTargets, ControllerOverlayLayout, ControllerSet, FunctionalParams, GestureSet, HotKey, InterfaceAndInteractionParams, LifeCycleParams, PresetParams, Set } from '../../types/global'
-import { normalizeGestureSet, resolveGestureTouchAction } from '../Image/Image.utils'
+import { normalizeGestureSet, resolveGestureTouchAction, selectFlipKind } from '../Image/Image.utils'
 
 export interface Props extends PresetParams, FunctionalParams, InterfaceAndInteractionParams, LifeCycleParams {
   // Controlled status
@@ -65,6 +65,10 @@ export interface State {
   page: number
   pageIsCover: boolean
   pageWithStep: number
+  // 首次 browsing-in 稳态前不挂载 side image; 稳态后才开始加载相邻页.
+  flipPreloadStarted: boolean
+  flipReadyPrev: boolean
+  flipReadyNext: boolean
 }
 
 type ControllerLayoutTargetKey = keyof ControllerLayoutTargets
@@ -141,6 +145,7 @@ export default class Browser extends React.Component<Props, State> {
   initRaf?: number
   unInitTimer?: ReturnType<typeof setTimeout>
   coverHideTimer?: ReturnType<typeof setTimeout>
+  flipPreloadTimer?: ReturnType<typeof setTimeout>
   listeningMouseMove = false
   lastPointerPosition?: Coordinate
   shiftKeyActive = false
@@ -219,6 +224,9 @@ export default class Browser extends React.Component<Props, State> {
       page,
       pageIsCover,
       pageWithStep: page,
+      flipPreloadStarted: false,
+      flipReadyPrev: false,
+      flipReadyNext: false,
     }
   })()
 
@@ -255,6 +263,7 @@ export default class Browser extends React.Component<Props, State> {
     this.cancelInitRaf()
     this.cancelUnInitTimer()
     this.clearCoverHideTimer()
+    this.clearFlipPreloadTimer()
     this.stopMouseMoveListener()
     this.unInit({ force: true })
   }
@@ -308,6 +317,13 @@ export default class Browser extends React.Component<Props, State> {
     }
   }
 
+  clearFlipPreloadTimer = () => {
+    if (this.flipPreloadTimer !== undefined) {
+      clearTimeout(this.flipPreloadTimer)
+      this.flipPreloadTimer = undefined
+    }
+  }
+
   showCoverNow = (coverRef: RefObject<HTMLImageElement>) => {
     this.clearCoverHideTimer()
     showCover(coverRef)
@@ -323,6 +339,7 @@ export default class Browser extends React.Component<Props, State> {
   init = () => {
     this.cancelInitRaf()
     this.cancelUnInitTimer()
+    this.clearFlipPreloadTimer()
     const {
       isBrowsingControlled,
       coverRef,
@@ -357,8 +374,20 @@ export default class Browser extends React.Component<Props, State> {
       // Delay showing the browser
       this.initRaf = window.requestAnimationFrame(() => {
         this.initRaf = undefined
-        this.setState({ show: true, zoom: false, rotate: 0, motionDurationMultiplier, zoomTrigger: undefined, zoomPosition: undefined, canZoom: true }, () => {
+        this.setState({
+          show: true,
+          zoom: false,
+          rotate: 0,
+          motionDurationMultiplier,
+          zoomTrigger: undefined,
+          zoomPosition: undefined,
+          canZoom: true,
+          flipPreloadStarted: false,
+          flipReadyPrev: false,
+          flipReadyNext: false,
+        }, () => {
           presetIsDesktop && pageIsCover && !coverVisible && this.hideCoverAfterDelay(coverRef)
+          this.scheduleFlipPreloadAfterBrowsing()
           !isBrowsingControlled && typeof onBrowsing === 'function' && onBrowsing(true)
         })
       })
@@ -367,6 +396,7 @@ export default class Browser extends React.Component<Props, State> {
   unInit = ({ force } = { force: false }) => {
     this.cancelInitRaf()
     this.cancelUnInitTimer()
+    this.clearFlipPreloadTimer()
     const {
       isBrowsingControlled,
       coverRef,
@@ -415,7 +445,16 @@ export default class Browser extends React.Component<Props, State> {
         const closeDelay = animate.browsing === false
           ? 0
           : motion.browsingDuration - 10
-        this.setState({ show: false, zoom: false, rotate: closingRotate, zoomTrigger: undefined, zoomPosition: undefined }, () => {
+        this.setState({
+          show: false,
+          zoom: false,
+          rotate: closingRotate,
+          zoomTrigger: undefined,
+          zoomPosition: undefined,
+          flipPreloadStarted: false,
+          flipReadyPrev: false,
+          flipReadyNext: false,
+        }, () => {
           const finishClose = () => {
             this.unInitTimer = undefined
             this.setState({ mounted: false, viewportReady: false, rotate: 0, motionDurationMultiplier: motionDefaultDurationMultiplier }, finalize)
@@ -453,7 +492,7 @@ export default class Browser extends React.Component<Props, State> {
   }
   handleKeyDown = (e: KeyboardEvent) => {
     this.shiftKeyActive = e.shiftKey
-    const { set, hotKey, loop } = this.getPropsWithEnv()
+    const { set, hotKey } = this.getPropsWithEnv()
     const { zoom, page, canZoom } = this.state
     // 仅在 zmage 真正消费按键时阻断后续 listeners (#184: 浏览态下 ESC 不再
     // 顺手关掉外层 modal). 不消费时让事件自由冒泡, 由外层处理.
@@ -483,14 +522,14 @@ export default class Browser extends React.Component<Props, State> {
     if (matchAnyHotKey(e, resolveSideBinding(hotKey.flipLeft, hotKey.flip, 'ArrowLeft'))) {
       consume()
       // 边界/zoom 态拦截但不翻页 (避免页面滚动)
-      if (zoom || (!loop && page === 0)) return
+      if (zoom || !this.canFlipToDirection(-1)) return
       this.handleToPrevPage()
       return
     }
     // 下一张 — 默认 'ArrowRight'
     if (matchAnyHotKey(e, resolveSideBinding(hotKey.flipRight, hotKey.flip, 'ArrowRight'))) {
       consume()
-      if (zoom || (!loop && page === set.length - 1)) return
+      if (zoom || !this.canFlipToDirection(1)) return
       this.handleToNextPage()
       return
     }
@@ -547,6 +586,49 @@ export default class Browser extends React.Component<Props, State> {
   /**
    * 翻页控制
    */
+  requiresFlipPreload = () => {
+    const { set, animate } = this.getPropsWithEnv()
+    const flipKind = selectFlipKind(animate)
+    return Array.isArray(set) && set.length > 1 && flipKind !== 'none' && flipKind !== false
+  }
+  canFlipToDirection = (direction: FlipDirection) => {
+    const { set, loop = false } = this.getPropsWithEnv()
+    const { page, flipReadyPrev, flipReadyNext } = this.state
+    if (!Array.isArray(set) || set.length <= 1) return false
+    if (!loop && direction < 0 && page === 0) return false
+    if (!loop && direction > 0 && page === set.length - 1) return false
+    if (!this.requiresFlipPreload()) return true
+    return direction < 0 ? flipReadyPrev : flipReadyNext
+  }
+  handleStartFlipPreload = () => {
+    if (!this.requiresFlipPreload() || this.state.flipPreloadStarted) {
+      return
+    }
+    this.setState({ flipPreloadStarted: true })
+  }
+  scheduleFlipPreloadAfterBrowsing = () => {
+    this.clearFlipPreloadTimer()
+    if (!this.requiresFlipPreload()) {
+      return
+    }
+    const { animate } = this.getPropsWithEnv()
+    const motion = createMotionRuntime(this.state.motionDurationMultiplier)
+    const delay = animate.browsing === false ? 0 : motion.browsingDuration
+    this.flipPreloadTimer = setTimeout(() => {
+      this.flipPreloadTimer = undefined
+      if (!this.state.show || this.state.zoom) {
+        return
+      }
+      this.handleStartFlipPreload()
+    }, delay)
+  }
+  handleSetFlipReady = (direction: FlipDirection, ready = true) => {
+    const key = direction < 0 ? 'flipReadyPrev' : 'flipReadyNext'
+    if (this.state[key] === ready) {
+      return
+    }
+    this.setState({ [key]: ready } as Pick<State, 'flipReadyPrev' | 'flipReadyNext'>)
+  }
   handleToPage = (targetPage: number) => {
     const { page } = this.state
     const { set, loop = false } = this.props
@@ -561,6 +643,9 @@ export default class Browser extends React.Component<Props, State> {
       const { set } = this.props
       if (set.length > 1) {
         const { page, pageWithStep } = this.state
+        if (Math.abs(step) === 1 && !this.canFlipToDirection(step < 0 ? -1 : 1)) {
+          return
+        }
         const targetPage = getTargetPage(page, set.length, step, { loop })
         if (typeof targetPage === 'number') {
           // 跳页 (|step|>2 = 超出 ±2 预取环) 时把 pageWithStep 推进量 cap 到 ±1, 强制让所有新 React key
@@ -576,6 +661,8 @@ export default class Browser extends React.Component<Props, State> {
             zoomPosition: undefined,
             // 复位 canZoom 至允许态; 新图 onLoad 会重新评估并下发准确值
             canZoom: true,
+            flipReadyPrev: false,
+            flipReadyNext: false,
             rotate: 0,
           }, () => {
             typeof onSwitching === 'function' && onSwitching(targetPage)
@@ -681,6 +768,8 @@ export default class Browser extends React.Component<Props, State> {
       toggleZoom: this.handleToggleZoom,
       toggleRotate: this.handleToggleRotate,
       setCanZoom: this.handleSetCanZoom,
+      startFlipPreload: this.handleStartFlipPreload,
+      setFlipReady: this.handleSetFlipReady,
     }
 
     return (

@@ -248,7 +248,7 @@ describe('getCoverStyle 跨 viewport 几何', () => {
     expect(style.radius).toBe(12)
   })
 
-  it('普通 rounded 封面也输出 zero clip, 让首帧圆角由 clip-path 接管', () => {
+  it('普通 rounded 封面不输出 zero clip, 只用 border-radius 表达圆角', () => {
     setViewport({
       inner: { w: 1000, h: 800 },
       client: { w: 1000, h: 800 },
@@ -266,7 +266,7 @@ describe('getCoverStyle 跨 viewport 几何', () => {
     const style = getCoverStyle(buildContext(cover))
 
     expect(style.scale).toBeCloseTo(0.2, 5)
-    expect(style.clip).toEqual({ top: 0, right: 0, bottom: 0, left: 0 })
+    expect(style.clip).toBeUndefined()
     expect(style.radius).toBe(16)
   })
 
@@ -365,7 +365,7 @@ describe('getCoverStyle 跨 viewport 几何', () => {
     } as unknown as ContextType, { current: modalImg })
 
     expect(style.scale).toBeCloseTo(0.502, 5)
-    expect(style.clip).toEqual({ top: 0, right: 0, bottom: 0, left: 0 })
+    expect(style.clip).toBeUndefined()
   })
 })
 
@@ -928,6 +928,7 @@ describe('wheel zoom helpers (Phase 3)', () => {
     expect(style.scale).toBe(0.5)
     expect(style.x).toBe(0)
     expect(style.y).toBe(0)
+    expect(style.clip).toBeUndefined()
   })
 })
 
