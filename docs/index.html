@@ -53,7 +53,10 @@
                         "name": "react-zmage",
                         "url": "https://zmage.caldis.me/",
                         "description": "React image viewer for origin-expand fullscreen image preview.",
-                        "inLanguage": "en"
+                        "inLanguage": "en",
+                        "publisher": {
+                                "@id": "https://zmage.caldis.me/#organization"
+                        }
                 },
                 {
                         "@type": "WebPage",
@@ -67,7 +70,52 @@
                         "about": {
                                 "@id": "https://zmage.caldis.me/#software"
                         },
-                        "inLanguage": "en"
+                        "inLanguage": "en",
+                        "speakable": {
+                                "@type": "SpeakableSpecification",
+                                "cssSelector": [
+                                        "h1",
+                                        "[data-seo-summary]"
+                                ]
+                        }
+                },
+                {
+                        "@type": "Organization",
+                        "@id": "https://zmage.caldis.me/#organization",
+                        "name": "react-zmage open-source project",
+                        "url": "https://zmage.caldis.me/",
+                        "sameAs": [
+                                "https://github.com/Caldis/react-zmage",
+                                "https://www.npmjs.com/package/react-zmage"
+                        ]
+                },
+                {
+                        "@type": "SoftwareApplication",
+                        "@id": "https://zmage.caldis.me/#application",
+                        "name": "react-zmage",
+                        "url": "https://zmage.caldis.me/",
+                        "description": "Free MIT-licensed React image viewer for origin-expand fullscreen image preview, galleries, rich text, and SSR/RSC apps.",
+                        "applicationCategory": "DeveloperApplication",
+                        "operatingSystem": "Any",
+                        "softwareVersion": "1.8.4",
+                        "license": "https://opensource.org/licenses/MIT",
+                        "sameAs": [
+                                "https://github.com/Caldis/react-zmage",
+                                "https://www.npmjs.com/package/react-zmage"
+                        ],
+                        "author": {
+                                "@id": "https://zmage.caldis.me/#organization"
+                        },
+                        "publisher": {
+                                "@id": "https://zmage.caldis.me/#organization"
+                        },
+                        "offers": {
+                                "@type": "Offer",
+                                "price": "0",
+                                "priceCurrency": "USD",
+                                "availability": "https://schema.org/InStock",
+                                "url": "https://www.npmjs.com/package/react-zmage"
+                        }
                 },
                 {
                         "@type": "SoftwareSourceCode",
@@ -79,9 +127,16 @@
                         "programmingLanguage": "TypeScript",
                         "runtimePlatform": "React 16.8 through 19",
                         "license": "https://opensource.org/licenses/MIT",
+                        "softwareVersion": "1.8.4",
+                        "sameAs": [
+                                "https://github.com/Caldis/react-zmage",
+                                "https://www.npmjs.com/package/react-zmage"
+                        ],
                         "author": {
-                                "@type": "Person",
-                                "name": "Caldis"
+                                "@id": "https://zmage.caldis.me/#organization"
+                        },
+                        "publisher": {
+                                "@id": "https://zmage.caldis.me/#organization"
                         },
                         "keywords": [
                                 "React image viewer",
@@ -104,6 +159,44 @@
                                         "position": 1,
                                         "name": "Home",
                                         "item": "https://zmage.caldis.me/"
+                                }
+                        ]
+                },
+                {
+                        "@type": "FAQPage",
+                        "@id": "https://zmage.caldis.me/#faq",
+                        "mainEntity": [
+                                {
+                                        "@type": "Question",
+                                        "name": "What is react-zmage?",
+                                        "acceptedAnswer": {
+                                                "@type": "Answer",
+                                                "text": "react-zmage is a React image viewer that turns ordinary \u003cimg> elements into a fullscreen, origin-expand image preview with gallery browsing, keyboard navigation, mobile gestures, Wrapper mode, and SSR/RSC support."
+                                        }
+                                },
+                                {
+                                        "@type": "Question",
+                                        "name": "When should I use react-zmage instead of a React lightbox?",
+                                        "acceptedAnswer": {
+                                                "@type": "Answer",
+                                                "text": "Use react-zmage when you want existing images to open fullscreen without rebuilding the page around a gallery component. It works well for blogs, CMS rich text, MDX docs, news articles, and image-heavy content pages."
+                                        }
+                                },
+                                {
+                                        "@type": "Question",
+                                        "name": "Can react-zmage handle CMS, markdown, or rich text images?",
+                                        "acceptedAnswer": {
+                                                "@type": "Answer",
+                                                "text": "Yes. Zmage.Wrapper can bind descendant \u003cimg> nodes inside CMS, markdown, MDX, or dangerouslySetInnerHTML content, while preserving the page markup and layout."
+                                        }
+                                },
+                                {
+                                        "@type": "Question",
+                                        "name": "Does react-zmage support Next.js, SSR, or RSC?",
+                                        "acceptedAnswer": {
+                                                "@type": "Answer",
+                                                "text": "Yes. Use the react-zmage/ssr subpath for SSR or RSC-safe imports, and call interactive viewer APIs from client-side event handlers or client components."
+                                        }
                                 }
                         ]
                 }
@@ -129,14 +222,14 @@
         document.documentElement.classList.toggle('dark', theme === 'dark')
       } catch {}
     </script>
-    <script type="module" crossorigin src="/assets/index-fx6rPpFC.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CDCiN83-.css">
+    <script type="module" crossorigin src="/assets/index-BtOQch8O.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-gXwVfME_.css">
   </head>
   <body>
     <div id="app">
       <main data-seo-fallback style="max-width: 760px; margin: 72px auto; padding: 0 24px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; line-height: 1.65; color: #f5f5f5; background: #0a0a0a;">
         <h1 style="font-size: 36px; line-height: 1.15; margin: 0 0 16px;">React image viewer with origin-expand zoom</h1>
-        <p style="font-size: 18px; margin: 0 0 24px; color: #d4d4d4;">react-zmage turns normal img tags into a fullscreen image viewer for blogs, docs, CMS content, and news sites.</p>
+        <p data-seo-summary style="font-size: 18px; margin: 0 0 24px; color: #d4d4d4;">react-zmage turns normal img tags into a fullscreen image viewer for blogs, docs, CMS content, and news sites.</p>
         <section aria-labelledby="seo-install" style="margin: 32px 0 0;">
           <h2 id="seo-install" style="font-size: 22px; margin: 0 0 10px;">Quick start</h2>
           <p style="margin: 0 0 10px; color: #d4d4d4;">react-zmage is a free MIT-licensed open-source package published on npm. Install it with your package manager, import the stylesheet once, then replace an owned image with the component or wrap generated HTML with Wrapper mode.</p>
@@ -168,7 +261,8 @@
           <p style="margin: 0; color: #d4d4d4;">Choose react-zmage for React sites that need an image viewer without replacing the page architecture: documentation screenshots, product galleries, editorial image sets, long-form articles, CMS output, MDX docs, and Next.js pages. Keep the integration minimal, preserve existing layout and alt text, then tune controller, gestures, animation, or backdrop only when the host page requires it.</p>
         </section>
         <section aria-labelledby="seo-alternatives" style="margin: 32px 0 0;">
-          <h2 id="seo-alternatives" style="font-size: 22px; margin: 0 0 10px;">Alternatives context</h2>
+          <h2 id="seo-alternatives" style="font-size: 22px; margin: 0 0 10px;">react-zmage vs alternatives</h2>
+          <p style="margin: 0 0 10px; color: #d4d4d4;">react-zmage is an alternative to react-medium-image-zoom, Lightbox.js, and react-photoswipe when a React page needs fullscreen image preview from existing img elements. Unlike gallery-first tools, it can start as a drop-in image replacement and later expand to Wrapper or imperative mode.</p>
           <table style="width: 100%; border-collapse: collapse; color: #d4d4d4;">
             <thead><tr><th style="border: 1px solid #404040; padding: 8px; text-align: left;">Package</th><th style="border: 1px solid #404040; padding: 8px; text-align: left;">Best fit</th><th style="border: 1px solid #404040; padding: 8px; text-align: left;">Difference</th></tr></thead>
             <tbody>
@@ -179,14 +273,30 @@
             </tbody>
           </table>
         </section>
+        <section aria-labelledby="seo-faq" style="margin: 0 0 28px;">
+          <h2 id="seo-faq" style="font-size: 22px; margin: 0 0 12px;">FAQ</h2>
+          <h3 style="font-size: 16px; margin: 18px 0 6px;">What is react-zmage?</h3>
+          <p style="margin: 0; color: #d4d4d4;">react-zmage is a React image viewer that turns ordinary &lt;img&gt; elements into a fullscreen, origin-expand image preview with gallery browsing, keyboard navigation, mobile gestures, Wrapper mode, and SSR/RSC support.</p>
+          <h3 style="font-size: 16px; margin: 18px 0 6px;">When should I use react-zmage instead of a React lightbox?</h3>
+          <p style="margin: 0; color: #d4d4d4;">Use react-zmage when you want existing images to open fullscreen without rebuilding the page around a gallery component. It works well for blogs, CMS rich text, MDX docs, news articles, and image-heavy content pages.</p>
+          <h3 style="font-size: 16px; margin: 18px 0 6px;">Can react-zmage handle CMS, markdown, or rich text images?</h3>
+          <p style="margin: 0; color: #d4d4d4;">Yes. Zmage.Wrapper can bind descendant &lt;img&gt; nodes inside CMS, markdown, MDX, or dangerouslySetInnerHTML content, while preserving the page markup and layout.</p>
+          <h3 style="font-size: 16px; margin: 18px 0 6px;">Does react-zmage support Next.js, SSR, or RSC?</h3>
+          <p style="margin: 0; color: #d4d4d4;">Yes. Use the react-zmage/ssr subpath for SSR or RSC-safe imports, and call interactive viewer APIs from client-side event handlers or client components.</p>
+        </section>
         <nav aria-label="react-zmage links" style="display: flex; flex-wrap: wrap; gap: 12px;">
           <a href="/" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Home</a>
           <a href="/docs" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Docs</a>
           <a href="/playground" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Playground</a>
           <a href="/playground/wrapper" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Wrapper playground</a>
           <a href="/use-cases" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Use cases</a>
+          <a href="/compare" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Compare</a>
           <a href="/ai" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">AI install guide</a>
           <a href="/developers" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Developer resources</a>
+          <a href="/about" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">About</a>
+          <a href="/contact" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Contact</a>
+          <a href="/privacy" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Privacy</a>
+          <a href="/status" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Status</a>
           <a href="/index.md" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Markdown homepage</a>
           <a href="/llms-full.txt" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Full agent docs</a>
           <a href="https://github.com/Caldis/react-zmage" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">GitHub</a>

@@ -1,0 +1,10 @@
+---
+description: react-zmage repository rules
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+Read `AGENTS.md` before editing. Keep changes scoped to the requested behavior, preserve the public API contract, and verify with the relevant `pnpm` scripts.
+
+Treat `react-zmage` as a client-side React component package. Do not invent hosted API, OAuth, API key, webhook, MCP, account, or server-side image-processing behavior.

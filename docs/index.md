@@ -36,8 +36,15 @@ export function Photo () {
 - Webhook status notes: https://zmage.caldis.me/developers/webhooks.md
 - Agent discovery file: https://zmage.caldis.me/.well-known/agent.json
 - A2A-style discovery card: https://zmage.caldis.me/.well-known/agent-card.json
+- Agent coding rules: https://zmage.caldis.me/AGENTS.md
+- Project status: https://zmage.caldis.me/status
+- About: https://zmage.caldis.me/about
+- Contact: https://zmage.caldis.me/contact
+- Privacy notes: https://zmage.caldis.me/privacy
 
-## Alternatives context
+## react-zmage vs alternatives
+
+react-zmage is an alternative to react-medium-image-zoom, Lightbox.js, and react-photoswipe when a React page needs fullscreen image preview from existing img elements. Unlike gallery-first tools, it can start as a drop-in image replacement and later expand to Wrapper or imperative mode.
 
 | Package | Best fit | Difference |
 | --- | --- | --- |

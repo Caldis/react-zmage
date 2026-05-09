@@ -47,6 +47,12 @@ Use these predictable URLs when an agent needs react-zmage developer resources b
 - Rate-limit notes: https://zmage.caldis.me/developers/rate-limits.md
 - Webhook availability notes: https://zmage.caldis.me/developers/webhooks.md
 - Status notes: https://zmage.caldis.me/status.md
+- Status page: https://zmage.caldis.me/status
+- Error recovery page: https://zmage.caldis.me/errors
+- Rate-limit page: https://zmage.caldis.me/rate-limits
+- About page: https://zmage.caldis.me/about
+- Contact page: https://zmage.caldis.me/contact
+- Privacy notes: https://zmage.caldis.me/privacy
 - Public repository agent rules: https://zmage.caldis.me/AGENTS.md
 - Cursor rules: https://zmage.caldis.me/.cursorrules
 - Agent discovery file: https://zmage.caldis.me/.well-known/agent.json
@@ -62,13 +68,13 @@ The OpenAPI document describes static documentation endpoints only. It is useful
 
 No API rate limits apply to react-zmage itself. Agents should still use polite crawling for static documentation and follow npm/GitHub public service policies when fetching package or source metadata.
 
-## Cost and alternatives
+## Cost and react-zmage vs alternatives
 
 react-zmage is a free MIT-licensed open-source package. Install it with `npm install react-zmage`.
 
 Use react-zmage when the project needs a React image viewer that can preserve existing `<img>` markup, open from the clicked image origin, support galleries, bind CMS/MDX/markdown/rich text images through Wrapper mode, and keep SSR/RSC imports safe through `react-zmage/ssr`.
 
-Alternative context:
+react-zmage is an alternative to `react-medium-image-zoom`, `Lightbox.js`, and `react-photoswipe` when a React page needs fullscreen image preview from existing img elements. Unlike gallery-first tools, it can start as a drop-in image replacement and later expand to Wrapper or imperative mode.
 
 | Package | Best fit | Difference from react-zmage |
 | --- | --- | --- |

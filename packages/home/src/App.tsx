@@ -8,6 +8,7 @@ import Docs from './routes/Docs'
 import UseCases from './routes/UseCases'
 import AISetup from './routes/AISetup'
 import Developers from './routes/Developers'
+import { InfoPage } from './routes/InfoPages'
 
 export default function App () {
   useAnalyticsPageviews()
@@ -22,6 +23,13 @@ export default function App () {
           <Route path="/use-cases" element={<UseCases />} />
           <Route path="/ai" element={<AISetup />} />
           <Route path="/developers" element={<Developers />} />
+          <Route path="/compare" element={<InfoPage page="compare" />} />
+          <Route path="/about" element={<InfoPage page="about" />} />
+          <Route path="/contact" element={<InfoPage page="contact" />} />
+          <Route path="/privacy" element={<InfoPage page="privacy" />} />
+          <Route path="/status" element={<InfoPage page="status" />} />
+          <Route path="/errors" element={<InfoPage page="errors" />} />
+          <Route path="/rate-limits" element={<InfoPage page="rateLimits" />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>

@@ -6,7 +6,7 @@
       "type": "skill-md",
       "description": "Use when adding the react-zmage React image viewer to an existing React, Next.js, MDX, CMS, markdown, or rich text image surface.",
       "url": "/.well-known/agent-skills/react-zmage-integration/SKILL.md",
-      "digest": "sha256:99a600fbc642b35efda595120169271b12618987eb96ca441c39773f9ae0217d"
+      "digest": "sha256:e99645f905302cb8ec39f161e90483add45c265aec96283a2e15fcdf6d5188f4"
     }
   ]
 }

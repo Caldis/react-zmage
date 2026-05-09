@@ -5,6 +5,14 @@ description: Use when adding the react-zmage React image viewer to an existing R
 
 # react-zmage Integration
 
+## When to use this skill
+
+Use this skill when a user wants fullscreen image preview, image zoom, a React lightbox alternative, CMS image preview, MDX image preview, or gallery browsing in a React app.
+
+Do not use this skill for unrelated image processing, server-side media transformation, account automation, OAuth setup, webhook setup, or MCP server work. react-zmage is a client-side React package.
+
+## Read first
+
 Fetch https://zmage.caldis.me/llms.txt first. Use https://zmage.caldis.me/llms-full.txt when you need the full README and repository agent notes in one request.
 
 Install with:

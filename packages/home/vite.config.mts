@@ -20,11 +20,17 @@ type SeoRoute = {
   body: string
   priority: string
   faq?: SeoFaqItem[]
+  sections?: SeoSection[]
 }
 
 type SeoFaqItem = {
   question: string
   answer: string
+}
+
+type SeoSection = {
+  heading: string
+  body: string
 }
 
 const useCaseFaq: SeoFaqItem[] = [
@@ -54,6 +60,7 @@ const seoRoutes: SeoRoute[] = [
     h1: 'React image viewer with origin-expand zoom',
     body: 'react-zmage turns normal img tags into a fullscreen image viewer for blogs, docs, CMS content, and news sites.',
     priority: '1.0',
+    faq: useCaseFaq,
   },
   {
     path: '/docs',
@@ -112,6 +119,148 @@ const seoRoutes: SeoRoute[] = [
     body: 'Machine-readable resources for agents and developers: API docs, markdown homepage, llms files, OpenAPI documentation metadata, auth notes, MCP notes, webhook notes, schema feeds, and well-known discovery files.',
     priority: '0.7',
   },
+  {
+    path: '/compare',
+    title: 'react-zmage vs React Lightbox Alternatives',
+    description: 'Compare react-zmage with react-medium-image-zoom, Lightbox.js, and PhotoSwipe for React fullscreen image preview, galleries, Wrapper mode, and SSR/RSC.',
+    h1: 'react-zmage vs alternatives',
+    body: 'react-zmage is an alternative to general React lightbox and image zoom packages when a page needs origin-expand fullscreen preview from existing img elements, plus Wrapper mode for CMS, MDX, markdown, and rich text images.',
+    priority: '0.7',
+    sections: [
+      {
+        heading: 'When react-zmage fits',
+        body: 'Use react-zmage when the host app already has real image markup and the viewer should attach with minimal layout changes. It is a good fit for documentation screenshots, editorial articles, CMS content, MDX docs, product galleries, and Next.js pages that need SSR/RSC-safe imports.',
+      },
+      {
+        heading: 'Comparison scope',
+        body: 'Compared with react-medium-image-zoom, react-zmage covers more gallery and rich-text scenarios. Compared with Lightbox.js, it is React-first and can be used as a drop-in img replacement. Compared with PhotoSwipe, it is smaller in scope and focused on React component, Wrapper, and imperative usage modes rather than a broad standalone gallery engine.',
+      },
+    ],
+  },
+  {
+    path: '/about',
+    title: 'About react-zmage - Open Source React Image Viewer',
+    description: 'Learn what react-zmage is, who maintains it, where the source lives, and what the project does and does not provide.',
+    h1: 'About react-zmage',
+    body: 'react-zmage is a free MIT-licensed open-source React image viewer maintained in the Caldis/react-zmage GitHub repository and published to npm as react-zmage.',
+    priority: '0.5',
+    sections: [
+      {
+        heading: 'Project identity',
+        body: 'The project provides a browser-side React package, not a hosted SaaS product. Its public source repository is https://github.com/Caldis/react-zmage and its npm package page is https://www.npmjs.com/package/react-zmage. The maintainer identity visible in the repository is Caldis.',
+      },
+      {
+        heading: 'What the package does',
+        body: 'react-zmage turns ordinary img elements into a fullscreen image viewer with origin-expand animation, gallery browsing, keyboard navigation, mobile gestures, Wrapper mode for generated content, and an SSR/RSC-safe import path.',
+      },
+      {
+        heading: 'Boundaries',
+        body: 'There is no hosted runtime API, account system, payment plan, OAuth flow, API key, webhook delivery service, MCP transport, or service-side rate limit. Agents should install the npm package, read the docs, and edit the user\'s React app.',
+      },
+    ],
+  },
+  {
+    path: '/contact',
+    title: 'Contact react-zmage - GitHub Issues and Source',
+    description: 'Find the official support path for react-zmage: GitHub issues for bugs, feature requests, documentation problems, and integration questions.',
+    h1: 'Contact react-zmage',
+    body: 'react-zmage support happens through the public GitHub repository. Use GitHub issues for bugs, documentation problems, feature requests, and integration questions.',
+    priority: '0.4',
+    sections: [
+      {
+        heading: 'Public support',
+        body: 'Open issues at https://github.com/Caldis/react-zmage/issues. Include the React version, package version, browser, reproduction steps, and the usage mode involved: Component, Wrapper, or Imperative.',
+      },
+      {
+        heading: 'Source and releases',
+        body: 'The repository is https://github.com/Caldis/react-zmage. Release history is available at https://github.com/Caldis/react-zmage/releases and npm package metadata is available at https://www.npmjs.com/package/react-zmage.',
+      },
+      {
+        heading: 'Private data',
+        body: 'Do not post secrets, private images, access tokens, or customer data in public issues. The package itself does not require accounts or credentials, so most reproductions should use placeholder images or public sample assets.',
+      },
+    ],
+  },
+  {
+    path: '/privacy',
+    title: 'react-zmage Privacy Notes',
+    description: 'Plain-language privacy notes for the react-zmage documentation site and npm package.',
+    h1: 'react-zmage privacy notes',
+    body: 'react-zmage is a client-side React package and the documentation site is static. The package does not create accounts, collect API credentials, or send image data to a react-zmage backend.',
+    priority: '0.4',
+    sections: [
+      {
+        heading: 'Package behavior',
+        body: 'The npm package runs inside the user\'s React app. It displays images already available to that app and does not upload images to a react-zmage server.',
+      },
+      {
+        heading: 'Documentation site',
+        body: 'zmage.caldis.me is hosted as static GitHub Pages content and includes Google Analytics page view measurement. External links to GitHub, npm, and other services are governed by those services\' policies.',
+      },
+      {
+        heading: 'Agent use',
+        body: 'Agents do not need OAuth tokens, API keys, service accounts, or user credentials to read the docs or install the package. Agents should avoid placing private image URLs or secrets in public GitHub issues.',
+      },
+    ],
+  },
+  {
+    path: '/status',
+    title: 'react-zmage Status - Static Docs and npm Package',
+    description: 'Status notes for react-zmage agents: documentation site, npm package, source repository, and unsupported hosted API surfaces.',
+    h1: 'react-zmage status',
+    body: 'react-zmage has no hosted runtime service. The public surfaces are the static documentation site, the npm package, and the GitHub source repository.',
+    priority: '0.4',
+    sections: [
+      {
+        heading: 'Available surfaces',
+        body: 'The documentation site is static GitHub Pages content. The installable package is react-zmage on npm. The source repository is Caldis/react-zmage on GitHub.',
+      },
+      {
+        heading: 'Unavailable hosted surfaces',
+        body: 'There is no hosted product API, background job system, status dashboard, OAuth application, API key, webhook delivery service, MCP transport, or service-side rate limit.',
+      },
+      {
+        heading: 'Agent recovery',
+        body: 'If a URL returns GitHub Pages HTML 404, fetch /developers/errors.md, /llms.txt, /llms-full.txt, /index.md, npm, or GitHub instead of retrying the missing endpoint.',
+      },
+    ],
+  },
+  {
+    path: '/errors',
+    title: 'react-zmage Error Recovery for Agents',
+    description: 'Error recovery notes for agents using the react-zmage documentation site and package metadata.',
+    h1: 'react-zmage error recovery',
+    body: 'Non-existent zmage.caldis.me paths may return a GitHub Pages HTML 404. That is a static documentation miss, not a failed product API call.',
+    priority: '0.4',
+    sections: [
+      {
+        heading: 'Recovery order',
+        body: 'Fetch /llms.txt for the compact integration contract, /llms-full.txt for the full single-file context, /index.md for a markdown homepage, npm for package metadata, and GitHub for source code.',
+      },
+      {
+        heading: 'Structured future shape',
+        body: 'If react-zmage ever adds a hosted API, error responses should use JSON with error, code, message, and retry_after fields. Today there is no hosted API returning JSON errors.',
+      },
+    ],
+  },
+  {
+    path: '/rate-limits',
+    title: 'react-zmage Rate Limits',
+    description: 'Rate-limit notes for agents: react-zmage has no service-side API quota because it is a client-side package and static documentation site.',
+    h1: 'react-zmage rate limits',
+    body: 'No API rate limits apply to react-zmage because it is a client-side React package and static documentation site, not a hosted network API.',
+    priority: '0.4',
+    sections: [
+      {
+        heading: 'Package use',
+        body: 'Installing and using react-zmage does not require API keys, OAuth tokens, Retry-After scheduling, or quota handling.',
+      },
+      {
+        heading: 'External services',
+        body: 'Agents should still follow npm and GitHub public service policies when fetching package metadata, source files, issues, or release history.',
+      },
+    ],
+  },
 ]
 
 const notFoundRoute: SeoRoute = {
@@ -163,6 +312,11 @@ function setMetaProperty (html: string, property: string, content: string) {
 
 function renderStructuredData (route: SeoRoute) {
   const canonical = canonicalForRoute(route.path)
+  const corePkg = getCorePackage()
+  const sameAs = [
+    'https://github.com/Caldis/react-zmage',
+    'https://www.npmjs.com/package/react-zmage',
+  ]
   const graph: Record<string, unknown>[] = [
     {
       '@type': 'WebSite',
@@ -171,6 +325,7 @@ function renderStructuredData (route: SeoRoute) {
       url: `${siteUrl}/`,
       description: 'React image viewer for origin-expand fullscreen image preview.',
       inLanguage: 'en',
+      publisher: { '@id': `${siteUrl}/#organization` },
     },
     {
       '@type': 'WebPage',
@@ -181,6 +336,38 @@ function renderStructuredData (route: SeoRoute) {
       isPartOf: { '@id': `${siteUrl}/#website` },
       about: { '@id': `${siteUrl}/#software` },
       inLanguage: 'en',
+      speakable: {
+        '@type': 'SpeakableSpecification',
+        cssSelector: ['h1', '[data-seo-summary]'],
+      },
+    },
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}/#organization`,
+      name: 'react-zmage open-source project',
+      url: `${siteUrl}/`,
+      sameAs,
+    },
+    {
+      '@type': 'SoftwareApplication',
+      '@id': `${siteUrl}/#application`,
+      name: 'react-zmage',
+      url: `${siteUrl}/`,
+      description: 'Free MIT-licensed React image viewer for origin-expand fullscreen image preview, galleries, rich text, and SSR/RSC apps.',
+      applicationCategory: 'DeveloperApplication',
+      operatingSystem: 'Any',
+      softwareVersion: corePkg.version,
+      license: 'https://opensource.org/licenses/MIT',
+      sameAs,
+      author: { '@id': `${siteUrl}/#organization` },
+      publisher: { '@id': `${siteUrl}/#organization` },
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+        url: 'https://www.npmjs.com/package/react-zmage',
+      },
     },
     {
       '@type': 'SoftwareSourceCode',
@@ -192,7 +379,10 @@ function renderStructuredData (route: SeoRoute) {
       programmingLanguage: 'TypeScript',
       runtimePlatform: 'React 16.8 through 19',
       license: 'https://opensource.org/licenses/MIT',
-      author: { '@type': 'Person', name: 'Caldis' },
+      softwareVersion: corePkg.version,
+      sameAs,
+      author: { '@id': `${siteUrl}/#organization` },
+      publisher: { '@id': `${siteUrl}/#organization` },
       keywords: [
         'React image viewer',
         'React image zoom',
@@ -247,8 +437,13 @@ function renderFallback (route: SeoRoute) {
     ['Playground', '/playground'],
     ['Wrapper playground', '/playground/wrapper'],
     ['Use cases', '/use-cases'],
+    ['Compare', '/compare'],
     ['AI install guide', '/ai'],
     ['Developer resources', '/developers'],
+    ['About', '/about'],
+    ['Contact', '/contact'],
+    ['Privacy', '/privacy'],
+    ['Status', '/status'],
     ['Markdown homepage', '/index.md'],
     ['Full agent docs', '/llms-full.txt'],
     ['GitHub', 'https://github.com/Caldis/react-zmage'],
@@ -287,7 +482,8 @@ function renderFallback (route: SeoRoute) {
         '    <p style="margin: 0; color: #d4d4d4;">Choose react-zmage for React sites that need an image viewer without replacing the page architecture: documentation screenshots, product galleries, editorial image sets, long-form articles, CMS output, MDX docs, and Next.js pages. Keep the integration minimal, preserve existing layout and alt text, then tune controller, gestures, animation, or backdrop only when the host page requires it.</p>',
         '  </section>',
         '  <section aria-labelledby="seo-alternatives" style="margin: 32px 0 0;">',
-        '    <h2 id="seo-alternatives" style="font-size: 22px; margin: 0 0 10px;">Alternatives context</h2>',
+        '    <h2 id="seo-alternatives" style="font-size: 22px; margin: 0 0 10px;">react-zmage vs alternatives</h2>',
+        '    <p style="margin: 0 0 10px; color: #d4d4d4;">react-zmage is an alternative to react-medium-image-zoom, Lightbox.js, and react-photoswipe when a React page needs fullscreen image preview from existing img elements. Unlike gallery-first tools, it can start as a drop-in image replacement and later expand to Wrapper or imperative mode.</p>',
         '    <table style="width: 100%; border-collapse: collapse; color: #d4d4d4;">',
         '      <thead><tr><th style="border: 1px solid #404040; padding: 8px; text-align: left;">Package</th><th style="border: 1px solid #404040; padding: 8px; text-align: left;">Best fit</th><th style="border: 1px solid #404040; padding: 8px; text-align: left;">Difference</th></tr></thead>',
         '      <tbody>',
@@ -304,8 +500,18 @@ function renderFallback (route: SeoRoute) {
   return [
     '<main data-seo-fallback style="max-width: 760px; margin: 72px auto; padding: 0 24px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; line-height: 1.65; color: #f5f5f5; background: #0a0a0a;">',
     `  <h1 style="font-size: 36px; line-height: 1.15; margin: 0 0 16px;">${escapeHtml(route.h1)}</h1>`,
-    `  <p style="font-size: 18px; margin: 0 0 24px; color: #d4d4d4;">${escapeHtml(route.body)}</p>`,
+    `  <p data-seo-summary style="font-size: 18px; margin: 0 0 24px; color: #d4d4d4;">${escapeHtml(route.body)}</p>`,
     ...homeAgentSections,
+    ...(route.sections
+      ? [
+          ...route.sections.flatMap(section => [
+            '  <section style="margin: 28px 0 0;">',
+            `    <h2 style="font-size: 22px; margin: 0 0 10px;">${escapeHtml(section.heading)}</h2>`,
+            `    <p style="margin: 0; color: #d4d4d4;">${escapeHtml(section.body)}</p>`,
+            '  </section>',
+          ]),
+        ]
+      : []),
     ...(route.faq
       ? [
           '  <section aria-labelledby="seo-faq" style="margin: 0 0 28px;">',
@@ -438,8 +644,15 @@ export function Photo () {
 - Webhook status notes: https://zmage.caldis.me/developers/webhooks.md
 - Agent discovery file: https://zmage.caldis.me/.well-known/agent.json
 - A2A-style discovery card: https://zmage.caldis.me/.well-known/agent-card.json
+- Agent coding rules: https://zmage.caldis.me/AGENTS.md
+- Project status: https://zmage.caldis.me/status
+- About: https://zmage.caldis.me/about
+- Contact: https://zmage.caldis.me/contact
+- Privacy notes: https://zmage.caldis.me/privacy
 
-## Alternatives context
+## react-zmage vs alternatives
+
+react-zmage is an alternative to react-medium-image-zoom, Lightbox.js, and react-photoswipe when a React page needs fullscreen image preview from existing img elements. Unlike gallery-first tools, it can start as a drop-in image replacement and later expand to Wrapper or imperative mode.
 
 | Package | Best fit | Difference |
 | --- | --- | --- |
@@ -489,11 +702,78 @@ react-zmage is a React component library, not a hosted SaaS API. Use these predi
 - Webhook notes: https://zmage.caldis.me/developers/webhooks.md
 - Public agent rules: https://zmage.caldis.me/AGENTS.md
 - Cursor rules: https://zmage.caldis.me/.cursorrules
+- About page: https://zmage.caldis.me/about
+- Contact page: https://zmage.caldis.me/contact
+- Privacy notes: https://zmage.caldis.me/privacy
+- Project status page: https://zmage.caldis.me/status
 - Agent discovery: https://zmage.caldis.me/.well-known/agent.json
 - A2A card: https://zmage.caldis.me/.well-known/agent-card.json
 - Agent skill index: https://zmage.caldis.me/.well-known/agent-skills/index.json
 
 Install with \`npm install react-zmage\`. Import \`react-zmage/style.css\` once in the app-level style entry.
+`
+}
+
+function renderAboutMarkdown () {
+  return `# About react-zmage
+
+react-zmage is a free MIT-licensed open-source React image viewer maintained in the Caldis/react-zmage GitHub repository and published to npm as \`react-zmage\`.
+
+## Project identity
+
+- Homepage: https://zmage.caldis.me/
+- Source repository: https://github.com/Caldis/react-zmage
+- npm package: https://www.npmjs.com/package/react-zmage
+- License: MIT
+- Maintainer identity visible in the repository: Caldis
+
+## What it provides
+
+react-zmage turns ordinary \`<img>\` elements into a fullscreen image viewer with origin-expand animation, gallery browsing, keyboard navigation, mobile gestures, Wrapper mode for generated content, and an SSR/RSC-safe import path.
+
+## What it does not provide
+
+There is no hosted runtime API, account system, payment plan, OAuth flow, API key, webhook delivery service, MCP transport, or service-side rate limit. Agents should install the npm package, read the docs, and edit the user's React app.
+`
+}
+
+function renderContactMarkdown () {
+  return `# Contact react-zmage
+
+react-zmage support happens through the public GitHub repository.
+
+## Public support
+
+Open issues at https://github.com/Caldis/react-zmage/issues for bugs, documentation problems, feature requests, and integration questions. Include the React version, package version, browser, reproduction steps, and usage mode involved: Component, Wrapper, or Imperative.
+
+## Source and releases
+
+- Repository: https://github.com/Caldis/react-zmage
+- Releases: https://github.com/Caldis/react-zmage/releases
+- npm package: https://www.npmjs.com/package/react-zmage
+
+## Private data
+
+Do not post secrets, private images, access tokens, or customer data in public issues. The package itself does not require accounts or credentials, so most reproductions should use placeholder images or public sample assets.
+`
+}
+
+function renderPrivacyMarkdown () {
+  return `# react-zmage privacy notes
+
+react-zmage is a client-side React package and the documentation site is static. The package does not create accounts, collect API credentials, or send image data to a react-zmage backend.
+
+## Package behavior
+
+The npm package runs inside the user's React app. It displays images already available to that app and does not upload images to a react-zmage server.
+
+## Documentation site
+
+zmage.caldis.me is hosted as static GitHub Pages content and includes Google Analytics page view measurement. External links to GitHub, npm, and other services are governed by those services' policies.
+
+## Agent use
+
+Agents do not need OAuth tokens, API keys, service accounts, or user credentials to read the docs or install the package. Agents should avoid placing private image URLs or secrets in public GitHub issues.
 `
 }
 
@@ -708,6 +988,12 @@ function openApiDocument () {
       '/developers/rate-limits.md': { get: { tags: ['Status'], operationId: 'getRateLimitNotes', summary: 'Rate-limit notes', responses: { '200': textMarkdown } } },
       '/developers/webhooks.md': { get: { tags: ['Status'], operationId: 'getWebhookNotes', summary: 'Webhook availability notes', responses: { '200': textMarkdown } } },
       '/status.md': { get: { tags: ['Status'], operationId: 'getStatusNotes', summary: 'Static site status notes', responses: { '200': textMarkdown } } },
+      '/about.md': { get: { tags: ['Docs'], operationId: 'getAboutNotes', summary: 'About react-zmage', responses: { '200': textMarkdown } } },
+      '/contact.md': { get: { tags: ['Docs'], operationId: 'getContactNotes', summary: 'Contact and support notes', responses: { '200': textMarkdown } } },
+      '/privacy.md': { get: { tags: ['Docs'], operationId: 'getPrivacyNotes', summary: 'Privacy notes', responses: { '200': textMarkdown } } },
+      '/status': { get: { tags: ['Status'], operationId: 'getStatusPage', summary: 'Static site status page', responses: { '200': { description: 'HTML status page', content: { 'text/html': { schema: { type: 'string' } } } } } } },
+      '/errors': { get: { tags: ['Status'], operationId: 'getErrorRecoveryPage', summary: 'Error recovery page', responses: { '200': { description: 'HTML error recovery page', content: { 'text/html': { schema: { type: 'string' } } } } } } },
+      '/rate-limits': { get: { tags: ['Status'], operationId: 'getRateLimitsPage', summary: 'Rate-limit page', responses: { '200': { description: 'HTML rate-limit page', content: { 'text/html': { schema: { type: 'string' } } } } } } },
       '/AGENTS.md': { get: { tags: ['Discovery'], operationId: 'getAgentsMd', summary: 'Repository agent rules', responses: { '200': textMarkdown } } },
       '/.cursorrules': { get: { tags: ['Discovery'], operationId: 'getCursorRules', summary: 'Cursor rules', responses: { '200': textPlain } } },
       '/.well-known/agent.json': { get: { tags: ['Discovery'], operationId: 'getAgentDiscovery', summary: 'Agent discovery file', responses: { '200': json } } },
@@ -773,6 +1059,9 @@ function agentDiscoveryDocument () {
       rate_limits: `${siteUrl}/developers/rate-limits.md`,
       agent_rules: `${siteUrl}/AGENTS.md`,
       cursor_rules: `${siteUrl}/.cursorrules`,
+      about: `${siteUrl}/about`,
+      contact: `${siteUrl}/contact`,
+      privacy: `${siteUrl}/privacy`,
       source: 'https://github.com/Caldis/react-zmage',
       npm: 'https://www.npmjs.com/package/react-zmage',
       mcp_notes: `${siteUrl}/developers/mcp.md`,
@@ -855,7 +1144,11 @@ description: Use when adding the react-zmage React image viewer to an existing R
 
 # react-zmage integration
 
+## When to use this skill
+
 Use this skill when a user wants fullscreen image preview, image zoom, a React lightbox alternative, CMS image preview, MDX image preview, or gallery browsing in a React app.
+
+Do not use this skill for unrelated image processing, server-side media transformation, account automation, OAuth setup, webhook setup, or MCP server work. react-zmage is a client-side React package.
 
 ## Read first
 
@@ -904,6 +1197,10 @@ function renderSchemaMap () {
 
 function schemaSoftware () {
   const corePkg = getCorePackage()
+  const sameAs = [
+    'https://github.com/Caldis/react-zmage',
+    'https://www.npmjs.com/package/react-zmage',
+  ]
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareSourceCode',
@@ -916,6 +1213,13 @@ function schemaSoftware () {
     runtimePlatform: 'React 16.8 through 19',
     license: 'https://opensource.org/licenses/MIT',
     softwareVersion: corePkg.version,
+    sameAs,
+    author: {
+      '@type': 'Organization',
+      name: 'react-zmage open-source project',
+      url: siteUrl,
+      sameAs,
+    },
     keywords: [
       'React image viewer',
       'React image zoom',
@@ -943,6 +1247,9 @@ function writeAgentReadyFiles () {
   writeTextFile('developers/rate-limits.md', renderRateLimitsMarkdown())
   writeTextFile('developers/webhooks.md', renderWebhooksMarkdown())
   writeTextFile('status.md', renderStatusMarkdown())
+  writeTextFile('about.md', renderAboutMarkdown())
+  writeTextFile('contact.md', renderContactMarkdown())
+  writeTextFile('privacy.md', renderPrivacyMarkdown())
   writeTextFile('AGENTS.md', `# AGENTS.md\n\n${readWorkspaceFile('AGENTS.md')}`)
   writeTextFile('.cursorrules', readWorkspaceFile('.cursorrules'))
   writeTextFile('schema-map.xml', renderSchemaMap())

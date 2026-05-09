@@ -51,6 +51,41 @@ const routes = [
     title: 'react-zmage Developer Resources - API Docs, Agent Files, Auth, MCP',
     description: 'Find machine-readable react-zmage developer resources including llms.txt, llms-full.txt, OpenAPI metadata, auth notes, MCP notes, webhooks notes, and agent discovery files.',
   },
+  {
+    path: '/compare',
+    title: 'react-zmage vs React Lightbox Alternatives',
+    description: 'Compare react-zmage with react-medium-image-zoom, Lightbox.js, and PhotoSwipe for React fullscreen image preview, galleries, Wrapper mode, and SSR/RSC.',
+  },
+  {
+    path: '/about',
+    title: 'About react-zmage - Open Source React Image Viewer',
+    description: 'Learn what react-zmage is, who maintains it, where the source lives, and what the project does and does not provide.',
+  },
+  {
+    path: '/contact',
+    title: 'Contact react-zmage - GitHub Issues and Source',
+    description: 'Find the official support path for react-zmage: GitHub issues for bugs, feature requests, documentation problems, and integration questions.',
+  },
+  {
+    path: '/privacy',
+    title: 'react-zmage Privacy Notes',
+    description: 'Plain-language privacy notes for the react-zmage documentation site and npm package.',
+  },
+  {
+    path: '/status',
+    title: 'react-zmage Status - Static Docs and npm Package',
+    description: 'Status notes for react-zmage agents: documentation site, npm package, source repository, and unsupported hosted API surfaces.',
+  },
+  {
+    path: '/errors',
+    title: 'react-zmage Error Recovery for Agents',
+    description: 'Error recovery notes for agents using the react-zmage documentation site and package metadata.',
+  },
+  {
+    path: '/rate-limits',
+    title: 'react-zmage Rate Limits',
+    description: 'Rate-limit notes for agents: react-zmage has no service-side API quota because it is a client-side package and static documentation site.',
+  },
 ]
 
 function htmlFileForRoute (routePath) {
@@ -89,6 +124,10 @@ for (const route of routes) {
   if (!html.includes('"@type": "WebSite"')) failures.push(`${route.path}: missing WebSite schema`)
   if (!html.includes('"@type": "WebPage"')) failures.push(`${route.path}: missing WebPage schema`)
   if (!html.includes('"@type": "SoftwareSourceCode"')) failures.push(`${route.path}: missing SoftwareSourceCode schema`)
+  if (!html.includes('"@type": "SoftwareApplication"')) failures.push(`${route.path}: missing SoftwareApplication schema`)
+  if (!html.includes('"@type": "Organization"')) failures.push(`${route.path}: missing Organization schema`)
+  if (!html.includes('"@type": "SpeakableSpecification"')) failures.push(`${route.path}: missing speakable schema`)
+  if (!html.includes('"sameAs"')) failures.push(`${route.path}: missing sameAs entity links`)
   if (!html.includes('"@type": "BreadcrumbList"')) failures.push(`${route.path}: missing BreadcrumbList schema`)
 
   if (route.path === '/use-cases') {
@@ -110,9 +149,13 @@ for (const route of routes) {
       'No API rate limits apply',
       'AGENTS.md',
       '.cursorrules',
+      'react-zmage vs alternatives',
+      'alternative to react-medium-image-zoom',
+      'Unlike gallery-first tools',
     ]) {
       if (!html.includes(text)) failures.push(`/: missing static agent-readable text: ${text}`)
     }
+    if (!html.includes('"@type": "FAQPage"')) failures.push('/: missing FAQPage schema')
     const textContent = html
       .replace(/<script[\s\S]*?<\/script>/g, '')
       .replace(/<style[\s\S]*?<\/style>/g, '')
@@ -176,6 +219,9 @@ const requiredStaticFiles = [
   ['developers/rate-limits.md', '# react-zmage rate limits'],
   ['developers/webhooks.md', '# react-zmage webhooks'],
   ['status.md', '# react-zmage status'],
+  ['about.md', '# About react-zmage'],
+  ['contact.md', '# Contact react-zmage'],
+  ['privacy.md', '# react-zmage privacy notes'],
   ['AGENTS.md', '# AGENTS.md'],
   ['.cursorrules', 'Read AGENTS.md first'],
   ['schema-map.xml', '<schemamap'],
@@ -186,7 +232,7 @@ const requiredStaticFiles = [
   ['.well-known/agent-card.json', '"name": "react-zmage documentation"'],
   ['.well-known/mcp', '"mcp_available": false'],
   ['.well-known/agent-skills/index.json', '"$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json"'],
-  ['.well-known/agent-skills/react-zmage-integration/SKILL.md', 'name: react-zmage-integration'],
+  ['.well-known/agent-skills/react-zmage-integration/SKILL.md', '## When to use this skill'],
 ]
 
 for (const [relativePath, marker] of requiredStaticFiles) {

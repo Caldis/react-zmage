@@ -16,12 +16,17 @@ export function Footer () {
             <li><a className="hover:text-foreground" href="https://github.com/Caldis/react-zmage/issues">{t('footer.issues')}</a></li>
             <li><a className="hover:text-foreground" href="https://github.com/Caldis/react-zmage/releases">{t('footer.changelog')}</a></li>
             <li><Link className="hover:text-foreground" to="/use-cases">{t('footer.useCases')}</Link></li>
+            <li><Link className="hover:text-foreground" to="/compare">Compare</Link></li>
+            <li><Link className="hover:text-foreground" to="/status">Status</Link></li>
           </ul>
         </div>
         <div>
           <h4 className="text-sm font-medium">{t('footer.madeby')}</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><a className="hover:text-foreground" href="https://github.com/Caldis">Caldis</a></li>
+            <li><Link className="hover:text-foreground" to="/about">About</Link></li>
+            <li><Link className="hover:text-foreground" to="/contact">Contact</Link></li>
+            <li><Link className="hover:text-foreground" to="/privacy">Privacy</Link></li>
             <li>
               <span>{t('footer.illustrator')}: </span>
               <a className="hover:text-foreground" href="https://www.behance.net/gallery/56119387/_">sslololss Guihuahuzi</a>

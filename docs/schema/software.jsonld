@@ -10,6 +10,19 @@
   "runtimePlatform": "React 16.8 through 19",
   "license": "https://opensource.org/licenses/MIT",
   "softwareVersion": "1.8.4",
+  "sameAs": [
+    "https://github.com/Caldis/react-zmage",
+    "https://www.npmjs.com/package/react-zmage"
+  ],
+  "author": {
+    "@type": "Organization",
+    "name": "react-zmage open-source project",
+    "url": "https://zmage.caldis.me",
+    "sameAs": [
+      "https://github.com/Caldis/react-zmage",
+      "https://www.npmjs.com/package/react-zmage"
+    ]
+  },
   "keywords": [
     "React image viewer",
     "React image zoom",

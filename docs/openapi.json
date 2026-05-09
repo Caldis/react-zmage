@@ -240,6 +240,132 @@
         }
       }
     },
+    "/about.md": {
+      "get": {
+        "tags": [
+          "Docs"
+        ],
+        "operationId": "getAboutNotes",
+        "summary": "About react-zmage",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact.md": {
+      "get": {
+        "tags": [
+          "Docs"
+        ],
+        "operationId": "getContactNotes",
+        "summary": "Contact and support notes",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/privacy.md": {
+      "get": {
+        "tags": [
+          "Docs"
+        ],
+        "operationId": "getPrivacyNotes",
+        "summary": "Privacy notes",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "operationId": "getStatusPage",
+        "summary": "Static site status page",
+        "responses": {
+          "200": {
+            "description": "HTML status page",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/errors": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "operationId": "getErrorRecoveryPage",
+        "summary": "Error recovery page",
+        "responses": {
+          "200": {
+            "description": "HTML error recovery page",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rate-limits": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "operationId": "getRateLimitsPage",
+        "summary": "Rate-limit page",
+        "responses": {
+          "200": {
+            "description": "HTML rate-limit page",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/AGENTS.md": {
       "get": {
         "tags": [

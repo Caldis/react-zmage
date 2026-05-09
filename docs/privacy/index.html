@@ -5,13 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>react-zmage AI Install Guide - Agent Integration and llms.txt</title>
-    <meta name="description" content="Read llms.txt and generate a concise agent prompt for adding react-zmage to an existing React, Next.js, CMS, MDX, or rich text image surface." />
+    <title>react-zmage Privacy Notes</title>
+    <meta name="description" content="Plain-language privacy notes for the react-zmage documentation site and npm package." />
     <meta name="keywords" content="react image viewer, react image zoom, react lightbox, react image preview, origin expand, fullscreen image viewer, rich text image preview, react-zmage" />
     <meta name="author" content="Caldis" />
     <meta name="robots" content="index,follow" />
     <meta name="theme-color" content="#0a0a0a" />
-    <link rel="canonical" href="https://zmage.caldis.me/ai" />
+    <link rel="canonical" href="https://zmage.caldis.me/privacy" />
     <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />
     <link rel="alternate" type="text/plain" title="llms-full.txt" href="/llms-full.txt" />
     <link rel="alternate" type="text/markdown" title="Markdown homepage" href="/index.md" />
@@ -19,17 +19,17 @@
     <link rel="help" type="text/markdown" title="Developer resources" href="/developers/llms.txt" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="react-zmage AI Install Guide - Agent Integration and llms.txt" />
-    <meta property="og:description" content="Read llms.txt and generate a concise agent prompt for adding react-zmage to an existing React, Next.js, CMS, MDX, or rich text image surface." />
+    <meta property="og:title" content="react-zmage Privacy Notes" />
+    <meta property="og:description" content="Plain-language privacy notes for the react-zmage documentation site and npm package." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://zmage.caldis.me/ai" />
+    <meta property="og:url" content="https://zmage.caldis.me/privacy" />
     <meta property="og:image" content="https://zmage.caldis.me/logo.png" />
     <meta property="og:site_name" content="react-zmage" />
 
     <!-- Twitter card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="react-zmage AI Install Guide - Agent Integration and llms.txt" />
-    <meta name="twitter:description" content="Read llms.txt and generate a concise agent prompt for adding react-zmage to an existing React, Next.js, CMS, MDX, or rich text image surface." />
+    <meta name="twitter:title" content="react-zmage Privacy Notes" />
+    <meta name="twitter:description" content="Plain-language privacy notes for the react-zmage documentation site and npm package." />
     <meta name="twitter:image" content="https://zmage.caldis.me/logo.png" />
 
     <!-- hreflang (single canonical URL; client-side i18n switches copy after load) -->
@@ -60,10 +60,10 @@
                 },
                 {
                         "@type": "WebPage",
-                        "@id": "https://zmage.caldis.me/ai#webpage",
-                        "url": "https://zmage.caldis.me/ai",
-                        "name": "react-zmage AI Install Guide - Agent Integration and llms.txt",
-                        "description": "Read llms.txt and generate a concise agent prompt for adding react-zmage to an existing React, Next.js, CMS, MDX, or rich text image surface.",
+                        "@id": "https://zmage.caldis.me/privacy#webpage",
+                        "url": "https://zmage.caldis.me/privacy",
+                        "name": "react-zmage Privacy Notes",
+                        "description": "Plain-language privacy notes for the react-zmage documentation site and npm package.",
                         "isPartOf": {
                                 "@id": "https://zmage.caldis.me/#website"
                         },
@@ -163,8 +163,8 @@
                                 {
                                         "@type": "ListItem",
                                         "position": 2,
-                                        "name": "react-zmage AI install guide",
-                                        "item": "https://zmage.caldis.me/ai"
+                                        "name": "react-zmage privacy notes",
+                                        "item": "https://zmage.caldis.me/privacy"
                                 }
                         ]
                 }
@@ -196,8 +196,20 @@
   <body>
     <div id="app">
       <main data-seo-fallback style="max-width: 760px; margin: 72px auto; padding: 0 24px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; line-height: 1.65; color: #f5f5f5; background: #0a0a0a;">
-        <h1 style="font-size: 36px; line-height: 1.15; margin: 0 0 16px;">react-zmage AI install guide</h1>
-        <p data-seo-summary style="font-size: 18px; margin: 0 0 24px; color: #d4d4d4;">Read llms.txt or generate a short prompt that tells a coding agent how to inspect your project and integrate react-zmage with the right usage mode.</p>
+        <h1 style="font-size: 36px; line-height: 1.15; margin: 0 0 16px;">react-zmage privacy notes</h1>
+        <p data-seo-summary style="font-size: 18px; margin: 0 0 24px; color: #d4d4d4;">react-zmage is a client-side React package and the documentation site is static. The package does not create accounts, collect API credentials, or send image data to a react-zmage backend.</p>
+        <section style="margin: 28px 0 0;">
+          <h2 style="font-size: 22px; margin: 0 0 10px;">Package behavior</h2>
+          <p style="margin: 0; color: #d4d4d4;">The npm package runs inside the user's React app. It displays images already available to that app and does not upload images to a react-zmage server.</p>
+        </section>
+        <section style="margin: 28px 0 0;">
+          <h2 style="font-size: 22px; margin: 0 0 10px;">Documentation site</h2>
+          <p style="margin: 0; color: #d4d4d4;">zmage.caldis.me is hosted as static GitHub Pages content and includes Google Analytics page view measurement. External links to GitHub, npm, and other services are governed by those services' policies.</p>
+        </section>
+        <section style="margin: 28px 0 0;">
+          <h2 style="font-size: 22px; margin: 0 0 10px;">Agent use</h2>
+          <p style="margin: 0; color: #d4d4d4;">Agents do not need OAuth tokens, API keys, service accounts, or user credentials to read the docs or install the package. Agents should avoid placing private image URLs or secrets in public GitHub issues.</p>
+        </section>
         <nav aria-label="react-zmage links" style="display: flex; flex-wrap: wrap; gap: 12px;">
           <a href="/" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Home</a>
           <a href="/docs" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Docs</a>
