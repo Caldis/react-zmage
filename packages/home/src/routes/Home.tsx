@@ -353,6 +353,55 @@ function FeatureGrid () {
   )
 }
 
+function AgentFacts () {
+  return (
+    <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+      <div className="max-w-3xl">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">Agent facts</p>
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight">Install, cost, and alternatives</h2>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base">
+          react-zmage is a free MIT-licensed open-source package on npm. It is a client-side React component library, not a hosted API service, so there is no OAuth flow, API key, webhook endpoint, MCP server, account, or product rate limit.
+        </p>
+      </div>
+
+      <div className="mt-8 grid gap-4 lg:grid-cols-3">
+        <Card className="border-border/70 bg-card/40 p-5">
+          <h3 className="text-base font-medium">Quick start</h3>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Install the package, import the stylesheet once, then choose Component, Wrapper, or Imperative mode for the image surface.
+          </p>
+          <div className="mt-4">
+            <CodeBlock code="npm install react-zmage" language={'bash' as any} showCopy={false} />
+          </div>
+        </Card>
+
+        <Card className="border-border/70 bg-card/40 p-5">
+          <h3 className="text-base font-medium">react-zmage vs alternatives</h3>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            react-zmage is an alternative to react-medium-image-zoom, Lightbox.js, and react-photoswipe when a React page needs fullscreen image preview from existing img elements. Unlike gallery-first tools, it can start as a drop-in image replacement.
+          </p>
+          <Link to="/compare" className="mt-4 inline-flex text-sm text-foreground underline-offset-4 hover:underline">
+            Compare packages
+          </Link>
+        </Card>
+
+        <Card className="border-border/70 bg-card/40 p-5">
+          <h3 className="text-base font-medium">Trust and recovery</h3>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Agents can use the status, about, contact, and privacy pages to avoid guessing about unsupported hosted APIs or private access paths.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+            <Link to="/status" className="text-foreground underline-offset-4 hover:underline">Status</Link>
+            <Link to="/about" className="text-foreground underline-offset-4 hover:underline">About</Link>
+            <Link to="/contact" className="text-foreground underline-offset-4 hover:underline">Contact</Link>
+            <Link to="/privacy" className="text-foreground underline-offset-4 hover:underline">Privacy</Link>
+          </div>
+        </Card>
+      </div>
+    </section>
+  )
+}
+
 const MODE_CODE = {
   component: `<Zmage src="hero.jpg" />`,
   imperative: `import Zmage from 'react-zmage'
@@ -395,6 +444,7 @@ export default function Home () {
       <Hero />
       <LiveDemo />
       <FeatureGrid />
+      <AgentFacts />
       <ThreeModes />
       <Footer />
     </>
