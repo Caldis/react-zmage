@@ -199,7 +199,7 @@ function LiveDemo () {
           set={set}
           defaultPage={page}
           radius={10}
-          edge={24}
+          edge={12}
           animate={siteZmageAnimate}
           controller={siteZmageController}
         />
