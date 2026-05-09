@@ -1,0 +1,9 @@
+{
+  "name": "react-zmage",
+  "description": "react-zmage is a React component library. There is no hosted MCP server at this time.",
+  "mcp_available": false,
+  "documentation_only": true,
+  "recommended_agent_entry": "https://zmage.caldis.me/llms.txt",
+  "mcp_notes": "https://zmage.caldis.me/developers/mcp.md",
+  "package": "react-zmage"
+}

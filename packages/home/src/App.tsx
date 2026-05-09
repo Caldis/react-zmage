@@ -7,6 +7,7 @@ import Playground from './routes/Playground'
 import Docs from './routes/Docs'
 import UseCases from './routes/UseCases'
 import AISetup from './routes/AISetup'
+import Developers from './routes/Developers'
 
 export default function App () {
   useAnalyticsPageviews()
@@ -20,6 +21,7 @@ export default function App () {
           <Route path="/docs" element={<Docs />} />
           <Route path="/use-cases" element={<UseCases />} />
           <Route path="/ai" element={<AISetup />} />
+          <Route path="/developers" element={<Developers />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>

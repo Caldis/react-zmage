@@ -1,0 +1,5 @@
+# react-zmage API metadata
+
+react-zmage has a TypeScript component API, not a hosted network API. The OpenAPI document at https://zmage.caldis.me/api/openapi.json describes this documentation site's static, read-only resources so agents can discover markdown, llms, schema, and well-known files.
+
+No OAuth or API key is required. Non-existent static paths may return GitHub Pages HTML 404 responses; agents should recover by using /llms.txt, /llms-full.txt, /index.md, npm, or GitHub.

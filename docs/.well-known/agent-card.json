@@ -1,0 +1,48 @@
+{
+  "name": "react-zmage documentation",
+  "description": "A documentation-only discovery card for the react-zmage React image viewer package. It does not expose an A2A task RPC endpoint.",
+  "url": "https://zmage.caldis.me/",
+  "provider": {
+    "organization": "Caldis",
+    "url": "https://github.com/Caldis"
+  },
+  "version": "1.8.4",
+  "protocolVersion": "0.3",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown"
+  ],
+  "defaultOutputModes": [
+    "text/markdown",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "react-zmage-integration",
+      "name": "Integrate react-zmage",
+      "description": "Help a coding agent install react-zmage and choose Component, Wrapper, or Imperative mode for existing React image surfaces.",
+      "tags": [
+        "react",
+        "image-viewer",
+        "fullscreen",
+        "gallery",
+        "mdx",
+        "cms"
+      ],
+      "examples": [
+        "Add fullscreen image preview to a Next.js MDX blog.",
+        "Wrap CMS rich text images without rewriting the markup."
+      ]
+    }
+  ],
+  "securitySchemes": {},
+  "security": [],
+  "documentationUrl": "https://zmage.caldis.me/llms.txt",
+  "xDocumentationOnly": true,
+  "xA2aTaskEndpoint": null
+}

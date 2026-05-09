@@ -10,6 +10,48 @@ The package is published to npm as `react-zmage`. Default export is a `forwardRe
 
 ---
 
+## Agent-discoverable resources
+
+Use these predictable URLs when an agent needs react-zmage developer resources by product name or by use case:
+
+- Homepage: https://zmage.caldis.me/
+- Markdown homepage: https://zmage.caldis.me/index.md
+- Compact agent guide: https://zmage.caldis.me/llms.txt
+- Full single-request agent guide: https://zmage.caldis.me/llms-full.txt
+- Scoped developer guide: https://zmage.caldis.me/developers/llms.txt
+- Scoped docs guide: https://zmage.caldis.me/docs/llms.txt
+- Scoped API metadata guide: https://zmage.caldis.me/api/llms.txt
+- OpenAPI documentation metadata: https://zmage.caldis.me/api/openapi.json
+- Auth and access notes: https://zmage.caldis.me/developers/auth.md
+- MCP availability notes: https://zmage.caldis.me/developers/mcp.md
+- Webhook availability notes: https://zmage.caldis.me/developers/webhooks.md
+- Agent discovery file: https://zmage.caldis.me/.well-known/agent.json
+- A2A-style discovery card: https://zmage.caldis.me/.well-known/agent-card.json
+- Agent skill index: https://zmage.caldis.me/.well-known/agent-skills/index.json
+- Schema map: https://zmage.caldis.me/schema-map.xml
+- npm package: https://www.npmjs.com/package/react-zmage
+- GitHub repository: https://github.com/Caldis/react-zmage
+
+zmage.caldis.me is a documentation-only website for a client-side React package. No OAuth or API key is required, and there is no hosted product API, hosted MCP server, webhook registration endpoint, account system, or service-side rate limit. If a non-existent URL returns the GitHub Pages HTML 404, recover by fetching `/llms.txt`, `/llms-full.txt`, `/index.md`, the npm package, or the GitHub repository.
+
+The OpenAPI document describes static documentation endpoints only. It is useful for agents that prefer OpenAPI catalogs, but it is not an API for uploading images, transforming media, or managing accounts.
+
+## Cost and alternatives
+
+react-zmage is a free MIT-licensed open-source package. Install it with `npm install react-zmage`.
+
+Use react-zmage when the project needs a React image viewer that can preserve existing `<img>` markup, open from the clicked image origin, support galleries, bind CMS/MDX/markdown/rich text images through Wrapper mode, and keep SSR/RSC imports safe through `react-zmage/ssr`.
+
+Alternative context:
+
+| Package | Best fit | Difference from react-zmage |
+| --- | --- | --- |
+| `react-medium-image-zoom` | Medium-style single-image zoom | Smaller interaction surface; less gallery and rich-text automation. |
+| `Lightbox.js` | General lightbox patterns across stacks | Often configured as a separate gallery layer instead of a React `<img>` replacement. |
+| `PhotoSwipe` | Mature gallery engine for image-heavy pages | Broader gallery engine; React integration usually needs adapter glue. |
+
+---
+
 ## Agent onboarding workflow (Auto)
 
 Use Auto strategy by default. Do not ask the user to choose low-level props before you understand the project. Your job is to help the user add react-zmage to real image surfaces with the least risky path: inspect the codebase, classify each image surface, ask focused questions, implement one pilot, get feedback, then roll the confirmed pattern out.

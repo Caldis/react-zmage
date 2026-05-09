@@ -1,0 +1,281 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "react-zmage documentation metadata",
+    "version": "1.8.4",
+    "summary": "Read-only static documentation endpoints for the react-zmage React image viewer package.",
+    "description": "This OpenAPI document describes zmage.caldis.me documentation resources. It is not a hosted product API for manipulating images or accounts. No OAuth or API key is required.",
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/Caldis/react-zmage/blob/master/LICENSE"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://zmage.caldis.me"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Docs",
+      "description": "Markdown and llms documentation files"
+    },
+    {
+      "name": "Discovery",
+      "description": "Agent discovery and schema files"
+    },
+    {
+      "name": "Status",
+      "description": "Truthful notes about unsupported hosted APIs"
+    }
+  ],
+  "paths": {
+    "/index.md": {
+      "get": {
+        "tags": [
+          "Docs"
+        ],
+        "operationId": "getMarkdownHomepage",
+        "summary": "Markdown homepage",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "tags": [
+          "Docs"
+        ],
+        "operationId": "getLlmsTxt",
+        "summary": "Compact agent guide",
+        "responses": {
+          "200": {
+            "description": "Plain text document",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llms-full.txt": {
+      "get": {
+        "tags": [
+          "Docs"
+        ],
+        "operationId": "getLlmsFullTxt",
+        "summary": "Full single-file agent documentation",
+        "responses": {
+          "200": {
+            "description": "Plain text document",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developers/llms.txt": {
+      "get": {
+        "tags": [
+          "Docs"
+        ],
+        "operationId": "getDeveloperLlmsTxt",
+        "summary": "Scoped developer resource index",
+        "responses": {
+          "200": {
+            "description": "Plain text document",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developers/auth.md": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "operationId": "getAuthNotes",
+        "summary": "Auth and access notes",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developers/mcp.md": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "operationId": "getMcpNotes",
+        "summary": "MCP availability notes",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developers/webhooks.md": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "operationId": "getWebhookNotes",
+        "summary": "Webhook availability notes",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/agent.json": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "operationId": "getAgentDiscovery",
+        "summary": "Agent discovery file",
+        "responses": {
+          "200": {
+            "description": "JSON document",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/agent-card.json": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "operationId": "getA2aAgentCard",
+        "summary": "A2A-style discovery card",
+        "responses": {
+          "200": {
+            "description": "JSON document",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/agent-skills/index.json": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "operationId": "getAgentSkillsIndex",
+        "summary": "Agent skills discovery index",
+        "responses": {
+          "200": {
+            "description": "JSON document",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schema-map.xml": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "operationId": "getSchemaMap",
+        "summary": "NLWeb schema map",
+        "responses": {
+          "200": {
+            "description": "Schema map XML",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {}
+  },
+  "security": [],
+  "externalDocs": {
+    "description": "Human-readable react-zmage docs",
+    "url": "https://zmage.caldis.me/docs"
+  },
+  "x-documentation-only": true,
+  "x-package": {
+    "npm": "react-zmage",
+    "repository": "https://github.com/Caldis/react-zmage"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "@id": "https://zmage.caldis.me/#software",
+  "name": "react-zmage",
+  "url": "https://zmage.caldis.me/",
+  "description": "Free MIT-licensed React image viewer for origin-expand fullscreen image preview, galleries, rich text, and SSR/RSC apps.",
+  "codeRepository": "https://github.com/Caldis/react-zmage",
+  "programmingLanguage": "TypeScript",
+  "runtimePlatform": "React 16.8 through 19",
+  "license": "https://opensource.org/licenses/MIT",
+  "softwareVersion": "1.8.4",
+  "keywords": [
+    "React image viewer",
+    "React image zoom",
+    "React lightbox alternative",
+    "fullscreen image viewer",
+    "CMS image preview",
+    "MDX image viewer"
+  ]
+}

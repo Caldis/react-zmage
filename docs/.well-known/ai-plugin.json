@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "react-zmage Docs",
+  "name_for_model": "react_zmage_docs",
+  "description_for_human": "Documentation and integration metadata for the react-zmage React image viewer package.",
+  "description_for_model": "Use this documentation source to help developers install react-zmage, choose Component, Wrapper, or Imperative mode, and understand that zmage.caldis.me is documentation-only with no OAuth, API key, hosted MCP server, or webhook API.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://zmage.caldis.me/api/openapi.json",
+    "is_user_authenticated": false
+  },
+  "logo_url": "https://zmage.caldis.me/logo.png",
+  "legal_info_url": "https://github.com/Caldis/react-zmage/blob/master/LICENSE"
+}

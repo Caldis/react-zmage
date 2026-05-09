@@ -1,0 +1,41 @@
+{
+  "schema_version": "2026-05-09",
+  "name": "react-zmage",
+  "description": "Free MIT-licensed React image viewer package for origin-expand fullscreen image preview.",
+  "url": "https://zmage.caldis.me/",
+  "package": {
+    "ecosystem": "npm",
+    "name": "react-zmage",
+    "version": "1.8.4",
+    "install": "npm install react-zmage",
+    "style_import": "react-zmage/style.css",
+    "ssr_entry": "react-zmage/ssr"
+  },
+  "documentation_only": true,
+  "auth": {
+    "type": "none",
+    "oauth": false,
+    "api_key": false,
+    "notes_url": "https://zmage.caldis.me/developers/auth.md"
+  },
+  "capabilities": [
+    "React component image viewer",
+    "origin-expand fullscreen zoom",
+    "multi-image galleries",
+    "keyboard navigation",
+    "mobile gestures",
+    "Wrapper mode for CMS, MDX, markdown, rich text, and generated HTML",
+    "SSR and React Server Components-safe import path"
+  ],
+  "resources": {
+    "llms": "https://zmage.caldis.me/llms.txt",
+    "llms_full": "https://zmage.caldis.me/llms-full.txt",
+    "markdown_homepage": "https://zmage.caldis.me/index.md",
+    "openapi": "https://zmage.caldis.me/api/openapi.json",
+    "pricing": "https://zmage.caldis.me/pricing.md",
+    "source": "https://github.com/Caldis/react-zmage",
+    "npm": "https://www.npmjs.com/package/react-zmage",
+    "mcp_notes": "https://zmage.caldis.me/developers/mcp.md",
+    "webhook_notes": "https://zmage.caldis.me/developers/webhooks.md"
+  }
+}

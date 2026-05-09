@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemamap xmlns="https://nlweb.ai/schemas/schemamap/1.0">
+  <schemafeed>
+    <loc>https://zmage.caldis.me/feeds/react-zmage.schema.jsonl</loc>
+    <name>react-zmage software source code feed</name>
+    <encoding>jsonl</encoding>
+    <about>https://zmage.caldis.me/#software</about>
+  </schemafeed>
+  <schemafeed>
+    <loc>https://zmage.caldis.me/schema/software.jsonld</loc>
+    <name>react-zmage software JSON-LD</name>
+    <encoding>jsonld</encoding>
+    <about>https://zmage.caldis.me/#software</about>
+  </schemafeed>
+</schemamap>

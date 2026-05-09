@@ -1,0 +1,1 @@
+Read AGENTS.md first. Keep react-zmage changes scoped, preserve public API compatibility, and verify docs/site changes with the relevant pnpm scripts before committing.

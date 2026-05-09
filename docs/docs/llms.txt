@@ -1,0 +1,11 @@
+# react-zmage docs
+
+Use this scoped file when an agent only needs API and usage documentation.
+
+- Full API reference: https://zmage.caldis.me/llms.txt
+- Human docs page: https://zmage.caldis.me/docs
+- Playground: https://zmage.caldis.me/playground
+- Wrapper mode playground: https://zmage.caldis.me/playground/wrapper
+- Source README: https://github.com/Caldis/react-zmage/blob/master/README.md
+
+Core modes: Component for owned React image markup, Wrapper for CMS/MDX/markdown/rich text images, and `Zmage.browsing()` for imperative event handlers.

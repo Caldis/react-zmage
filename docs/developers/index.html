@@ -5,13 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>react-zmage - React Image Viewer with Origin Expand Zoom</title>
-    <meta name="description" content="Turn any &lt;img&gt; into an origin-expand fullscreen React image viewer. Supports galleries, keyboard navigation, mobile gestures, Wrapper mode, and SSR/RSC." />
+    <title>react-zmage Developer Resources - API Docs, Agent Files, Auth, MCP</title>
+    <meta name="description" content="Find machine-readable react-zmage developer resources including llms.txt, llms-full.txt, OpenAPI metadata, auth notes, MCP notes, webhooks notes, and agent discovery files." />
     <meta name="keywords" content="react image viewer, react image zoom, react lightbox, react image preview, origin expand, fullscreen image viewer, rich text image preview, react-zmage" />
     <meta name="author" content="Caldis" />
     <meta name="robots" content="index,follow" />
     <meta name="theme-color" content="#0a0a0a" />
-    <link rel="canonical" href="https://zmage.caldis.me/" />
+    <link rel="canonical" href="https://zmage.caldis.me/developers" />
     <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />
     <link rel="alternate" type="text/plain" title="llms-full.txt" href="/llms-full.txt" />
     <link rel="alternate" type="text/markdown" title="Markdown homepage" href="/index.md" />
@@ -19,17 +19,17 @@
     <link rel="help" type="text/markdown" title="Developer resources" href="/developers/llms.txt" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="react-zmage - React Image Viewer with Origin Expand Zoom" />
-    <meta property="og:description" content="Turn any &lt;img&gt; into an origin-expand fullscreen React image viewer. Supports galleries, keyboard navigation, mobile gestures, Wrapper mode, and SSR/RSC." />
+    <meta property="og:title" content="react-zmage Developer Resources - API Docs, Agent Files, Auth, MCP" />
+    <meta property="og:description" content="Find machine-readable react-zmage developer resources including llms.txt, llms-full.txt, OpenAPI metadata, auth notes, MCP notes, webhooks notes, and agent discovery files." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://zmage.caldis.me/" />
+    <meta property="og:url" content="https://zmage.caldis.me/developers" />
     <meta property="og:image" content="https://zmage.caldis.me/logo.png" />
     <meta property="og:site_name" content="react-zmage" />
 
     <!-- Twitter card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="react-zmage - React Image Viewer with Origin Expand Zoom" />
-    <meta name="twitter:description" content="Turn any &lt;img&gt; into an origin-expand fullscreen React image viewer. Supports galleries, keyboard navigation, mobile gestures, Wrapper mode, and SSR/RSC." />
+    <meta name="twitter:title" content="react-zmage Developer Resources - API Docs, Agent Files, Auth, MCP" />
+    <meta name="twitter:description" content="Find machine-readable react-zmage developer resources including llms.txt, llms-full.txt, OpenAPI metadata, auth notes, MCP notes, webhooks notes, and agent discovery files." />
     <meta name="twitter:image" content="https://zmage.caldis.me/logo.png" />
 
     <!-- hreflang (single canonical URL; client-side i18n switches copy after load) -->
@@ -57,10 +57,10 @@
                 },
                 {
                         "@type": "WebPage",
-                        "@id": "https://zmage.caldis.me/#webpage",
-                        "url": "https://zmage.caldis.me/",
-                        "name": "react-zmage - React Image Viewer with Origin Expand Zoom",
-                        "description": "Turn any \u003cimg> into an origin-expand fullscreen React image viewer. Supports galleries, keyboard navigation, mobile gestures, Wrapper mode, and SSR/RSC.",
+                        "@id": "https://zmage.caldis.me/developers#webpage",
+                        "url": "https://zmage.caldis.me/developers",
+                        "name": "react-zmage Developer Resources - API Docs, Agent Files, Auth, MCP",
+                        "description": "Find machine-readable react-zmage developer resources including llms.txt, llms-full.txt, OpenAPI metadata, auth notes, MCP notes, webhooks notes, and agent discovery files.",
                         "isPartOf": {
                                 "@id": "https://zmage.caldis.me/#website"
                         },
@@ -104,6 +104,12 @@
                                         "position": 1,
                                         "name": "Home",
                                         "item": "https://zmage.caldis.me/"
+                                },
+                                {
+                                        "@type": "ListItem",
+                                        "position": 2,
+                                        "name": "react-zmage developer resources",
+                                        "item": "https://zmage.caldis.me/developers"
                                 }
                         ]
                 }
@@ -135,41 +141,8 @@
   <body>
     <div id="app">
       <main data-seo-fallback style="max-width: 760px; margin: 72px auto; padding: 0 24px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; line-height: 1.65; color: #f5f5f5; background: #0a0a0a;">
-        <h1 style="font-size: 36px; line-height: 1.15; margin: 0 0 16px;">React image viewer with origin-expand zoom</h1>
-        <p style="font-size: 18px; margin: 0 0 24px; color: #d4d4d4;">react-zmage turns normal img tags into a fullscreen image viewer for blogs, docs, CMS content, and news sites.</p>
-        <section aria-labelledby="seo-install" style="margin: 32px 0 0;">
-          <h2 id="seo-install" style="font-size: 22px; margin: 0 0 10px;">Quick start</h2>
-          <p style="margin: 0 0 10px; color: #d4d4d4;">react-zmage is a free MIT-licensed open-source package published on npm. Install it with your package manager, import the stylesheet once, then replace an owned image with the component or wrap generated HTML with Wrapper mode.</p>
-          <pre style="overflow-x: auto; margin: 0; padding: 12px; border: 1px solid #404040; border-radius: 8px; background: #171717; color: #f5f5f5;"><code>npm install react-zmage</code></pre>
-        </section>
-        <section aria-labelledby="seo-modes" style="margin: 32px 0 0;">
-          <h2 id="seo-modes" style="font-size: 22px; margin: 0 0 10px;">Usage modes</h2>
-          <ul style="margin: 0; padding-left: 20px; color: #d4d4d4;">
-            <li><strong>Component:</strong> replace controlled React <code>&lt;img&gt;</code> markup with <code>&lt;Zmage&gt;</code>.</li>
-            <li><strong>Wrapper:</strong> auto-bind descendant images in CMS, MDX, markdown, rich text, or <code>dangerouslySetInnerHTML</code> content.</li>
-            <li><strong>Imperative:</strong> call <code>Zmage.browsing()</code> from buttons, commands, callbacks, or other event handlers.</li>
-          </ul>
-        </section>
-        <section aria-labelledby="seo-agent-resources" style="margin: 32px 0 0;">
-          <h2 id="seo-agent-resources" style="font-size: 22px; margin: 0 0 10px;">Agent-readable resources</h2>
-          <p style="margin: 0 0 10px; color: #d4d4d4;">Agents can fetch <a href="/llms.txt" style="color: #fff;">llms.txt</a>, <a href="/llms-full.txt" style="color: #fff;">llms-full.txt</a>, <a href="/index.md" style="color: #fff;">index.md</a>, OpenAPI metadata, schema feeds, and well-known discovery files. The site is documentation-only; package access happens through npm and source access through GitHub.</p>
-          <ul style="margin: 0; padding-left: 20px; color: #d4d4d4;">
-            <li><a href="/api/openapi.json" style="color: #fff;">OpenAPI metadata</a> documents static documentation endpoints; no product API, OAuth flow, API key, hosted MCP server, or webhook system is required.</li>
-            <li><a href="/developers/auth.md" style="color: #fff;">Auth notes</a>, <a href="/developers/mcp.md" style="color: #fff;">MCP notes</a>, and <a href="/developers/webhooks.md" style="color: #fff;">webhook notes</a> state the real integration boundaries.</li>
-          </ul>
-        </section>
-        <section aria-labelledby="seo-alternatives" style="margin: 32px 0 0;">
-          <h2 id="seo-alternatives" style="font-size: 22px; margin: 0 0 10px;">Alternatives context</h2>
-          <table style="width: 100%; border-collapse: collapse; color: #d4d4d4;">
-            <thead><tr><th style="border: 1px solid #404040; padding: 8px; text-align: left;">Package</th><th style="border: 1px solid #404040; padding: 8px; text-align: left;">Best fit</th><th style="border: 1px solid #404040; padding: 8px; text-align: left;">Difference</th></tr></thead>
-            <tbody>
-              <tr><td style="border: 1px solid #404040; padding: 8px;">react-zmage</td><td style="border: 1px solid #404040; padding: 8px;">Origin-expand fullscreen image viewer for React images, galleries, rich text, and SSR/RSC apps.</td><td style="border: 1px solid #404040; padding: 8px;">Drop-in image replacement plus Wrapper and imperative modes.</td></tr>
-              <tr><td style="border: 1px solid #404040; padding: 8px;">react-medium-image-zoom</td><td style="border: 1px solid #404040; padding: 8px;">Medium-style single-image zoom.</td><td style="border: 1px solid #404040; padding: 8px;">Smaller interaction surface; less gallery and rich-text automation.</td></tr>
-              <tr><td style="border: 1px solid #404040; padding: 8px;">Lightbox.js</td><td style="border: 1px solid #404040; padding: 8px;">General lightbox patterns across stacks.</td><td style="border: 1px solid #404040; padding: 8px;">Often configured as a separate gallery layer instead of a React img replacement.</td></tr>
-              <tr><td style="border: 1px solid #404040; padding: 8px;">PhotoSwipe</td><td style="border: 1px solid #404040; padding: 8px;">Mature gallery engine for image-heavy pages.</td><td style="border: 1px solid #404040; padding: 8px;">Broader gallery engine; React integration usually needs adapter glue.</td></tr>
-            </tbody>
-          </table>
-        </section>
+        <h1 style="font-size: 36px; line-height: 1.15; margin: 0 0 16px;">react-zmage developer resources</h1>
+        <p style="font-size: 18px; margin: 0 0 24px; color: #d4d4d4;">Machine-readable resources for agents and developers: API docs, markdown homepage, llms files, OpenAPI documentation metadata, auth notes, MCP notes, webhook notes, schema feeds, and well-known discovery files.</p>
         <nav aria-label="react-zmage links" style="display: flex; flex-wrap: wrap; gap: 12px;">
           <a href="/" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Home</a>
           <a href="/docs" style="color: #ffffff; text-decoration: underline; text-underline-offset: 4px;">Docs</a>

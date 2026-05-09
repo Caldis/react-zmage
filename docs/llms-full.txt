@@ -1,0 +1,1263 @@
+# react-zmage full agent documentation
+
+This file is a single-request context bundle for AI agents. It combines the compact /llms.txt integration guide, the README, and repository agent instructions.
+
+## Discovery and access
+
+- Canonical compact guide: https://zmage.caldis.me/llms.txt
+- Markdown homepage: https://zmage.caldis.me/index.md
+- OpenAPI documentation metadata: https://zmage.caldis.me/api/openapi.json
+- Auth notes: https://zmage.caldis.me/developers/auth.md
+- MCP notes: https://zmage.caldis.me/developers/mcp.md
+- Webhook notes: https://zmage.caldis.me/developers/webhooks.md
+
+zmage.caldis.me is a documentation-only website. No OAuth or API key is required, and there is no hosted product API, hosted MCP server, webhook registration endpoint, or rate-limit budget.
+
+---
+
+## Compact llms.txt
+
+# react-zmage
+
+> A React component that turns any `<img>` into a fullscreen-zoomable, multi-image, keyboard-navigable image viewer. Drop-in replacement for `<img>`. Supports React 16.8 through 19.
+
+The package is published to npm as `react-zmage`. Default export is a `forwardRef` component; static methods on it provide imperative (`Zmage.browsing`) and HTML-wrapper (`Zmage.Wrapper`) usage modes. Styles are exported separately at `react-zmage/style.css`. SSR/RSC consumers use the `react-zmage/ssr` subpath.
+
+> **Canonical reference:** https://zmage.caldis.me/llms.txt
+>
+> If anything below looks outdated or contradicts real package behavior, fetch this URL first. It is the source of truth for react-zmage usage modes, props, defaults, SSR entry, and common pitfalls. Report staleness back to the user.
+
+---
+
+## Agent-discoverable resources
+
+Use these predictable URLs when an agent needs react-zmage developer resources by product name or by use case:
+
+- Homepage: https://zmage.caldis.me/
+- Markdown homepage: https://zmage.caldis.me/index.md
+- Compact agent guide: https://zmage.caldis.me/llms.txt
+- Full single-request agent guide: https://zmage.caldis.me/llms-full.txt
+- Scoped developer guide: https://zmage.caldis.me/developers/llms.txt
+- Scoped docs guide: https://zmage.caldis.me/docs/llms.txt
+- Scoped API metadata guide: https://zmage.caldis.me/api/llms.txt
+- OpenAPI documentation metadata: https://zmage.caldis.me/api/openapi.json
+- Auth and access notes: https://zmage.caldis.me/developers/auth.md
+- MCP availability notes: https://zmage.caldis.me/developers/mcp.md
+- Webhook availability notes: https://zmage.caldis.me/developers/webhooks.md
+- Agent discovery file: https://zmage.caldis.me/.well-known/agent.json
+- A2A-style discovery card: https://zmage.caldis.me/.well-known/agent-card.json
+- Agent skill index: https://zmage.caldis.me/.well-known/agent-skills/index.json
+- Schema map: https://zmage.caldis.me/schema-map.xml
+- npm package: https://www.npmjs.com/package/react-zmage
+- GitHub repository: https://github.com/Caldis/react-zmage
+
+zmage.caldis.me is a documentation-only website for a client-side React package. No OAuth or API key is required, and there is no hosted product API, hosted MCP server, webhook registration endpoint, account system, or service-side rate limit. If a non-existent URL returns the GitHub Pages HTML 404, recover by fetching `/llms.txt`, `/llms-full.txt`, `/index.md`, the npm package, or the GitHub repository.
+
+The OpenAPI document describes static documentation endpoints only. It is useful for agents that prefer OpenAPI catalogs, but it is not an API for uploading images, transforming media, or managing accounts.
+
+## Cost and alternatives
+
+react-zmage is a free MIT-licensed open-source package. Install it with `npm install react-zmage`.
+
+Use react-zmage when the project needs a React image viewer that can preserve existing `<img>` markup, open from the clicked image origin, support galleries, bind CMS/MDX/markdown/rich text images through Wrapper mode, and keep SSR/RSC imports safe through `react-zmage/ssr`.
+
+Alternative context:
+
+| Package | Best fit | Difference from react-zmage |
+| --- | --- | --- |
+| `react-medium-image-zoom` | Medium-style single-image zoom | Smaller interaction surface; less gallery and rich-text automation. |
+| `Lightbox.js` | General lightbox patterns across stacks | Often configured as a separate gallery layer instead of a React `<img>` replacement. |
+| `PhotoSwipe` | Mature gallery engine for image-heavy pages | Broader gallery engine; React integration usually needs adapter glue. |
+
+---
+
+## Agent onboarding workflow (Auto)
+
+Use Auto strategy by default. Do not ask the user to choose low-level props before you understand the project. Your job is to help the user add react-zmage to real image surfaces with the least risky path: inspect the codebase, classify each image surface, ask focused questions, implement one pilot, get feedback, then roll the confirmed pattern out.
+
+### What you are doing
+
+You are integrating a React image viewer. react-zmage turns existing images into a fullscreen, zoomable, keyboard-navigable viewer. It supports three usage modes:
+
+- **Component** for owned React image markup.
+- **Imperative** for buttons, commands, callbacks, or non-image events that should open a viewer.
+- **Wrapper** for uncontrolled HTML such as CMS, MDX, markdown, rich text, or `dangerouslySetInnerHTML`.
+
+The purpose is not to rewrite the user's image system. Preserve existing layout, styling, `alt`, `loading`, sizing, routing, and content behavior unless the user explicitly asks to change them.
+
+### Required workflow
+
+0. Explain the package purpose and the task: add fullscreen image viewing to the user's actual image surfaces while keeping unrelated UI unchanged.
+1. Read this document first, then inspect the user's project docs, package manager, React version, routing, render mode, CSS entry, existing image components, gallery conventions, and any current lightbox/viewer code.
+2. Find every relevant image surface in the requested scope: owned `<img>` / image components, generated HTML, MDX/CMS/markdown content, galleries, captions, thumbnails, and buttons or commands that open media.
+3. Classify each surface before coding:
+   - Component when the project owns the React image markup.
+   - Imperative when the viewer opens from an event handler, command, button, or non-image element.
+   - Wrapper when image HTML is uncontrolled or generated outside React component ownership.
+4. Ask the user concise follow-up questions until the implementation scope is concrete. Useful questions include: which pages or components are in scope, whether images should behave as a gallery, how captions should be sourced, whether SSR/RSC is involved, desired backdrop/theme behavior, mobile gesture expectations, and what the user wants to verify first.
+5. Implement one pilot change on a representative image path. Keep the diff small and tell the user exactly what to test visually.
+6. Apply user feedback to the pilot. Only after the user accepts the pattern, implement the remaining agreed scope.
+
+### Auto decision rules
+
+- Prefer omitted `preset` or `preset="auto"` unless project evidence requires fixed desktop or mobile behavior.
+- Prefer Component mode for normal React-owned `<img>` replacement.
+- Prefer Wrapper mode for CMS/MDX/markdown/rich-text surfaces where child `<img>` nodes already exist.
+- Prefer Imperative mode for command menus, custom thumbnails, buttons, or callback-driven media opening.
+- In SSR, RSC, or code that may run during server render, import from `react-zmage/ssr` and call `Zmage.browsing()` only from a client event/effect.
+- Import `react-zmage/style.css` exactly once from the app-level style entry that the project already uses.
+- For non-light UIs, set the top-level `backdrop` to match the host page background; the default `backdrop` is white.
+- Start with default controller, hotKey, animate, and gesture behavior unless the user's project or feedback requires custom tuning.
+
+### Minimal integration principles
+
+When integrating react-zmage into an existing site, keep the integration minimal.
+
+- For existing image lists or rich content, use `Zmage.Wrapper` with `set` so clicked images open at the matching gallery index.
+- You may set the top-level `backdrop` to match the host page background color.
+- Do not set optional behavior, `controller`, `controller.layout`, `edge`, `zIndex`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` props unless the user explicitly asks.
+- Only configure `controller.color` or `controller.backdrop` when the user asks for controller styling or when icons are visibly illegible after testing. Do not preemptively customize controller layout or placement.
+
+### Expected deliverables
+
+When you finish the pilot or rollout, report:
+
+1. Chosen usage mode and why it matches the project.
+2. Install command used or needed.
+3. Files changed.
+4. Where `react-zmage/style.css` is imported.
+5. Any SSR/RSC guard or client-boundary note.
+6. What the user should inspect visually before approving broader rollout.
+
+## Quick start
+
+```bash
+npm install react-zmage   # or: pnpm add react-zmage / yarn add react-zmage
+```
+
+```tsx
+import Zmage from 'react-zmage'
+import 'react-zmage/style.css'
+
+// Component mode (most common): replace any <img> with <Zmage>
+<Zmage src="/photo.jpg" alt="hero" />
+
+// Multi-image gallery: arrow keys flip pages
+<Zmage src="/photo.jpg" set={[
+  { src: '/photo.jpg', alt: 'one' },
+  { src: '/photo.jpg', alt: 'two' },
+]} />
+
+// Imperative: open the viewer from any event handler. Returns a destructor.
+// `opts` accepts the same fields as <Zmage> props (see API reference below).
+const close = Zmage.browsing({ src: '/photo.jpg', backdrop: '#111' })
+// later: close()
+
+// Wrapper: auto-attach to every <img> inside an HTML subtree
+<Zmage.Wrapper backdrop="#111">
+  <article dangerouslySetInnerHTML={{ __html: html }} />
+</Zmage.Wrapper>
+
+// Controlled mode: drive open/close from React state via the `browsing` PROP
+// (not to be confused with the static method Zmage.browsing()). Always pair
+// the prop with onBrowsing so external state stays in sync.
+const [open, setOpen] = useState(false)
+<button onClick={() => setOpen(true)}>Open</button>
+<Zmage src="/photo.jpg" browsing={open} onBrowsing={setOpen} backdrop="#111" />
+
+// SSR / RSC: import from the SSR-safe subpath (no browser globals at module load)
+// import Zmage from 'react-zmage/ssr'
+```
+
+## Choosing a usage mode
+
+- **Component**: you control the markup. Highest specificity, recommended default.
+- **Imperative**: open from arbitrary callbacks (e.g., a button onClick handler outside JSX). `Zmage.browsing(opts)` returns a destructor — calling it closes the viewer. Guard with `typeof window !== 'undefined'` if it can run server-side.
+- **Wrapper**: you don't control the rendered HTML (CMS markup, MDX, `dangerouslySetInnerHTML`). Wrapper scans its `<img>` descendants on mount and on every re-render, then binds click handlers; new imgs injected without a Wrapper re-render are not picked up. Child `<img>` nodes provide `src` / `alt`; viewer configuration props stay on `<Zmage.Wrapper>`.
+
+## API quick reference
+
+`<Zmage>` props (and the same options bag accepts these for `Zmage.browsing(opts)`):
+
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `src` | `string` | — | Required. Same as `<img src>`. |
+| `alt` | `string` | `''` | Same as `<img alt>`. |
+| `caption` | `string \| { text: string; style?: CSSProperties; className?: string }` | `''` | Caption rendered below the image inside the viewer. Pass a string for the default pill, or an object to override styling (`style` is shallow-merged onto the default class; `className` appends). Per-set entries may override via `set[i].caption`. |
+| `set` | `Array<{ src, alt?, caption? }>` | `[]` | Multi-image gallery. When non-empty, arrow keys page. `caption` per item accepts the same `string \| object` shape as the top-level prop. In Wrapper mode, pass `set` for a shared gallery; a clicked child image whose `src` matches `set[i].src` opens that index. |
+| `defaultPage` | `number` | `0` | Initial index when `set` is non-empty. In Wrapper mode this is a fallback only; matched child image src wins. |
+| `backdrop` | `string` (CSS color) | `'#FFFFFF'` | **Default is white** — override (e.g. `'#111'`) for dark UIs or you'll get a white-on-white modal. |
+| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'auto'` | Picks default `controller` / `hotKey` / `animate` / `gesture` bundle plus preset-aware viewer spacing. Omitting `preset` uses `'auto'`. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → mobile defaults, otherwise desktop. SSR / no `matchMedia` falls back to desktop. Use `preset="desktop"` to keep desktop behavior on touch devices. |
+| `controller` | `boolean \| ControllerSet` | preset | Per-button toggles: `pagination`, `rotate`, `rotateLeft`, `rotateRight`, `zoom`, `download`, `close`, `flip`, `flipLeft`, `flipRight`. `rotate` and `flip` are umbrellas: enabling either overrides its per-side counterparts (e.g. `rotate: true` shows both rotateLeft+rotateRight regardless of those flags). Visual keys: `backdrop` (toolbar bg, falls back to top-level `backdrop`) and `color` (icon color, falls back to `currentColor`). `controller.placement` is a `ControllerPlacement` and defaults to `top-right`; accepted values include `top-left`, `bottom-right`, `bottom-left`, `top-center`, `bottom-center`, `left-center`, and `right-center`. Placement moves only the toolbar capsule; side flip buttons and pagination keep their normal positions. `controller.layout` is a `ControllerOverlayLayout` for toolbar / flip / pagination / caption overlay safe insets; number values are px, strings are CSS lengths, scalar `inset` follows each target's natural edge (toolbar by placement, flip left/right, pagination/caption bottom), and `layout.mobile` overrides the base layout for mobile preset. It does not change image open/close geometry. Desktop defaults include `controller.layout.pagination.inset=24` and `controller.layout.caption.inset=60`; mobile leaves `layout` unset unless provided. `controller.render` is a `ControllerRender` callback for fully custom controller UI with signature `(args: { state: ControllerRenderState; actions: ControllerRenderActions; slots: ControllerRenderSlots }) => ReactNode`; return `null` to hide the controller layer. `state` includes `show`, `zoom`, `page`, `total`, `canZoom`, `canPrev`, `canNext`, `canDownload`, `preset`, `placement`, and `current`. `actions` include `close`, `zoom`, `rotateLeft`, `rotateRight`, `prev`, `next`, `toPage`, and `download`. `slots` expose built-in `Toolbar`, `Pagination`, `FlipLeft`, and `FlipRight` nodes for reuse. `controller=false` disables built-in slots and render. Configure `controller.backdrop` / `controller.color` only when the user asks for controller styling or visible testing shows illegible controls; e.g. `backdrop="#111"` + `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}`. Per-button string overrides (e.g. `controller.zoom: '#ff8800'`) still win over `controller.color`. |
+| `hotKey` | `boolean \| HotKey` (each entry: `boolean \| string \| string[]`) | preset | Keyboard shortcuts. Defaults: `close: 'Escape'`, `zoom: 'Space'`, `flipLeft / flipRight: 'ArrowLeft / ArrowRight'`, `rotateLeft / rotateRight: 'BracketLeft / BracketRight'` (`[` / `]`), `download: 'Mod+S'`. Each entry accepts `boolean` (use default), `string` (custom descriptor like `'Escape'` / `'Mod+S'` / `'KeyA'`), or `string[]` (multiple bindings). Descriptors use `e.code` names (layout-independent — `'BracketLeft'` is always physical `[`); single-letter / digit shortforms `'S'` / `'1'` are normalized to `'KeyS'` / `'Digit1'`. Modifier prefixes: `Mod` (= ⌘ on macOS, Ctrl elsewhere), `Cmd` / `Meta`, `Ctrl` / `Control`, `Shift`, `Alt` / `Option`. Strict modifier matching: `'Space'` is never matched by `Cmd+Space` (input-method switch) — undeclared modifiers must NOT be pressed. `flip` and `rotate` are umbrellas over their per-side counterparts; per-side string descriptor wins over umbrella. `download` defaults off (turning it on hijacks `Cmd/Ctrl+S`, suppressing the browser's "Save Page As" dialog). |
+| `animate` | `boolean \| { browsing?: boolean; flip?: 'fade' \| 'crossFade' \| 'swipe' \| 'zoom' \| 'blur' \| 'none'; cover?: boolean \| AnimateCoverOptions; slowMotion?: boolean }` | preset | Viewer open/close, cover-geometry, page-flip, and optional slow-motion transitions. `animate=false` disables animations; `animate.browsing=false` makes background, image, controls, and caption open/close without transition. `animate.cover` defaults to `{ objectFit: true, clip: true, radius: true }` and matches cover `object-fit` / `object-position`, clip-path crop, and border radius during open/close. It reads the clicked `<img>` itself; parent-wrapper clipping such as `overflow:hidden`, parent radius, masks, complex `clip-path`, or transforms is not inferred. `clip-path` / `border-radius` animation may repaint and can be heavier than pure `transform` / `opacity`; use `animate={{ cover: { clip: false } }}` or `{ radius: false }` on performance-sensitive mobile pages. `animate.cover=false` keeps the legacy cover geometry path. `animate.flip='blur'` uses an optional soft-focus crossfade; `animate.flip='none'` skips adjacent-page rendering — page change is an instant swap with no transition (caption text also updates instantly). `animate.slowMotion=false` by default; set `animate={{ slowMotion: true }}` to let held `Shift` slow open/close browsing transitions to 10x for inspection and demos. |
+| `gesture` | `boolean \| GestureSet` | preset | Touch and wheel gestures. Desktop default is `{ swipe: false, dragExit: false, wheelZoom: { step: 0.12, smooth: true, minScale: 'fit', maxScale: 4, center: 'pointer', reverse: false, exitGuardDuration: 1000 }, pinchZoom: false, doubleTapZoom: false, touchAction: 'managed' }`; mobile default enables `swipe`, `dragExit`, `pinchZoom: { minScale: 'fit', maxScale: 4, resetBelowFit: true, center: 'gesture' }`, `doubleTapZoom: { scale: 1, minScale: 'fit', maxScale: 4, center: 'tap', interval: 300, distance: 32 }`, and `touchAction: 'managed'`, while disabling `wheelZoom`. `gesture=false` disables all gestures. `gesture.swipe` controls horizontal drag paging (`threshold`, `velocity`, `axisLock`, `resistance`); `gesture.dragExit` controls vertical drag-to-exit (`threshold`, `velocity`, `axisLock`, `opacity`); `gesture.wheelZoom` controls wheel/trackpad zoom while already zoomed (`step`, `smooth`, `minScale`, `maxScale`, `center`, `reverse`, `exitGuardDuration`); `gesture.pinchZoom` controls two-finger zoom (`minScale`, `maxScale`, `resetBelowFit`, `center`); `gesture.doubleTapZoom` controls one-finger double-tap zoom (`scale`, `minScale`, `maxScale`, `center`, `interval`, `distance`); `gesture.touchAction` is `GestureTouchAction = 'managed' \| 'auto' \| 'manipulation' \| 'none'`. Managed mode writes CSS `touch-action`: pinch uses `none`, double-tap-only uses `manipulation`, otherwise `auto`, which avoids browser double-tap zoom without non-passive `touchend`. `reverse` flips wheel direction. Zooming out to `minScale` exits zoom immediately; `exitGuardDuration` defaults to `1000` ms and blocks residual wheel events after that wheel-triggered zoom exit. Wheel zoom does not capture wheel events in browsing mode except during this short guard window, so normal scroll / `hideOnScroll` behavior remains intact. Single-image viewers ignore horizontal swipe, and zoom mode disables Phase 1 single-finger gestures. |
+| `hideOnScroll` | `boolean` | `true` | Auto-close on page scroll (desktop only). |
+| `hideOnDblClick` | `boolean` | `false` | Auto-close on image double-click. Off by default to preserve current single-click semantics; turn on to dismiss with a double-click. |
+| `coverVisible` | `boolean` | `false` | Keep the underlying `<img>` visible while the modal is open. |
+| `zIndex` / `radius` / `edge` | `number` | `1000` / desktop `8`, mobile `0` / desktop `16`, mobile `0` | Modal stacking, image corner radius, viewport padding. |
+| `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
+| `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
+| `onBrowsing` | `(isBrowsing: boolean) => void` | — | Fires on open/close. |
+| `onZooming` | `(isZooming: boolean) => void` | — | Fires on zoom in/out. |
+| `onSwitching` | `(page: number) => void` | — | Fires on page change. |
+| `onRotating` | `(deg: number) => void` | — | Fires on rotation. |
+| `onError` | `(e: SyntheticEvent<HTMLImageElement>) => void` | — | Fires when an image (cover **or** viewer) fails to load. The cover-image case also still flows through native `<img>` `onError` via HTML attribute passthrough; this prop is the only way to observe the **viewer** image's load failure. |
+| `browsing` | `boolean` | — | **Controlled-mode prop**, distinct from the static method `Zmage.browsing()`. Pair with `onBrowsing` to drive open state from outside. Does not control `<Zmage.Wrapper>`. |
+
+Standard `<img>` HTML attributes (`className`, `style`, `width`, `height`, `loading`, `id`, etc.) pass through to the cover image.
+
+Controller render example:
+
+```tsx
+<Zmage
+  src="photo.jpg"
+  controller={{
+    placement: 'bottom-center',
+    layout: {
+      toolbar: { inset: '1rem' },
+      flip: { inset: '1rem' },
+      pagination: { inset: '1.5rem' },
+      caption: { inset: '4rem' },
+      mobile: {
+        pagination: { inset: '2.75rem' },
+        caption: { inset: '5.25rem' },
+      },
+    },
+    render: ({ state, actions, slots }) => {
+      if (!state.show) return null
+      return (
+        <div className="my-zmage-controls" data-placement={state.placement}>
+          <button disabled={!state.canPrev} onClick={actions.prev}>Prev</button>
+          <span>{state.page + 1} / {state.total}</span>
+          <button disabled={!state.canNext} onClick={actions.next}>Next</button>
+          <button disabled={!state.zoom && !state.canZoom} onClick={actions.zoom}>
+            {state.zoom ? 'Fit' : 'Zoom'}
+          </button>
+          {state.canDownload && <button onClick={actions.download}>Download</button>}
+          <button onClick={actions.close}>Close</button>
+          {slots.Pagination}
+        </div>
+      )
+    },
+  }}
+/>
+```
+
+Wrapper mode prop scope:
+- Put `src` / `alt` on child `<img>` nodes; top-level `src` / `alt` are overridden by the clicked DOM node.
+- Pass viewer behavior and visuals on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `gesture`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, plus lifecycle callbacks.
+- Pass `set` when the wrapped subtree should be one shared gallery. If clicked `img.src` matches `set[i].src`, Wrapper opens `i`; otherwise it falls back to `defaultPage`.
+- Without `set`, the clicked image opens alone. `data-zmage-caption` or the nearest `figcaption` can provide the viewer caption.
+- `browsing` is component-controlled state and does not control Wrapper.
+
+### Custom hotkey bindings
+
+```tsx
+// Enable Cmd/Ctrl+S to download the current image (off by default — opt in)
+<Zmage src="..." hotKey={{ download: true }} />
+
+// Rebind rotate to A / D, keep download default
+<Zmage src="..." hotKey={{ rotate: false, rotateLeft: 'KeyA', rotateRight: 'KeyD' }} />
+
+// Add Q as a second close key alongside the default Escape
+<Zmage src="..." hotKey={{ close: ['Escape', 'KeyQ'] }} />
+
+// Custom download shortcut (Mod = ⌘ on macOS, Ctrl on Windows/Linux)
+<Zmage src="..." hotKey={{ download: 'Mod+Shift+D' }} />
+```
+
+Descriptor cheatsheet (uses `e.code` names — layout-independent):
+- letters / digits short forms: `'S'` → `KeyS`, `'1'` → `Digit1`
+- arrows: `'ArrowLeft'` / `'ArrowRight'` / `'ArrowUp'` / `'ArrowDown'`
+- punctuation: `'BracketLeft'` (`[`) / `'BracketRight'` (`]`) / `'Comma'` / `'Period'` / `'Slash'`
+- whitespace: `'Space'` / `'Enter'` / `'Tab'` / `'Backspace'`
+- modifiers (prefix): `'Mod+'` (= ⌘ or Ctrl) / `'Cmd+'` / `'Ctrl+'` / `'Shift+'` / `'Alt+'`
+
+## Theming
+
+The library is theme-agnostic by design — there's no theme provider, no light/dark switch. Read your resolved theme value at the host level and pass the top-level `backdrop` accordingly; icons default to SVG `currentColor` (override globally with `controller.color`, or per-button by passing a color string to `controller.zoom` etc.). Only set `controller.backdrop` / `controller.color` when the user asks for controller styling or visible testing shows the controls are illegible on the chosen `backdrop`. Common host-side reset gotchas (Tailwind preflight, normalize.css, Bootstrap) were defended against in lib v1.1.2 — upgrade if `<Zmage>` opens with the modal image rendering smaller than the cover.
+
+## Docs
+
+- [README.md](https://github.com/Caldis/react-zmage/blob/master/README.md): full human-facing documentation, install, all props, examples
+- [AGENTS.md](https://github.com/Caldis/react-zmage/blob/master/AGENTS.md): condensed agent-oriented reference, public API contract, common pitfalls, architectural invariants
+- [Online docs](https://zmage.caldis.me/docs): API reference, three-mode walkthrough, theming guide, FAQ
+
+## Source of truth
+
+- [packages/core/src/types/global.ts](https://github.com/Caldis/react-zmage/blob/master/packages/core/src/types/global.ts): canonical TypeScript definitions for all props (`BaseType`, `Set`, `Preset`, `ControllerSet`, `ControllerPlacement`, `ControllerOverlayLayout`, `ControllerLayoutTargets`, `ControllerLayoutTarget`, `ControllerLayoutInset`, `ControllerLayoutInsetValue`, `ControllerRender`, `ControllerRenderState`, `ControllerRenderActions`, `ControllerRenderSlots`, `HotKey`, `Animate`, `AnimateFlip`, `AnimateCoverOptions`, `GestureSet`, `GestureSwipeOptions`, `GestureDragExitOptions`, `GestureWheelZoomOptions`, `GesturePinchZoomOptions`, `GestureDoubleTapZoomOptions`, `GestureTouchAction`, lifecycle params)
+- [packages/core/src/types/default.ts](https://github.com/Caldis/react-zmage/blob/master/packages/core/src/types/default.ts): canonical defaults (`defProp`, `defPreset` for desktop/mobile)
+- [packages/core/src/index.ts](https://github.com/Caldis/react-zmage/blob/master/packages/core/src/index.ts): runtime exports
+- [packages/core/package.json](https://github.com/Caldis/react-zmage/blob/master/packages/core/package.json): publish contract (`exports` field, peer deps)
+
+## Examples
+
+- [packages/home/src/App.tsx](https://github.com/Caldis/react-zmage/blob/master/packages/home/src/App.tsx): live demo site source
+- [packages/sandbox-r17/src/consumer.tsx](https://github.com/Caldis/react-zmage/blob/master/packages/sandbox-r17/src/consumer.tsx): minimal R17 consumer (also r18, r19)
+- [Live playground](https://zmage.caldis.me/playground): real-time prop debugging
+
+## Common pitfalls
+
+1. Forgetting `import 'react-zmage/style.css'` — viewer renders unstyled.
+2. Confusing the static method `Zmage.browsing(opts)` (imperative open, returns a destructor) with the `browsing` prop (controlled-mode boolean). Same name, different things — the prop must always be paired with an `onBrowsing` handler or state desyncs silently.
+3. Wrapper not picking up dynamically-injected imgs — Wrapper only re-scans on its own re-render, not on DOM mutations.
+4. Putting `src` / `alt` on `<Zmage.Wrapper>` and expecting them to render images — Wrapper reads actual descendant `<img>` nodes instead.
+5. Calling `Zmage.browsing()` in code that may run server-side — guard with `typeof window !== 'undefined'`, or import from `react-zmage/ssr`.
+6. Leaving `backdrop` at the default `#FFFFFF` on a dark-themed page — the modal may clash with the host page. Set the top-level `backdrop` explicitly if your host UI isn't light.
+7. Preemptively setting `controller`, `controller.layout`, `edge`, `zIndex`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` during a basic install — keep these defaults unless the user asks or testing exposes a concrete issue.
+
+## Optional
+
+- [Online demo](https://zmage.caldis.me)
+- [GitHub repo](https://github.com/Caldis/react-zmage)
+- [npm package](https://www.npmjs.com/package/react-zmage)
+
+
+---
+
+## README.md
+
+English | [简体中文](./README.zh-CN.md)
+
+<div align="center">
+  <a href="https://github.com/Caldis/react-zmage">
+    <img width="150" height="150" src="docs/logo.png" alt="react-zmage logo">
+  </a>
+
+  <h1>react-zmage</h1>
+
+  <p>
+    Turn any <code>&lt;img&gt;</code> into an origin-expand fullscreen React image viewer.<br>
+    Drop-in. Zero config. React 16.8 → 19.
+  </p>
+
+  <p>
+    <a href="https://www.npmjs.com/package/react-zmage"><img alt="npm version" src="https://img.shields.io/npm/v/react-zmage.svg?style=flat-square&color=cb3837"></a>
+    <a href="https://www.npmjs.com/package/react-zmage"><img alt="npm downloads/month" src="https://img.shields.io/npm/dm/react-zmage.svg?style=flat-square"></a>
+    <a href="https://bundlephobia.com/package/react-zmage"><img alt="minzipped size" src="https://img.shields.io/bundlephobia/minzip/react-zmage?style=flat-square"></a>
+    <a href="#react-compatibility"><img alt="React 16.8 — 19" src="https://img.shields.io/badge/react-16.8%E2%80%9319-61dafb?style=flat-square"></a>
+    <a href="./LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
+  </p>
+
+  <p>
+    <a href="https://zmage.caldis.me">Live Demo</a> ·
+    <a href="https://zmage.caldis.me/media/react-zmage-demo.mp4">Demo Video</a> ·
+    <a href="https://zmage.caldis.me/playground">Playground</a> ·
+    <a href="https://zmage.caldis.me/use-cases">Use Cases</a> ·
+    <a href="#api-reference">API</a> ·
+    <a href="./AGENTS.md">AGENTS.md</a>
+  </p>
+</div>
+
+---
+
+## Highlights
+
+- **Origin-expand `<img>` replacement.** Native props (`className`, `style`, `onClick`, …) pass through to the underlying image. Existing images open into a fullscreen viewer from their original position.
+- **SSR / RSC safe.** A separate `react-zmage/ssr` entry avoids touching `document` at import time. Verified against Next.js 15 App Router, Vite SSR, and Express renderToString.
+- **Three call modes.** Use it as a component, call it imperatively (`Zmage.browsing()`), or wrap any HTML subtree to auto-attach the viewer to every `<img>` inside.
+
+---
+
+## Install
+
+```bash
+npm install react-zmage    # or: pnpm add react-zmage / yarn add react-zmage
+```
+
+```tsx
+import Zmage from 'react-zmage'
+import 'react-zmage/style.css'
+
+<Zmage src="/photo.jpg" alt="hero" />
+```
+
+Peer deps: `react@>=16.8 <20` and `react-dom@>=16.8 <20`. The library auto-detects React 18+ at runtime and uses `react-dom/client` when available — consumers configure nothing.
+
+AI agents should read [`https://zmage.caldis.me/llms.txt`](https://zmage.caldis.me/llms.txt) first, then keep basic integrations minimal.
+
+---
+
+## Three ways to use it
+
+react-zmage exposes the same configuration surface through three call shapes. **Pick based on how much control you have over the rendered HTML.**
+
+### Component — the default
+
+**When to use:** you control the JSX you render. This is the cleanest path; reach for it first.
+
+```tsx
+import Zmage from 'react-zmage'
+import 'react-zmage/style.css'
+
+export default function Gallery() {
+  return <Zmage src="/photo.jpg" alt="landscape" />
+}
+```
+
+All native HTML attributes (`className`, `style`, `onClick`, `loading`, …) pass through to the underlying `<img>`.
+
+### Imperative — `Zmage.browsing()`
+
+**When to use:** you have no good cover `<img>`, or you don't want to mount extra nodes in your component tree. Open the viewer from event handlers, async callbacks, or third-party widgets — anywhere.
+
+```tsx
+import Zmage from 'react-zmage'
+
+function Trigger() {
+  return (
+    <button onClick={() => Zmage.browsing({ src: '/photo.jpg' })}>
+      Open viewer
+    </button>
+  )
+}
+```
+
+`Zmage.browsing(opts)` accepts the same props bag as `<Zmage>` and returns a `() => void` destructor for manual close.
+
+> Guard with `typeof window !== 'undefined'` if it can run on the server. The `react-zmage/ssr` entry provides the same API without touching `document` at import time.
+
+### Wrapper — `<Zmage.Wrapper>`
+
+**When to use:** you don't control the rendered HTML — markdown output, CMS rich text, `dangerouslySetInnerHTML`. Wrap the subtree and every `<img>` inside automatically gains the viewer, without modifying the source content.
+
+```tsx
+<Zmage.Wrapper backdrop="#0a0a0a">
+  <article dangerouslySetInnerHTML={{ __html: htmlContent }} />
+</Zmage.Wrapper>
+```
+
+The wrapper queries `<img>` descendants in `componentDidMount` / `componentDidUpdate`. Imgs injected after the wrapper renders won't get bound until the wrapper re-renders.
+
+Wrapper-specific prop scope:
+
+- Put `src` / `alt` on the child `<img>` nodes. Top-level `src` / `alt` are overwritten by the clicked DOM node.
+- Viewer configuration still belongs on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `gesture`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, and lifecycle callbacks.
+- Pass `set` when the wrapped subtree should behave as one shared gallery. If the clicked image's `src` appears in `set`, Wrapper opens that matching index; `defaultPage` is only the fallback.
+- Without `set`, the clicked image opens as a single image. `data-zmage-caption` or the nearest `figcaption` can provide the viewer caption.
+- The controlled `browsing` prop is for component mode; it does not control `<Zmage.Wrapper>`.
+
+<details>
+<summary><strong>TypeScript</strong></summary>
+
+```tsx
+import Zmage from 'react-zmage'
+import type { BaseType } from 'react-zmage'
+import { useRef } from 'react'
+
+const config: BaseType = {
+  src: '/photo.jpg',
+  alt: 'hero',
+  onBrowsing: (state) => console.log('browsing:', state),
+}
+
+const ref = useRef<HTMLImageElement>(null)
+return <Zmage {...config} ref={ref} />
+```
+
+`BaseType` is the union of every prop. Sub-types — `ControllerSet`, `ControllerPlacement`, `ControllerOverlayLayout`, `ControllerLayoutTargets`, `ControllerLayoutTarget`, `ControllerLayoutInset`, `ControllerLayoutInsetValue`, `ControllerRender`, `ControllerRenderState`, `ControllerRenderActions`, `ControllerRenderSlots`, `HotKey`, `Animate`, `AnimateCoverOptions`, `GestureSet`, `GestureSwipeOptions`, `GestureDragExitOptions`, `GestureWheelZoomOptions`, `GesturePinchZoomOptions`, `GestureDoubleTapZoomOptions`, `GestureTouchAction`, `Set`, `Preset`, `AnimateFlip` — are also exported from `react-zmage`.
+
+</details>
+
+<details>
+<summary><strong>SSR / RSC (Next.js, Remix)</strong></summary>
+
+```tsx
+import Zmage from 'react-zmage/ssr'
+import 'react-zmage/style.css'
+```
+
+API is identical — only the import path changes. The SSR build is platform-neutral and avoids browser APIs at module load. Verified against Next.js 15 App Router (`packages/sandbox-nextjs`) and Express + Vite renderToString (`apps/demo-ssr`).
+
+</details>
+
+---
+
+## API reference
+
+> All props live on a single `BaseType`. The same options bag works for `<Zmage>` and `Zmage.browsing()`.
+
+### Data
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `src` | `string` | — | Image URL. Same as `<img src>`. |
+| `alt` | `string` | `''` | Image title; rendered above the viewer in browsing mode. |
+| `caption` | `string \| { text: string; style?: CSSProperties; className?: string }` | `''` | Caption rendered below the viewer. String form uses the default pill style; object form lets you override styling or theme it. Per-page override available via `set[i].caption`. |
+| `set` | `Set[]` | `[]` | Multi-image gallery. When non-empty, arrow keys flip pages. In Wrapper mode, pass `set` to treat wrapped images as one shared gallery; clicking an image whose `src` appears in `set` opens that matching index. |
+| `defaultPage` | `number` | `0` | Initial index when `set` is non-empty. In Wrapper mode this is a fallback only; a clicked image that matches `set[i].src` wins. |
+
+### Preset
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `preset` | `'desktop' \| 'mobile' \| 'auto'` | `'auto'` | Bundles defaults for `controller`, `hotKey`, `animate`, `gesture`, and preset-aware viewer spacing. Omitting `preset` uses `'auto'`. `'auto'` resolves at runtime via `matchMedia('(pointer: coarse) and (hover: none)')` — coarse + no-hover → `mobile`, otherwise `desktop`. SSR / no `matchMedia` falls back to `desktop`. Use `preset="desktop"` to keep desktop behavior on touch devices. |
+
+### Functional
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `controller` | `boolean \| ControllerSet` | preset-driven | Toolbar controls. Pass `false` to hide all controls, or a partial object to override buttons, toolbar placement, overlay layout, or the full render function. |
+| `hotKey` | `boolean \| HotKey` | preset-driven | Keyboard shortcuts. |
+| `animate` | `boolean \| Animate` | preset-driven | Open/close, cover-geometry, and page-flip animations. |
+| `gesture` | `boolean \| GestureSet` | preset-driven | Touch and wheel gestures. Pass `false` to disable all gestures, or a partial object to override `swipe` / `dragExit` / `wheelZoom` / `pinchZoom` / `doubleTapZoom` / `touchAction`. |
+
+#### `ControllerSet`
+
+```ts
+interface ControllerSet {
+  pagination?:  boolean | ReactNode             // page indicator
+  zoom?:        boolean | string | ReactNode    // zoom button
+  download?:    boolean | string | ReactNode
+  close?:       boolean | string | ReactNode
+  rotate?:      boolean | string | ReactNode    // umbrella over rotateLeft + rotateRight
+  rotateLeft?:  boolean | string | ReactNode
+  rotateRight?: boolean | string | ReactNode
+  flip?:        boolean | string | ReactNode    // umbrella over flipLeft + flipRight
+  flipLeft?:    boolean | string | ReactNode
+  flipRight?:   boolean | string | ReactNode
+  // visual
+  backdrop?:    string                          // control bar bg; falls back to top-level `backdrop`
+  color?:       string                          // control bar icon color; falls back to `currentColor`
+  placement?:   ControllerPlacement             // default 'top-right'
+  layout?:      ControllerOverlayLayout         // toolbar / flip / pagination / caption overlay safe insets
+  render?:      ControllerRender                // replace the whole controller UI
+}
+
+type ControllerPlacement =
+  | 'top-right'
+  | 'top-left'
+  | 'bottom-right'
+  | 'bottom-left'
+  | 'top-center'
+  | 'bottom-center'
+  | 'left-center'
+  | 'right-center'
+
+type ControllerLayoutInsetValue = number | string
+type ControllerLayoutInset =
+  | ControllerLayoutInsetValue
+  | {
+      top?: ControllerLayoutInsetValue
+      right?: ControllerLayoutInsetValue
+      bottom?: ControllerLayoutInsetValue
+      left?: ControllerLayoutInsetValue
+    }
+
+interface ControllerLayoutTarget {
+  inset?: ControllerLayoutInset
+}
+
+interface ControllerLayoutTargets {
+  toolbar?: ControllerLayoutTarget
+  flip?: ControllerLayoutTarget
+  pagination?: ControllerLayoutTarget
+  caption?: ControllerLayoutTarget
+}
+
+interface ControllerOverlayLayout extends ControllerLayoutTargets {
+  mobile?: ControllerLayoutTargets
+}
+
+type ControllerRender = (args: {
+  state: ControllerRenderState
+  actions: ControllerRenderActions
+  slots: ControllerRenderSlots
+}) => ReactNode
+
+interface ControllerRenderState {
+  show: boolean
+  zoom: boolean
+  page: number
+  total: number
+  canZoom: boolean
+  canPrev: boolean
+  canNext: boolean
+  canDownload: boolean
+  preset: 'desktop' | 'mobile'
+  placement: ControllerPlacement
+  current?: Set
+}
+
+interface ControllerRenderActions {
+  close: () => void
+  zoom: () => void
+  rotateLeft: () => void
+  rotateRight: () => void
+  prev: () => void
+  next: () => void
+  toPage: (page: number) => void
+  download: () => void
+}
+
+interface ControllerRenderSlots {
+  Toolbar: ReactNode
+  Pagination: ReactNode
+  FlipLeft: ReactNode
+  FlipRight: ReactNode
+}
+```
+
+> `rotate` and `flip` are umbrella switches — enabling either forces both per-side counterparts on, regardless of those flags.
+
+> `backdrop` and `color` decouple the toolbar from the modal backdrop. Pair them when the modal `backdrop` is dark — e.g. `backdrop="#111"` + `controller={{ backdrop: 'rgba(0,0,0,0.4)', color: '#fff' }}` keeps the toolbar legible. Per-button color overrides (e.g. `controller={{ zoom: '#ff8800' }}`) still win over `controller.color`.
+
+> `placement` moves only the toolbar capsule. Side flip buttons and pagination keep their existing positions. `layout` adjusts overlay safe insets for the toolbar, side flip buttons, pagination, and caption without changing the image animation geometry. A number is treated as px, a string is passed through as a CSS length, and a scalar `inset` follows each target's natural entry edge: toolbar uses the current `placement`, side flips use left / right, and pagination / caption use bottom. The desktop preset sets `pagination.inset=24` and `caption.inset=60`; the mobile preset leaves `layout` unset unless you pass it. `layout.mobile` is merged on top when the resolved preset is mobile. `render` receives `{ state, actions, slots }` and replaces the whole controller layer; `slots.Toolbar`, `slots.Pagination`, `slots.FlipLeft`, and `slots.FlipRight` let custom UI reuse the built-in pieces. `controller={false}` disables both built-in slots and `render`.
+
+```tsx
+<Zmage
+  src="photo.jpg"
+  caption="Long caption"
+  set={[
+    { src: 'photo.jpg', caption: 'Long caption' },
+    { src: 'detail.jpg', caption: 'Detail' },
+  ]}
+  controller={{
+    placement: 'bottom-center',
+    layout: {
+      toolbar: { inset: '1rem' },
+      flip: { inset: '1rem' },
+      pagination: { inset: '1.5rem' },
+      caption: { inset: '4rem' },
+      mobile: {
+        pagination: { inset: '2.75rem' },
+        caption: { inset: '5.25rem' },
+      },
+    },
+  }}
+/>
+```
+
+`render` returns any React node. Return `null` to hide the controller layer, call `actions` to drive the viewer, and read `state` to keep custom UI in sync with page, zoom, placement, and capability flags:
+
+| Path | Type |
+|---|---|
+| `state` | `ControllerRenderState` |
+| `state.show` | `boolean` |
+| `state.zoom` | `boolean` |
+| `state.page` | `number` |
+| `state.total` | `number` |
+| `state.canZoom` | `boolean` |
+| `state.canPrev` | `boolean` |
+| `state.canNext` | `boolean` |
+| `state.canDownload` | `boolean` |
+| `state.preset` | `'desktop' \| 'mobile'` |
+| `state.placement` | `ControllerPlacement` |
+| `state.current` | `Set \| undefined` |
+| `actions` | `ControllerRenderActions` |
+| `actions.close` | `() => void` |
+| `actions.zoom` | `() => void` |
+| `actions.rotateLeft` | `() => void` |
+| `actions.rotateRight` | `() => void` |
+| `actions.prev` | `() => void` |
+| `actions.next` | `() => void` |
+| `actions.toPage` | `(page: number) => void` |
+| `actions.download` | `() => void` |
+| `slots` | `ControllerRenderSlots` |
+| `slots.Toolbar` | `ReactNode` |
+| `slots.Pagination` | `ReactNode` |
+| `slots.FlipLeft` | `ReactNode` |
+| `slots.FlipRight` | `ReactNode` |
+| `return` | `ReactNode` |
+
+```tsx
+<Zmage
+  src="photo.jpg"
+  set={[
+    { src: 'photo.jpg', alt: 'Cover' },
+    { src: 'detail.jpg', alt: 'Detail' },
+  ]}
+  controller={{
+    placement: 'bottom-center',
+    render: ({ state, actions, slots }) => {
+      if (!state.show) return null
+
+      return (
+        <div className="my-zmage-controls" data-placement={state.placement}>
+          <button type="button" disabled={!state.canPrev} onClick={actions.prev}>
+            Prev
+          </button>
+          <span>
+            {state.page + 1} / {state.total}
+          </span>
+          <button type="button" disabled={!state.canNext} onClick={actions.next}>
+            Next
+          </button>
+          <button type="button" disabled={!state.zoom && !state.canZoom} onClick={actions.zoom}>
+            {state.zoom ? 'Fit' : 'Zoom'}
+          </button>
+          {state.canDownload && (
+            <button type="button" onClick={actions.download}>
+              Download
+            </button>
+          )}
+          <button type="button" onClick={actions.close}>
+            Close
+          </button>
+
+          {/* Reuse built-in pieces only where you want them. */}
+          {slots.Pagination}
+        </div>
+      )
+    },
+  }}
+/>
+```
+
+#### Preset defaults
+
+| Field | desktop | mobile |
+|---|---|---|
+| `pagination` | ✅ | ✅ |
+| `rotate` | ✅ | — |
+| `zoom` | ✅ | — |
+| `download` | — | — |
+| `close` | ✅ | ✅ |
+| `flip` | ✅ | — |
+| `placement` | `top-right` | `top-right` |
+| `radius` | `8` | `0` |
+| `edge` | `16` | `0` |
+| `controller.layout.pagination.inset` | `24` | — |
+| `controller.layout.caption.inset` | `60` | — |
+| `gesture.swipe` | — | ✅ |
+| `gesture.dragExit` | — | ✅ |
+| `gesture.wheelZoom` | ✅ | — |
+| `gesture.pinchZoom` | — | ✅ |
+| `gesture.doubleTapZoom` | — | ✅ |
+| `gesture.touchAction` | `managed` | `managed` |
+
+#### `HotKey`
+
+```ts
+type HotKeyValue = boolean | string | string[]
+//  true     — use default binding
+//  false    — disabled, event passes to outer listeners
+//  string   — descriptor: 'Escape' / 'BracketLeft' / 'S' / 'Mod+S'
+//             (e.code names — layout-independent;
+//              Mod = ⌘ on macOS, Ctrl on Windows/Linux)
+//  string[] — multiple bindings, any matches triggers
+
+interface HotKey {
+  close?:        HotKeyValue   // default 'Escape'
+  zoom?:         HotKeyValue   // default 'Space'
+  flip?:         boolean       // umbrella for flipLeft / flipRight
+  flipLeft?:     HotKeyValue   // default 'ArrowLeft'
+  flipRight?:    HotKeyValue   // default 'ArrowRight'
+  rotate?:       boolean       // umbrella for rotateLeft / rotateRight
+  rotateLeft?:   HotKeyValue   // default 'BracketLeft'  ([)
+  rotateRight?:  HotKeyValue   // default 'BracketRight' (])
+  download?:     HotKeyValue   // default 'Mod+S' (when enabled)
+}
+```
+
+Desktop default: `close` / `zoom` / `flip` / `rotate` on; `download` off (opt-in — turning it on hijacks the browser's `Cmd`/`Ctrl+S` shortcut). Mobile default: all off.
+
+Strict modifier matching: `'Space'` is never matched by `Cmd+Space` (macOS input-method switch); undeclared modifiers must NOT be pressed. Per-side string descriptor wins over the umbrella (e.g. `{ rotate: true, rotateLeft: 'KeyA' }` rebinds left to `A` while keeping `]` for right).
+
+Examples:
+
+```tsx
+// Enable Cmd/Ctrl+S to download the current image
+<Zmage src="..." hotKey={{ download: true }} />
+
+// Rebind rotate to A / D, keep download default
+<Zmage src="..." hotKey={{ rotate: false, rotateLeft: 'KeyA', rotateRight: 'KeyD' }} />
+
+// Add Q as a second close key alongside Escape
+<Zmage src="..." hotKey={{ close: ['Escape', 'KeyQ'] }} />
+```
+
+#### `Animate`
+
+```ts
+interface Animate {
+  browsing?: boolean
+  flip?:     'fade' | 'crossFade' | 'swipe' | 'zoom' | 'blur' | 'none'
+  cover?:    boolean | AnimateCoverOptions
+  slowMotion?: boolean
+}
+
+interface AnimateCoverOptions {
+  objectFit?: boolean  // default true
+  clip?: boolean       // default true
+  radius?: boolean     // default true
+}
+```
+
+Defaults: desktop = `{ browsing: true, flip: 'crossFade', cover: { objectFit: true, clip: true, radius: true }, slowMotion: false }`, mobile = `{ browsing: true, flip: 'swipe', cover: { objectFit: true, clip: true, radius: true }, slowMotion: false }`. `animate.cover` matches the cover image's `object-fit` / `object-position`, clip, and border radius during open / close. Set `animate={{ cover: false }}` for the legacy cover geometry path. `flip: 'blur'` uses a soft-focus crossfade for optional page changes, while `flip: 'none'` skips adjacent-page rendering — page change is an instant swap with no transition. `animate.slowMotion` is off by default; when set to `true`, holding `Shift` while opening or closing slows the full browsing transition to 10x for inspection and demos.
+
+`animate.cover` reads the clicked `<img>` itself. It can match `object-fit`, `object-position`, and `border-radius` applied directly to that image; clipping introduced by a parent wrapper (`overflow: hidden`, parent radius, mask, complex `clip-path`, transform, etc.) is not inferred. The geometry math is small, but animating `clip-path: inset(...)` and `border-radius` may repaint and is heavier than pure `transform` / `opacity`, especially on large images, weaker mobile devices, and iOS Safari. For performance-sensitive pages, use `animate={{ cover: { clip: false } }}` or `animate={{ cover: { radius: false } }}`.
+
+#### `GestureSet`
+
+```ts
+interface GestureSet {
+  swipe?: boolean | GestureSwipeOptions
+  dragExit?: boolean | GestureDragExitOptions
+  wheelZoom?: boolean | GestureWheelZoomOptions
+  pinchZoom?: boolean | GesturePinchZoomOptions
+  doubleTapZoom?: boolean | GestureDoubleTapZoomOptions
+  touchAction?: GestureTouchAction
+}
+
+type GestureTouchAction = 'managed' | 'auto' | 'manipulation' | 'none'
+
+interface GestureSwipeOptions {
+  threshold?: number    // default 120
+  velocity?: number     // default 0.35 px/ms
+  axisLock?: number     // default 1.2
+  resistance?: number   // default 0.35 at non-loop edges
+}
+
+interface GestureDragExitOptions {
+  threshold?: number    // default 80
+  velocity?: number     // default 0.35 px/ms
+  axisLock?: number     // default 1.2
+  opacity?: boolean     // default true
+}
+
+interface GestureWheelZoomOptions {
+  step?: number                  // default 0.12
+  smooth?: boolean               // default true
+  minScale?: 'fit' | number      // default 'fit'
+  maxScale?: number              // default 4
+  center?: 'pointer' | 'viewport' // default 'pointer'
+  reverse?: boolean              // default false
+  exitGuardDuration?: number     // default 1000ms; blocks residual wheel after exit
+}
+
+interface GesturePinchZoomOptions {
+  minScale?: 'fit' | number      // default 'fit'
+  maxScale?: number              // default 4
+  resetBelowFit?: boolean        // default true
+  center?: 'gesture' | 'viewport' // default 'gesture'
+}
+
+interface GestureDoubleTapZoomOptions {
+  scale?: number                 // default 1
+  minScale?: 'fit' | number      // default 'fit'
+  maxScale?: number              // default 4
+  center?: 'tap' | 'viewport'    // default 'tap'
+  interval?: number              // default 300ms
+  distance?: number              // default 32px
+}
+```
+
+Desktop default: `{ swipe: false, dragExit: false, wheelZoom: { step: 0.12, smooth: true, minScale: 'fit', maxScale: 4, center: 'pointer', reverse: false, exitGuardDuration: 1000 }, pinchZoom: false, doubleTapZoom: false, touchAction: 'managed' }`. Mobile default enables horizontal drag paging, vertical drag-to-exit, two-finger pinch zoom, and single-finger double-tap zoom with the option defaults above, disables `wheelZoom`, and keeps `touchAction: 'managed'`.
+
+Wheel zoom is active only while the viewer is already in zoom mode; normal browsing wheel/scroll behavior stays untouched. Zooming out to `minScale` exits zoom immediately; `exitGuardDuration` then blocks residual wheel events for the configured time so trackpad momentum does not scroll/close the page in the same gesture. Pinch zoom uses the two-finger midpoint by default; shrinking back to the fit scale exits zoom and recenters the image. Double-tap zoom uses `touch-action` instead of a non-passive `touchend` listener to avoid fighting the browser's default double-tap zoom. `touchAction: 'managed'` resolves to `none` when pinch zoom is active, to `manipulation` for double-tap-only setups, and to `auto` otherwise; explicit `auto` / `manipulation` / `none` values are written as-is. `gesture={{ swipe: false }}` only disables drag paging; `gesture={{ dragExit: false }}` only disables drag-to-exit; `gesture={{ wheelZoom: false }}` only disables wheel zoom; `gesture={{ pinchZoom: false }}` only disables pinch zoom; `gesture={{ doubleTapZoom: false }}` only disables double-tap zoom. Single-image viewers ignore horizontal swipe, and zoom mode disables Phase 1 single-finger drag gestures.
+
+### Interface & interaction
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `hideOnScroll` | `boolean` | `true` | Auto-close when the page scrolls (desktop only). |
+| `hideOnDblClick` | `boolean` | `false` | Auto-close when the user double-clicks the image. Off by default; turn on to allow dismissing with a double-click. |
+| `coverVisible` | `boolean` | `false` | Keep the cover `<img>` visible while the modal is open. |
+| `backdrop` | `string` | `'#FFFFFF'` | Viewer backdrop. Any valid CSS color or gradient. **Default is white** — override (`'#111'`, etc.) for dark UIs. |
+| `zIndex` | `number` | `1000` | Portal stacking. |
+| `radius` | `number` | desktop `8`, mobile `0` | Image corner radius (px). |
+| `edge` | `number` | desktop `16`, mobile `0` | Minimum margin between image and viewport (px). |
+| `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
+| `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
+
+### Lifecycle
+
+| Prop | Signature | Triggered when |
+|---|---|---|
+| `onBrowsing` | `(isBrowsing: boolean) => void` | viewer opens / closes |
+| `onZooming` | `(isZooming: boolean) => void` | 1:1 zoom toggles |
+| `onSwitching` | `(page: number) => void` | page changes |
+| `onRotating` | `(deg: number) => void` | image rotates |
+| `onError` | `(e: SyntheticEvent<HTMLImageElement>) => void` | cover **or** viewer image fails to load (the only hook for the viewer-side failure; cover still also flows via native `<img>` `onError` passthrough) |
+
+### Controlled
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `browsing` | `boolean` | _(uncontrolled)_ | Controlled-mode prop, distinct from the static method `Zmage.browsing()`. Pair with `onBrowsing` so external state stays in sync. Omit for self-managed open/close. Does not control `<Zmage.Wrapper>`. |
+
+### Native passthrough
+
+Every `HTMLAttributes<HTMLImageElement>` (`className`, `style`, `width`, `height`, `loading`, `id`, `data-*`, …) is forwarded to the cover `<img>`.
+
+### Full type
+
+```ts
+export type BaseType =
+  & BaseParams                    // src / alt / caption / set / defaultPage
+  & PresetParams                  // preset
+  & FunctionalParams              // controller / hotKey / animate / gesture
+  & InterfaceAndInteractionParams // hideOnScroll / hideOnDblClick / coverVisible / backdrop / zIndex / radius / edge / loop / loadingDelay
+  & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating / onError
+  & ControlledParams              // browsing
+  & HTMLAttributes<HTMLImageElement>
+```
+
+Canonical sources of truth:
+- [`packages/core/src/types/global.ts`](./packages/core/src/types/global.ts) — prop types
+- [`packages/core/src/types/default.ts`](./packages/core/src/types/default.ts) — preset defaults
+
+---
+
+## React compatibility
+
+| React | Status | Mount API |
+|---|---|---|
+| 16.8 — 17.x | ✅ Supported | `ReactDOM.render` |
+| 18.x | ✅ Supported | `createRoot` (auto-detected) |
+| 19.x | ✅ Supported | `createRoot` (required, auto-adapted) |
+
+Runtime feature detection picks the right mount API; consumers configure nothing. See `resolveMountAdapter` in [`Zmage.callee.tsx`](./packages/core/src/Zmage.callee.tsx).
+
+---
+
+## Recipes
+
+### Multi-image gallery
+
+```tsx
+<Zmage
+  src="/cover.jpg"
+  set={[
+    { src: '/01.jpg', alt: 'page 1', style: { borderRadius: 30 } },
+    { src: '/02.jpg', alt: 'page 2' },
+  ]}
+/>
+```
+
+In component and imperative modes, when `set` is non-empty, the first image you see in browsing mode is `set[defaultPage]`, not `src`. To keep the cover and the first viewer page in sync, put the cover in `set[0]` and pass it to `src` as well. In Wrapper mode, a clicked child image that matches `set[i].src` opens that index automatically.
+
+### Selectively disable controls
+
+```tsx
+<Zmage
+  src="/x.jpg"
+  controller={{ download: true, rotate: false }}
+/>
+```
+
+### Controlled state
+
+```tsx
+const [open, setOpen] = useState(false)
+
+return (
+  <>
+    <button onClick={() => setOpen(true)}>View</button>
+    <Zmage src="/x.jpg" browsing={open} onBrowsing={setOpen} />
+  </>
+)
+```
+
+### Theme-aware backdrop
+
+```tsx
+<Zmage src="/x.jpg" backdrop="linear-gradient(90deg, #00d4ff, #1a5ed7)" />
+```
+
+For more recipes, see the live [Playground](https://zmage.caldis.me/playground) — every prop is controllable and the URL is shareable.
+
+---
+
+## Contributing
+
+PRs welcome — see [`AGENTS.md`](./AGENTS.md) for an at-a-glance project map and the architectural invariants to respect.
+
+This is a pnpm + turbo monorepo:
+
+```
+packages/
+  core/                    # the published react-zmage package
+  home/                    # CSR demo (Vite SPA, switchable React via env)
+  sandbox-r{17,18,19}/     # real-npm-consumer integration tests
+  sandbox-nextjs/          # Next.js 15 + RSC consumer build smoke
+apps/
+  demo-ssr/                # Express + Vite SSR demo (R19)
+  demo-nextjs/             # Next.js 15 App Router demo
+```
+
+Common commands:
+
+```bash
+pnpm install
+pnpm build               # build core + home
+pnpm test                # vitest in jsdom
+pnpm -w run check        # full cross-version: build → pack → reinstall → 4 sandboxes tsc + ssr-smoke
+
+# Interactive demos for human verification
+pnpm dev:csr-r17 / r18 / r19   # CSR · Vite SPA
+pnpm dev:ssr-r19                # SSR · Express        (:8090)
+pnpm dev:nextjs                 # RSC · Next.js        (:8095)
+```
+
+Each demo shows a top-bar `ContextBanner` with the actual loaded React version and render mode, so you can confirm context when switching environments.
+
+---
+
+## License
+
+[MIT](./LICENSE)
+
+---
+
+## Acknowledgements
+
+- Icons — [Material Icons](https://material.io/tools/icons/)
+- AI-friendly install instruction available at [`zmage.caldis.me/llms.txt`](https://zmage.caldis.me/llms.txt) — paste the URL to your AI agent.
+
+
+---
+
+## AGENTS.md
+
+# AGENTS.md — react-zmage
+
+> 给 AI Agent / LLM 编排用的浓缩版项目信息。
+> 人类完整文档见 [README.md](./README.md)。
+
+## Works
+
+如果你发现工作区中有额外变更, 始终假定是另一个 AI Agent 在当前分支中同步工作, 你需要做的是优先处理重突 (如果有) 并遵循工作互不干涉原则
+
+如果非用户主动要求, 不允许在 worktree 上执行改动。
+
+## What this package does (1 sentence)
+
+A React component that turns any `<img>` into a fullscreen-zoomable, multi-image,
+keyboard-navigable image viewer. Drop-in replacement for `<img>`.
+
+## Public API surface (treat as contract)
+
+```ts
+// Default + statics
+import Zmage from 'react-zmage'                  // browser / bundler entry
+import Zmage from 'react-zmage/ssr'              // SSR / RSC entry
+import 'react-zmage/style.css'                   // required for visuals
+
+// Types (also exported from the same module)
+import type {
+  BaseType,                  // union of all props (use this when typing config objects)
+  ReactZmageComponent,       // typeof Zmage
+  Set,                       // shape of items in `set` prop
+  Preset,                    // 'desktop' | 'mobile' | 'auto' (auto = matchMedia-driven)
+  ControllerSet, ControllerPlacement, ControllerOverlayLayout, ControllerLayoutTargets,
+  ControllerLayoutTarget, ControllerLayoutInset, ControllerLayoutInsetValue, ControllerRender, ControllerRenderState,
+  ControllerRenderActions, ControllerRenderSlots, HotKey, Animate, AnimateFlip, AnimateCoverOptions,
+  GestureSet, GestureSwipeOptions, GestureDragExitOptions, GestureWheelZoomOptions,
+  GesturePinchZoomOptions, GestureDoubleTapZoomOptions, GestureTouchAction,
+} from 'react-zmage'
+
+// Three usage modes
+<Zmage src="..." />                                  // 1. Component
+Zmage.browsing(props): () => void                    // 2. Imperative; returns destructor
+<Zmage.Wrapper>{children}</Zmage.Wrapper>            // 3. Auto-attach to <img> in children
+
+// Ref forwarding
+const ref = useRef<HTMLImageElement>(null)
+<Zmage src="..." ref={ref} />                        // ref points to the cover <img>
+```
+
+## Required peer deps
+
+- `react: >=16.8.0 <20`
+- `react-dom: >=16.8.0 <20`
+
+The library auto-detects React 18+ at runtime and uses `react-dom/client.createRoot`
+when available, falling back to legacy `ReactDOM.render` otherwise. No consumer
+configuration needed.
+
+## Minimum reproducible example
+
+```tsx
+import { useState } from 'react'
+import Zmage from 'react-zmage'
+import 'react-zmage/style.css'
+
+export default function Demo() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Zmage
+        src="https://example.com/photo.jpg"
+        alt="example"
+        browsing={open}
+        onBrowsing={setOpen}
+        set={[
+          { src: 'https://example.com/01.jpg', alt: 'p1' },
+          { src: 'https://example.com/02.jpg', alt: 'p2' },
+        ]}
+      />
+    </>
+  )
+}
+```
+
+## Prop quick reference
+
+Single `BaseType` covers all. Grouped here by purpose:
+
+| Group | Props | Notes |
+|---|---|---|
+| Data | `src`, `alt`, `caption`, `set`, `defaultPage` | `set` enables multi-image mode. `caption` is `string \| { text, style?, className? }` — renders below the image; per-set override via `set[i].caption`. In Wrapper mode, child `<img>` nodes provide `src` / `alt`; top-level `set` may define a shared gallery, and clicked `img.src` opens the matching `set[i]` before falling back to `defaultPage`. Without `set`, `data-zmage-caption` or nearest `figcaption` may provide caption. |
+| Preset | `preset: 'desktop' \| 'mobile' \| 'auto'` | defaults to `'auto'` when omitted; drives default `controller` / `hotKey` / `animate` / `gesture` plus preset-aware viewer spacing. `'auto'` resolves via `matchMedia('(pointer: coarse) and (hover: none)')` on the client; SSR falls back to desktop |
+| Controlled | `browsing` | omit for self-managed; pair with `onBrowsing` if set. Does not control `<Zmage.Wrapper>` |
+| Functional | `controller`, `hotKey`, `animate`, `gesture` | pass `boolean` to disable, or partial object to override. `controller.flip` / `hotKey.flip` and `controller.rotate` / `hotKey.rotate` are umbrellas over their per-side counterparts; enabling the umbrella forces both sides on. `controller.placement` moves only the toolbar capsule (`top-right` default); side flips and pagination keep their existing positions. `controller.layout` adjusts toolbar / flip / pagination / caption overlay safe insets without changing image animation geometry; number = px, string = CSS length, scalar `inset` follows each target's natural edge (toolbar by placement, flip left/right, pagination/caption bottom), and `layout.mobile` overrides base layout for mobile preset. Desktop defaults include `pagination.inset=24` and `caption.inset=60`; mobile leaves `layout` unset unless configured. `controller.render({ state, actions, slots })` replaces the whole controller UI, and `controller=false` disables both built-in slots and render. **`hotKey` entries accept `boolean \| string \| string[]`** — string is an `e.code` descriptor (`'Escape'` / `'BracketLeft'` / `'S'`) with cross-platform `Mod` prefix (= ⌘ on macOS, Ctrl elsewhere; e.g. `'Mod+S'`). New defaults: `[`/`]` rotate, `Mod+S` download (download is opt-in: defaults `false` because it hijacks the browser's "Save Page As"). Per-side string descriptor wins over umbrella. `controller.backdrop` / `controller.color` decouple the toolbar bg/icon-color from the modal `backdrop` (set both when `backdrop` is solid dark). `animate.cover` is preset-driven and defaults to `{ objectFit: true, clip: true, radius: true }`; it reads the cover `<img>` itself and does not infer parent-wrapper clipping. `clip-path` / `border-radius` animation may repaint; use `cover.clip=false` or `cover.radius=false` for performance-sensitive mobile pages. Set `animate={{ cover: false }}` for legacy cover geometry. `animate.slowMotion` defaults `false`; when enabled, holding `Shift` while opening or closing slows the full browsing transition to 10x for inspection and demos. `gesture` is preset-driven: desktop enables `wheelZoom` while already zoomed and disables `swipe` / `dragExit` / `pinchZoom` / `doubleTapZoom`; mobile enables horizontal drag paging, vertical drag-to-exit, pinch zoom, and double-tap zoom, while disabling `wheelZoom`. `gesture.touchAction` defaults to `'managed'`: pinch uses CSS `touch-action: none`, double-tap-only uses `manipulation`, otherwise `auto`; set it explicitly if the host page owns touch behavior. `pinchZoom.resetBelowFit` defaults `true`, so shrinking back to fit exits zoom and recenters. `doubleTapZoom.interval` / `distance` define the second-tap window. `wheelZoom.reverse` flips wheel direction; `wheelZoom.exitGuardDuration` defaults to `1000`, so wheel zooming out to `minScale` exits zoom immediately and blocks residual wheel events for that duration. `gesture=false` disables all gestures, and per-child overrides such as `gesture={{ swipe: false }}` / `gesture={{ wheelZoom: false }}` / `gesture={{ pinchZoom: false }}` keep the other preset defaults intact |
+| Interface | `hideOnScroll`, `hideOnDblClick`, `coverVisible`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `loadingDelay` | desktop-only flags noted in README. `radius` defaults to desktop `8` / mobile `0`; `edge` defaults to desktop `16` / mobile `0`. `hideOnScroll` and `hideOnDblClick` are the auto-dismiss trigger family (user action → close viewer); `hideOnDblClick` defaults `false`. `loadingDelay` defaults `200ms` — anti-flicker delay before showing the loading indicator (set 0 for legacy instant-show) |
+| Lifecycle | `onBrowsing`, `onZooming`, `onSwitching`, `onRotating`, `onError` | first 4 callback args: `boolean`/`boolean`/`number`/`number`. `onError(e: SyntheticEvent<HTMLImageElement>)` fires for cover **or** viewer img-load failure — the only hook for the viewer-side failure (cover also flows via native `<img>` `onError` passthrough) |
+| Native | All `HTMLAttributes<HTMLImageElement>` | className, style, onClick, etc. transparently forwarded to inner `<img>` |
+
+Defaults & sub-shapes: see [`packages/core/src/types/default.ts`](./packages/core/src/types/default.ts) and [`packages/core/src/types/global.ts`](./packages/core/src/types/global.ts) (single source of truth).
+
+## Common pitfalls (LLM-written code often hits these)
+
+1. **Forgetting `import 'react-zmage/style.css'`** — component renders but viewer is unstyled.
+2. **Hard-coding `preset='desktop'` on a touch-targeted page** — omitted `preset` already defaults to `'auto'`. The desktop bundle ships hotkeys + arrow buttons, enables wheel zoom while zoomed, and disables mobile `gesture.swipe` / `gesture.dragExit` / `gesture.pinchZoom` / `gesture.doubleTapZoom`. Use `'desktop'` only when the page deliberately wants desktop behavior on touch devices.
+3. **Treating `Zmage` as a class** — it is a `forwardRef` exotic component. ❌ `new Zmage()`. ✅ JSX or `Zmage.browsing()`.
+4. **Mixing controlled and uncontrolled** — if `browsing` is in props, it must be a fully controlled `boolean` (provide `onBrowsing` to receive changes). Mixing both modes silently breaks state sync.
+5. **Calling `Zmage.browsing` server-side** — it manipulates `document.body`. Guard with `typeof window !== 'undefined'` or call from event handlers / effects.
+6. **Putting `src` / `alt` on `<Zmage.Wrapper>` as if it rendered an image** — Wrapper binds real descendant `<img>` nodes. Put image data in the HTML, and pass only viewer config / optional shared `set` to Wrapper.
+7. **Wrapping with `Zmage.Wrapper` without re-rendering** — wrapper attaches click handlers in `componentDidMount` / `componentDidUpdate` by querying `wrapperRef.current.querySelectorAll('img')`. Dynamically-injected `<img>` (after wrapper update) won't get attached unless wrapper re-renders.
+
+## File layout (when generating PRs)
+
+```
+packages/
+  core/                          # the published package "react-zmage"
+    src/
+      Zmage.tsx                  # component entry (forwardRef)
+      Zmage.callee.tsx           # imperative entry (Zmage.browsing)
+      Zmage.wrapper.tsx          # wrapper entry (Zmage.wrapper)
+      components/
+        Browser/                 # main viewer container (state owner)
+        Image/                   # image rendering + touch/zoom logic
+        Control/                 # toolbar buttons
+        Background/              # backdrop layer
+        Portal/                  # ReactDOM.createPortal wrapper
+      types/
+        global.ts                # ★ canonical prop types (BaseType, etc.)
+        default.ts               # ★ canonical defaults (defProp, defPreset)
+        externals.d.ts           # *.less ambient module decl
+      utils/                     # debounce, click monitor, math helpers
+      __tests__/                 # vitest + @testing-library/react
+    tsup.config.ts               # build config (esm/cjs/iife + ssr subentry)
+    tsconfig.declarations.json   # tsc -- emitDeclarationOnly for .d.ts
+    package.json                 # exports map: . | ./ssr | ./style.css
+  home/                          # CSR demo (Vite SPA, switchable React via env)
+  sandbox-r17/                   # ┐
+  sandbox-r18/                   # ├ R17/18/19 real-npm-consumer integration tests
+  sandbox-r19/                   # │  (installed via `pnpm pack` tgz, NOT workspace:*)
+                                 # │  each: tsc --noEmit + node ssr-smoke.cjs
+  sandbox-nextjs/                # ┘  Next.js 15 + R19 + RSC, runs `next build`
+apps/
+  demo-ssr/                      # Express + Vite SSR demo (R19 only)
+  demo-nextjs/                   # Next.js 15 App Router demo (R19)
+```
+
+## Build & test
+
+```bash
+pnpm install
+pnpm build               # turbo: tsup + tsc -- core; vite -- home
+pnpm test                # vitest in jsdom (component-level)
+pnpm -w run check        # FULL: build → pack → install → tsc + ssr-smoke for each sandbox
+```
+
+`pnpm -w run check` is the single command that verifies dist correctness across
+React versions. The `scripts/refresh-sandbox-tgz.mjs` helper makes it idempotent
+on Windows by only invalidating the react-zmage cache entry rather than
+rerunning a full `--force` install (which races on Windows + Next.js's many
+small files).
+
+## Interactive demos (human verification, not for agents)
+
+These exist for the human maintainer to visually verify GUI/animation/
+interaction behavior. Agents shouldn't claim "demo verified" — only the human
+who actually opened the page in a browser can.
+
+```bash
+pnpm dev:csr-r17   # CSR R17  :8080
+pnpm dev:csr-r18   # CSR R18  :8080
+pnpm dev:csr-r19   # CSR R19  :8080
+pnpm dev:ssr-r19   # SSR R19  :8090
+pnpm dev:nextjs    # RSC R19  :8095
+```
+
+Each page shows a fixed top-bar `ContextBanner` with the React.version actually
+loaded and the render mode label.
+
+## Architectural invariants (don't break these)
+
+- **All cleanup must be cancelable**. Class components in this codebase track
+  every `requestAnimationFrame` / `setTimeout` handle as instance properties
+  and cancel them in `componentWillUnmount`. New async work must follow the
+  same pattern; otherwise StrictMode dev mode leaks listeners or fires setState
+  on unmounted components. See `Browser.tsx` `initRaf` / `unInitTimer`,
+  `Image.tsx` `pendingRafHandles`, `Zmage.callee.tsx` `inBrowsingRaf`.
+- **`unInit({force: true})` must run cleanup synchronously**. Don't bury cleanup
+  in `setState → setTimeout → setState` chains; on unmount path the inner
+  setState is dropped and side effects (scroll lock release, cover restore)
+  never run.
+- **`global.ts` must NOT be `global.d.ts`**. tsc does not emit source `.d.ts`
+  to outDir; renaming to `.ts` keeps `BaseType` reachable in the published
+  `dist/index.d.ts`. Do not rename it back.
+- **Public component type stays callable, NOT `ForwardRefExoticComponent`**.
+  The exported `ReactZmageComponent` deliberately uses `(props) =>
+  JSX.Element | null` + statics, NOT an intersection with
+  `ForwardRefExoticComponent`. The latter triggers two cross-version TS bugs
+  (R18+ ReactPortal regression; defaultProps-driven prop inference loss).
+  Cast via `as unknown as ReactZmageComponent`.
+- **`react-dom/client` stays a static import and remains externalized by tsup**.
+  Do not reintroduce browser runtime `require`; the browser ESM build cannot
+  rely on it. React 16/17 compatibility is guarded by the sandbox checks and
+  SSR smoke tests, while React 18+ resolves `createRoot` through that external
+  import. See `resolveMountAdapter` in `Zmage.callee.tsx`.
+
+## Where the docs are right
+
+If README and source disagree, **source wins**:
+- props & defaults: `packages/core/src/types/global.ts` + `default.ts`
+- exported runtime API: `packages/core/src/index.ts`
+- package contract: `packages/core/package.json` (`exports` field)
+
+## How to verify your change
+
+Before claiming a fix:
+1. `pnpm test` — unit tests must stay green (currently 11 tests).
+2. `pnpm -w run check` — all 4 sandboxes must pass: tsc + ssr-smoke for r17/r18/r19, `next build` for sandbox-nextjs.
+3. If you touched callee or Browser, also confirm no React "setState on
+   unmounted component" warnings appear in test output.
+4. **Do not claim GUI/animation/interaction behavior verified.** That requires
+   a human to open `pnpm dev:csr-r19` / `pnpm dev:ssr-r19` / `pnpm dev:nextjs`
+   and check the actual rendering. Agents cannot do this.
+
+## Browser screenshots — playwright MCP
+
+When invoking any playwright MCP screenshot tool
+(`mcp__plugin_playwright_*__browser_take_screenshot`, or any descendant), **the
+output path must live under `tmp/screenshot/`**. Never write to:
+
+- the repo root (pollutes `git status` and risks accidental commits)
+- `docs/` (those are committed assets — logo, demo images)
+- any tracked directory
+
+Concrete rules:
+
+1. Always pass an explicit `filename` / `path` argument like
+   `tmp/screenshot/<descriptive-name>.png`.
+2. If `tmp/screenshot/` doesn't exist yet, create it first
+   (`mkdir -p tmp/screenshot/`).
+3. `tmp/` is gitignored, so screenshots never make it into commits.
+
+Background: a previous session dropped five MCP screenshots into the repo root
+(`before-click.png`, `narrow-zmage.png`, `scrolled-x.png`,
+`scrolled-zmage-first.png`, `zmage-during.png`), polluting `git status`. The
+gitignore now defensively blocks `/*.png`, but the primary mechanism is
+agents passing the right path on each call.
+
+> Note: Playwright's `testConfig.snapshotPathTemplate` only governs
+> `@playwright/test` assertions (`toHaveScreenshot` / `toMatchSnapshot`). It
+> does **not** affect the MCP plugin — MCP screenshot paths are caller-controlled.
+> Hence the rule is enforced here rather than in a config file.
+
