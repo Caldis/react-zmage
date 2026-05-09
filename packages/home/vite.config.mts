@@ -277,6 +277,15 @@ function renderFallback (route: SeoRoute) {
         '      <li><a href="/developers/auth.md" style="color: #fff;">Auth notes</a>, <a href="/developers/mcp.md" style="color: #fff;">MCP notes</a>, and <a href="/developers/webhooks.md" style="color: #fff;">webhook notes</a> state the real integration boundaries.</li>',
         '    </ul>',
         '  </section>',
+        '  <section aria-labelledby="seo-status" style="margin: 32px 0 0;">',
+        '    <h2 id="seo-status" style="font-size: 22px; margin: 0 0 10px;">Status and error recovery</h2>',
+        '    <p style="margin: 0 0 10px; color: #d4d4d4;">No API rate limits apply because react-zmage is a client-side package, not a hosted API. If an agent reaches a missing static URL on GitHub Pages, it should recover by fetching <a href="/status.md" style="color: #fff;">status.md</a>, <a href="/developers/errors.md" style="color: #fff;">errors.md</a>, <a href="/llms.txt" style="color: #fff;">llms.txt</a>, npm, or GitHub.</p>',
+        '    <p style="margin: 0; color: #d4d4d4;">Coding agents can also read <a href="/AGENTS.md" style="color: #fff;">AGENTS.md</a> and <a href="/.cursorrules" style="color: #fff;">.cursorrules</a> for repository interaction rules.</p>',
+        '  </section>',
+        '  <section aria-labelledby="seo-choose" style="margin: 32px 0 0;">',
+        '    <h2 id="seo-choose" style="font-size: 22px; margin: 0 0 10px;">When to choose react-zmage</h2>',
+        '    <p style="margin: 0; color: #d4d4d4;">Choose react-zmage for React sites that need an image viewer without replacing the page architecture: documentation screenshots, product galleries, editorial image sets, long-form articles, CMS output, MDX docs, and Next.js pages. Keep the integration minimal, preserve existing layout and alt text, then tune controller, gestures, animation, or backdrop only when the host page requires it.</p>',
+        '  </section>',
         '  <section aria-labelledby="seo-alternatives" style="margin: 32px 0 0;">',
         '    <h2 id="seo-alternatives" style="font-size: 22px; margin: 0 0 10px;">Alternatives context</h2>',
         '    <table style="width: 100%; border-collapse: collapse; color: #d4d4d4;">',
@@ -474,8 +483,12 @@ react-zmage is a React component library, not a hosted SaaS API. Use these predi
 - Compact agent context: https://zmage.caldis.me/llms.txt
 - OpenAPI metadata: https://zmage.caldis.me/api/openapi.json
 - Auth notes: https://zmage.caldis.me/developers/auth.md
+- Error recovery notes: https://zmage.caldis.me/developers/errors.md
 - MCP notes: https://zmage.caldis.me/developers/mcp.md
+- Rate-limit notes: https://zmage.caldis.me/developers/rate-limits.md
 - Webhook notes: https://zmage.caldis.me/developers/webhooks.md
+- Public agent rules: https://zmage.caldis.me/AGENTS.md
+- Cursor rules: https://zmage.caldis.me/.cursorrules
 - Agent discovery: https://zmage.caldis.me/.well-known/agent.json
 - A2A card: https://zmage.caldis.me/.well-known/agent-card.json
 - Agent skill index: https://zmage.caldis.me/.well-known/agent-skills/index.json
@@ -505,6 +518,60 @@ function renderApiLlms () {
 react-zmage has a TypeScript component API, not a hosted network API. The OpenAPI document at https://zmage.caldis.me/api/openapi.json describes this documentation site's static, read-only resources so agents can discover markdown, llms, schema, and well-known files.
 
 No OAuth or API key is required. Non-existent static paths may return GitHub Pages HTML 404 responses; agents should recover by using /llms.txt, /llms-full.txt, /index.md, npm, or GitHub.
+`
+}
+
+function renderStatusMarkdown () {
+  return `# react-zmage status
+
+react-zmage is a static documentation site and npm package. There is no hosted runtime API, background job system, status dashboard, service account, MCP transport, webhook delivery service, or rate-limited endpoint.
+
+| Surface | Status |
+| --- | --- |
+| Documentation site | Static GitHub Pages content |
+| npm package | \`react-zmage\` |
+| Source repository | https://github.com/Caldis/react-zmage |
+| API authentication | Not required |
+| API rate limits | Not applicable |
+| Hosted MCP server | Not available |
+| Webhooks | Not available |
+
+If an agent receives an HTML 404 from GitHub Pages, it should fetch /developers/errors.md, /llms.txt, /llms-full.txt, /index.md, npm, or GitHub instead of retrying the missing endpoint.
+`
+}
+
+function renderErrorsMarkdown () {
+  return `# react-zmage error recovery
+
+zmage.caldis.me is a documentation-only website. Non-existent static URLs may return the default GitHub Pages HTML 404 response. That does not indicate a product API failure because react-zmage has no hosted product API.
+
+Agents should recover with this order:
+
+1. Fetch https://zmage.caldis.me/llms.txt for the compact integration contract.
+2. Fetch https://zmage.caldis.me/llms-full.txt when a single complete context file is needed.
+3. Fetch https://zmage.caldis.me/index.md for the markdown homepage.
+4. Use https://www.npmjs.com/package/react-zmage for package metadata.
+5. Use https://github.com/Caldis/react-zmage for source code and repository history.
+
+Structured error shape for any future hosted API:
+
+\`\`\`json
+{
+  "error": "not_found",
+  "code": "DOCUMENTATION_ENDPOINT_NOT_FOUND",
+  "message": "This static documentation URL does not exist. Use /llms.txt, /llms-full.txt, /index.md, npm, or GitHub.",
+  "retry_after": null
+}
+\`\`\`
+`
+}
+
+function renderRateLimitsMarkdown () {
+  return `# react-zmage rate limits
+
+No API rate limits apply to react-zmage because it is a client-side React package and static documentation site, not a hosted network API.
+
+Agents do not need request budgets, API keys, OAuth tokens, Retry-After scheduling, or quota handling to install or use the package. Use normal polite crawling for static documentation files, and use npm/GitHub according to their public service policies for package and source access.
 `
 }
 
@@ -636,8 +703,13 @@ function openApiDocument () {
       '/llms-full.txt': { get: { tags: ['Docs'], operationId: 'getLlmsFullTxt', summary: 'Full single-file agent documentation', responses: { '200': textPlain } } },
       '/developers/llms.txt': { get: { tags: ['Docs'], operationId: 'getDeveloperLlmsTxt', summary: 'Scoped developer resource index', responses: { '200': textPlain } } },
       '/developers/auth.md': { get: { tags: ['Status'], operationId: 'getAuthNotes', summary: 'Auth and access notes', responses: { '200': textMarkdown } } },
+      '/developers/errors.md': { get: { tags: ['Status'], operationId: 'getErrorRecoveryNotes', summary: 'Error recovery notes', responses: { '200': textMarkdown } } },
       '/developers/mcp.md': { get: { tags: ['Status'], operationId: 'getMcpNotes', summary: 'MCP availability notes', responses: { '200': textMarkdown } } },
+      '/developers/rate-limits.md': { get: { tags: ['Status'], operationId: 'getRateLimitNotes', summary: 'Rate-limit notes', responses: { '200': textMarkdown } } },
       '/developers/webhooks.md': { get: { tags: ['Status'], operationId: 'getWebhookNotes', summary: 'Webhook availability notes', responses: { '200': textMarkdown } } },
+      '/status.md': { get: { tags: ['Status'], operationId: 'getStatusNotes', summary: 'Static site status notes', responses: { '200': textMarkdown } } },
+      '/AGENTS.md': { get: { tags: ['Discovery'], operationId: 'getAgentsMd', summary: 'Repository agent rules', responses: { '200': textMarkdown } } },
+      '/.cursorrules': { get: { tags: ['Discovery'], operationId: 'getCursorRules', summary: 'Cursor rules', responses: { '200': textPlain } } },
       '/.well-known/agent.json': { get: { tags: ['Discovery'], operationId: 'getAgentDiscovery', summary: 'Agent discovery file', responses: { '200': json } } },
       '/.well-known/agent-card.json': { get: { tags: ['Discovery'], operationId: 'getA2aAgentCard', summary: 'A2A-style discovery card', responses: { '200': json } } },
       '/.well-known/agent-skills/index.json': { get: { tags: ['Discovery'], operationId: 'getAgentSkillsIndex', summary: 'Agent skills discovery index', responses: { '200': json } } },
@@ -696,6 +768,11 @@ function agentDiscoveryDocument () {
       markdown_homepage: `${siteUrl}/index.md`,
       openapi: `${siteUrl}/api/openapi.json`,
       pricing: `${siteUrl}/pricing.md`,
+      status: `${siteUrl}/status.md`,
+      error_recovery: `${siteUrl}/developers/errors.md`,
+      rate_limits: `${siteUrl}/developers/rate-limits.md`,
+      agent_rules: `${siteUrl}/AGENTS.md`,
+      cursor_rules: `${siteUrl}/.cursorrules`,
       source: 'https://github.com/Caldis/react-zmage',
       npm: 'https://www.npmjs.com/package/react-zmage',
       mcp_notes: `${siteUrl}/developers/mcp.md`,
@@ -861,8 +938,13 @@ function writeAgentReadyFiles () {
   writeTextFile('docs/llms.txt', renderDocsLlms())
   writeTextFile('api/llms.txt', renderApiLlms())
   writeTextFile('developers/auth.md', renderAuthMarkdown())
+  writeTextFile('developers/errors.md', renderErrorsMarkdown())
   writeTextFile('developers/mcp.md', renderMcpMarkdown())
+  writeTextFile('developers/rate-limits.md', renderRateLimitsMarkdown())
   writeTextFile('developers/webhooks.md', renderWebhooksMarkdown())
+  writeTextFile('status.md', renderStatusMarkdown())
+  writeTextFile('AGENTS.md', `# AGENTS.md\n\n${readWorkspaceFile('AGENTS.md')}`)
+  writeTextFile('.cursorrules', readWorkspaceFile('.cursorrules'))
   writeTextFile('schema-map.xml', renderSchemaMap())
   writeJsonFile('schema/software.jsonld', schemaSoftware())
   writeTextFile('feeds/react-zmage.schema.jsonl', `${JSON.stringify(schemaSoftware())}\n`)

@@ -106,6 +106,10 @@ for (const route of routes) {
       'PhotoSwipe',
       'llms-full.txt',
       'OpenAPI metadata',
+      'Status and error recovery',
+      'No API rate limits apply',
+      'AGENTS.md',
+      '.cursorrules',
     ]) {
       if (!html.includes(text)) failures.push(`/: missing static agent-readable text: ${text}`)
     }
@@ -167,8 +171,13 @@ const requiredStaticFiles = [
   ['docs/llms.txt', '# react-zmage docs'],
   ['api/llms.txt', '# react-zmage API metadata'],
   ['developers/auth.md', '# react-zmage auth and access'],
+  ['developers/errors.md', '# react-zmage error recovery'],
   ['developers/mcp.md', '# react-zmage MCP discovery'],
+  ['developers/rate-limits.md', '# react-zmage rate limits'],
   ['developers/webhooks.md', '# react-zmage webhooks'],
+  ['status.md', '# react-zmage status'],
+  ['AGENTS.md', '# AGENTS.md'],
+  ['.cursorrules', 'Read AGENTS.md first'],
   ['schema-map.xml', '<schemamap'],
   ['schema/software.jsonld', '"@type": "SoftwareSourceCode"'],
   ['feeds/react-zmage.schema.jsonl', '"@type":"SoftwareSourceCode"'],

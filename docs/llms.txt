@@ -23,8 +23,13 @@ Use these predictable URLs when an agent needs react-zmage developer resources b
 - Scoped API metadata guide: https://zmage.caldis.me/api/llms.txt
 - OpenAPI documentation metadata: https://zmage.caldis.me/api/openapi.json
 - Auth and access notes: https://zmage.caldis.me/developers/auth.md
+- Error recovery notes: https://zmage.caldis.me/developers/errors.md
 - MCP availability notes: https://zmage.caldis.me/developers/mcp.md
+- Rate-limit notes: https://zmage.caldis.me/developers/rate-limits.md
 - Webhook availability notes: https://zmage.caldis.me/developers/webhooks.md
+- Status notes: https://zmage.caldis.me/status.md
+- Public repository agent rules: https://zmage.caldis.me/AGENTS.md
+- Cursor rules: https://zmage.caldis.me/.cursorrules
 - Agent discovery file: https://zmage.caldis.me/.well-known/agent.json
 - A2A-style discovery card: https://zmage.caldis.me/.well-known/agent-card.json
 - Agent skill index: https://zmage.caldis.me/.well-known/agent-skills/index.json
@@ -35,6 +40,8 @@ Use these predictable URLs when an agent needs react-zmage developer resources b
 zmage.caldis.me is a documentation-only website for a client-side React package. No OAuth or API key is required, and there is no hosted product API, hosted MCP server, webhook registration endpoint, account system, or service-side rate limit. If a non-existent URL returns the GitHub Pages HTML 404, recover by fetching `/llms.txt`, `/llms-full.txt`, `/index.md`, the npm package, or the GitHub repository.
 
 The OpenAPI document describes static documentation endpoints only. It is useful for agents that prefer OpenAPI catalogs, but it is not an API for uploading images, transforming media, or managing accounts.
+
+No API rate limits apply to react-zmage itself. Agents should still use polite crawling for static documentation and follow npm/GitHub public service policies when fetching package or source metadata.
 
 ## Cost and alternatives
 

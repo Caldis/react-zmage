@@ -7,8 +7,12 @@ react-zmage is a React component library, not a hosted SaaS API. Use these predi
 - Compact agent context: https://zmage.caldis.me/llms.txt
 - OpenAPI metadata: https://zmage.caldis.me/api/openapi.json
 - Auth notes: https://zmage.caldis.me/developers/auth.md
+- Error recovery notes: https://zmage.caldis.me/developers/errors.md
 - MCP notes: https://zmage.caldis.me/developers/mcp.md
+- Rate-limit notes: https://zmage.caldis.me/developers/rate-limits.md
 - Webhook notes: https://zmage.caldis.me/developers/webhooks.md
+- Public agent rules: https://zmage.caldis.me/AGENTS.md
+- Cursor rules: https://zmage.caldis.me/.cursorrules
 - Agent discovery: https://zmage.caldis.me/.well-known/agent.json
 - A2A card: https://zmage.caldis.me/.well-known/agent-card.json
 - Agent skill index: https://zmage.caldis.me/.well-known/agent-skills/index.json

@@ -129,7 +129,7 @@
         document.documentElement.classList.toggle('dark', theme === 'dark')
       } catch {}
     </script>
-    <script type="module" crossorigin src="/assets/index-D1VGwaqs.js"></script>
+    <script type="module" crossorigin src="/assets/index-fx6rPpFC.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-CDCiN83-.css">
   </head>
   <body>
@@ -157,6 +157,15 @@
             <li><a href="/api/openapi.json" style="color: #fff;">OpenAPI metadata</a> documents static documentation endpoints; no product API, OAuth flow, API key, hosted MCP server, or webhook system is required.</li>
             <li><a href="/developers/auth.md" style="color: #fff;">Auth notes</a>, <a href="/developers/mcp.md" style="color: #fff;">MCP notes</a>, and <a href="/developers/webhooks.md" style="color: #fff;">webhook notes</a> state the real integration boundaries.</li>
           </ul>
+        </section>
+        <section aria-labelledby="seo-status" style="margin: 32px 0 0;">
+          <h2 id="seo-status" style="font-size: 22px; margin: 0 0 10px;">Status and error recovery</h2>
+          <p style="margin: 0 0 10px; color: #d4d4d4;">No API rate limits apply because react-zmage is a client-side package, not a hosted API. If an agent reaches a missing static URL on GitHub Pages, it should recover by fetching <a href="/status.md" style="color: #fff;">status.md</a>, <a href="/developers/errors.md" style="color: #fff;">errors.md</a>, <a href="/llms.txt" style="color: #fff;">llms.txt</a>, npm, or GitHub.</p>
+          <p style="margin: 0; color: #d4d4d4;">Coding agents can also read <a href="/AGENTS.md" style="color: #fff;">AGENTS.md</a> and <a href="/.cursorrules" style="color: #fff;">.cursorrules</a> for repository interaction rules.</p>
+        </section>
+        <section aria-labelledby="seo-choose" style="margin: 32px 0 0;">
+          <h2 id="seo-choose" style="font-size: 22px; margin: 0 0 10px;">When to choose react-zmage</h2>
+          <p style="margin: 0; color: #d4d4d4;">Choose react-zmage for React sites that need an image viewer without replacing the page architecture: documentation screenshots, product galleries, editorial image sets, long-form articles, CMS output, MDX docs, and Next.js pages. Keep the integration minimal, preserve existing layout and alt text, then tune controller, gestures, animation, or backdrop only when the host page requires it.</p>
         </section>
         <section aria-labelledby="seo-alternatives" style="margin: 32px 0 0;">
           <h2 id="seo-alternatives" style="font-size: 22px; margin: 0 0 10px;">Alternatives context</h2>

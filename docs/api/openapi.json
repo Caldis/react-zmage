@@ -135,6 +135,27 @@
         }
       }
     },
+    "/developers/errors.md": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "operationId": "getErrorRecoveryNotes",
+        "summary": "Error recovery notes",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/developers/mcp.md": {
       "get": {
         "tags": [
@@ -142,6 +163,27 @@
         ],
         "operationId": "getMcpNotes",
         "summary": "MCP availability notes",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developers/rate-limits.md": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "operationId": "getRateLimitNotes",
+        "summary": "Rate-limit notes",
         "responses": {
           "200": {
             "description": "Markdown document",
@@ -168,6 +210,69 @@
             "description": "Markdown document",
             "content": {
               "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status.md": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "operationId": "getStatusNotes",
+        "summary": "Static site status notes",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AGENTS.md": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "operationId": "getAgentsMd",
+        "summary": "Repository agent rules",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.cursorrules": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "operationId": "getCursorRules",
+        "summary": "Cursor rules",
+        "responses": {
+          "200": {
+            "description": "Plain text document",
+            "content": {
+              "text/plain": {
                 "schema": {
                   "type": "string"
                 }
