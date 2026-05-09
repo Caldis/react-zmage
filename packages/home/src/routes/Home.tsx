@@ -355,7 +355,11 @@ function FeatureGrid () {
 
 function AgentFacts () {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+    <section
+      aria-hidden="true"
+      data-agent-facts
+      className="sr-only"
+    >
       <div className="max-w-3xl">
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">Agent facts</p>
         <h2 className="mt-3 text-3xl font-semibold tracking-tight">Install, cost, and alternatives</h2>
