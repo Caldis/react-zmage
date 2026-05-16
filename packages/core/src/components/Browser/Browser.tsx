@@ -736,7 +736,7 @@ export default class Browser extends React.Component<Props, State> {
       // Control
       controller, hotKey, animate, gesture,
       // Styles & interactive
-      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, hideOnDblClick, loadingDelay,
+      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, hideOnDblClick, loadingDelay, portalTarget,
       // Life cycle
       onError,
     } = this.getPropsWithEnv()
@@ -776,7 +776,7 @@ export default class Browser extends React.Component<Props, State> {
       <Context.Provider value={contextValue}>
         {
           mounted &&
-          <Portals id="zmage" zIndex={zIndex} className={style.wrapperLayer} style={controllerLayoutStyle}>
+          <Portals id="zmage" zIndex={zIndex} className={style.wrapperLayer} style={controllerLayoutStyle} target={portalTarget}>
 
             {/*背景层*/}
             <Background {...statusValue}/>

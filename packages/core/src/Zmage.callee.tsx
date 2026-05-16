@@ -171,7 +171,7 @@ const callee = (({ coverRef, ...props }: InternalCalleeProps) => {
   // Init env
   const portalEl = document.createElement('div')
   portalEl.id = 'zmagePortal'
-  const containerEl = document.body
+  const containerEl: HTMLElement = props.portalTarget ?? document.body
   containerEl.appendChild(portalEl)
   const ref = React.createRef<ReactZmageCallee>()
   let unmount: (() => void) | undefined

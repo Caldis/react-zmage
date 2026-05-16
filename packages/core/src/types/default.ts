@@ -264,7 +264,7 @@ export const getConfigFromProps = (props: BaseType) => {
     // Control
     controller, hotKey, animate, gesture,
     // Styles & interactive
-    hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, hideOnDblClick, loadingDelay,
+    hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, hideOnDblClick, loadingDelay, portalTarget,
     // Life cycle functions
     onBrowsing, onZooming, onSwitching, onRotating, onError,
     // Controlled props
@@ -299,7 +299,7 @@ export const getConfigFromProps = (props: BaseType) => {
       // Control
       controller, hotKey, animate, gesture,
       // Styles & interactive
-      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, hideOnDblClick, loadingDelay,
+      hideOnScroll, coverVisible, backdrop, zIndex, radius, edge, loop, hideOnDblClick, loadingDelay, portalTarget,
       // Life cycle functions
       onBrowsing, onZooming, onSwitching, onRotating, onError,
     },
