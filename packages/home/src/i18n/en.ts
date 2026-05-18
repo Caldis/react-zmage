@@ -483,7 +483,7 @@ export const en: I18nDict = {
   'docs.search.desc.migration': 'Upgrade notes from 0.x',
   'docs.search.desc.faq': 'Common integration gotchas and version-specific fixes',
 
-  'docs.section.props.title': 'Props',
+  'docs.section.props.title': 'Props overview',
   'docs.section.props.intro': 'Every prop on BaseType can be passed in any of the three modes.',
   'docs.section.props.wrapperScope.title': 'Wrapper mode prop scope',
   'docs.section.props.wrapperScope.intro': '<Zmage.Wrapper> does not render the cover image itself. It binds existing descendant <img> nodes, so a few props have wrapper-specific meaning.',

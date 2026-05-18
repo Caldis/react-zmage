@@ -501,7 +501,7 @@ export const zhCN = {
   'docs.search.desc.migration': '从 0.x 升级的注意事项',
   'docs.search.desc.faq': '常见集成问题与版本相关的修复说明',
 
-  'docs.section.props.title': 'API 参数',
+  'docs.section.props.title': '参数总览',
   'docs.section.props.intro': 'BaseType 上的所有属性,在三种调用方式中均可使用。',
   'docs.section.props.wrapperScope.title': 'Wrapper 模式下的参数范围',
   'docs.section.props.wrapperScope.intro': '<Zmage.Wrapper> 自己不渲染封面图,而是给已有的子级 <img> 绑定查看器。因此有些参数在包裹器模式下有不同语义。',

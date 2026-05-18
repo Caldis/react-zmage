@@ -475,7 +475,7 @@ export const fr: I18nDict = {
   'docs.search.desc.migration': 'Notes de mise à niveau depuis 0.x',
   'docs.search.desc.faq': 'Pièges d\'intégration courants et correctifs par version',
 
-  'docs.section.props.title': 'Props',
+  'docs.section.props.title': 'Vue d’ensemble des props',
   'docs.section.props.intro': 'Toutes les props de BaseType peuvent être passées dans n\'importe lequel des trois modes.',
   'docs.section.props.wrapperScope.title': 'Portée des props en mode Wrapper',
   'docs.section.props.wrapperScope.intro': '<Zmage.Wrapper> ne rend pas lui-même l\'image de couverture. Il lie des nœuds <img> descendants déjà présents ; certaines props ont donc une signification propre en mode Wrapper.',

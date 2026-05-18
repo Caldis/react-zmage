@@ -475,7 +475,7 @@ export const ja: I18nDict = {
   'docs.search.desc.migration': '0.x からのアップグレードノート',
   'docs.search.desc.faq': 'よくある統合上の落とし穴とバージョン別の修正ノート',
 
-  'docs.section.props.title': 'Props',
+  'docs.section.props.title': 'Props 概要',
   'docs.section.props.intro': 'BaseType に定義されたすべての prop は、3 つのモードのいずれでも利用できます。',
   'docs.section.props.wrapperScope.title': 'Wrapper モードの prop 範囲',
   'docs.section.props.wrapperScope.intro': '<Zmage.Wrapper> はカバー画像自体をレンダリングしません。既存の子孫 <img> ノードにビューアを結び付けるため、一部の prop は Wrapper モード固有の意味を持ちます。',

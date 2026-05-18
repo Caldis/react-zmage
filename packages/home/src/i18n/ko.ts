@@ -475,7 +475,7 @@ export const ko: I18nDict = {
   'docs.search.desc.migration': '0.x에서의 업그레이드 노트',
   'docs.search.desc.faq': '흔한 통합 이슈와 버전별 수정 사항',
 
-  'docs.section.props.title': 'Props',
+  'docs.section.props.title': 'Props 개요',
   'docs.section.props.intro': 'BaseType의 모든 속성은 세 가지 모드 중 어떤 것에서도 사용할 수 있습니다.',
   'docs.section.props.wrapperScope.title': 'Wrapper 모드의 prop 범위',
   'docs.section.props.wrapperScope.intro': '<Zmage.Wrapper>는 커버 이미지를 직접 렌더링하지 않습니다. 이미 존재하는 하위 <img> 노드에 뷰어를 연결하므로, 일부 prop은 Wrapper 모드에서 별도의 의미를 갖습니다.',

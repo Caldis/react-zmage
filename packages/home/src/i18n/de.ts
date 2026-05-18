@@ -475,7 +475,7 @@ export const de: I18nDict = {
   'docs.search.desc.migration': 'Upgrade-Hinweise von 0.x',
   'docs.search.desc.faq': 'Häufige Integrations-Fallstricke und versionsspezifische Fixes',
 
-  'docs.section.props.title': 'Props',
+  'docs.section.props.title': 'Prop-Übersicht',
   'docs.section.props.intro': 'Jeder Prop von BaseType kann in jedem der drei Modi übergeben werden.',
   'docs.section.props.wrapperScope.title': 'Prop-Bereich im Wrapper-Modus',
   'docs.section.props.wrapperScope.intro': '<Zmage.Wrapper> rendert das Cover-Bild nicht selbst. Er bindet vorhandene untergeordnete <img>-Knoten, daher haben einige Props im Wrapper-Modus eine eigene Bedeutung.',
