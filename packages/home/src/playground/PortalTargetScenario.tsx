@@ -25,7 +25,7 @@ export function PortalTargetScenario () {
           {t('pg.portalTarget.body')}
         </p>
         <p className="mt-2 rounded-md bg-muted/35 px-2.5 py-2 font-mono text-[11px] leading-relaxed text-muted-foreground">
-          portalTarget={"{viewerRoot}"}
+          {'portalTarget={viewerRoot}'}
         </p>
       </div>
       <div className="relative min-h-[132px] rounded-md border border-dashed border-border bg-muted/20 p-2">
