@@ -14,6 +14,8 @@ const globalTs = readFileSync(join(corePkgDir, 'src', 'types', 'global.ts'), 'ut
 const defaultTs = readFileSync(join(corePkgDir, 'src', 'types', 'default.ts'), 'utf8')
 const indexTs = readFileSync(join(corePkgDir, 'src', 'index.ts'), 'utf8')
 const imageUtilsTs = readFileSync(join(corePkgDir, 'src', 'components', 'Image', 'Image.utils.ts'), 'utf8')
+const calleeTsx = readFileSync(join(corePkgDir, 'src', 'Zmage.callee.tsx'), 'utf8')
+const browserTsx = readFileSync(join(corePkgDir, 'src', 'components', 'Browser', 'Browser.tsx'), 'utf8')
 
 // --- Static tests ---
 
@@ -91,7 +93,7 @@ test('llms.txt tells agents to keep basic integrations minimal', () => {
     'llms.txt should recommend Wrapper + set for existing image lists')
   assert.match(llmsTxt, /top-level `backdrop`/,
     'llms.txt should allow only top-level backdrop as a default theme adjustment')
-  for (const prop of ['controller', 'controller.layout', 'edge', 'zIndex', 'animate', 'gesture', 'hotKey', 'radius', 'loop', 'coverVisible', 'hideOnScroll', 'hideOnDblClick']) {
+  for (const prop of ['controller', 'controller.layout', 'edge', 'zIndex', 'portalTarget', 'animate', 'gesture', 'hotKey', 'radius', 'loop', 'coverVisible', 'hideOnScroll', 'hideOnDblClick']) {
     assert.ok(llmsTxt.includes(`\`${prop}\``),
       `llms.txt minimal integration guidance should mention not setting ${prop} by default`)
   }
@@ -200,6 +202,29 @@ test('loadingDelay prop wired across types, defaults and llms.txt', () => {
     (line) => /^\s*\|\s*`loadingDelay`\s*\|/.test(line)
   )
   assert.ok(line, 'no API-table row in llms.txt declares loadingDelay')
+})
+
+test('portalTarget prop wired across types, runtime and public docs', () => {
+  assert.match(globalTs, /\bportalTarget\?:\s*HTMLElement\s*\|\s*null\b/,
+    'portalTarget missing in types/global.ts')
+  assert.match(defaultTs, /getConfigFromProps[\s\S]*?\bportalTarget\b/,
+    'portalTarget should flow through getConfigFromProps in default.ts')
+  assert.match(calleeTsx, /props\.portalTarget\s*\?\?\s*document\.body/,
+    'Zmage.browsing should append into portalTarget before falling back to document.body')
+  assert.match(browserTsx, /target=\{portalTarget\}/,
+    'component mode should pass portalTarget into the Portal target')
+
+  const line = llmsTxt.split('\n').find(
+    (row) => /^\s*\|\s*`portalTarget`\s*\|/.test(row)
+  )
+  assert.ok(line, 'no API-table row in llms.txt declares portalTarget')
+  assert.match(line, /document\.body/, 'portalTarget row should document the default mount target')
+  assert.match(line, /overlay root|modal root|micro-frontend/, 'portalTarget row should document the intended host-app scenario')
+  assert.match(line, /fullscreen fixed positioning/, 'portalTarget row should preserve fullscreen fixed semantics')
+  assert.match(llmsTxt, /not clipped into a local preview/,
+    'llms.txt should warn that portalTarget is not a local clipping boundary')
+  assert.match(llmsTxt, /<Zmage\.Wrapper>[\s\S]*`portalTarget`/,
+    'Wrapper scope guidance should include portalTarget')
 })
 
 test('controller visual keys (backdrop + color) declared in ControllerSet and llms.txt', () => {

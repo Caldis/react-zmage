@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react'
 import Zmage from 'react-zmage'
 import { Heading } from '@/docs/Heading'
 import { CodeBlock } from '@/components/CodeBlock'
@@ -62,9 +63,31 @@ const COVER_GEOMETRY_CODE = `<Zmage
   animate={{ cover: { objectFit: true, clip: true, radius: true } }}
 />`
 
+const PORTAL_TARGET_CODE = `import { useState } from 'react'
+
+export function ShellImage () {
+  const [viewerRoot, setViewerRoot] = useState<HTMLElement | null>(null)
+
+  return (
+    <div className="app-shell">
+      <div id="app-overlay-root" ref={setViewerRoot} />
+
+      <Zmage
+        src="/imgSet/childsDream/8.jpg"
+        alt="Article image"
+        portalTarget={viewerRoot}
+      />
+    </div>
+  )
+}`
+
 export function Examples () {
   const { t } = useT()
   const backdrop = useThemedBackdrop()
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
+  const setPortalRoot = useCallback((node: HTMLDivElement | null) => {
+    setPortalTarget(prev => prev === node ? prev : node)
+  }, [])
   return (
     <section className="mt-12 space-y-4">
       <Heading id="examples">{t('docs.section.examples.title')}</Heading>
@@ -167,6 +190,25 @@ export function Examples () {
           animate={withSiteSlowMotion({ cover: { objectFit: true, clip: true, radius: true } })}
         />
         <CodeBlock code={COVER_GEOMETRY_CODE} language={'tsx' as any} />
+      </div>
+
+      <Heading id="examples-portal-target" level={3}>{t('docs.section.examples.portalTargetTitle')}</Heading>
+      <p className="text-sm text-muted-foreground">{t('docs.section.examples.portalTargetBody')}</p>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="relative min-h-64 overflow-hidden rounded-md border border-dashed border-border bg-muted/25 p-4">
+          <div ref={setPortalRoot} className="absolute inset-4 rounded-md border border-dashed border-primary/35 bg-background/60 px-3 py-2 text-xs text-muted-foreground">
+            {t('docs.section.examples.portalTargetRoot')}
+          </div>
+          <Zmage
+            src="/imgSet/childsDream/8.jpg"
+            alt="童夢 · EIGHT"
+            backdrop={backdrop}
+            animate={siteZmageAnimate}
+            portalTarget={portalTarget}
+            className="absolute bottom-6 right-6 h-32 w-44 cursor-zoom-in rounded-md border border-background object-cover shadow-lg"
+          />
+        </div>
+        <CodeBlock code={PORTAL_TARGET_CODE} language={'tsx' as any} />
       </div>
     </section>
   )

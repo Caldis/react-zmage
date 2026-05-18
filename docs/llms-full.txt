@@ -128,7 +128,7 @@ When integrating react-zmage into an existing site, keep the integration minimal
 
 - For existing image lists or rich content, use `Zmage.Wrapper` with `set` so clicked images open at the matching gallery index.
 - You may set the top-level `backdrop` to match the host page background color.
-- Do not set optional behavior, `controller`, `controller.layout`, `edge`, `zIndex`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` props unless the user explicitly asks.
+- Do not set optional behavior, `controller`, `controller.layout`, `edge`, `zIndex`, `portalTarget`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` props unless the user explicitly asks.
 - Only configure `controller.color` or `controller.backdrop` when the user asks for controller styling or when icons are visibly illegible after testing. Do not preemptively customize controller layout or placement.
 
 ### Expected deliverables
@@ -209,6 +209,7 @@ const [open, setOpen] = useState(false)
 | `hideOnDblClick` | `boolean` | `false` | Auto-close on image double-click. Off by default to preserve current single-click semantics; turn on to dismiss with a double-click. |
 | `coverVisible` | `boolean` | `false` | Keep the underlying `<img>` visible while the modal is open. |
 | `zIndex` / `radius` / `edge` | `number` | `1000` / desktop `8`, mobile `0` / desktop `16`, mobile `0` | Modal stacking, image corner radius, viewport padding. |
+| `portalTarget` | `HTMLElement \| null` | `document.body` | Custom DOM element for mounting the viewer Portal. Use it when an app has a dedicated overlay root, modal root, shadow host, or micro-frontend container. It changes the mount parent only; the viewer still uses fullscreen fixed positioning and is not clipped into a local preview. |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
 | `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
 | `onBrowsing` | `(isBrowsing: boolean) => void` | — | Fires on open/close. |
@@ -219,6 +220,8 @@ const [open, setOpen] = useState(false)
 | `browsing` | `boolean` | — | **Controlled-mode prop**, distinct from the static method `Zmage.browsing()`. Pair with `onBrowsing` to drive open state from outside. Does not control `<Zmage.Wrapper>`. |
 
 Standard `<img>` HTML attributes (`className`, `style`, `width`, `height`, `loading`, `id`, etc.) pass through to the cover image.
+
+`portalTarget` is an advanced integration prop, not a normal visual tweak. Use it only when the host app already has an overlay root, modal root, shadow host, or micro-frontend shell container that should own Portal children. It does not replace `zIndex` and does not make the fullscreen viewer local to that container.
 
 Controller render example:
 
@@ -259,7 +262,7 @@ Controller render example:
 
 Wrapper mode prop scope:
 - Put `src` / `alt` on child `<img>` nodes; top-level `src` / `alt` are overridden by the clicked DOM node.
-- Pass viewer behavior and visuals on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `gesture`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, plus lifecycle callbacks.
+- Pass viewer behavior and visuals on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `gesture`, `backdrop`, `zIndex`, `portalTarget`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, plus lifecycle callbacks.
 - Pass `set` when the wrapped subtree should be one shared gallery. If clicked `img.src` matches `set[i].src`, Wrapper opens `i`; otherwise it falls back to `defaultPage`.
 - Without `set`, the clicked image opens alone. `data-zmage-caption` or the nearest `figcaption` can provide the viewer caption.
 - `browsing` is component-controlled state and does not control Wrapper.
@@ -318,7 +321,8 @@ The library is theme-agnostic by design — there's no theme provider, no light/
 4. Putting `src` / `alt` on `<Zmage.Wrapper>` and expecting them to render images — Wrapper reads actual descendant `<img>` nodes instead.
 5. Calling `Zmage.browsing()` in code that may run server-side — guard with `typeof window !== 'undefined'`, or import from `react-zmage/ssr`.
 6. Leaving `backdrop` at the default `#FFFFFF` on a dark-themed page — the modal may clash with the host page. Set the top-level `backdrop` explicitly if your host UI isn't light.
-7. Preemptively setting `controller`, `controller.layout`, `edge`, `zIndex`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` during a basic install — keep these defaults unless the user asks or testing exposes a concrete issue.
+7. Preemptively setting `controller`, `controller.layout`, `edge`, `zIndex`, `portalTarget`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` during a basic install — keep these defaults unless the user asks or testing exposes a concrete issue.
+8. Treating `portalTarget` as a clipping or local-preview boundary — it only changes the Portal mount parent. The viewer still uses fullscreen fixed positioning.
 
 ## Optional
 
@@ -446,7 +450,7 @@ The wrapper queries `<img>` descendants in `componentDidMount` / `componentDidUp
 Wrapper-specific prop scope:
 
 - Put `src` / `alt` on the child `<img>` nodes. Top-level `src` / `alt` are overwritten by the clicked DOM node.
-- Viewer configuration still belongs on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `gesture`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, and lifecycle callbacks.
+- Viewer configuration still belongs on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `gesture`, `backdrop`, `zIndex`, `portalTarget`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, and lifecycle callbacks.
 - Pass `set` when the wrapped subtree should behave as one shared gallery. If the clicked image's `src` appears in `set`, Wrapper opens that matching index; `defaultPage` is only the fallback.
 - Without `set`, the clicked image opens as a single image. `data-zmage-caption` or the nearest `figcaption` can provide the viewer caption.
 - The controlled `browsing` prop is for component mode; it does not control `<Zmage.Wrapper>`.
@@ -870,10 +874,30 @@ Wheel zoom is active only while the viewer is already in zoom mode; normal brows
 | `coverVisible` | `boolean` | `false` | Keep the cover `<img>` visible while the modal is open. |
 | `backdrop` | `string` | `'#FFFFFF'` | Viewer backdrop. Any valid CSS color or gradient. **Default is white** — override (`'#111'`, etc.) for dark UIs. |
 | `zIndex` | `number` | `1000` | Portal stacking. |
+| `portalTarget` | `HTMLElement \| null` | `document.body` | Custom DOM element for mounting the viewer Portal. Use it when an app has a dedicated overlay root, modal root, shadow host, or micro-frontend container. It changes the mount parent only; the viewer still uses fullscreen fixed positioning. |
 | `radius` | `number` | desktop `8`, mobile `0` | Image corner radius (px). |
 | `edge` | `number` | desktop `16`, mobile `0` | Minimum margin between image and viewport (px). |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
 | `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
+
+`portalTarget` is for host apps that already centralize overlays outside the normal content tree. It does not make a local, clipped preview; use `zIndex` and your app shell's stacking rules to control how the fullscreen viewer sits above other UI.
+
+```tsx
+import { useState } from 'react'
+import Zmage from 'react-zmage'
+import 'react-zmage/style.css'
+
+export function ArticleImage () {
+  const [viewerRoot, setViewerRoot] = useState<HTMLElement | null>(null)
+
+  return (
+    <section className="article-shell">
+      <div id="article-viewer-root" ref={setViewerRoot} />
+      <Zmage src="/photo.jpg" alt="Article photo" portalTarget={viewerRoot} />
+    </section>
+  )
+}
+```
 
 ### Lifecycle
 
@@ -902,7 +926,7 @@ export type BaseType =
   & BaseParams                    // src / alt / caption / set / defaultPage
   & PresetParams                  // preset
   & FunctionalParams              // controller / hotKey / animate / gesture
-  & InterfaceAndInteractionParams // hideOnScroll / hideOnDblClick / coverVisible / backdrop / zIndex / radius / edge / loop / loadingDelay
+  & InterfaceAndInteractionParams // hideOnScroll / hideOnDblClick / coverVisible / backdrop / zIndex / portalTarget / radius / edge / loop / loadingDelay
   & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating / onError
   & ControlledParams              // browsing
   & HTMLAttributes<HTMLImageElement>
@@ -1117,7 +1141,7 @@ Single `BaseType` covers all. Grouped here by purpose:
 | Preset | `preset: 'desktop' \| 'mobile' \| 'auto'` | defaults to `'auto'` when omitted; drives default `controller` / `hotKey` / `animate` / `gesture` plus preset-aware viewer spacing. `'auto'` resolves via `matchMedia('(pointer: coarse) and (hover: none)')` on the client; SSR falls back to desktop |
 | Controlled | `browsing` | omit for self-managed; pair with `onBrowsing` if set. Does not control `<Zmage.Wrapper>` |
 | Functional | `controller`, `hotKey`, `animate`, `gesture` | pass `boolean` to disable, or partial object to override. `controller.flip` / `hotKey.flip` and `controller.rotate` / `hotKey.rotate` are umbrellas over their per-side counterparts; enabling the umbrella forces both sides on. `controller.placement` moves only the toolbar capsule (`top-right` default); side flips and pagination keep their existing positions. `controller.layout` adjusts toolbar / flip / pagination / caption overlay safe insets without changing image animation geometry; number = px, string = CSS length, scalar `inset` follows each target's natural edge (toolbar by placement, flip left/right, pagination/caption bottom), and `layout.mobile` overrides base layout for mobile preset. Desktop defaults include `pagination.inset=24` and `caption.inset=60`; mobile leaves `layout` unset unless configured. `controller.render({ state, actions, slots })` replaces the whole controller UI, and `controller=false` disables both built-in slots and render. **`hotKey` entries accept `boolean \| string \| string[]`** — string is an `e.code` descriptor (`'Escape'` / `'BracketLeft'` / `'S'`) with cross-platform `Mod` prefix (= ⌘ on macOS, Ctrl elsewhere; e.g. `'Mod+S'`). New defaults: `[`/`]` rotate, `Mod+S` download (download is opt-in: defaults `false` because it hijacks the browser's "Save Page As"). Per-side string descriptor wins over umbrella. `controller.backdrop` / `controller.color` decouple the toolbar bg/icon-color from the modal `backdrop` (set both when `backdrop` is solid dark). `animate.cover` is preset-driven and defaults to `{ objectFit: true, clip: true, radius: true }`; it reads the cover `<img>` itself and does not infer parent-wrapper clipping. `clip-path` / `border-radius` animation may repaint; use `cover.clip=false` or `cover.radius=false` for performance-sensitive mobile pages. Set `animate={{ cover: false }}` for legacy cover geometry. `animate.slowMotion` defaults `false`; when enabled, holding `Shift` while opening or closing slows the full browsing transition to 10x for inspection and demos. `gesture` is preset-driven: desktop enables `wheelZoom` while already zoomed and disables `swipe` / `dragExit` / `pinchZoom` / `doubleTapZoom`; mobile enables horizontal drag paging, vertical drag-to-exit, pinch zoom, and double-tap zoom, while disabling `wheelZoom`. `gesture.touchAction` defaults to `'managed'`: pinch uses CSS `touch-action: none`, double-tap-only uses `manipulation`, otherwise `auto`; set it explicitly if the host page owns touch behavior. `pinchZoom.resetBelowFit` defaults `true`, so shrinking back to fit exits zoom and recenters. `doubleTapZoom.interval` / `distance` define the second-tap window. `wheelZoom.reverse` flips wheel direction; `wheelZoom.exitGuardDuration` defaults to `1000`, so wheel zooming out to `minScale` exits zoom immediately and blocks residual wheel events for that duration. `gesture=false` disables all gestures, and per-child overrides such as `gesture={{ swipe: false }}` / `gesture={{ wheelZoom: false }}` / `gesture={{ pinchZoom: false }}` keep the other preset defaults intact |
-| Interface | `hideOnScroll`, `hideOnDblClick`, `coverVisible`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `loadingDelay` | desktop-only flags noted in README. `radius` defaults to desktop `8` / mobile `0`; `edge` defaults to desktop `16` / mobile `0`. `hideOnScroll` and `hideOnDblClick` are the auto-dismiss trigger family (user action → close viewer); `hideOnDblClick` defaults `false`. `loadingDelay` defaults `200ms` — anti-flicker delay before showing the loading indicator (set 0 for legacy instant-show) |
+| Interface | `hideOnScroll`, `hideOnDblClick`, `coverVisible`, `backdrop`, `zIndex`, `portalTarget`, `radius`, `edge`, `loop`, `loadingDelay` | desktop-only flags noted in README. `portalTarget` defaults to `document.body` and is for app overlay roots / modal roots / micro-frontend containers; it changes only the Portal mount parent, while the viewer remains fullscreen fixed. `radius` defaults to desktop `8` / mobile `0`; `edge` defaults to desktop `16` / mobile `0`. `hideOnScroll` and `hideOnDblClick` are the auto-dismiss trigger family (user action → close viewer); `hideOnDblClick` defaults `false`. `loadingDelay` defaults `200ms` — anti-flicker delay before showing the loading indicator (set 0 for legacy instant-show) |
 | Lifecycle | `onBrowsing`, `onZooming`, `onSwitching`, `onRotating`, `onError` | first 4 callback args: `boolean`/`boolean`/`number`/`number`. `onError(e: SyntheticEvent<HTMLImageElement>)` fires for cover **or** viewer img-load failure — the only hook for the viewer-side failure (cover also flows via native `<img>` `onError` passthrough) |
 | Native | All `HTMLAttributes<HTMLImageElement>` | className, style, onClick, etc. transparently forwarded to inner `<img>` |
 
@@ -1129,7 +1153,7 @@ Defaults & sub-shapes: see [`packages/core/src/types/default.ts`](./packages/cor
 2. **Hard-coding `preset='desktop'` on a touch-targeted page** — omitted `preset` already defaults to `'auto'`. The desktop bundle ships hotkeys + arrow buttons, enables wheel zoom while zoomed, and disables mobile `gesture.swipe` / `gesture.dragExit` / `gesture.pinchZoom` / `gesture.doubleTapZoom`. Use `'desktop'` only when the page deliberately wants desktop behavior on touch devices.
 3. **Treating `Zmage` as a class** — it is a `forwardRef` exotic component. ❌ `new Zmage()`. ✅ JSX or `Zmage.browsing()`.
 4. **Mixing controlled and uncontrolled** — if `browsing` is in props, it must be a fully controlled `boolean` (provide `onBrowsing` to receive changes). Mixing both modes silently breaks state sync.
-5. **Calling `Zmage.browsing` server-side** — it manipulates `document.body`. Guard with `typeof window !== 'undefined'` or call from event handlers / effects.
+5. **Calling `Zmage.browsing` server-side** — it manipulates the DOM (`document.body` by default, or `portalTarget` when provided). Guard with `typeof window !== 'undefined'` or call from event handlers / effects.
 6. **Putting `src` / `alt` on `<Zmage.Wrapper>` as if it rendered an image** — Wrapper binds real descendant `<img>` nodes. Put image data in the HTML, and pass only viewer config / optional shared `set` to Wrapper.
 7. **Wrapping with `Zmage.Wrapper` without re-rendering** — wrapper attaches click handlers in `componentDidMount` / `componentDidUpdate` by querying `wrapperRef.current.querySelectorAll('img')`. Dynamically-injected `<img>` (after wrapper update) won't get attached unless wrapper re-renders.
 

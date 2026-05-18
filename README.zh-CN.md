@@ -113,7 +113,7 @@ function Trigger() {
 包裹器模式下的参数范围：
 
 - `src` / `alt` 应放在子级 `<img>` 上。顶层 `src` / `alt` 会被点击的 DOM 节点覆盖。
-- 查看器配置仍然写在 `<Zmage.Wrapper>` 上：`preset`、`controller`、`hotKey`、`animate`、`gesture`、`backdrop`、`zIndex`、`radius`、`edge`、`loop`、`coverVisible`、`hideOnScroll`、`hideOnDblClick`、`loadingDelay` 和生命周期回调。
+- 查看器配置仍然写在 `<Zmage.Wrapper>` 上：`preset`、`controller`、`hotKey`、`animate`、`gesture`、`backdrop`、`zIndex`、`portalTarget`、`radius`、`edge`、`loop`、`coverVisible`、`hideOnScroll`、`hideOnDblClick`、`loadingDelay` 和生命周期回调。
 - 需要让包裹区内图片作为共享图库时传 `set`。若被点击图片的 `src` 出现在 `set` 中，Wrapper 会打开匹配索引；`defaultPage` 只作为兜底。
 - 不传 `set` 时，被点击图片按单图打开。`data-zmage-caption` 或最近的 `figcaption` 可作为查看器 caption。
 - 受控态 `browsing` 属于组件模式，不能控制 `<Zmage.Wrapper>`。
@@ -372,7 +372,7 @@ interface ControllerRenderSlots {
 | `flip` | ✅ | — |
 | `placement` | `top-right` | `top-right` |
 | `radius` | `8` | `0` |
-| `edge` | `30` | `0` |
+| `edge` | `16` | `0` |
 | `controller.layout.pagination.inset` | `24` | — |
 | `controller.layout.caption.inset` | `60` | — |
 | `gesture.swipe` | — | ✅ |
@@ -498,10 +498,30 @@ interface GestureDoubleTapZoomOptions {
 | `coverVisible` | `boolean` | `false` | 放大期间是否保留封面图（默认会隐藏避免动画穿帮）。 |
 | `backdrop` | `string` | `'#FFFFFF'` | 查看器背景色，接受任何合法 CSS color / gradient。**默认白色** —— 深色站点请显式覆盖（例如 `'#111'`）。 |
 | `zIndex` | `number` | `1000` | Portal 容器的 `z-index`。 |
+| `portalTarget` | `HTMLElement \| null` | `document.body` | 查看器 Portal 的自定义挂载目标。适合已有 overlay root、modal root、shadow host 或微前端容器的宿主应用。它只改变挂载父节点，查看器仍然使用 fixed 全屏布局。 |
 | `radius` | `number` | desktop `8`，mobile `0` | 查看模式下图片圆角 (px)。 |
-| `edge` | `number` | desktop `30`，mobile `0` | 图片距屏幕边缘的留白 (px)。 |
+| `edge` | `number` | desktop `16`，mobile `0` | 图片距屏幕边缘的留白 (px)。 |
 | `loop` | `boolean` | `true` | 多图模式：尾页是否循环回首页。 |
 | `loadingDelay` | `number` | `200` | Loading 指示器显示前的延迟 (ms)。在此期间内图片加载完成则不显示 loading，避免快速切换缓存图时的视觉闪烁。默认 200ms (业界 react-loadable 经典值)；设为 0 = 立即显示 (旧行为)。 |
+
+`portalTarget` 用于宿主应用已经有统一弹层容器的场景。它不会把查看器裁剪成容器内的局部预览；需要调整遮罩层级时继续使用 `zIndex` 和宿主应用自己的层级规则。
+
+```tsx
+import { useState } from 'react'
+import Zmage from 'react-zmage'
+import 'react-zmage/style.css'
+
+export function ArticleImage () {
+  const [viewerRoot, setViewerRoot] = useState<HTMLElement | null>(null)
+
+  return (
+    <section className="article-shell">
+      <div id="article-viewer-root" ref={setViewerRoot} />
+      <Zmage src="/photo.jpg" alt="文章图片" portalTarget={viewerRoot} />
+    </section>
+  )
+}
+```
 
 ### 生命周期
 
@@ -530,7 +550,7 @@ export type BaseType =
   & BaseParams                    // src / alt / caption / set / defaultPage
   & PresetParams                  // preset
   & FunctionalParams              // controller / hotKey / animate / gesture
-  & InterfaceAndInteractionParams // hideOnScroll / hideOnDblClick / coverVisible / backdrop / zIndex / radius / edge / loop / loadingDelay
+  & InterfaceAndInteractionParams // hideOnScroll / hideOnDblClick / coverVisible / backdrop / zIndex / portalTarget / radius / edge / loop / loadingDelay
   & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating / onError
   & ControlledParams              // browsing
   & HTMLAttributes<HTMLImageElement>

@@ -9,7 +9,7 @@ import ReactDOM from 'react-dom'
 
 type Props = {
   id?: string
-  target?: HTMLElement
+  target?: HTMLElement | null
   zIndex?: number
   className?: string
   style?: CSSProperties

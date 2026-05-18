@@ -105,7 +105,10 @@ export function detectActivePreset (values: Record<string, any>): DataPreset['id
 
 export function getInitialValues (): Record<string, any> {
   const v: Record<string, any> = {}
-  for (const def of PARAM_SCHEMA) v[def.name] = def.default
+  for (const def of PARAM_SCHEMA) {
+    if (def.docsOnly) continue
+    v[def.name] = def.default
+  }
   applyPresetDrivenDefaults(v)
   Object.assign(v, PLAYGROUND_SEED)
   applySiteSlowMotionDefault(v)
@@ -154,6 +157,7 @@ export function buildLibProps (
 ): Record<string, any> {
   const out: Record<string, any> = {}
   for (const def of PARAM_SCHEMA) {
+    if (def.docsOnly) continue
     const v = values[def.name]
     if (def.required) { out[def.name] = v ?? ''; continue }
     if (v === undefined) continue
@@ -172,6 +176,7 @@ export function diffFromInitial (values: Record<string, any>): Record<string, an
   const initial = getInitialValues()
   const out: Record<string, any> = {}
   for (const def of PARAM_SCHEMA) {
+    if (def.docsOnly) continue
     const k = def.name
     const v = values[k]
     if (v === undefined) continue

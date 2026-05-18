@@ -377,6 +377,8 @@ export interface InterfaceAndInteractionParams {
   // 缓存图时的视觉闪烁. 默认 200 (业界 react-loadable 的经典值; UX 研究"顺滑"上限).
   // 设为 0 = 立即显示 (旧行为). 内部命中 fast-path (img.complete 已就绪) 时直接绕过此延迟.
   loadingDelay?: number
+  // 浏览层 Portal 挂载目标元素 (默认 document.body). 用于接入宿主 overlay root / modal root; 只改变 DOM 父节点, 不改变 fixed 全屏布局.
+  portalTarget?: HTMLElement | null
 }
 
 /**
