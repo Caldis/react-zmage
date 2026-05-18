@@ -123,7 +123,7 @@ function propGuidance (config: AiPromptConfig) {
     '- Prefer omitted `preset` or `preset="auto"` unless project evidence requires a fixed desktop or mobile setup.',
     '- Keep optional behavior and UI props at their defaults unless the user asks for them or testing exposes a concrete issue.',
     '- You may set the top-level `backdrop` to match the host page background color when the default white viewer would clash.',
-    '- Do not set `controller`, `controller.layout`, `edge`, `zIndex`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` during a basic install unless the selected setup or user request specifically requires them.',
+    '- Do not set `controller`, `controller.layout`, `edge`, `zIndex`, `portalTarget`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` during a basic install unless the selected setup or user request specifically requires them.',
     '- Only configure `controller.color` or `controller.backdrop` when the user asks for controller styling or when controls are visibly illegible after testing.',
   ]
 

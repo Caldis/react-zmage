@@ -246,6 +246,39 @@ function WrapperScopeDetail () {
   )
 }
 
+function PortalTargetDetail () {
+  const { t } = useT()
+  return (
+    <div className="my-6 space-y-3 rounded-lg border border-border bg-muted/20 p-4 text-sm">
+      <div>
+        <h4 className="font-medium">{t('docs.section.props.portalTarget.title')}</h4>
+        <p className="mt-2 text-muted-foreground">{t('docs.section.props.portalTarget.body')}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{t('docs.section.props.portalTarget.boundary')}</p>
+      </div>
+      <CodeBlock code={`import { useState } from 'react'
+import Zmage from 'react-zmage'
+import 'react-zmage/style.css'
+
+export function ArticleImage () {
+  const [viewerRoot, setViewerRoot] = useState<HTMLElement | null>(null)
+
+  return (
+    <section className="article-shell">
+      <div id="article-viewer-root" ref={setViewerRoot} />
+
+      <Zmage
+        src="/photo.jpg"
+        alt="Article photo"
+        portalTarget={viewerRoot}
+        zIndex={1200}
+      />
+    </section>
+  )
+}`} language={'tsx' as any} />
+    </div>
+  )
+}
+
 function TypeCaption ({ name }: { name: string }) {
   return (
     <div className="border-b border-border px-4 py-2 font-mono text-xs text-muted-foreground">
@@ -505,6 +538,7 @@ export function Props () {
       <PresetDetail />
       <Heading id="props-interface" level={3}>{t('docs.section.props.interface')}</Heading>
       <ParamTable group="interface" />
+      <PortalTargetDetail />
       <Heading id="props-controller" level={3}>{t('group.controller')}</Heading>
       <ParamTable group="controller" />
       <ControllerDetail />

@@ -48,7 +48,7 @@ type Props = {
   onChange: (name: string, value: any) => void
 }
 
-function renderControl (def: ParamDef, value: any, onChange: (v: any) => void) {
+function renderControl (def: ParamDef, value: any, onChange: (v: any) => void, t: (key: I18nKey) => string) {
   const c = def.control
   if (c.kind === 'object') {
     if (c.component === 'controller') return <ControllerControl value={value} onChange={onChange} />
@@ -59,6 +59,13 @@ function renderControl (def: ParamDef, value: any, onChange: (v: any) => void) {
   }
   if (c.kind === 'callback') {
     return <CallbackControl events={c.events} value={value} onChange={onChange} />
+  }
+  if (c.kind === 'readonly') {
+    return (
+      <div className="rounded-md border border-dashed border-border bg-muted/20 px-2.5 py-2 text-xs leading-relaxed text-muted-foreground">
+        {t(def.i18n.descKey)}
+      </div>
+    )
   }
   return <ScalarControl def={def} value={value} onChange={onChange} />
 }
@@ -121,7 +128,7 @@ export function ParamPanel ({ values, onChange }: Props) {
                       </Tooltip>
                       {def.presetScope && <PresetScopeBadge scope={def.presetScope} />}
                     </div>
-                    <div>{renderControl(def, values[def.name], (v) => onChange(def.name, v))}</div>
+                    <div>{renderControl(def, values[def.name], (v) => onChange(def.name, v), t)}</div>
                   </div>
                 ))}
               </AccordionContent>

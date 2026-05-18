@@ -16,7 +16,7 @@ const VALID_PROPS = new Set([
   'src', 'alt', 'caption', 'set', 'defaultPage',
   'preset',
   'controller', 'hotKey', 'animate', 'gesture',
-  'hideOnScroll', 'hideOnDblClick', 'coverVisible', 'backdrop', 'zIndex', 'radius', 'edge', 'loop', 'loadingDelay',
+  'hideOnScroll', 'hideOnDblClick', 'coverVisible', 'backdrop', 'zIndex', 'portalTarget', 'radius', 'edge', 'loop', 'loadingDelay',
   'onBrowsing', 'onZooming', 'onSwitching', 'onRotating', 'onError',
   'browsing',
   'className', 'style', 'id', 'onClick', 'onLoad', 'title', 'role',

@@ -22,8 +22,9 @@ export function decodeStateFromHash (hash: string): Record<string, any> {
   if (!q) return out
   const params = new URLSearchParams(q)
   for (const [k, raw] of params) {
+    const def = PARAM_SCHEMA.find(d => d.name === k)
+    if (!def || def.docsOnly) continue
     if (raw === '__log__') {
-      const def = PARAM_SCHEMA.find(d => d.name === k)
       if (def?.control.kind === 'callback') {
         const fn: any = (...args: any[]) => {
           window.dispatchEvent(new CustomEvent('zmage-pg-event', { detail: { name: k, args } }))

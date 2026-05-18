@@ -113,7 +113,7 @@ The wrapper queries `<img>` descendants in `componentDidMount` / `componentDidUp
 Wrapper-specific prop scope:
 
 - Put `src` / `alt` on the child `<img>` nodes. Top-level `src` / `alt` are overwritten by the clicked DOM node.
-- Viewer configuration still belongs on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `gesture`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, and lifecycle callbacks.
+- Viewer configuration still belongs on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `gesture`, `backdrop`, `zIndex`, `portalTarget`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, and lifecycle callbacks.
 - Pass `set` when the wrapped subtree should behave as one shared gallery. If the clicked image's `src` appears in `set`, Wrapper opens that matching index; `defaultPage` is only the fallback.
 - Without `set`, the clicked image opens as a single image. `data-zmage-caption` or the nearest `figcaption` can provide the viewer caption.
 - The controlled `browsing` prop is for component mode; it does not control `<Zmage.Wrapper>`.
@@ -537,10 +537,30 @@ Wheel zoom is active only while the viewer is already in zoom mode; normal brows
 | `coverVisible` | `boolean` | `false` | Keep the cover `<img>` visible while the modal is open. |
 | `backdrop` | `string` | `'#FFFFFF'` | Viewer backdrop. Any valid CSS color or gradient. **Default is white** — override (`'#111'`, etc.) for dark UIs. |
 | `zIndex` | `number` | `1000` | Portal stacking. |
+| `portalTarget` | `HTMLElement \| null` | `document.body` | Custom DOM element for mounting the viewer Portal. Use it when an app has a dedicated overlay root, modal root, shadow host, or micro-frontend container. It changes the mount parent only; the viewer still uses fullscreen fixed positioning. |
 | `radius` | `number` | desktop `8`, mobile `0` | Image corner radius (px). |
 | `edge` | `number` | desktop `16`, mobile `0` | Minimum margin between image and viewport (px). |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
 | `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
+
+`portalTarget` is for host apps that already centralize overlays outside the normal content tree. It does not make a local, clipped preview; use `zIndex` and your app shell's stacking rules to control how the fullscreen viewer sits above other UI.
+
+```tsx
+import { useState } from 'react'
+import Zmage from 'react-zmage'
+import 'react-zmage/style.css'
+
+export function ArticleImage () {
+  const [viewerRoot, setViewerRoot] = useState<HTMLElement | null>(null)
+
+  return (
+    <section className="article-shell">
+      <div id="article-viewer-root" ref={setViewerRoot} />
+      <Zmage src="/photo.jpg" alt="Article photo" portalTarget={viewerRoot} />
+    </section>
+  )
+}
+```
 
 ### Lifecycle
 
@@ -569,7 +589,7 @@ export type BaseType =
   & BaseParams                    // src / alt / caption / set / defaultPage
   & PresetParams                  // preset
   & FunctionalParams              // controller / hotKey / animate / gesture
-  & InterfaceAndInteractionParams // hideOnScroll / hideOnDblClick / coverVisible / backdrop / zIndex / radius / edge / loop / loadingDelay
+  & InterfaceAndInteractionParams // hideOnScroll / hideOnDblClick / coverVisible / backdrop / zIndex / portalTarget / radius / edge / loop / loadingDelay
   & LifeCycleParams               // onBrowsing / onZooming / onSwitching / onRotating / onError
   & ControlledParams              // browsing
   & HTMLAttributes<HTMLImageElement>

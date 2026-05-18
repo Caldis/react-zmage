@@ -25,6 +25,7 @@ function inferType (def: typeof PARAM_SCHEMA[number]): string {
       return def.control.component === 'set' ? `${name}[]` : `${name} | boolean`
     }
     case 'callback': return '(arg) => void'
+    case 'readonly': return def.control.type
   }
 }
 
@@ -60,7 +61,7 @@ export function ParamTable ({ group }: { group: ParamGroup }) {
                 {d.presetScope && <PresetScopeBadge scope={d.presetScope} className="ml-1.5" />}
               </td>
               <td className="px-4 py-2.5 align-top font-mono text-xs text-muted-foreground">{inferType(d)}</td>
-              <td className="px-4 py-2.5 align-top font-mono text-xs">{fmtDefault(d.default)}</td>
+              <td className="px-4 py-2.5 align-top font-mono text-xs">{d.defaultDisplay ?? fmtDefault(d.default)}</td>
               <td className="px-4 py-2.5 align-top text-muted-foreground">{t(d.i18n.descKey)}</td>
             </tr>
           ))}

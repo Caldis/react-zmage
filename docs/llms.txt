@@ -109,7 +109,7 @@ When integrating react-zmage into an existing site, keep the integration minimal
 
 - For existing image lists or rich content, use `Zmage.Wrapper` with `set` so clicked images open at the matching gallery index.
 - You may set the top-level `backdrop` to match the host page background color.
-- Do not set optional behavior, `controller`, `controller.layout`, `edge`, `zIndex`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` props unless the user explicitly asks.
+- Do not set optional behavior, `controller`, `controller.layout`, `edge`, `zIndex`, `portalTarget`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` props unless the user explicitly asks.
 - Only configure `controller.color` or `controller.backdrop` when the user asks for controller styling or when icons are visibly illegible after testing. Do not preemptively customize controller layout or placement.
 
 ### Expected deliverables
@@ -190,6 +190,7 @@ const [open, setOpen] = useState(false)
 | `hideOnDblClick` | `boolean` | `false` | Auto-close on image double-click. Off by default to preserve current single-click semantics; turn on to dismiss with a double-click. |
 | `coverVisible` | `boolean` | `false` | Keep the underlying `<img>` visible while the modal is open. |
 | `zIndex` / `radius` / `edge` | `number` | `1000` / desktop `8`, mobile `0` / desktop `16`, mobile `0` | Modal stacking, image corner radius, viewport padding. |
+| `portalTarget` | `HTMLElement \| null` | `document.body` | Custom DOM element for mounting the viewer Portal. Use it when an app has a dedicated overlay root, modal root, shadow host, or micro-frontend container. It changes the mount parent only; the viewer still uses fullscreen fixed positioning and is not clipped into a local preview. |
 | `loop` | `boolean` | `true` | Wrap-around when paging past the ends. |
 | `loadingDelay` | `number` | `200` | Delay (ms) before showing the loading indicator. If the image loads within this window, the indicator never appears — prevents the flash on cached page changes. Set 0 for legacy instant-show. |
 | `onBrowsing` | `(isBrowsing: boolean) => void` | — | Fires on open/close. |
@@ -200,6 +201,8 @@ const [open, setOpen] = useState(false)
 | `browsing` | `boolean` | — | **Controlled-mode prop**, distinct from the static method `Zmage.browsing()`. Pair with `onBrowsing` to drive open state from outside. Does not control `<Zmage.Wrapper>`. |
 
 Standard `<img>` HTML attributes (`className`, `style`, `width`, `height`, `loading`, `id`, etc.) pass through to the cover image.
+
+`portalTarget` is an advanced integration prop, not a normal visual tweak. Use it only when the host app already has an overlay root, modal root, shadow host, or micro-frontend shell container that should own Portal children. It does not replace `zIndex` and does not make the fullscreen viewer local to that container.
 
 Controller render example:
 
@@ -240,7 +243,7 @@ Controller render example:
 
 Wrapper mode prop scope:
 - Put `src` / `alt` on child `<img>` nodes; top-level `src` / `alt` are overridden by the clicked DOM node.
-- Pass viewer behavior and visuals on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `gesture`, `backdrop`, `zIndex`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, plus lifecycle callbacks.
+- Pass viewer behavior and visuals on `<Zmage.Wrapper>`: `preset`, `controller`, `hotKey`, `animate`, `gesture`, `backdrop`, `zIndex`, `portalTarget`, `radius`, `edge`, `loop`, `coverVisible`, `hideOnScroll`, `hideOnDblClick`, `loadingDelay`, plus lifecycle callbacks.
 - Pass `set` when the wrapped subtree should be one shared gallery. If clicked `img.src` matches `set[i].src`, Wrapper opens `i`; otherwise it falls back to `defaultPage`.
 - Without `set`, the clicked image opens alone. `data-zmage-caption` or the nearest `figcaption` can provide the viewer caption.
 - `browsing` is component-controlled state and does not control Wrapper.
@@ -299,7 +302,8 @@ The library is theme-agnostic by design — there's no theme provider, no light/
 4. Putting `src` / `alt` on `<Zmage.Wrapper>` and expecting them to render images — Wrapper reads actual descendant `<img>` nodes instead.
 5. Calling `Zmage.browsing()` in code that may run server-side — guard with `typeof window !== 'undefined'`, or import from `react-zmage/ssr`.
 6. Leaving `backdrop` at the default `#FFFFFF` on a dark-themed page — the modal may clash with the host page. Set the top-level `backdrop` explicitly if your host UI isn't light.
-7. Preemptively setting `controller`, `controller.layout`, `edge`, `zIndex`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` during a basic install — keep these defaults unless the user asks or testing exposes a concrete issue.
+7. Preemptively setting `controller`, `controller.layout`, `edge`, `zIndex`, `portalTarget`, `animate`, `gesture`, `hotKey`, `radius`, `loop`, `coverVisible`, `hideOnScroll`, or `hideOnDblClick` during a basic install — keep these defaults unless the user asks or testing exposes a concrete issue.
+8. Treating `portalTarget` as a clipping or local-preview boundary — it only changes the Portal mount parent. The viewer still uses fullscreen fixed positioning.
 
 ## Optional
 
