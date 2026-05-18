@@ -6,7 +6,7 @@
   "package": {
     "ecosystem": "npm",
     "name": "react-zmage",
-    "version": "1.8.4",
+    "version": "1.9.0",
     "install": "npm install react-zmage",
     "style_import": "react-zmage/style.css",
     "ssr_entry": "react-zmage/ssr"

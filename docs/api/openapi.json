@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "react-zmage documentation metadata",
-    "version": "1.8.4",
+    "version": "1.9.0",
     "summary": "Read-only static documentation endpoints for the react-zmage React image viewer package.",
     "description": "This OpenAPI document describes zmage.caldis.me documentation resources. It is not a hosted product API for manipulating images or accounts. No OAuth or API key is required.",
     "license": {

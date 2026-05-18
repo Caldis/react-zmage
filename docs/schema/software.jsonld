@@ -9,7 +9,7 @@
   "programmingLanguage": "TypeScript",
   "runtimePlatform": "React 16.8 through 19",
   "license": "https://opensource.org/licenses/MIT",
-  "softwareVersion": "1.8.4",
+  "softwareVersion": "1.9.0",
   "sameAs": [
     "https://github.com/Caldis/react-zmage",
     "https://www.npmjs.com/package/react-zmage"

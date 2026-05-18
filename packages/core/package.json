@@ -1,6 +1,6 @@
 {
   "name": "react-zmage",
-  "version": "1.8.4",
+  "version": "1.9.0",
   "description": "Origin-expand fullscreen React image viewer for img elements, galleries, rich text, and SSR/RSC apps",
   "keywords": [
     "react",

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.9.0
+
+- **feat (`portalTarget`)**: added `portalTarget?: HTMLElement | null` so consumers can mount the fullscreen viewer Portal into a host-owned overlay root, modal root, shadow host, or micro-frontend container. The prop only changes the Portal's DOM parent; the viewer still uses fixed fullscreen positioning, and `zIndex` remains the way to control stacking.
+- **docs / demo**: synchronized README, zh-CN README, AGENTS, docs/llms.txt, home prop tables, playground scenarios, and llms-eval coverage so the public API and real integration examples describe when `portalTarget` should be used.
+
 ## 1.8.4
 
 - **fix (browsing flicker)**: side-image preloading now waits until the initial browsing-in transition has settled. The flicker was not caused by a single image asset alone: on pages with large images or multiple gallery images, adjacent side images could start decoding, laying out, and entering the compositor while the center image was still animating cover geometry (`object-fit`, clip, radius, and transform). That extra work was most visible in the last frames of browsing-in or during viewport resize. Flip controls now stay disabled until the required adjacent image has loaded, preserving flip behavior while reducing first-open rendering pressure.

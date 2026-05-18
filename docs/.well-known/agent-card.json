@@ -6,7 +6,7 @@
     "organization": "Caldis",
     "url": "https://github.com/Caldis"
   },
-  "version": "1.8.4",
+  "version": "1.9.0",
   "protocolVersion": "0.3",
   "capabilities": {
     "streaming": false,
