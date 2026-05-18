@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils'
 import { ParamPanel } from '@/playground/ParamPanel'
 import { CodeSnippet, type Mode as PlaygroundMode } from '@/playground/CodeSnippet'
 import { EventLog } from '@/playground/EventLog'
-import { PortalTargetScenario } from '@/playground/PortalTargetScenario'
 import { SlidingPill } from '@/components/ui/SlidingPill'
 import { encodeStateToHash, decodeStateFromHash } from '@/playground/shareState'
 import { applyPresetDrivenDefaults, applySiteSlowMotionDefault, getInitialValues } from '@/playground/state'
@@ -131,8 +130,7 @@ export default function Playground () {
             <ParamPanel values={values} onChange={onChange} />
           </div>
         </aside>
-        <section className="grid min-h-0 gap-4 lg:grid-rows-[auto_minmax(0,1fr)_auto]">
-          <PortalTargetScenario />
+        <section className="grid min-h-0 gap-4 lg:grid-rows-[minmax(0,1fr)_auto]">
           <div className="min-h-0">
             <Routes>
               <Route index element={<ComponentMode values={values} />} />

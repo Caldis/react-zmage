@@ -207,10 +207,6 @@ export const zhCN = {
   'pg.code.hideDefaults': '隐藏默认值',
   'pg.copy': '复制',
   'pg.copied': '已复制',
-  'pg.portalTarget.title': '自定义 Portal 挂载点',
-  'pg.portalTarget.body': '适合已有 overlay root、modal root 或微前端容器的应用。点击右侧图片时,查看器会挂到这个 root 下,而不是默认 document.body。',
-  'pg.portalTarget.root': '宿主应用的 overlay root',
-  'pg.portalTarget.imageAlt': 'Portal 挂载点演示图片',
 
   // Group labels
   'group.data': '数据',
@@ -409,8 +405,6 @@ export const zhCN = {
   'param.backdrop.desc': '查看器背景颜色,任意有效 CSS 颜色字符串。',
   'param.zIndex.label': 'zIndex',
   'param.zIndex.desc': '查看器层级。',
-  'param.portalTarget.label': 'portalTarget',
-  'param.portalTarget.desc': '查看器 Portal 的 DOM 挂载目标,默认 document.body。用于宿主应用已有 overlay root、modal root 或微前端容器的场景;它只改变挂载父节点,查看器仍是 fixed 全屏布局。',
   'param.radius.label': 'radius',
   'param.radius.desc': '图片圆角,单位 px。',
   'param.edge.label': 'edge',

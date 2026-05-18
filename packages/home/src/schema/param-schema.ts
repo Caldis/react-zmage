@@ -149,8 +149,6 @@ export const PARAM_SCHEMA: ParamDef[] = [
     i18n: { labelKey: 'param.backdrop.label', descKey: 'param.backdrop.desc' } },
   { name: 'zIndex', group: 'interface', default: defProp.zIndex, control: { kind: 'number' },
     i18n: { labelKey: 'param.zIndex.label', descKey: 'param.zIndex.desc' } },
-  { name: 'portalTarget', group: 'interface', default: undefined, defaultDisplay: 'document.body', docsOnly: true, control: { kind: 'readonly', type: 'HTMLElement | null' },
-    i18n: { labelKey: 'param.portalTarget.label', descKey: 'param.portalTarget.desc' } },
   { name: 'radius', group: 'interface', default: defaultPresetValues.radius, control: { kind: 'slider', min: 0, max: 32, step: 1 },
     i18n: { labelKey: 'param.radius.label', descKey: 'param.radius.desc' } },
   { name: 'edge', group: 'interface', default: defaultPresetValues.edge, control: { kind: 'slider', min: 0, max: 64, step: 1 },
